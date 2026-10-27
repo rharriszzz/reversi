@@ -1,7 +1,8 @@
 // Negamax with alpha-beta pruning, transposition table and ordered moves.
 // The root explicitly scores EVERY legal move with a full search window.
 import { counts, coord, legalMoves, play } from './rules.js';
-import { evaluate, evaluateDetailed, DEFAULT_WEIGHTS } from './features.js';
+import { evaluateDetailed, DEFAULT_WEIGHTS } from './features.js';
+import { evaluateFast } from './fast-features.js';
 
 const INF = 1e9;
 const CORNERS = new Set([0, 7, 56, 63]);
@@ -59,7 +60,9 @@ function negamax(board, player, depth, alpha, beta, ctx) {
   if (depth <= 0) {
     ctx.horizonHits++;
     ctx.evaluations++;
-    return ctx.evaluate(board, player, ctx.weights);
+    // The evaluator may reuse this already generated mobility count. Reference
+    // evaluators ignore the optional fourth argument and retain identical math.
+    return ctx.evaluate(board, player, ctx.weights, moves.length);
   }
 
   let best = -INF, bestMove = null;
@@ -113,7 +116,7 @@ function checkDepth(depth) {
   if (!Number.isInteger(depth) || depth < 1 || depth > 14) throw new Error('Depth must be 1..14');
 }
 
-function context(weights, evaluator = evaluate, now = () => performance.now(), deadline = null) {
+function context(weights, evaluator = evaluateFast, now = () => performance.now(), deadline = null) {
   return { nodes: 0, evaluations: 0, horizonHits: 0, table: new Map(), tableLimit: 150000,
     weights, evaluate: evaluator, now, deadline };
 }
@@ -178,7 +181,7 @@ export function findBestMove(board, player, depth = 3, weights = DEFAULT_WEIGHTS
   }
   const now = options.now ?? (() => performance.now()), start = now();
   const timed = options.timeMs !== undefined;
-  const ctx = context(weights, options.evaluate ?? evaluate, now, timed ? start + options.timeMs : null);
+  const ctx = context(weights, options.evaluate ?? evaluateFast, now, timed ? start + options.timeMs : null);
   let result = { move: orderMoves(board, legalMoves(board, player))[0] ?? null,
     score: null, exact: false, depth: 0 };
   let timedOut = false;

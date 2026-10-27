@@ -139,4 +139,8 @@ The experiment compares weight mutation and a separate linear TD(0) prototype wi
 
 ## Next development steps
 
-See `CODEX_PROMPT.md` for the current plan and completed milestone history. The next bounded experiment is development-only calibration of the stable-edge weight, followed by a fresh paired time-budget holdout. Mac hardware acceptance remains outstanding. Empty-region parity and combined features remain later experiments.
+The current follow-up compares **A: original**, **B: mathematically identical but faster**, and **C: a development-selected stable-edge weight**. The baseline function and weights remain unchanged in `src/features.js`. Search now defaults to `evaluateFast` from `src/fast-features.js`: it fuses mobility/frontier/potential-mobility scanning, avoids temporary flip arrays and contribution objects, and reuses the legal-move count already computed at a search leaf. Coaching keeps the same full-window scores, verified lines and original immediate feature breakdowns. The original evaluator is still selectable through the search's `evaluate` option.
+
+See [EVALUATOR_COMPARISON.md](docs/EVALUATOR_COMPARISON.md) for new datasets, tuning, expanded 20/80 ms paired trials, uncertainty, measured costs and a quality-versus-cost graph. C remains experimental; no stable-edge weight or pattern table is installed as the default. Runtime still needs only Python and a browser; plot generation is optional developer tooling.
+
+See `CODEX_PROMPT.md` for the current plan and completed milestone history. The next performance experiment is allocation-light move generation. For positional knowledge, test phase-dependent stable-edge weights before fitting pattern tables, using newly reserved datasets. Mac hardware acceptance remains outstanding. Empty-region parity and combined features remain later experiments.

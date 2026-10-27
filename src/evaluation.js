@@ -2,6 +2,7 @@
 // defaults remain in features.js; no extra feature is required by saved models.
 import { counts } from './rules.js';
 import { DEFAULT_WEIGHTS, FEATURE_NAMES, extractFeatures, evaluate } from './features.js';
+import { evaluateFast } from './fast-features.js';
 
 const KEYS = Object.keys(FEATURE_NAMES);
 const EDGES = [[0, 1], [0, 8], [7, -1], [7, 8], [56, 1], [56, -8], [63, -1], [63, -8]];
@@ -47,6 +48,14 @@ export function makeEvaluator({ stableEdgeWeight = 0, smooth = false } = {}) {
     } else score = evaluate(board, player, weights);
     return stableEdgeWeight ? score + stableEdgeWeight * stableEdgeFeature(board, player) : score;
   };
+}
+
+// Knowledge experiment on the SAME fast implementation as strategy B, so the
+// C-vs-B comparison isolates stable-edge knowledge and its incremental cost.
+export function makeFastStableEvaluator(weight) {
+  if (!Number.isFinite(weight) || weight<0 || weight>250) throw new Error('Bad stable edge weight');
+  return (board,player,weights=DEFAULT_WEIGHTS,knownOwnMoves) =>
+    evaluateFast(board,player,weights,knownOwnMoves) + weight*stableEdgeFeature(board,player);
 }
 
 export const EVALUATORS = Object.freeze({

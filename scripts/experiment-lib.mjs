@@ -36,12 +36,12 @@ export function playExperimentGame(opening, black, white, budget, seed = 1) {
   return { winner: winner(board), counts: counts(board), stats };
 }
 
-export function pairedMatch(candidate, baseline, openings, budget, seed = 1) {
+export function pairedMatch(candidate, baseline, openings, budget, seed = 1, pairOffset = 0) {
   const games = [], pairPoints = [];
   let wins = 0, draws = 0, losses = 0;
   for (const [index, opening] of openings.entries()) {
     let points = 0;
-    for (const color of index % 2 ? [-1, 1] : [1, -1]) {
+    for (const color of (index + pairOffset) % 2 ? [-1, 1] : [1, -1]) {
       const match = playExperimentGame(opening, color === 1 ? candidate : baseline,
         color === -1 ? candidate : baseline, budget, seed + index);
       const result = match.winner * color;

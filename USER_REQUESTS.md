@@ -100,3 +100,130 @@ If the results are disappointing, document the failure rather than prematurely i
 Keep the application compatible with Windows 11 WSL2 and macOS. Run the relevant tests, update the documentation, and commit and push verified changes.
 
 At the end, explain what was improved, what was learned, and which experiment you recommend next.
+
+---
+
+Please continue work on `rharriszzz/reversi`, starting from the current `main` branch.
+
+I have not yet personally reviewed your latest results, but ChatGPT has examined commit `4576ace` and `docs/EVALUATION_EXPERIMENTS.md`.
+
+The principal goal for this round is to **determine how evaluation quality, evaluation cost, and search depth interact to determine actual playing strength**.
+
+I suspect Reversi can be played competently without very sophisticated AI. I want to test that hypothesis rather than assume it is correct.
+
+### 1. Review what has already been learned
+
+Read `USER_REQUESTS.md`, `AGENTS.md`, and `docs/EVALUATION_EXPERIMENTS.md`.
+
+Retain the improvements already implemented, especially the separation between ordinary playing search and comprehensive coaching analysis.
+
+The previous experiment found:
+
+- Playing search became 1.59–2.81 times faster.
+- The original evaluator is substantially better than immediate-disc greedy play.
+- Stable edges showed some encouraging but statistically inconclusive results.
+- Smooth phase interpolation did not demonstrate an advantage.
+- More sophisticated evaluation was not consistently stronger under equal time budgets.
+
+Do not repeat those experiments unchanged. Build on them.
+
+### 2. Investigate three evaluator strategies
+
+**A. Baseline:** Preserve the existing positional evaluation function unchanged.
+
+**B. Faster baseline:** Investigate reducing the computational cost of the existing function without changing its mathematical result.
+
+In particular, profile repeated legal-move generation, mobility calculation, feature extraction, and allocation overhead. Consider caching, incremental updates, or bitboards, but implement only changes supported by measurements.
+
+The objective is to obtain more search depth per unit time while preserving the evaluator's accuracy.
+
+**C. Better evaluator:** Experiment with a modest increase in positional knowledge.
+
+Start with tuned stable-edge weights, since the previous results provide some reason to investigate them further.
+
+If appropriate, also investigate a small, phase-dependent pattern evaluator, initially restricted to corners and edges. Pattern tables could be learned from self-play or solved positions.
+
+Do not introduce large neural networks, Monte Carlo tree search, or complex external engines. Keep the evaluator inspectable.
+
+### 3. Measure evaluation quality independently
+
+Create a reproducible set of previously unseen positions covering different game phases.
+
+For sufficiently late positions, use independent exact endgame solutions to establish ground truth.
+
+For earlier positions, consider deeper reference searches or a strong independent Reversi engine as an optional testing oracle. Label such results as estimates rather than exact values.
+
+Evaluate how reliably each evaluator ranks alternative moves and how much game-theoretic value is lost by selecting inferior moves.
+
+Where appropriate, calculate prediction error or rank correlation, but account for differences in evaluation scales. Avoid treating arbitrary heuristic scores as final-disc margins without calibration.
+
+Keep development, selection, and final evaluation datasets separate.
+
+### 4. Measure playing strength at equal computational cost
+
+Use the existing time-budgeted iterative-deepening search.
+
+Compare candidates using paired games with colors reversed and the same openings.
+
+Test at least a short and a moderate time budget, such as 20 ms and 80 ms per move. Expand the previously tiny timed samples as far as practical, with a clearly stated total experiment time budget.
+
+Collect:
+
+- Game results and uncertainty intervals.
+- Median and distribution of completed search depths.
+- Total search nodes and actual static evaluations.
+- Evaluations per second and elapsed time per move.
+- Deadline overruns.
+- Any differences in move ordering or pruning that affect search size.
+
+Distinguish evaluation cost from changes in the number of nodes visited.
+
+Reserve new holdout seeds before selecting candidates. Do not reuse the previously published holdout results as fresh confirmation.
+
+### 5. Examine existing Reversi engineering methods
+
+Read the technical explanation at:
+
+https://www.egaroucid.nyanyan.dev/en/technology/explanation/
+
+Pay particular attention to the sections on pattern evaluation, differential feature calculation, the accuracy/speed tradeoff, bitboards, and inexpensive move-ordering evaluation.
+
+We are not trying to reproduce Egaroucid. Identify only a few techniques that might offer substantial benefits at modest implementation cost.
+
+For each technique, explain whether it is likely to improve evaluation quality, search efficiency, or both.
+
+### 6. Establish a clear decision rule
+
+A more complicated evaluator should not replace the original merely because it predicts some positions more accurately.
+
+The primary objective is stronger play at equal elapsed time. The secondary objectives are explainability, maintainability, and performance on both WSL2 and macOS.
+
+Show the empirical tradeoff, preferably using tables and a quality-versus-cost graph.
+
+If the fast evaluator allows sufficiently deeper search to outperform a better but slower evaluator, that is an important result.
+
+Likewise, if improved evaluation more than compensates for its computational cost, demonstrate that advantage experimentally.
+
+Retain multiple evaluation options if the evidence is inconclusive.
+
+### 7. Deliverables
+
+Update `docs/EVALUATION_EXPERIMENTS.md` with the new results. Add a separate Markdown document for the evaluator comparison if that improves clarity.
+
+Append my latest request verbatim to `USER_REQUESTS.md`, preserving its user-only format.
+
+Implement useful performance improvements and at least one appropriately bounded evaluation experiment. Do not spend the entire round on planning.
+
+Run automated correctness tests and search comparisons. Preserve the coaching interface, and maintain WSL2 and macOS compatibility.
+
+Commit and push verified changes.
+
+Finally, provide a concise summary answering:
+
+1. Which evaluator currently looks strongest at equal search depth?
+2. Which looks strongest at equal elapsed time?
+3. Which computations dominate evaluation cost?
+4. What is the most promising next optimization?
+5. Are we approaching a level of playing strength that would challenge a reasonably skilled human, or do we still lack sufficient evidence?
+
+Be explicit about inconclusive findings and any experiments that could not be completed within the available budget.

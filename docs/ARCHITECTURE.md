@@ -53,6 +53,10 @@ The first model adjusts interpretable weights using paired self-play. Carefully 
 
 ## Remaining risks and limits
 
+The follow-up result-preserving implementation is `src/fast-features.js`. It precomputes geometric rays once, fuses both players' mobility checks with potential/frontier/disc counting, and sums the original weights in the original order. Search passes an already computed own-mobility count as the optional fourth evaluator argument; the reference evaluator ignores it. Scalar evaluation omits contribution objects, while coaching's immediate breakdown still uses the original detailed implementation. There is no mutable board cache, incremental state, native code, or new runtime dependency. Forty independently generated games test exact feature/score equivalence, including custom weights; fixed-depth comparisons check moves, nodes and actual evaluator calls.
+
+`makeFastStableEvaluator(weight)` uses the same fast baseline plus the existing conservative stable-edge feature. The frozen experiment protocol in `scripts/evaluator-protocol.mjs` separates development, selection, final quality, and final games. `scripts/compare-evaluators.mjs` records independent late-game labels and estimated early references, then interleaves paired timed conditions under a global cap. `pairOffset` preserves alternating color order across checkpointed one-pair runs. See `docs/EVALUATOR_COMPARISON.md`; a candidate's better position ranking is secondary to equal-time strength.
+
 - Deep search and TT replacement retain correctness regression tests; this is not a proof for every board/depth.
 - Verified continuations are optimal at their stated horizon; tied replies can differ and heuristic leaves can be misleading.
 - Browser weight mutation uses training-only acceptance. Independent holdout evidence is required before claiming stronger play.
