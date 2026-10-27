@@ -144,3 +144,27 @@ The current follow-up compares **A: original**, **B: mathematically identical bu
 See [EVALUATOR_COMPARISON.md](docs/EVALUATOR_COMPARISON.md) for new datasets, tuning, expanded 20/80 ms paired trials, uncertainty, measured costs and a quality-versus-cost graph. C remains experimental; no stable-edge weight or pattern table is installed as the default. Runtime still needs only Python and a browser; plot generation is optional developer tooling.
 
 See `CODEX_PROMPT.md` for the current plan and completed milestone history. The next performance experiment is allocation-light move generation. For positional knowledge, test phase-dependent stable-edge weights before fitting pattern tables, using newly reserved datasets. Mac hardware acceptance remains outstanding. Empty-region parity and combined features remain later experiments.
+
+## Autonomous local evaluator research
+
+The offline runner generates diverse games, fits linear/feature/TD(lambda)/small-pattern candidates, selects models, and conducts independent paired confirmation without any API or ongoing AI involvement. B remains the production evaluator. Node 20+ is required only for development tests and these optional experiments; playing still needs only Python 3 and a browser.
+
+Run from a normal WSL2 or macOS terminal:
+
+```bash
+python3 scripts/research-launch.py --mode full --hours 8 --workers 4 --output .local-research/eight-hour
+```
+
+It returns a detached PID and log/report paths. Keep the machine awake and WSL running. Follow progress with `tail -f .local-research/eight-hour/launcher.log`; open `.local-research/eight-hour/report.md` for current evidence. SIGTERM/Ctrl+C checkpoints a foreground run; budget exhaustion discards unfinished pairs. To resume an interrupted run, with unchanged source:
+
+```bash
+python3 scripts/research-launch.py --resume --output .local-research/eight-hour
+```
+
+For a quick integrated check:
+
+```bash
+node scripts/research.mjs --mode smoke --seconds 30 --workers 2 --output .local-research/smoke
+```
+
+The budget is a total active wall-clock cap, including resumed sessions; fitting can stop early on development stagnation. Worker count is capped at four; timed tournaments run with other research workers stopped. Data/models/logs stay Git-ignored. No candidate is installed automatically. See [the protocol](docs/LOCAL_RESEARCH_PLAN.md) and [verified smoke evidence](docs/LOCAL_RESEARCH_SMOKE.md), including platform and execution-host limitations. Do not edit source during a run: source/input changes stop it and prevent incompatible resumption.

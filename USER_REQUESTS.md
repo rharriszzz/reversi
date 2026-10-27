@@ -227,3 +227,7 @@ Finally, provide a concise summary answering:
 5. Are we approaching a level of playing strength that would challenge a reasonably skilled human, or do we still lack sufficient evidence?
 
 Be explicit about inconclusive findings and any experiments that could not be completed within the available budget.
+
+---
+
+Please come up with a plan that explores all the most promising options, while using as much local processing as possible, compared to ai work.  Put some of the work on performance, but more of the work on finding a good positional evaluator.  Plan some sort of series of games in order to learn more.  please give me a prompt.  It can use hours of local processing, but it should not need much ai guidance.  thanks.

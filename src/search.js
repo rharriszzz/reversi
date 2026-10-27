@@ -50,9 +50,9 @@ function negamax(board, player, depth, alpha, beta, ctx) {
     if (alpha >= beta) return stored.score;
   }
 
-  const moves = legalMoves(board, player);
+  const moves = ctx.legalMoves(board, player);
   if (moves.length === 0) {
-    const opponentMoves = legalMoves(board, -player);
+    const opponentMoves = ctx.legalMoves(board, -player);
     if (!opponentMoves.length) return terminalScore(board, player);
     // Passes do not consume one ply of move depth.
     return -negamax(board, -player, depth, -beta, -alpha, ctx);
@@ -66,7 +66,7 @@ function negamax(board, player, depth, alpha, beta, ctx) {
   }
 
   let best = -INF, bestMove = null;
-  for (const move of orderMoves(board, moves, stored?.bestMove)) {
+  for (const move of orderMoves(board, moves, stored?.bestMove ?? ctx.hints?.get(key))) {
     const child = play(board, player, move);
     const value = -negamax(child, -player, depth - 1, -beta, -alpha, ctx);
     if (value > best) {
@@ -82,6 +82,7 @@ function negamax(board, player, depth, alpha, beta, ctx) {
   if (ctx.table.size < ctx.tableLimit) ctx.table.set(key, {
     depth, score: best, flag, bestMove, solved: ctx.horizonHits === horizonBefore,
   });
+  if (ctx.hints && ctx.hints.size < ctx.tableLimit) ctx.hints.set(key, bestMove);
   return best;
 }
 
@@ -118,7 +119,7 @@ function checkDepth(depth) {
 
 function context(weights, evaluator = evaluateFast, now = () => performance.now(), deadline = null) {
   return { nodes: 0, evaluations: 0, horizonHits: 0, table: new Map(), tableLimit: 150000,
-    weights, evaluate: evaluator, now, deadline };
+    weights, evaluate: evaluator, now, deadline, legalMoves, hints: null };
 }
 
 export function scoreAllMoves(board, player, depth = 3, weights = DEFAULT_WEIGHTS) {
@@ -159,7 +160,7 @@ const TIMEOUT = Symbol('search deadline');
 // Playing needs only the best root value. Carry alpha between candidates;
 // other root values may be bounds and are deliberately NOT shown as coaching.
 function searchRoot(board, player, depth, ctx, favored) {
-  const moves = orderMoves(board, legalMoves(board, player), favored);
+  const moves = orderMoves(board, ctx.legalMoves(board, player), favored);
   const before = ctx.horizonHits;
   if (!moves.length) return { move: null, score: negamax(board, player, depth, -INF, INF, ctx),
     exact: ctx.horizonHits === before };
@@ -182,6 +183,8 @@ export function findBestMove(board, player, depth = 3, weights = DEFAULT_WEIGHTS
   const now = options.now ?? (() => performance.now()), start = now();
   const timed = options.timeMs !== undefined;
   const ctx = context(weights, options.evaluate ?? evaluateFast, now, timed ? start + options.timeMs : null);
+  ctx.legalMoves = options.legalMoves ?? legalMoves;
+  ctx.hints = options.orderingHints ? new Map() : null;
   let result = { move: orderMoves(board, legalMoves(board, player))[0] ?? null,
     score: null, exact: false, depth: 0 };
   let timedOut = false;

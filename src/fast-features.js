@@ -26,6 +26,22 @@ export function countLegalMovesFast(board, player) {
   return count;
 }
 
+// Research option: allocate only the returned list, never temporary flip lines.
+// Original legalMoves/flipsFor remain the rule oracle and production default.
+export function legalMovesFast(board, player) {
+  const moves = [];
+  for (let square = 0; square < 64; square++) {
+    if (board[square]) continue;
+    for (const ray of RAYS[square]) {
+      if (board[ray[0]] !== -player) continue;
+      let index = 1;
+      while (index < ray.length && board[ray[index]] === -player) index++;
+      if (index < ray.length && board[ray[index]] === player) { moves.push(square); break; }
+    }
+  }
+  return moves;
+}
+
 function scan(board, player, knownOwnMoves) {
   const other = -player;
   let ownDiscs=0, otherDiscs=0, ownFrontier=0, otherFrontier=0;

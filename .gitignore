@@ -7,3 +7,4 @@ __pycache__/
 logs/
 *.zip
 reversi-coach-model-*.json
+.local-research/

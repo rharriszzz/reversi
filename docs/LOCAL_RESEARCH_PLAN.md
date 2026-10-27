@@ -1,0 +1,49 @@
+# Autonomous local evaluator research
+
+This protocol builds on the measured results in EVALUATOR_COMPARISON.md. B remains the production evaluator, A its independent implementation reference, and C the weight-60 stable-edge comparator. Research models are never installed in the browser. No external engine, dataset, inference service, or dependency download is required.
+
+## Launch and resume
+
+From WSL2 bash or macOS zsh/bash, with Python 3 and Node 20+ installed:
+
+```bash
+python3 scripts/research-launch.py --mode full --hours 8 --workers 4 --output .local-research/eight-hour
+```
+
+The launcher detaches a new session, lowers scheduling priority, redirects stdin/stdout/stderr, and returns a PID and log/report paths. It survives closing the launching terminal and this conversation. The computer must remain awake; shutting down WSL or macOS stops it. On macOS, optionally use `caffeinate -i` around a foreground launch. No service installation or privileged operation is needed. Run from a normal local terminal if the conversation host cannot guarantee background-process survival.
+
+```bash
+node scripts/research.mjs --mode smoke --seconds 30 --workers 2 --output .local-research/smoke
+python3 scripts/research-launch.py --resume --output .local-research/eight-hour
+node scripts/research.mjs --resume --hours 10 --output .local-research/eight-hour
+```
+
+Resume uses the saved mode, seed, workers, protocol, models and work records. `--hours`/`--seconds` on resume changes the **total active wall-clock allowance**, including earlier sessions, rather than adding that duration. Downtime is excluded. A live lock prevents concurrent writers; interrupted tasks are discarded and deterministically retried. SIGINT/SIGTERM checkpoint and stop. A task cannot publish half an opening pair. Elapsed budget exhaustion can interrupt a task; such partial work is explicitly excluded. Checkpoints and artifacts use fsync + same-directory atomic rename. Keep the source unchanged during a run; resume rejects a changed source digest. Large local data are Git-ignored.
+
+## Frozen methodology
+
+Initial allocation is 10% performance, 20% generation/reference labeling, 45% fitting, 25% validation. Calibration measures work costs; unused performance time transfers to training, while the tournament reserve grows when measured pair costs require it. All allocations are active elapsed wall time, with actual process CPU time recorded separately. Worker count is capped at four and leaves a logical CPU free when possible. Generation is parallel; timed comparisons run in one worker with every other worker idle. Avoid unrelated host workloads for interpretable timing.
+
+The run reserves all seed namespaces before training. Complete game trajectories belong to one split. Canonical D4/color-reversal board keys are checked globally in deterministic task order; repeated positions across splits invalidate the later trajectory. Common initial/opening prefixes are omitted from fitting. Previously published holdouts and their generated trajectories, and committed position fixtures, are excluded. Confirmation positions/outcomes and games are not evaluated until a durable selection-freeze record exists. Reusing a seed/run after inspecting its confirmation is replication, not new confirmation.
+
+Calibration runs the existing correctness suite, checks an allocation-light legal list against the original and independent mailbox rules, and compares optional search ordering hints and move generation at matched depths. These options remain research-only, with unchanged defaults. Original TT bounds are cleared between iterative-deepening horizons; only ordering moves may persist. Sampled profiles and component timings distinguish evaluator cost, move generation, and search overhead. No bitboard/native rewrite is planned.
+
+Generate completed games from B, C and exploratory hand-feature policies at mixed fixed depths, random eight-to-twelve-placement openings, and occasional random legal moves. Record every sampled board, side to move, game identity, seed, moves, policy, final Black margin and outcome. Sample every few placements across all phases. Independent mailbox solving supplies exact six-to-ten-empty labels, expanding only when measured solve cost permits. Earlier full-window B searches are explicitly approximate labels and retain their own heuristic units. Never turn search win sentinels into regression labels. Completed-game margin (`100 * margin / 64`) and outcome (`100 * sign(margin)`) are separate targets in a consistent Black perspective.
+
+Start with 21 baseline parameters, three discrete phases versus continuous interpolation. Compare coordinate optimization of development prediction loss, normalized regularized supervised SGD, and offline TD(lambda), including lambda=0 as a control. TD uses fixed-Black trajectory values and terminal targets, not negamax sign alternation. Its behavior-policy data and limitations are reported. Small ternary corner, edge and diagonal tables share weights under D4 transforms, reverse color with opposite sign, and use three phase buckets. Fit patterns alone and a feature/pattern hybrid with L2 shrinkage, bounded weights and development early stopping. Use both outcome and margin targets. Periodic training checkpoints and a bounded candidate archive save learning curves without accumulating unbounded model files.
+
+Hand-feature additions are stable edges, accessible empty corners, danger from opponent corner access, frontier/edge structure and empty-region parity. Existing mobility/potential/frontier features also get individual removal controls. Added features are tested individually before combined models; zero each learned feature/pattern group in explicit ablations. Parity is an inexpensive orthogonally connected empty-region statistic, not a claim to solve endgame parity. The observed development error and actual paired games decide usefulness.
+
+Development metrics: game-cluster prediction error separately by target/phase; independently solved move regret and optimal-choice rate; approximate deeper-search regret in explicitly labeled heuristic units. Select a small diverse shortlist by development metrics, then inexpensive paired depth games. Preliminary and serious selection use only selection openings. Final choice is the highest prespecified average pair score against B across selection depth/time controls, ties resolved by development error then ID. Failed tasks/models are logged and excluded, with B as fallback. No AI intervention or post-result rule changes.
+
+Full targets: preliminary 8 pairs per shortlisted model; serious comparison of two finalists at depth 3 and 20/80/300 ms, plus finalist head-to-head; independent confirmation of the frozen winner against B at depth 3 (64 pairs), 20 ms (32), 80 ms (128), 300 ms (64). The 80/300 ms conditions receive priority over additional candidates if time is tight. Calibration scales counts to available time before outcomes are seen; original and feasible targets both appear in the manifest. Insufficient time produces incomplete conditions, never a lowered evidence threshold. Smoke deliberately uses tiny samples and cannot establish strength.
+
+When fitting stops early, selection-game timings determine an expansion factor of one through eight for the two main confirmation controls, capped at 1,024 moderate and 512 longer pairs. This factor is durably frozen before any confirmation access. The minimum evidence thresholds remain 128/64. The statistical union bound covers 512 possible candidate/control conditions and all prefixes through 1,024 pairs, including the possible finalist choices; it does not only count the realized shortlist. Defaults use different seeds for smoke and full runs. Published smoke keys join the historical exclusions. B/C prediction-error metrics fit a zero-intercept scalar per phase on training outcomes only; playing scores remain unchanged.
+
+Each opening pair exchanges colors on the identical board; color-game order alternates. Save W/D/L, pair points, margin, per-move completed depth, nodes, static calls, CPU/wall time and deadline overruns. Statistical bounds operate on pair means in [0,1]. A conservative Hoeffding union bound covers all planned comparison conditions and every possible prefix count, including duration-dependent stopping. Selection results are exploratory. A credible confirmation requires at least 128 moderate and 64 longer pairs and simultaneous lower bounds above 0.5 at both controls; even that does not auto-install the model. No human-level or Elo claim is supported by this internal tournament.
+
+## Reports, failures, and limits
+
+Generate `report.md`, `results.json`, and a standalone SVG after checkpoints. Report all ten requested questions, including missing evidence, learning curves, quality/cost Pareto candidates, equal-depth versus equal-time strength, depth controls, ablations, and actual failed/incomplete tasks. Preserve a few disagreement boards with legal chosen moves and independent exact principal continuations when affordable. Full raw evidence stays local; only a compact verified smoke report is committed. Report source digest, platform, seed, exact launch configuration, CPU/wall totals, split exclusions, sample sizes and stopping reason.
+
+Fallback order: finish a sound B comparison before adding candidates; reduce optional deeper reference labels and ablations before sacrificing confirmation; reject unstable fits; retain B when selection has insufficient evidence. Eight hours is a cap, not a promise of a champion. No independent strong engine or public records are assumed available. macOS Intel/Apple Silicon require physical verification; Linux/WSL tests cannot establish Mac performance or launch behavior. Record permission-blocked steps without requesting approval under this user's instruction.

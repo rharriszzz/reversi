@@ -201,3 +201,7 @@ git diff --check
 The socket-restricted sandbox required execution approval for HTTP/browser checks. Full Chromium 153.0.8010.12 acceptance passed with the faster default, including coaching comparisons, both colors, computer moves, training, export/reload and completed-game review. Actual Windows 11 Home 10.0.26300 / Chrome 155.0.8059.40 verified coaching and a playing-worker reply through WSL2 localhost; PowerShell default-browser launch returned success. Mac hardware was unavailable. The graph was rendered and visually inspected. No other repository was modified, and no personal models, browser caches, archives or raw profiler files are committed.
 
 The timed cap prevented completion of the 32-pair target. Larger pattern tables, independent strong-engine calibration, human games and Mac measurements were not completed in this round. None is implied by these self-play results.
+
+## Subsequent autonomous research framework
+
+[LOCAL_RESEARCH_PLAN.md](LOCAL_RESEARCH_PLAN.md) defines the implemented next study; [LOCAL_RESEARCH_SMOKE.md](LOCAL_RESEARCH_SMOKE.md) records its integrated smoke. The allocation-light move list and ordering-only iterative hints are opt-in research options selected by local calibration, with the original move generator retained as an independent implementation reference. No new candidate has earned production promotion, and the small smoke results do not change this report's playing-strength conclusions.
