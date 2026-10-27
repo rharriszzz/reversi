@@ -1,6 +1,23 @@
 # Six-hour WSL2 research run: handoff
 
-**New request / 27 October 20:19 UTC:** the learning-first v2 framework and a completed five-minute calibration are published in [TRAINING_RESULTS.md](TRAINING_RESULTS.md). The new six-hour run is **not started**: fresh Windows available physical memory was only 0.58 GiB, below the 1.25-GiB launch floor. Use the resource-checked command in that report after freeing memory. Do not resume the completed v1 run described below. No applications or saved settings were changed. V2 includes source snapshots, small atomic work units and a generated Windows/WSL reboot-resume command.
+**V2 is running, started 27 October 2026 at 20:32:51 UTC.** Coordinator PID **1944968**, **two workers**, six active hours maximum, fresh seed **2026102807**. Output: `.local-research/strong-six-hour-20261027/`. It is detached from the conversation, checkpoints atomically and uses a frozen executable copy. **Do not start a duplicate or edit executable files during this run.** B remains production. See [TRAINING_RESULTS.md](TRAINING_RESULTS.md) for the completed calibration and launch details.
+
+The launch check found **5.07 GiB available Windows physical RAM**, Windows CPU 3%, WSL CPU about 0.2%, no active WSL swapping, ample disk space and no existing research process. The temporary Windows keep-awake request is active (Windows PID 64404), bounded to this run; saved settings and applications are unchanged. Earlier memory-blocked attempts are superseded by this successful launch. Framework commit: `4f8c9da550546b48f51995a1199c0f30cb9bf42c`; frozen-source digest: `936872bf20d1aa1306943f818254ce730f06f94d6dfc4e963947c7906ed2ccc4`. The seed differs from the earlier development pilot's namespace.
+
+From `/home/rharris/git/reversi`, inspect progress with:
+
+```bash
+tail -f .local-research/strong-six-hour-20261027/launcher.log
+less .local-research/strong-six-hour-20261027/report.md
+```
+
+After interruption or Windows reboot, with no live coordinator:
+
+```bash
+python3 scripts/strong-launch.py --resume --output .local-research/strong-six-hour-20261027
+```
+
+The generated `.local-research/strong-six-hour-20261027/resume-after-reboot.cmd` is the Windows alternative. Completed work survives; in-flight bounded work is retried. Downtime does not consume the allowance. No 24–72-hour run is authorized or started. The v1 completion notes below are historical; do not resume v1.
 
 **Completed 2026-10-27, approximately 09:53 UTC.** All 19 comparison conditions finished, with 1,544 opening pairs / 3,088 games and no failed tasks, in 4 h 26 min 22 s. Keep-awake was released automatically. B remains the production evaluator. See the [published final results](LOCAL_RESEARCH_RESULTS_20261027.md) and [compact evidence](data/local-research-20261027.json). Do not restart or resume this completed experiment.
 

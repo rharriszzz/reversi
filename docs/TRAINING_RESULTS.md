@@ -139,13 +139,37 @@ The initial run does not have an external Egaroucid/Edax teacher; both were inve
 
 Current macOS Apple Silicon/Intel and actual Windows-browser acceptance are not rerun by the offline tests; game interaction behavior is unchanged. Windows reboot recovery preserves completed local files, but it cannot continue computing while Windows/WSL is down. Manual WSL resume or the generated Windows recovery command is required unless the user independently installs a login task. No saved settings or application state are changed. Freeze/confirmation auditing uses monotonic elapsed time because WSL wall-clock adjustment made timestamp-only test assertions unreliable; the v1 regression test now uses its already recorded monotonic event times as well.
 
-## Six-hour launch status: blocked by available Windows memory
+## Six-hour launch status: running
 
-**The six-hour run has not started; there is no research PID.** Framework and compact calibration evidence were committed and pushed in `31e4101`. All 13 JavaScript test files and 14 Python tests passed. The four strong-runner integration tests were rerun successfully after the final Windows recovery-PATH adjustment. The generated Windows recovery command preserves the concrete Node location, including nvm installations, without changing saved PATH/settings.
+**Successfully started 27 October 2026 at 20:32:51 UTC**, following the user's request to launch it. Coordinator PID **1944968**; **two workers** at reduced priority; **six active hours maximum**, fresh seed **2026102807**. Output: `/home/rharris/git/reversi/.local-research/strong-six-hour-20261027`. This is the full learning campaign, not another tiny pilot. It repeats calibration internally to size its learning/confirmation reserve. B remains production.
+
+The actual launch preflight found **5.07 GiB available Windows physical RAM**, Windows CPU 3%, WSL CPU about 0.2%, 88 MiB allocated swap with no active swapping, about 903 GiB WSL filesystem space, and no duplicate research coordinator. The detached launch returned, and subsequent checkpoints advanced into calibration with new games and labels and no task failures. A separate host process check verified persistence after launcher exit. The already-authorized temporary keep-awake request is active, Windows PID **64404**, with a bounded expiry; no saved settings or applications were changed.
+
+Launch command used:
+
+```bash
+python3 scripts/strong-launch.py --hours 6 --seed 2026102807 --output .local-research/strong-six-hour-20261027
+```
+
+Framework commit: `4f8c9da550546b48f51995a1199c0f30cb9bf42c`. Frozen source SHA-256: `936872bf20d1aa1306943f818254ce730f06f94d6dfc4e963947c7906ed2ccc4`. Executable inputs are copied to the output's `source/` directory. No executable files were changed for this launch. Raw data and models remain local and Git-ignored. A fresh seed avoids the earlier development pilot namespace; retained canonical historical exclusions still apply.
+
+**Do not launch another writer or edit executable source while active.** Inspect the log/report, and use `--resume` only after interruption:
+
+```bash
+tail -f .local-research/strong-six-hour-20261027/launcher.log
+less .local-research/strong-six-hour-20261027/report.md
+python3 scripts/strong-launch.py --resume --output .local-research/strong-six-hour-20261027
+```
+
+After Windows reboot, that same resume command or the generated `resume-after-reboot.cmd` restores the saved configuration and temporary keep-awake. Completed work is preserved; only an unfinished bounded task is retried. The planned six-hour limit falls around 02:33 UTC on 28 October if uninterrupted; the program can finish earlier. No longer research configuration was started. Let the local program run without AI supervision; a running campaign is not a completed strength result.
+
+### Earlier resource-blocked attempts (superseded)
+
+At the earlier check the six-hour run had not started and there was no research PID. Framework and compact calibration evidence were committed and pushed in `31e4101`. All 13 JavaScript test files and 14 Python tests passed. The four strong-runner integration tests were rerun successfully after the final Windows recovery-PATH adjustment. The generated Windows recovery command preserves the concrete Node location, including nvm installations, without changing saved PATH/settings.
 
 Fresh host checks at **20:16 and 20:19 UTC on 27 October** found Windows physical memory falling from **0.91 to 0.58 GiB available**, below the predefined **1.25 GiB launch floor even for one worker**. The last Windows CPU sample was 35%; WSL had 88 MiB swap allocated with no active swap-page traffic, about 903 GiB virtual-filesystem space, and Windows C: about 363 GiB free. No duplicate research coordinator was found. Memory Compression and multiple Chrome processes were prominent Windows consumers. The earlier 1.75-GiB check was superseded by these newer measurements. Raw resource evidence is local at `.local-research/strong-resource-check/preflight.json`.
 
-The launcher correctly refused to start. No application was closed, no existing process terminated, and no saved power/startup setting changed. Free some Windows memory before launching; closing unneeded Chrome tabs/windows is one possible local action. No further AI session is needed:
+The launcher correctly refused to start at that time. No application was closed, no existing process terminated, and no saved power/startup setting changed. The historical proposed command below is retained for the blocked-attempt record; **do not run it now**, since the successful investigation is already active with seed 2026102807:
 
 ```bash
 cd /home/rharris/git/reversi

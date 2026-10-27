@@ -551,3 +551,11 @@ Run tests, document completed work honestly, and commit and push verified framew
 Most importantly, minimize repeated AI interaction. Implement a robust local program and let my computer perform the substantial research work.
 
 **Start by building the system most likely to learn a significantly stronger evaluator—not by conducting another large tournament among inadequately trained models.**; I do not want to lose a lot of work if windows chooses to reboot, please add a solution to that problem to your plan.
+
+---
+
+What is the available physical ram now?
+
+---
+
+Can you start the program that does the investigation, or is it better if I do it?
