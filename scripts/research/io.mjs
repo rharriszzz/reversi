@@ -13,7 +13,7 @@ export function sourceDigest(root) {
   const files=[];
   function visit(path) {for(const d of readdirSync(path,{withFileTypes:true})) {
     if(d.name==='__pycache__') continue;
-    const p=resolve(path,d.name);if(d.isDirectory()) visit(p);else if(/\.(js|mjs|py|json)$/.test(d.name)) files.push(p);
+    const p=resolve(path,d.name);if(d.isDirectory()) visit(p);else if(/\.(js|mjs|py|json|ps1)$/.test(d.name)) files.push(p);
   }}
   for(const dir of ['src','scripts','tests','docs/data']) visit(resolve(root,dir));files.push(resolve(root,'package.json'));
   const hash=createHash('sha256');for(const file of files.sort()) {hash.update(relative(root,file));hash.update(readFileSync(file));}

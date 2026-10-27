@@ -289,3 +289,265 @@ Can you add commit and push a bit of information to tell the other ai what is ha
 ---
 
 Can you please record the results in github, next?
+
+---
+
+# Reversi: Research Program for a Strong Positional Evaluator
+
+Work in `/home/rharris/git/reversi`, repository `rharriszzz/reversi`.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/LOCAL_RESEARCH_PLAN.md`, `docs/LOCAL_RESEARCH_RESULTS_20261027.md`, and the existing evaluation, search, and research code.
+
+## Objective
+
+I want to develop an excellent Reversi positional evaluation function using mostly local computation, while preserving the existing alpha-beta engine and its teaching features.
+
+I am prepared to use considerable CPU time, potentially 24–72 hours or more in future rounds, provided experiments make measurable progress.
+
+The immediate task is to design and implement a substantially improved training program, followed by a carefully bounded initial experiment of approximately six hours.
+
+The previous six-hour run generated 3,088 tournament games but spent only about 48 seconds fitting models. That balance was not what I intended.
+
+**This time, prioritize learning better positional knowledge.**
+
+Do not repeat the earlier experiment unchanged.
+
+### 1. Diagnose the previous failure
+
+The learned add-stable evaluator improved exact endgame regret but lost more games than the fast baseline B.
+
+Investigate at least these hypotheses:
+
+- The learned evaluator is too slow relative to its improvement in accuracy.
+- The model is inaccurate in opening and middlegame positions.
+- The learning target, primarily final margins from self-play, does not sufficiently correspond to minimax decision quality.
+- The training data are too small, correlated, or biased toward weak policies.
+- The learned parameterization or phase boundaries produce systematic positional mistakes.
+
+Design diagnostics that distinguish these explanations rather than assuming one is correct.
+
+Preserve B as the production baseline.
+
+### 2. Implement a compact pattern-based evaluator
+
+This is the highest-priority modeling task.
+
+Investigate n-tuple evaluation with ternary lookup tables.
+
+Begin with:
+- Systematic 2-, 3-, and 4-square patterns.
+- Strategically chosen corner and edge patterns, initially 6–10 squares.
+- Appropriate diagonal patterns.
+- Board symmetries and color-reversal equivalence.
+- A small number of game-phase buckets, perhaps 4–8 initially.
+
+Use compact typed arrays and avoid allocating objects inside frequently executed evaluation paths.
+
+Compare at least these model families:
+
+A. Existing fast evaluator B.
+
+B. Optimized linear feature evaluator.
+
+C. Short-pattern n-tuple evaluator.
+
+D. Corner/edge pattern evaluator.
+
+E. Hybrid combining positional features with learned pattern tables.
+
+Train model families separately before combining them. Use regularization and sufficient observation counts to avoid overfitting rarely observed patterns.
+
+Preserve an inspectable model specification and reproducible serialized weights.
+
+### 3. Improve the training objectives
+
+Do not train solely to minimize error predicting the final disc count of self-play games.
+
+Investigate three sources of supervision:
+
+**Completed-game outcomes:** inexpensive training data containing final margin and win/draw/loss.
+
+**Search-based targets:** deeper evaluations of selected positions and alternative moves, including actual opponent replies.
+
+**Exact endgames:** independent solved positions, especially with 8–12 empty squares if feasible.
+
+For search targets, distinguish exact values from estimates. Do not treat arbitrary heuristic scores as calibrated disc margins.
+
+Investigate move-ranking and pairwise-preference losses, alongside conventional position-value regression.
+
+The evaluator should learn to prefer strategically better moves, not merely improve global score prediction.
+
+Compare regression to final margins, outcome prediction, and search-guided move-ranking objectives.
+
+### 4. Generate substantially more useful data
+
+Build a resumable data-generation system that can accumulate hundreds of thousands or millions of distinct training positions over multiple runs.
+
+Use diverse policies and starting positions. Include randomized openings, baseline self-play, mixed-strength play, and positions in which evaluators disagree.
+
+Exclude initial deliberately randomized moves from training targets where appropriate.
+
+Preserve all complete-game trajectories, including moves, policies, seeds, outcomes, and position identities.
+
+Generate extra deep-search labels selectively for positions where:
+
+- Candidate evaluators disagree.
+- Different search depths select different moves.
+- A candidate makes a large independently measured mistake.
+- The model has insufficient training coverage.
+- The expected value of obtaining a more accurate label is high.
+
+This is an active-learning strategy: spend expensive search computation where it is most informative.
+
+Investigate using Egaroucid for Console or Edax as an optional independent teacher or benchmark. If practical and license-compliant, obtain stronger external position labels. Keep this completely separate from the production engine and preserve source attribution.
+
+If an external engine cannot be used economically, continue with our own deeper alpha-beta searches.
+
+### 5. Implement iterative improvement
+
+Organize research into repeated cycles:
+
+1. Generate diverse games.
+2. Select useful training positions.
+3. Produce strong labels, including exact labels when possible.
+4. Train several evaluator candidates.
+5. Measure development prediction quality and move-ranking accuracy.
+6. Test the strongest candidates in inexpensive games.
+7. Use the best available policies and newly identified mistakes to generate additional data.
+8. Repeat while improvements justify further computation.
+
+Keep previous strong models as reference opponents and possible sources of training data.
+
+Avoid relying on games from only one model playing itself.
+
+Implement clear model versioning, checkpointing, learning curves, and recovery after interruption.
+
+### 6. Prevent premature convergence
+
+The previous research program ended fitting very quickly and transferred almost all remaining computation to tournaments.
+
+Do not repeat this behavior.
+
+Allocate approximately:
+
+- 10% of local computation to performance engineering and calibration.
+- 40–45% to training data generation and expensive reference labels.
+- 25–30% to fitting, model comparison, and additional learning cycles.
+- 20% to selection tournaments and independent confirmation.
+
+These fractions are guidelines.
+
+If an optimizer converges early, generate better or more diverse training data, try another predefined model architecture, or obtain more accurate labels.
+
+Do not spend hours repeating optimization steps that show no improvement.
+
+Likewise, do not spend nearly the entire experiment playing tournaments after only a tiny amount of model training.
+
+Record actual wall-clock and CPU time by category.
+
+### 7. Evaluation performance
+
+Measure the complete static evaluation time, not merely table-lookup time.
+
+Use B's measured performance, approximately 2.12 microseconds per static evaluation in the previous experiment, as an initial reference.
+
+Compare learned candidates by:
+- Evaluation time.
+- Search nodes and evaluations per second.
+- Completed depth under fixed time budgets.
+- Positional prediction and ranking accuracy.
+- Actual playing strength under equal elapsed time.
+
+Try fast table evaluation, precomputed pattern geometry, compact integer weights, and incremental pattern-index updates where measurements justify them.
+
+For incremental updates, verify every changed-square pattern index against independent full recomputation.
+
+Investigate whether a richer model can be distilled or compiled into a smaller fast lookup representation after offline training.
+
+Do not introduce runtime neural-network inference or a major native-language rewrite without convincing evidence that simpler methods are inadequate.
+
+### 8. Use statistically sound tournaments
+
+Keep development, selection, and final confirmation completely separate.
+
+Create fresh seed namespaces and exclude previously published training, development, and confirmation positions, including positions disclosed in `docs/data/local-research-20261027.json`.
+
+Also prevent leakage through shared game trajectories and symmetry-equivalent positions.
+
+Conduct cheap preliminary tournaments, then reserve serious equal-time games for a small number of finalists.
+
+Test 20, 80, and 300 milliseconds per move, with 80 and 300 receiving the greatest priority.
+
+Use both colors from matched openings.
+
+For final confirmation, predeclare a fixed sample size and statistical method. Target at least 256 paired openings at 80 ms and 128 at 300 ms, increasing those counts if measured time permits.
+
+Avoid unnecessary extremely conservative corrections covering hundreds of hypothetical comparisons that will not actually be performed. Instead, use a preregistered finalist, fixed confirmation conditions, appropriate multiple-testing adjustment, and no data-dependent optional stopping.
+
+If adaptive stopping is required, use a valid sequential method.
+
+A candidate should replace B only when independently supported evidence demonstrates stronger equal-time play.
+
+Keep an additional optional benchmark against an independent strong engine.
+
+### 9. Make a six-hour pilot that prepares for longer training
+
+First implement the improved training system and run complete correctness and integration tests.
+
+Then perform a short pilot to measure:
+
+- Generated games per second by policy strength.
+- Training positions per hour.
+- Deep-search labels per hour.
+- Exact endgame labels per hour.
+- Model fitting throughput.
+- Evaluation speed for each architecture.
+- Tournament cost per opening pair.
+
+Based on these measurements, automatically size a six-hour local research experiment.
+
+Use the existing resource-check procedure before launch. I often leave Windows applications open, so choose workers based on available physical memory and system load. Two workers were appropriate for the previous run; do not assume four are safe.
+
+Do not close applications or change saved system settings without permission.
+
+Ensure the experiment survives the Codex session, checkpoints atomically, and produces a readable progress report.
+
+Do not modify executable source files during an active experiment.
+
+Keep large models and datasets local and Git-ignored.
+
+The six-hour pilot should produce meaningful new training data and at least one complete independent assessment of a learned evaluator.
+
+If it shows encouraging progress, prepare a separate 24–72-hour research configuration that can continue from the accumulated training data. Do not automatically start that longer run without my authorization.
+
+### 10. Deliverables
+
+Create or update:
+
+- `docs/STRONG_EVALUATOR_PLAN.md`
+- `docs/TRAINING_DATA.md`
+- `docs/EVALUATOR_ARCHITECTURES.md`
+- `docs/TRAINING_RESULTS.md`
+
+Include reproducible commands and one-command launch/resume capability.
+
+Prepare graphs showing:
+
+- Prediction/ranking quality versus training positions.
+- Quality versus training computation.
+- Playing strength versus time per move.
+- Evaluation quality versus evaluation speed.
+- Results by game phase.
+- Comparison of short patterns, longer patterns, handcrafted features, and hybrids.
+
+Include several positions where the learned evaluator makes a demonstrably better or worse decision than B, with independently verified continuations when feasible.
+
+Give an empirical estimate of how many additional training positions and CPU hours would likely be useful.
+
+Append my newest request verbatim to `USER_REQUESTS.md` without appending this synthesized plan as though it were my own words.
+
+Run tests, document completed work honestly, and commit and push verified framework and compact report changes.
+
+Most importantly, minimize repeated AI interaction. Implement a robust local program and let my computer perform the substantial research work.
+
+**Start by building the system most likely to learn a significantly stronger evaluator—not by conducting another large tournament among inadequately trained models.**; I do not want to lose a lot of work if windows chooses to reboot, please add a solution to that problem to your plan.

@@ -42,7 +42,7 @@ export function legalMovesFast(board, player) {
   return moves;
 }
 
-function scan(board, player, knownOwnMoves) {
+function scan(board, player, knownOwnMoves, output) {
   const other = -player;
   let ownDiscs=0, otherDiscs=0, ownFrontier=0, otherFrontier=0;
   let ownPotential=0, otherPotential=0, ownMoves=knownOwnMoves ?? 0, otherMoves=0;
@@ -89,6 +89,13 @@ function scan(board, player, knownOwnMoves) {
       if (board[c2] === other) otherC++;
     }
   }
+  if (output) {
+    output[0]=normalized(ownMoves,otherMoves,2); output[1]=normalized(ownPotential,otherPotential,2);
+    output[2]=(ownCorners-otherCorners)/4; output[3]=(otherX-ownX)/4;
+    output[4]=(otherC-ownC)/8; output[5]=normalized(otherFrontier,ownFrontier,2);
+    output[6]=normalized(ownDiscs,otherDiscs);
+    return ownDiscs+otherDiscs;
+  }
   return { occupied:ownDiscs+otherDiscs, features:{
     mobility:normalized(ownMoves,otherMoves,2), potential:normalized(ownPotential,otherPotential,2),
     corners:(ownCorners-otherCorners)/4, xSquares:(otherX-ownX)/4,
@@ -99,6 +106,12 @@ function scan(board, player, knownOwnMoves) {
 
 export function extractFeaturesFast(board, player, knownOwnMoves) {
   return scan(board,player,knownOwnMoves).features;
+}
+
+// Caller-owned scratch storage for offline learned linear evaluation. Same
+// seven features and order as above; synchronous callers do not share scratch.
+export function fillFeaturesFast(board, player, output, knownOwnMoves) {
+  return scan(board,player,knownOwnMoves,output);
 }
 
 export function evaluateFast(board, player, weights=DEFAULT_WEIGHTS, knownOwnMoves) {

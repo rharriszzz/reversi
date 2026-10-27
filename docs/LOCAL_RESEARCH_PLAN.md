@@ -1,5 +1,7 @@
 # Autonomous local evaluator research
 
+**Historical v1 protocol.** The user's newer learning-first request is implemented by [STRONG_EVALUATOR_PLAN.md](STRONG_EVALUATOR_PLAN.md). Use that protocol and its reboot-safe launcher for new research. This file remains unchanged below for interpreting the completed v1 experiment.
+
 This protocol builds on the measured results in EVALUATOR_COMPARISON.md. B remains the production evaluator, A its independent implementation reference, and C the weight-60 stable-edge comparator. Research models are never installed in the browser. No external engine, dataset, inference service, or dependency download is required.
 
 ## Launch and resume

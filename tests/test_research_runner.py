@@ -40,8 +40,10 @@ class ResearchRunnerTests(unittest.TestCase):
             self.assertTrue(all(c['summary']['games'] == c['summary']['pairs'] * 2 for c in summaries))
             self.assertTrue(any(c['stage'] == 'confirmation' and c['summary']['pairs'] for c in summaries))
             # The worker never accesses confirmation before this durable record.
-            self.assertLess((output / 'selection-freeze.json').stat().st_mtime,
-                            (output / 'tasks/confirmation-assessment.json').stat().st_mtime)
+            # WSL/Windows wall clocks can move backwards during adjustment.
+            # Durable event order uses the coordinator's monotonic elapsed time.
+            self.assertLessEqual(state['freeze']['elapsedMs'],
+                                 state['tasks']['confirmation-assessment']['startedMs'])
             paths = {p for files in state['data'].values() for p in files}
             original = {p: Path(p).read_bytes() for p in paths}
             result = self.run_node(output, '--resume')

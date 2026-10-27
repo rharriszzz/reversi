@@ -147,6 +147,16 @@ See `CODEX_PROMPT.md` for the current plan and completed milestone history. The 
 
 ## Autonomous local evaluator research
 
+**New learning-first campaign:** use [STRONG_EVALUATOR_PLAN.md](docs/STRONG_EVALUATOR_PLAN.md), [TRAINING_DATA.md](docs/TRAINING_DATA.md), [EVALUATOR_ARCHITECTURES.md](docs/EVALUATOR_ARCHITECTURES.md) and [TRAINING_RESULTS.md](docs/TRAINING_RESULTS.md). The v2 launcher sizes workers from current physical memory, freezes its source, checkpoints small work units and resumes after Windows reboot:
+
+```bash
+python3 scripts/strong-launch.py --hours 6 --output .local-research/strong-six-hour-20261027
+# After interruption or reboot:
+python3 scripts/strong-launch.py --resume --output .local-research/strong-six-hour-20261027
+```
+
+Check whether that output is already running before launching. Large artifacts stay local. The older v1 commands below are retained for reproduction; use v2 for the new training program. No learned evaluator replaces B automatically.
+
 The first full WSL2 study completed on 2026-10-27 in 4 h 26 min, within its six-hour cap, using two workers. [Published results and evidence](docs/LOCAL_RESEARCH_RESULTS_20261027.md) cover 3,088 tournament games: the learned stable-edge candidate improved late-position estimates but failed the playing-strength promotion rule. B remains the default. The [run handoff](docs/LOCAL_RESEARCH_STATUS.md) records completion and local artifact locations; do not resume that completed run.
 
 The offline runner generates diverse games, fits linear/feature/TD(lambda)/small-pattern candidates, selects models, and conducts independent paired confirmation without any API or ongoing AI involvement. B remains the production evaluator. Node 20+ is required only for development tests and these optional experiments; playing still needs only Python 3 and a browser.
