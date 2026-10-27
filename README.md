@@ -147,6 +147,8 @@ See `CODEX_PROMPT.md` for the current plan and completed milestone history. The 
 
 ## Autonomous local evaluator research
 
+An actual six-hour WSL2 experiment was launched on 2026-10-27 with two workers after resource checks. See [the dated run handoff and local progress commands](docs/LOCAL_RESEARCH_STATUS.md) before starting another run. Current status comes from the local manifest; the committed handoff is a snapshot.
+
 The offline runner generates diverse games, fits linear/feature/TD(lambda)/small-pattern candidates, selects models, and conducts independent paired confirmation without any API or ongoing AI involvement. B remains the production evaluator. Node 20+ is required only for development tests and these optional experiments; playing still needs only Python 3 and a browser.
 
 Run from a normal WSL2 or macOS terminal:

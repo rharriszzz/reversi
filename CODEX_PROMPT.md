@@ -1,5 +1,7 @@
 # Initial Codex task — Reversi Coach Lab (`rharriszzz/reversi`)
 
+**Active research handoff:** After `USER_REQUESTS.md`, read [docs/LOCAL_RESEARCH_STATUS.md](docs/LOCAL_RESEARCH_STATUS.md) for the six-hour WSL2 run launched 2026-10-27. Do not restart development, launch duplicate experiments, or change hashed runtime inputs while that run is active. The local manifest, not this dated note, is the authority on current status. The user wants computation to proceed without ongoing AI supervision and will return to review results.
+
 Read `USER_REQUESTS.md` **first**: it contains only the user's own requests, in chronological order. Then read `AGENTS.md`, `README.md`, `docs/ARCHITECTURE.md`, `docs/VALIDATION.md`, and the code/tests. The user has prior experience writing an alpha-beta Reversi program, understands evaluation design, and explicitly wants an original engine with a useful learning/teaching interface. Do not substitute a third-party engine for this code.
 
 **Required platforms:** **Windows 11 WSL2 Ubuntu is the primary development and play environment** (the user most often uses WSL2); the app must also work on **current macOS, Apple Silicon and Intel**. No Windows-only APIs in game logic, no native dependencies, and no required Node/npm install just to play. Use local Python 3 HTTP serving, ES JavaScript, and browsers. Native Windows 11 `.cmd` launch is supplemental. Repo name is one word: `reversi`.

@@ -231,3 +231,57 @@ Be explicit about inconclusive findings and any experiments that could not be co
 ---
 
 Please come up with a plan that explores all the most promising options, while using as much local processing as possible, compared to ai work.  Put some of the work on performance, but more of the work on finding a good positional evaluator.  Plan some sort of series of games in order to learn more.  please give me a prompt.  It can use hours of local processing, but it should not need much ai guidance.  thanks.
+
+---
+
+The autonomous Reversi research framework is now implemented and smoke-tested.
+
+For the next round, I want approximately six hours of local computation on my WSL2 PC, with minimal AI usage.
+
+Please read `docs/LOCAL_RESEARCH_PLAN.md` and `docs/LOCAL_RESEARCH_SMOKE.md`, verify the current repository state, and prepare the existing autonomous runner for a six-hour experiment using four workers.
+
+Do not redesign the experimental methodology, write substantial new code, or repeat completed development work unless you discover a critical problem.
+
+The goal is to spend CPU time generating games, improving positional evaluators, and conducting tournaments, not AI reasoning time.
+
+Use the existing detached launcher if it can reliably persist in my WSL2 environment. Otherwise give me the exact command to start from my normal WSL2 terminal.
+
+Once launched, return the PID, output directory, progress-check command, and resume command. Do not spend AI time supervising the computation.
+
+Keep all large experimental data local and Git-ignored. Preserve the baseline evaluator.
+
+When the experiment has finished, I will return to review the results, and we can decide whether to conduct further experiments.   Before starting the six-hour Reversi research run, please perform resource checks on my WSL2 PC.
+
+I frequently leave applications open, so please:
+
+- Check available RAM, CPU utilization, swap usage, and disk space.
+- Identify processes consuming significant CPU or memory, including Windows applications where possible.
+- Determine how many CPU workers can run without noticeably interfering with my normal activities.
+- Check whether Windows power and sleep settings could interrupt the experiment.
+- Check for any existing Reversi research processes to avoid duplicate runs.
+
+Use these measurements to choose an appropriate worker count, rather than automatically using four.
+
+Do not close applications, terminate processes, or change system settings without asking me.
+
+If resources are adequate, launch the existing six-hour experiment and report its PID, resource assessment, and progress-monitoring commands.
+
+If resources are insufficient, explain the problem and recommend adjustments.
+
+Once the experiment is running, let the local code do the work without further AI supervision.
+
+---
+
+Allow temporary keep-awake and launch with two workers
+
+---
+
+Once the resource checks pass, please do not ask for approval for anything, instead, record, and then skip or work around.
+
+---
+
+I can exit Chrome if you want
+
+---
+
+Can you add commit and push a bit of information to tell the other ai what is happening, and also tell me what I can do locally to check on progress?  thanks.
