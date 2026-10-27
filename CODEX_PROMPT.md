@@ -6,6 +6,23 @@ Read `USER_REQUESTS.md` **first**: it contains only the user's own requests, in 
 
 ## Work plan, in priority order
 
+### Current extension: evaluation quality, cost, and playing strength
+
+The initial milestone is completed as recorded in `docs/INITIAL_CODEX_REVIEW.md`: independent rules/search checks, WSL2/Windows browser checks, verified coaching lines, arbitrary move comparisons, game review, file logging, and a small TD/weight-mutation pilot. Preserve that work and its regression checks. Mac hardware acceptance remains outstanding. The numbered initial plan below is retained as history and standing acceptance criteria, not a request to redo completed features.
+
+The user's latest priority is an understandable, experimentally validated, mildly competent positional evaluator. Execute this extension and record results in `docs/EVALUATION_EXPERIMENTS.md`:
+
+1. Establish seeded opening/middlegame/endgame measurements: static feature/evaluation cost; nodes, actual evaluator calls, rates and elapsed search time; completed depth under fixed wall-time budgets; paired performance against the original evaluator and simple reference opponents.
+2. Separate best-move playing search from all-move coaching analysis. Share the inspectable alpha-beta core, omit per-candidate feature breakdowns/verified lines in play, and verify equal-depth optimal scores/moves allowing ties. Measure the saved work before adding features.
+3. Retain the original weights. Test corner-anchored stable edge discs and smooth phase interpolation individually before any combination. Add tactical fixtures and independent solved-endgame targets. Defer empty-region parity until simpler experiments justify it.
+4. Compare equal-depth strategic choices and equal elapsed per-move budgets at several budget levels. Report nodes, evaluator calls, completed depth, actual elapsed time and deadline overruns separately; never substitute equal nodes for equal time.
+5. Keep learning modest: use fresh disjoint development/holdout seeds, paired colors, fixed budgets, saved parameter versions and opening-pair uncertainty. Investigate small mutation/TD/solved-target fits; do not install a candidate on a favorable tiny sample.
+6. Preserve Python + browser dependency-free play and WSL2/macOS support. Run relevant regression/browser checks, document untested hardware, append the latest user request verbatim, and commit/push verified work. Report negative results and recommend the next bounded experiment.
+
+Round status: baseline costs and reference-opponent games, fast playing search, deadline/iterative-deepening experiments, individual edge/smoothing candidates, tactical fixtures, solved-position diagnostics, and modest development-selected learning are implemented and measured in `docs/EVALUATION_EXPERIMENTS.md`. Defaults remain unchanged because holdout evidence is inconclusive. Next: development-only stable-edge weight calibration, then a larger fresh paired time-budget holdout. Combining features, empty-region parity, expert-strength claims, and actual Mac hardware acceptance remain outstanding.
+
+### Initial milestone (completed work retained)
+
 **1. Validate and exercise the cross-platform starter.** Reproduce `node --test tests/*.test.mjs` and `python3 -m unittest discover -s tests -p 'test_*.py'`. Check that `./start.sh` and `python3 launch.py` work from WSL2 and macOS, that WSL2 launches or can be reached from a **Windows** browser using localhost, and that macOS opens the default browser. Test URL auto-selection, shutdown, spaces in local paths, and the `--no-browser` fallback. If your execution environment cannot actually run WSL2 or macOS, do not claim those platforms were tested: explicitly report what you could verify and provide precise manual instructions for the user. No architecture-specific native libraries.
 
 **2. Independently validate rules and search.** Check move generation with known perft counts, forced passes, elimination, and terminal positions with empty squares. Use an independent brute-force oracle on small endgames. Examine alpha-beta pass/depth semantics, transposition-table bound flags, and symmetric positions. Each listed legal move must be evaluated using a **full root window at the same nominal depth** from the side-to-move's viewpoint. Verify exact-result labeling in all relevant cases; distinguish tree-search outcomes from approximate feature values. Record reproducible node/time measurements.

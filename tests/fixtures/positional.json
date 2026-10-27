@@ -1,0 +1,93 @@
+[
+  {
+    "name": "stable-edge-horizon-correction",
+    "seed": 730000,
+    "player": 1,
+    "rows": [
+      "B.BBBBWB",
+      ".B.BBWWW",
+      "WWBBBBWW",
+      "WWBBBBBW",
+      "WWBBWBBW",
+      "..BWBWBW",
+      ".WWBWWWW",
+      "WWWWWWWW"
+    ],
+    "exact": [
+      {
+        "move": 8,
+        "score": -10030,
+        "notation": "A2"
+      },
+      {
+        "move": 40,
+        "score": -10044,
+        "notation": "A6"
+      },
+      {
+        "move": 41,
+        "score": -10040,
+        "notation": "B6"
+      },
+      {
+        "move": 48,
+        "score": -10040,
+        "notation": "A7"
+      }
+    ],
+    "bestScore": -10030,
+    "baselineDepth1": 48,
+    "stableDepth1": 8,
+    "greedy": 41,
+    "cornersAfterGreedy": []
+  },
+  {
+    "name": "greedy-corner-concession",
+    "seed": 730003,
+    "player": 1,
+    "rows": [
+      "WWWW....",
+      "WWWW.WBB",
+      "WWWWWBBB",
+      "WWBWBBBB",
+      "WWBBBB.B",
+      "WWBWBWWB",
+      "WWWBWWBB",
+      "BWBBBBBB"
+    ],
+    "exact": [
+      {
+        "move": 4,
+        "score": -10022,
+        "notation": "E1"
+      },
+      {
+        "move": 5,
+        "score": -10020,
+        "notation": "F1"
+      },
+      {
+        "move": 6,
+        "score": -10016,
+        "notation": "G1"
+      },
+      {
+        "move": 12,
+        "score": -10016,
+        "notation": "E2"
+      },
+      {
+        "move": 38,
+        "score": 10008,
+        "notation": "G5"
+      }
+    ],
+    "bestScore": 10008,
+    "baselineDepth1": 38,
+    "stableDepth1": 38,
+    "greedy": 6,
+    "cornersAfterGreedy": [
+      7
+    ]
+  }
+]

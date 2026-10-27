@@ -24,8 +24,19 @@ try {
 (async () => {
   for (let n = 0; n < 200; n++) {
     const rows = document.querySelectorAll('#move-rows tr');
-    if (rows.length === 4 && document.querySelector('#interpretation').textContent.includes('verified depth-3 line'))
-      return {title: document.title, rows: rows.length, url: location.href};
+    if (rows.length === 4 && document.querySelector('#interpretation').textContent.includes('verified depth-3 line')) {
+      const depth = document.querySelector('#computer-depth');
+      depth.value = '2'; depth.dispatchEvent(new Event('change'));
+      document.querySelector('[aria-label="D3: legal move"]').click();
+      for (let reply = 0; reply < 200; reply++) {
+        if (document.querySelectorAll('#history .history-item').length === 2 &&
+            document.querySelector('#turn-title').textContent === 'Black to move' &&
+            document.querySelector('#interpretation').textContent.includes('verified depth-3 line'))
+          return {title: document.title, rows: rows.length, plies: 2, url: location.href};
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      throw new Error('Windows playing worker did not reply');
+    }
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   throw new Error('Windows browser app/worker did not finish: ' + document.body.innerText);
@@ -45,11 +56,11 @@ try {
         $stream.Dispose()
     } while ($reply.id -ne 1)
     if ($reply.result.exceptionDetails) { throw ($reply | ConvertTo-Json -Depth 10) }
-    if ($reply.result.result.value.rows -ne 4) { throw 'Four analyzed moves missing' }
+    if ($reply.result.result.value.rows -ne 4 -or $reply.result.result.value.plies -ne 2) { throw 'Analysis or computer reply missing' }
     $version = Invoke-RestMethod "http://127.0.0.1:$port/json/version"
     $os = Get-CimInstance Win32_OperatingSystem
     Write-Output "Windows host: $($os.Caption), version $($os.Version), $($os.OSArchitecture)"
-    Write-Output "PASS: actual Windows $($version.Browser) loaded $Url from WSL2, four analyzed moves and verified continuation"
+    Write-Output "PASS: actual Windows $($version.Browser) loaded $Url from WSL2, four analyzed moves, verified continuation and playing-worker reply"
 } finally {
     $socket.Dispose()
     # Stop only processes using the disposable profile created by this test.

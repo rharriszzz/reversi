@@ -35,6 +35,7 @@ function positionKey(board, player) {
 }
 
 function negamax(board, player, depth, alpha, beta, ctx) {
+  if (ctx.deadline !== null && ctx.now() >= ctx.deadline) throw TIMEOUT;
   ctx.nodes++;
   const key = positionKey(board, player);
   const oldAlpha = alpha, oldBeta = beta;
@@ -57,7 +58,8 @@ function negamax(board, player, depth, alpha, beta, ctx) {
   }
   if (depth <= 0) {
     ctx.horizonHits++;
-    return evaluate(board, player, ctx.weights);
+    ctx.evaluations++;
+    return ctx.evaluate(board, player, ctx.weights);
   }
 
   let best = -INF, bestMove = null;
@@ -107,10 +109,19 @@ function principalVariation(board, player, remaining, ctx) {
   return continuation;
 }
 
-export function scoreAllMoves(board, player, depth = 3, weights = DEFAULT_WEIGHTS) {
+function checkDepth(depth) {
   if (!Number.isInteger(depth) || depth < 1 || depth > 14) throw new Error('Depth must be 1..14');
+}
+
+function context(weights, evaluator = evaluate, now = () => performance.now(), deadline = null) {
+  return { nodes: 0, evaluations: 0, horizonHits: 0, table: new Map(), tableLimit: 150000,
+    weights, evaluate: evaluator, now, deadline };
+}
+
+export function scoreAllMoves(board, player, depth = 3, weights = DEFAULT_WEIGHTS) {
+  checkDepth(depth);
   const start = performance.now();
-  const ctx = { nodes: 0, horizonHits: 0, table: new Map(), tableLimit: 150000, weights };
+  const ctx = context(weights);
   const moves = orderMoves(board, legalMoves(board, player));
   const results = [];
   for (const move of moves) {
@@ -134,10 +145,60 @@ export function scoreAllMoves(board, player, depth = 3, weights = DEFAULT_WEIGHT
     player,
     results,
     nodes: ctx.nodes,
+    evaluations: ctx.evaluations,
+    immediateEvaluations: results.length,
     elapsedMs: Math.round((performance.now() - start) * 10) / 10,
   };
 }
 
-export function bestMove(board, player, depth = 3, weights = DEFAULT_WEIGHTS) {
-  return scoreAllMoves(board, player, depth, weights).results[0] ?? null;
+const TIMEOUT = Symbol('search deadline');
+
+// Playing needs only the best root value. Carry alpha between candidates;
+// other root values may be bounds and are deliberately NOT shown as coaching.
+function searchRoot(board, player, depth, ctx, favored) {
+  const moves = orderMoves(board, legalMoves(board, player), favored);
+  const before = ctx.horizonHits;
+  if (!moves.length) return { move: null, score: negamax(board, player, depth, -INF, INF, ctx),
+    exact: ctx.horizonHits === before };
+  let score = -INF, choice = moves[0];
+  for (const move of moves) {
+    const value = -negamax(play(board, player, move), -player, depth - 1, -INF, -score, ctx);
+    if (value > score) { score = value; choice = move; }
+  }
+  return { move: choice, notation: coord(choice), score,
+    exact: counts(board).empty <= depth || ctx.horizonHits === before };
+}
+
+// Optional iterative deepening uses ONLY the last completed iteration. A tiny
+// budget may return an explicitly unsearched legal fallback (depth 0, score null).
+export function findBestMove(board, player, depth = 3, weights = DEFAULT_WEIGHTS, options = {}) {
+  checkDepth(depth);
+  if (options.timeMs !== undefined && (!Number.isFinite(options.timeMs) || options.timeMs <= 0)) {
+    throw new Error('timeMs must be a positive finite number');
+  }
+  const now = options.now ?? (() => performance.now()), start = now();
+  const timed = options.timeMs !== undefined;
+  const ctx = context(weights, options.evaluate ?? evaluate, now, timed ? start + options.timeMs : null);
+  let result = { move: orderMoves(board, legalMoves(board, player))[0] ?? null,
+    score: null, exact: false, depth: 0 };
+  let timedOut = false;
+  for (let current = timed ? 1 : depth; current <= depth; current++) {
+    // TT scores at another horizon are not the same minimax value. Retain only
+    // the last root choice for ordering; each iteration gets fresh bounds.
+    ctx.table.clear();
+    try {
+      result = { ...searchRoot(board, player, current, ctx, result.move), depth: current };
+    } catch (error) {
+      if (error !== TIMEOUT) throw error;
+      timedOut = true; break;
+    }
+    if (!timed || result.exact) break;
+  }
+  return { ...result, player, nodes: ctx.nodes, evaluations: ctx.evaluations,
+    elapsedMs: now() - start, timedOut, budgetMs: options.timeMs ?? null };
+}
+
+export function bestMove(board, player, depth = 3, weights = DEFAULT_WEIGHTS, options = {}) {
+  const result = findBestMove(board, player, depth, weights, options);
+  return result.move === null ? null : result;
 }

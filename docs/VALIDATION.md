@@ -19,7 +19,7 @@ node --test tests/*.test.mjs
 python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-All 24 named JavaScript tests in six files and four Python tests pass. Node 24's default process-isolation reporter here counts files; `node --test --test-isolation=none tests/*.test.mjs` exposes the 24 named cases (this extra reporting option is optional and not required by Node 20 users).
+All 36 named JavaScript tests in nine files and four Python tests pass. Node 24's default process-isolation reporter here counts files; `node --test --test-isolation=none tests/*.test.mjs` exposes the 36 named cases (this extra reporting option is optional and not required by Node 20 users).
 
 Coverage includes opening perft through five placements; independent sentinel-board move generation throughout 20 seeded games; exhaustive six-empty endgames; full-window root scores and continuations against exhaustive same-depth minimax; all eight board symmetries; passes without depth consumption; elimination and terminal positions with empty squares; antisymmetry; fixed-model mistake review; stale analysis/computer responses; computer depth changes; replay/restart; TD determinism; disjoint training/holdout openings and paired benchmark consistency. Python tests exercise actual HTTP 200/404 logs, port fallback, paths with spaces, an unrelated working directory, `--no-browser`, and SIGINT shutdown. macOS `open` and WSL PowerShell command tests are mocks, distinct from actual platform tests.
 
@@ -72,3 +72,11 @@ node --cpu-prof --cpu-prof-dir=/tmp scripts/benchmark.mjs
 ```
 
 The experiment prints training/holdout seeds and opening keys, candidate parameters/versions, paired results, search depth, and conservative uncertainty. It never installs an experimental model. JSON and profiler output remain outside Git. The committed review reports the measured run, including inconclusive learning results.
+
+## Evaluation round follow-up
+
+The extended evaluation plan is recorded in `CODEX_PROMPT.md`, with measurements and negative results in [EVALUATION_EXPERIMENTS.md](EVALUATION_EXPERIMENTS.md). New correctness coverage checks playing/coaching equal-depth optimum agreement (ties allowed), independent candidate minimax values, pass/terminal playing search, deadline interruption and explicit depth-0 fallback, actual evaluator-call counters, corner-anchored edge stability under every independent continuation of small endgames, interpolation anchors/continuity, symmetries, tactical fixtures, and pair-level game accounting. Browser computer workers now use `play` messages; coaching/review retain `analyze`/`review`.
+
+Actual Chromium acceptance was rerun successfully for this worker change. The Windows Chrome check now also plays D3 and waits for the computer reply and subsequent coaching analysis. Current macOS Apple Silicon and Intel remain physically untested. Evaluation candidates are separate experiments; the browser default evaluator, saved model format, Python server and runtime dependencies remain unchanged.
+
+Run cost benchmarks and time-budget games serially on an otherwise idle machine. Fixed-depth seeds and results are reproducible allowing ties; wall-clock cutoffs and outcomes vary with scheduling. Record completed depths, actual time and overruns, rather than assuming the requested budget was exact. Experiment commands and sample sizes are in the evaluation report.

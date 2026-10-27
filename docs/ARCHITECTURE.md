@@ -14,14 +14,18 @@ HTTP access/errors use a rotating file handler at `logs/http.log` (1 MB, three b
 
 1. `src/rules.js`: immutable 64-element board and legal move generation, flips, passes, terminal states.
 2. `src/features.js`: board-based positional measurements and phase-dependent weights; static evaluation from one player's perspective.
-3. `src/search.js`: negamax alpha-beta with full-window root evaluations for every legal move, transposition entries, and a best-move interface. Preserve the distinction between exact solved positions and limited-horizon heuristics.
+3. `src/search.js`: shared original negamax alpha-beta core. `scoreAllMoves` provides full-window same-depth coaching values/verified lines; `findBestMove`/`bestMove` use root alpha sharing and omit coaching details. Preserve exact-vs-heuristic distinctions.
 4. `src/learning.js`: reproducible, seeded proposal of new weights; compare via paired openings with colors swapped. This is a **baseline experiment**, not a proven learning result.
 5. `src/worker.js`: work isolation for analysis, opponent play, and training. Avoid stale Worker responses overwriting a new position.
 6. `src/app.js`: game state, UI interactions, replay, interpretation, browser model persistence and export.
 
 ## Search, jobs, and coaching
 
-Depth counts placements; forced passes consume no depth. Every root move uses a full window and one shared depth. TT flags describe exact *depth-limited values* or upper/lower bounds; they do not themselves mean an endgame is solved. Separate conservative solved metadata tracks heuristic leaves and unsolved cached bounds. Searching at least the number of empty squares always solves the position, including passes. A terminal-only result can also be solved earlier, for example after elimination. Mixed analyses label individual solved rows separately.
+Depth counts placements; forced passes consume no depth. Every **coaching** root move uses a full window and one shared depth. Playing search carries alpha across root moves; inferior root values may be bounds and are not exposed as comparison scores. TT flags describe exact *depth-limited values* or upper/lower bounds; they do not themselves mean an endgame is solved. Separate conservative solved metadata tracks heuristic leaves and unsolved cached bounds. Searching at least the number of empty squares always solves the position, including passes. A terminal-only result can also be solved earlier, for example after elimination. Mixed coaching analyses label individual solved rows separately.
+
+Playing workers use `play`/`played` messages containing only the chosen result and search metrics. Analyzer/review workers retain comprehensive coaching. Self-play and TD already call `bestMove`, so they use the playing path too. Regression tests compare optimal scores and membership in the coaching-optimal tied set, rather than requiring a particular tied move.
+
+Optional playing-search deadlines use iterative deepening, fresh TT bounds per iteration, and the last completed root choice for ordering. A timeout discards the incomplete iteration; nodes/evaluator calls/elapsed time still include it. If depth 1 does not finish, the result is a legal fallback labeled depth 0, score null, exact false. Deadlines are soft, checked at every searched node; one node, allocation, or OS scheduling can overrun them. They are exposed to experimental callers, not substituted for browser depth controls. Heuristic evaluator calls are counted separately from nodes and coaching's immediate breakdown evaluations.
 
 Continuations verify each chosen move against a full-window same-depth value, rather than trusting a TT cutoff move. Verification work is included in reported node/time totals. Feature extraction precomputes the fixed neighbor geometry; this changes allocation cost, not weights or values.
 
@@ -36,6 +40,10 @@ Analysis jobs retain view/depth/model identities and job IDs. Superseded analyse
 A search score is a backed-up value from a game-tree search. An *immediate feature contribution* describes the position directly after a particular move. These are related but **not identical explanations**, because subsequent replies can change the position radically. Educational feedback should therefore show actual alternative sequences and opponent replies and label uncertainty, depth, and score units. When a move is called bad because of corner loss, show the line that concedes the corner, not merely an adjacency penalty.
 
 ## Learning directions to evaluate
+
+`src/evaluation.js` provides separate experimental evaluators. Stable edges count only uninterrupted same-color edge runs anchored at occupied corners, exclude corners already scored, and deduplicate overlap. The feature is net stable edge discs / 24, with a pilot weight of 60. Smooth weights linearly interpolate the unchanged phase vectors at 4/40/64 occupied squares. Original `FEATURE_NAMES`, defaults, saved weights and immediate coaching breakdowns remain unchanged. Tests independently enumerate endgames to check stability claims. The candidates are evaluated individually; no combined evaluator or parity feature is installed.
+
+`scripts/evaluation-benchmark.mjs` records static feature/evaluation costs, coaching/playing throughput, and completed depth under wall-clock budgets. `scripts/evaluation-experiments.mjs` separates fixed-depth games, wall-clock games, development-selected weights, and independent solved-position diagnostics. See `docs/EVALUATION_EXPERIMENTS.md` for seeds, protocols, negative results and limits.
 
 The first model adjusts interpretable weights using paired self-play. Carefully benchmark candidate systems such as temporal-difference learning or n-tuple patterns against a fixed baseline using training/holdout opening separation and both colors. Prefer a small, reproducible CPU-only implementation. Keep a versioned JSON representation of learned parameters and reproducible random seeds.
 

@@ -311,7 +311,7 @@ function requestComputer() {
   if (pendingAi && pendingAi.revision === revision) { render(); return; }
   const id = nextJob++;
   pendingAi = { id, revision };
-  opponent.postMessage({ type: 'analyze', id, board: Array.from(game.board), player: game.turn, depth: Number($('computer-depth').value), weights: model.weights });
+  opponent.postMessage({ type: 'play', id, board: Array.from(game.board), player: game.turn, depth: Number($('computer-depth').value), weights: model.weights });
   render();
 }
 
@@ -393,7 +393,7 @@ opponent.onmessage = (event) => {
     game.message = 'Computer search failed: ' + message.message;
     render(); return;
   }
-  const choice = message.analysis.results[0];
+  const choice = message.choice;
   if (choice) makeMove(choice.move, 'computer');
   else {
     game.message = 'Computer has no legal move.';

@@ -2,7 +2,7 @@
 // replace an actual headless browser test; it catches app-level wiring errors.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scoreAllMoves } from '../src/search.js';
+import { scoreAllMoves, bestMove } from '../src/search.js';
 import { runGeneration } from '../src/learning.js';
 
 class Element {
@@ -33,6 +33,7 @@ class MockWorker {
       try {
         const content = type === 'train'
           ? { type:'trained', id, outcome: runGeneration(weights, { ...options, depth: 1, openingPairs: 1 }) }
+          : type === 'play' ? { type: 'played', id, choice: bestMove(Int8Array.from(board), player, depth, weights) }
           : { type:'analyzed', id, analysis: scoreAllMoves(Int8Array.from(board), player, depth, weights) };
         this.onmessage?.({data:content});
       } catch(error) { this.onmessage?.({data:{type:'error',id,message:String(error)}}); }
@@ -83,8 +84,9 @@ test('late worker responses, depth changes, replay and restart cannot overwrite 
     postMessage(job) { this.jobs.push(job); }
     terminate() { this.terminated = true; }
     answer(job = this.jobs.at(-1)) {
-      this.onmessage({ data: { type: 'analyzed', id: job.id,
-        analysis: scoreAllMoves(Int8Array.from(job.board), job.player, job.depth, job.weights) } });
+      this.onmessage({ data: job.type === 'play'
+        ? { type: 'played', id: job.id, choice: bestMove(Int8Array.from(job.board), job.player, job.depth, job.weights) }
+        : { type: 'analyzed', id: job.id, analysis: scoreAllMoves(Int8Array.from(job.board), job.player, job.depth, job.weights) } });
     }
   }
   const document = new MockDocument();

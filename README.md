@@ -59,6 +59,10 @@ Double-click `start_windows.cmd`, or execute `py -3 launch.py` from PowerShell. 
 
 The positional evaluator has a sensible set of features, but its hand-selected weights are not calibrated against expert play. The first small held-out experiment was inconclusive, so the default weights remain unchanged. See [the initial review](docs/INITIAL_CODEX_REVIEW.md) for measurements and a short improvement plan.
 
+Ordinary computer play and self-play now use a separate best-move search, sharing the original alpha-beta core while omitting all-move coaching work. The coach still searches every candidate at equal depth and verifies its lines. On the measured position set, the playing path was roughly 1.6–2.8× faster at depth 5; this is a local measurement, not a platform guarantee.
+
+The next evaluation round tested conservative corner-anchored stable edges and smooth phase interpolation separately. The original depth-3 evaluator won 64/64 games against seeded random play and 61/64 against immediate-disc greedy play. Neither experimental evaluator nor the selected weight mutation showed convincing improvement over the original weights. See [EVALUATION_EXPERIMENTS.md](docs/EVALUATION_EXPERIMENTS.md) for costs, paired uncertainty, independently solved tactical examples, and equal-time results. Experimental evaluators are available to the benchmark tools, with no change to browser defaults or saved-model format.
+
 ## Set up the GitHub repository
 
 1. Visit [github.com/new](https://github.com/new), set owner `rharriszzz`, name **`reversi`**, and create an **empty** repository. Do not pre-create a README or `.gitignore`; they are in this archive. Choose public/private as you wish. The archive **does not** create a remote repository for you.
@@ -97,6 +101,18 @@ node scripts/evaluate.mjs 8 2 > /tmp/reversi-evaluation.json
 node scripts/benchmark.mjs
 ```
 
+For the evaluation quality/speed/strength investigation, run these **serially** on an otherwise idle machine:
+
+```bash
+node scripts/evaluation-benchmark.mjs > /tmp/reversi-costs.json
+node scripts/evaluation-experiments.mjs fixed 32 > /tmp/reversi-strength-depth.json
+node scripts/evaluation-experiments.mjs solved 32 > /tmp/reversi-solved-quality.json
+node scripts/evaluation-experiments.mjs learning 32 > /tmp/reversi-strength-learning.json
+node scripts/evaluation-experiments.mjs timed 6 > /tmp/reversi-strength-timed.json
+```
+
+The last command plays exploratory paired games at 5/20/80 ms per move and can take a few minutes. Wall-clock results vary with machine load; fixed-depth choices are reproducible, allowing tied moves. `findBestMove()` also supports an optional `timeMs` budget for test callers: iterative deepening returns the last fully completed depth, with an explicit unsearched fallback if no iteration completes. Browser depth controls continue to use fixed depth; the coaching table never mixes horizons.
+
 The experiment compares weight mutation and a separate linear TD(0) prototype with the default evaluator. Training and holdout openings are disjoint including board symmetries; holdout games use paired colors and equal fixed search depths. The JSON records seeds, model parameters/versions, sample sizes, and conservative uncertainty over opening pairs. Neither experimental model is installed in the browser. This run takes seconds on the development machine; deeper searches can take longer.
 
 ## Files and responsibilities
@@ -110,6 +126,7 @@ The experiment compares weight mutation and a separate linear TD(0) prototype wi
 | [`docs/VALIDATION.md`](docs/VALIDATION.md) | Platform matrix and manual/automated acceptance checklist |
 | `src/rules.js` | Board representation, legal moves, flips, passes, termination |
 | `src/features.js` | Interpretable positional features and phase-aware weights |
+| `src/evaluation.js` | Separate stable-edge and smooth-phase experiments; original defaults preserved |
 | `src/search.js` | Original negamax alpha-beta and legal-move scoring |
 | `src/learning.js` | Seeded candidate weights and paired self-play comparison |
 | `src/td.js`, `scripts/evaluate.mjs` | Separate transparent TD prototype and reproducible held-out comparison |
@@ -122,4 +139,4 @@ The experiment compares weight mutation and a separate linear TD(0) prototype wi
 
 ## Next development steps
 
-See `CODEX_PROMPT.md` for the ordered tasks, acceptance criteria, and model recommendation. Priorities are rules/search verification, real browser tests on both platforms, reliable coaching explanations, sound learning comparisons, and finally performance improvements supported by profiling.
+See `CODEX_PROMPT.md` for the current plan and completed milestone history. The next bounded experiment is development-only calibration of the stable-edge weight, followed by a fresh paired time-budget holdout. Mac hardware acceptance remains outstanding. Empty-region parity and combined features remain later experiments.
