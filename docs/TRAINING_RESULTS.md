@@ -138,3 +138,45 @@ A useful next scale is **100,000–1,000,000 additional distinct retained positi
 The initial run does not have an external Egaroucid/Edax teacher; both were investigated through primary documentation, and neither executable is installed. Our own deeper B estimates retain teacher bias, while only independent exact labels provide verified disc regret. The canonical identity index still grows in coordinator memory; very large multi-million-position campaigns need measured memory headroom and may eventually warrant an on-disk index.
 
 Current macOS Apple Silicon/Intel and actual Windows-browser acceptance are not rerun by the offline tests; game interaction behavior is unchanged. Windows reboot recovery preserves completed local files, but it cannot continue computing while Windows/WSL is down. Manual WSL resume or the generated Windows recovery command is required unless the user independently installs a login task. No saved settings or application state are changed. Freeze/confirmation auditing uses monotonic elapsed time because WSL wall-clock adjustment made timestamp-only test assertions unreliable; the v1 regression test now uses its already recorded monotonic event times as well.
+
+## Six-hour launch status: blocked by available Windows memory
+
+**The six-hour run has not started; there is no research PID.** Framework and compact calibration evidence were committed and pushed in `31e4101`. All 13 JavaScript test files and 14 Python tests passed. The four strong-runner integration tests were rerun successfully after the final Windows recovery-PATH adjustment. The generated Windows recovery command preserves the concrete Node location, including nvm installations, without changing saved PATH/settings.
+
+Fresh host checks at **20:16 and 20:19 UTC on 27 October** found Windows physical memory falling from **0.91 to 0.58 GiB available**, below the predefined **1.25 GiB launch floor even for one worker**. The last Windows CPU sample was 35%; WSL had 88 MiB swap allocated with no active swap-page traffic, about 903 GiB virtual-filesystem space, and Windows C: about 363 GiB free. No duplicate research coordinator was found. Memory Compression and multiple Chrome processes were prominent Windows consumers. The earlier 1.75-GiB check was superseded by these newer measurements. Raw resource evidence is local at `.local-research/strong-resource-check/preflight.json`.
+
+The launcher correctly refused to start. No application was closed, no existing process terminated, and no saved power/startup setting changed. Free some Windows memory before launching; closing unneeded Chrome tabs/windows is one possible local action. No further AI session is needed:
+
+```bash
+cd /home/rharris/git/reversi
+python3 scripts/strong-launch.py --hours 6 --seed 2026102797 --output .local-research/strong-six-hour-20261027
+```
+
+That command repeats the resource checks, chooses at most two workers (one with limited headroom), freezes the executable, launches detached, renews the already-approved temporary keep-awake request, and prints the actual PID. The six-hour budget begins when the coordinator starts; this resource-blocked state consumes none of it.
+
+Once started:
+
+```bash
+tail -f .local-research/strong-six-hour-20261027/launcher.log
+less .local-research/strong-six-hour-20261027/report.md
+```
+
+After interruption or reboot, use the saved frozen source/configuration:
+
+```bash
+python3 scripts/strong-launch.py --resume --output .local-research/strong-six-hour-20261027
+```
+
+Use `--resume` only after a first successful start created the manifest. The generated `resume-after-reboot.cmd` is the Windows convenience alternative. The 24–72-hour configuration in STRONG_EVALUATOR_PLAN.md remains prepared and **not started**.
+
+Verification and publication commands used:
+
+```bash
+node --test tests/*.test.mjs
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 -m unittest discover -s tests -p 'test_strong_runner.py'
+python3 scripts/strong/publish.py .local-research/strong-calibration-20261027
+git diff --check
+git commit -m "Build learning-first pattern evaluator research with crash recovery"
+git push origin main
+```

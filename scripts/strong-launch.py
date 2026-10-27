@@ -238,7 +238,16 @@ def main():
     # or change persistent settings. An already-running duplicate is refused.
     if 'microsoft' in os.uname().release.lower():
         distribution = os.environ.get('WSL_DISTRO_NAME', 'Ubuntu')
-        recovery = ['wsl.exe', '-d', distribution, '--cd', str(ROOT), '--', sys.executable,
+        # wsl.exe --exec does not initialize nvm from an interactive shell.
+        # Preserve the concrete Node/PowerShell locations without depending on
+        # startup files or changing the user's saved PATH.
+        recovery_paths = [str(Path(node).parent)]
+        powershell = shutil.which('powershell.exe')
+        if powershell:
+            recovery_paths.append(str(Path(powershell).parent))
+        recovery_paths += ['/usr/local/bin', '/usr/bin', '/bin']
+        recovery = ['wsl.exe', '-d', distribution, '--cd', str(ROOT), '--', '/usr/bin/env',
+                    'PATH=' + ':'.join(recovery_paths), sys.executable,
                     str(ROOT / 'scripts/strong-launch.py'), '--resume', '--output', str(output)]
         (output / 'resume-after-reboot.cmd').write_text('@echo off\r\n' + subprocess.list2cmdline(recovery) + '\r\npause\r\n')
     print('Started PID', process.pid)

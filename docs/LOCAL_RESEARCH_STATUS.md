@@ -1,5 +1,7 @@
 # Six-hour WSL2 research run: handoff
 
+**New request / 27 October 20:19 UTC:** the learning-first v2 framework and a completed five-minute calibration are published in [TRAINING_RESULTS.md](TRAINING_RESULTS.md). The new six-hour run is **not started**: fresh Windows available physical memory was only 0.58 GiB, below the 1.25-GiB launch floor. Use the resource-checked command in that report after freeing memory. Do not resume the completed v1 run described below. No applications or saved settings were changed. V2 includes source snapshots, small atomic work units and a generated Windows/WSL reboot-resume command.
+
 **Completed 2026-10-27, approximately 09:53 UTC.** All 19 comparison conditions finished, with 1,544 opening pairs / 3,088 games and no failed tasks, in 4 h 26 min 22 s. Keep-awake was released automatically. B remains the production evaluator. See the [published final results](LOCAL_RESEARCH_RESULTS_20261027.md) and [compact evidence](data/local-research-20261027.json). Do not restart or resume this completed experiment.
 
 The launch snapshot below was checked **2026-10-27 05:36:50 UTC** and is retained as history, not current status. The user requested publication of final results after completion; no follow-up study has been started.

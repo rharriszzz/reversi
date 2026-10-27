@@ -148,6 +148,9 @@ class StrongRunnerTests(unittest.TestCase):
             self.assertTrue((output / 'source/scripts/strong/run.mjs').exists())
             receipt = json.loads(next(output.glob('launch-*.json')).read_text())
             self.assertIn(str(output / 'source/scripts/strong/run.mjs'), receipt['command'])
+            recovery = output / 'resume-after-reboot.cmd'
+            if recovery.exists():
+                self.assertIn('PATH=' + str(Path(NODE).parent), recovery.read_text())
             # Completion is published just before worker shutdown. Reap the
             # exact child before removing its output directory.
             try:
