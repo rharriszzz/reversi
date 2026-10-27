@@ -38,8 +38,10 @@ function negamax(board, player, depth, alpha, beta, ctx) {
   ctx.nodes++;
   const key = positionKey(board, player);
   const oldAlpha = alpha, oldBeta = beta;
+  const horizonBefore = ctx.horizonHits;
   const stored = ctx.table.get(key);
   if (stored && stored.depth >= depth) {
+    if (!stored.solved) ctx.horizonHits++;
     if (stored.flag === 'exact') return stored.score;
     if (stored.flag === 'lower') alpha = Math.max(alpha, stored.score);
     if (stored.flag === 'upper') beta = Math.min(beta, stored.score);
@@ -53,7 +55,10 @@ function negamax(board, player, depth, alpha, beta, ctx) {
     // Passes do not consume one ply of move depth.
     return -negamax(board, -player, depth, -beta, -alpha, ctx);
   }
-  if (depth <= 0) return evaluate(board, player, ctx.weights);
+  if (depth <= 0) {
+    ctx.horizonHits++;
+    return evaluate(board, player, ctx.weights);
+  }
 
   let best = -INF, bestMove = null;
   for (const move of orderMoves(board, moves, stored?.bestMove)) {
@@ -69,28 +74,35 @@ function negamax(board, player, depth, alpha, beta, ctx) {
   let flag = 'exact';
   if (best <= oldAlpha) flag = 'upper';
   else if (best >= oldBeta) flag = 'lower';
-  if (ctx.table.size < ctx.tableLimit) ctx.table.set(key, { depth, score: best, flag, bestMove });
+  if (ctx.table.size < ctx.tableLimit) ctx.table.set(key, {
+    depth, score: best, flag, bestMove, solved: ctx.horizonHits === horizonBefore,
+  });
   return best;
 }
 
 function principalVariation(board, player, remaining, ctx) {
   const continuation = [];
-  let current = board, toMove = player, passes = 0;
-  for (let p = 0; p < remaining; p++) {
+  let current = board, toMove = player;
+  while (true) {
     const moves = legalMoves(current, toMove);
     if (!moves.length) {
-      if (++passes === 2) break;
+      if (!legalMoves(current, -toMove).length) break;
       continuation.push('pass');
       toMove = -toMove;
-      p--;
       continue;
     }
-    passes = 0;
-    const choice = ctx.table.get(positionKey(current, toMove))?.bestMove;
-    if (!moves.includes(choice)) break;
+    if (remaining <= 0) break;
+    // A TT move from a cutoff is only a bound. Verify every continuation move
+    // against a full-window value at the SAME remaining depth.
+    const value = negamax(current, toMove, remaining, -INF, INF, ctx);
+    const favored = ctx.table.get(positionKey(current, toMove))?.bestMove;
+    const choice = orderMoves(current, moves, favored).find(move =>
+      -negamax(play(current, toMove, move), -toMove, remaining - 1, -INF, INF, ctx) === value);
+    if (choice === undefined) throw new Error('Could not verify search continuation');
     continuation.push(coord(choice));
     current = play(current, toMove, choice);
     toMove = -toMove;
+    remaining--;
   }
   return continuation;
 }
@@ -98,16 +110,18 @@ function principalVariation(board, player, remaining, ctx) {
 export function scoreAllMoves(board, player, depth = 3, weights = DEFAULT_WEIGHTS) {
   if (!Number.isInteger(depth) || depth < 1 || depth > 14) throw new Error('Depth must be 1..14');
   const start = performance.now();
-  const ctx = { nodes: 0, table: new Map(), tableLimit: 150000, weights };
+  const ctx = { nodes: 0, horizonHits: 0, table: new Map(), tableLimit: 150000, weights };
   const moves = orderMoves(board, legalMoves(board, player));
   const results = [];
   for (const move of moves) {
     const child = play(board, player, move);
+    const horizonBefore = ctx.horizonHits;
     const score = -negamax(child, -player, depth - 1, -INF, INF, ctx);
+    const exact = counts(board).empty <= depth || ctx.horizonHits === horizonBefore;
     // Static features after playing are explanatory evidence, NOT the search score.
     const immediate = evaluateDetailed(child, player, weights);
     results.push({
-      move, notation: coord(move), score,
+      move, notation: coord(move), score, exact,
       immediate,
       pv: [coord(move), ...principalVariation(child, -player, depth - 1, ctx)],
     });
@@ -115,7 +129,8 @@ export function scoreAllMoves(board, player, depth = 3, weights = DEFAULT_WEIGHT
   results.sort((a, b) => b.score - a.score || a.move - b.move);
   return {
     depth,
-    exact: counts(board).empty <= depth,
+    exact: results.length ? results.every(row => row.exact)
+      : !legalMoves(board, -player).length || counts(board).empty <= depth,
     player,
     results,
     nodes: ctx.nodes,

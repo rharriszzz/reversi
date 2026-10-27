@@ -93,5 +93,7 @@ summary { font-size: .79rem; font-weight: 750; color: #477459; cursor: pointer; 
 .weights-wrap th { color: #738875; background: #f4f8f3; }
 .caveat { font-size: .74rem; color: #8d947e; line-height: 1.55; margin-bottom: 0; }
 footer { border-top: 1px solid #dfe8df; color: #879488; font-size: .74rem; margin-top: 25px; padding: 17px 0; }
+#game-review { display: grid; gap: 7px; margin-top: 10px; max-height: 260px; overflow: auto; font-size: .8rem; }
+#game-review button { text-align: left; border: 1px solid #d0e2d2; border-radius: 6px; padding: 8px; background: #f3f8f0; color: #294031; }
 @media (max-width: 1050px) { .workspace { grid-template-columns: 1fr; } .play-side { max-width: 700px; margin: 0 auto; width: 100%; } .teach-side { width: 100%; } .masthead { flex-wrap: wrap; } }
 @media (max-width: 550px) { .app-shell { padding: 15px 12px 32px; } .panel { padding: 15px; } .game-panel { padding: 15px; } .header-tag { white-space: normal; } .board-wrap { padding: 4px; } .game-head h2 { font-size: 1.2rem; } .count-pill { min-width: 52px; gap: 5px; padding: 6px; } .control-grid { grid-template-columns: 1fr; } .move-table { font-size: .75rem; } .move-table td,.move-table th { padding: 9px 6px; } .square-coord { font-size: .48rem; } }

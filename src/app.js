@@ -1,5 +1,6 @@
 import { BLACK, WHITE, initialBoard, counts, coord, flipsFor, legalMoves, play, nextPlayer } from './rules.js';
 import { cloneWeights, DEFAULT_WEIGHTS, FEATURE_NAMES, validWeights } from './features.js';
+import { continuationEvidence } from './coaching.js';
 
 const $ = (id) => document.getElementById(id);
 const STORAGE_KEY = 'reversi-coach-lab-learning-v1';
@@ -27,12 +28,33 @@ let pendingAnalysis = null;
 let pendingAi = null;
 let trainingBusy = false;
 let selectedMove = null;
+let compareMove = null;
+let reviewJob = null;
 let nextJob = 1;
-let trainingMessage = model.version ? `Loaded learned model ${model.version} from local browser storage.` : 'Starter weights loaded. No training performed.';
+let trainingMessage = model.attempts ? `Loaded model ${model.version} after ${model.attempts} training attempts from local browser storage.` : 'Starter weights loaded. No training performed.';
 
-const analyzer = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
-const opponent = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+let analyzer = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+let opponent = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 const trainer = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+let reviewer = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+
+function restart(worker) {
+  worker.terminate();
+  const replacement = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+  replacement.onmessage = worker.onmessage;
+  return replacement;
+}
+function cancelComputer() {
+  if (pendingAi) opponent = restart(opponent);
+  pendingAi = null;
+}
+function cancelAnalysis() {
+  if (pendingAnalysis) analyzer = restart(analyzer);
+  pendingAnalysis = null;
+  analysis = null;
+  selectedMove = null;
+  compareMove = null;
+}
 
 function currentView() {
   if (reviewIndex !== null && reviewIndex < game.history.length) {
@@ -89,6 +111,9 @@ function renderBoard(view) {
 function renderMoveRows() {
   const tbody = $('move-rows');
   tbody.replaceChildren();
+  const compare = $('compare-move');
+  compare.replaceChildren();
+  compare.disabled = !analysis?.results.length;
   if (!analysis) {
     const row = document.createElement('tr');
     row.className = 'empty-row';
@@ -101,6 +126,12 @@ function renderMoveRows() {
     return;
   }
   const results = analysis.results;
+  for (const row of results) {
+    const option = document.createElement('option');
+    option.value = String(row.move); option.textContent = row.notation;
+    compare.append(option);
+  }
+  compare.value = String(compareMove ?? results[0]?.move);
   if (!results.length) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
@@ -113,7 +144,7 @@ function renderMoveRows() {
     tr.className = `${rank === 0 ? 'best ' : ''}${selectedMove === r.move ? 'active' : ''}`;
     tr.tabIndex = 0;
     tr.setAttribute('aria-label', `Inspect ${r.notation}, ${scoreText(r.score)}`);
-    const entries = [String(rank + 1), r.notation, scoreText(r.score), rank === 0 ? '—' : (Math.abs(results[0].score - r.score) > 9000 ? 'Outcome gap' : `−${(results[0].score - r.score).toFixed(1)}`)];
+    const entries = [String(rank + 1), r.notation, `${scoreText(r.score)}${r.exact ? ' (solved)' : ''}`, rank === 0 ? '—' : (Math.abs(results[0].score - r.score) > 9000 ? 'Outcome gap' : `−${(results[0].score - r.score).toFixed(1)}`)];
     entries.forEach((entry, index) => {
       const cell = document.createElement('td');
       cell.textContent = entry;
@@ -124,9 +155,13 @@ function renderMoveRows() {
       }
       tr.append(cell);
     });
-    tr.addEventListener('click', () => { selectedMove = r.move; render(); });
+    const inspect = () => {
+      selectedMove = r.move; render();
+      $('move-rows').children[rank].focus?.();
+    };
+    tr.addEventListener('click', inspect);
     tr.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectedMove = r.move; render(); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inspect(); }
     });
     tbody.append(tr);
   });
@@ -141,8 +176,8 @@ function renderInterpretation(view) {
     const p = document.createElement('p'); p.textContent = 'The coach will show search continuations and position-feature comparisons here. You can also replay earlier positions.';
     box.append(title, p); return;
   }
-  const best = analysis.results[0];
-  const chosen = analysis.results.find(r => r.move === selectedMove) ?? best;
+  const best = analysis.results.find(r => r.move === compareMove) ?? analysis.results[0];
+  const chosen = analysis.results.find(r => r.move === selectedMove) ?? analysis.results[0];
   const isBest = chosen.move === best.move;
   const flipCount = flipsFor(view.board, view.turn, chosen.move).length;
   const topFeatures = Object.entries(chosen.immediate.contributions)
@@ -155,12 +190,12 @@ function renderInterpretation(view) {
 
   box.replaceChildren();
   const h3 = document.createElement('h3');
-  h3.textContent = isBest ? `${chosen.notation} — best found` : `${chosen.notation} versus ${best.notation}`;
+  h3.textContent = isBest ? `${chosen.notation} — selected move` : `${chosen.notation} versus ${best.notation}`;
   box.append(h3);
   const summary = document.createElement('p');
   summary.textContent = isBest
-    ? `At ${analysis.depth} plies, ${chosen.notation} ranks first (${scoreText(chosen.score)}). It flips ${flipCount} disc${flipCount === 1 ? '' : 's'} immediately.`
-    : `${chosen.notation} scores ${scoreText(chosen.score)}, versus ${scoreText(best.score)} for ${best.notation}, after equally deep searches. It flips ${flipCount} disc${flipCount === 1 ? '' : 's'} now.`;
+    ? `At ${analysis.depth} plies, ${chosen.notation} scores ${scoreText(chosen.score)}. It flips ${flipCount} disc${flipCount === 1 ? '' : 's'} immediately.`
+    : `At ${analysis.depth} plies, ${chosen.notation} scores ${scoreText(chosen.score)}, versus ${scoreText(best.score)} for ${best.notation}. Selected minus comparison: ${signed(chosen.score - best.score)} search points. Both scores favor ${sideName(view.turn)}.`;
   box.append(summary);
   if (isBest && topFeatures.length) {
     const p = document.createElement('p');
@@ -170,15 +205,26 @@ function renderInterpretation(view) {
     p.append(strong); box.append(p);
   } else if (!isBest && comparative.length) {
     const p = document.createElement('p');
-    p.append('Relative to the best move, its immediate weighted features differ: ');
+    p.append('Relative to the comparison move, its immediate weighted features differ: ');
     const strong = document.createElement('strong');
     strong.textContent = comparative.map(x => `${x.name} ${signed(x.value)}`).join(' · ');
     p.append(strong); box.append(p);
   }
-  const pv = document.createElement('p');
-  pv.className = 'variation';
-  pv.textContent = `Illustrative search continuation: ${chosen.pv.join(' → ') || chosen.notation}`;
-  box.append(pv);
+  for (const row of isBest ? [chosen] : [chosen, best]) {
+    const pv = document.createElement('p');
+    pv.className = 'variation';
+    pv.textContent = `${row.notation}: ${row.exact ? 'Solved' : 'Heuristic'} · verified depth-${analysis.depth} line: ${row.pv.join(' → ')}. ${sideName(-view.turn)} reply: ${row.pv[1] ?? 'No reply within this horizon'}.`;
+    box.append(pv);
+    const facts = continuationEvidence(view.board, view.turn, row.pv);
+    const evidence = document.createElement('p');
+    const reply = facts[1];
+    const notes = facts.filter(fact => fact.pass || fact.corner).map(fact =>
+      fact.pass ? `${sideName(fact.player)} has no legal move and passes` : `${sideName(fact.player)} takes corner ${fact.move}`);
+    if (reply && !reply.pass) notes.push(`After ${sideName(reply.player)} replies ${reply.move}, legal moves: ${sideName(view.turn)} ${reply.ownMobility}, ${sideName(-view.turn)} ${reply.opponentMobility}`);
+    else if (facts[0] && !facts[0].pass) notes.push(`After ${row.notation}, legal moves: ${sideName(view.turn)} ${facts[0].ownMobility}, ${sideName(-view.turn)} ${facts[0].opponentMobility}`);
+    evidence.textContent = `${row.notation} line evidence: ${notes.join('. ')}. This is one optimal line at the stated depth; tied replies can differ.`;
+    box.append(evidence);
+  }
   const caveat = document.createElement('p');
   caveat.textContent = 'The feature figures describe the immediate resulting position; they are NOT an attribution of the multi-ply alpha–beta score. Opponent replies, mobility changes, and horizon effects can reverse their apparent importance.';
   box.append(caveat);
@@ -229,6 +275,7 @@ function render() {
   slider.value = reviewIndex ?? game.history.length;
   $('review-value').textContent = `${reviewIndex ?? game.history.length} / ${game.history.length} plies`;
   $('undo').disabled = !game.history.length;
+  $('review-game').disabled = game.turn !== null || !game.history.length || reviewJob !== null;
   $('depth-label').textContent = `Depth ${analysis?.depth ?? $('analysis-depth').value}`;
   $('analysis-caption').textContent = view.turn === null
     ? 'The game is complete. Use the replay slider to examine past decisions.'
@@ -249,9 +296,7 @@ function render() {
 
 function startAnalysis() {
   const view = currentView();
-  analysis = null;
-  selectedMove = null;
-  pendingAnalysis = null;
+  cancelAnalysis();
   if (view.turn !== null) {
     const id = nextJob++;
     const key = viewKey();
@@ -262,7 +307,8 @@ function startAnalysis() {
 }
 
 function requestComputer() {
-  if (game.turn === null || game.turn === game.human || (pendingAi && pendingAi.revision === revision)) return;
+  if (reviewIndex !== null || game.turn === null || game.turn === game.human) return;
+  if (pendingAi && pendingAi.revision === revision) { render(); return; }
   const id = nextJob++;
   pendingAi = { id, revision };
   opponent.postMessage({ type: 'analyze', id, board: Array.from(game.board), player: game.turn, depth: Number($('computer-depth').value), weights: model.weights });
@@ -271,7 +317,7 @@ function requestComputer() {
 
 function schedule() {
   if (reviewIndex !== null) startAnalysis();
-  else if (game.turn !== null && game.turn !== game.human) { analysis = null; pendingAnalysis = null; requestComputer(); }
+  else if (game.turn !== null && game.turn !== game.human) { cancelAnalysis(); requestComputer(); }
   else startAnalysis();
 }
 
@@ -293,6 +339,10 @@ function makeMove(move, source) {
 }
 
 function newGame() {
+  cancelComputer();
+  if (reviewJob) reviewer = restart(reviewer);
+  reviewJob = null;
+  $('game-review').replaceChildren();
   revision++;
   reviewIndex = null;
   game.board = initialBoard();
@@ -306,6 +356,10 @@ function newGame() {
 
 function undoTurn() {
   if (!game.history.length) return;
+  cancelComputer();
+  if (reviewJob) reviewer = restart(reviewer);
+  reviewJob = null;
+  $('game-review').replaceChildren();
   // Roll back to the last decision made by the human when possible.
   do {
     const item = game.history.pop();
@@ -356,12 +410,13 @@ trainer.onmessage = (event) => {
   }
   const x = message.outcome;
   if (x.accepted) {
+    cancelComputer();
     model.weights = cloneWeights(x.weights);
     model.version++;
   }
   trainingMessage = `${x.accepted ? 'Accepted challenger!' : 'Challenger rejected.'} ${x.wins} wins, ${x.draws} draws, ${x.losses} losses (${x.points}/${x.total} points). Depth ${x.depth}, paired openings, candidate playing both colors. Attempt ${model.attempts}.`;
   saveModel();
-  startAnalysis();
+  schedule();
 };
 let trainingJobId = null;
 
@@ -370,7 +425,10 @@ $('human-color').addEventListener('change', newGame);
 $('undo').addEventListener('click', undoTurn);
 $('refresh-analysis').addEventListener('click', startAnalysis);
 $('analysis-depth').addEventListener('change', startAnalysis);
+$('compare-move').addEventListener('change', e => { compareMove = Number(e.target.value); render(); });
+$('computer-depth').addEventListener('change', () => { cancelComputer(); schedule(); });
 $('review-slider').addEventListener('input', e => {
+  cancelComputer();
   const idx = Number(e.target.value);
   reviewIndex = idx >= game.history.length ? null : idx;
   schedule();
@@ -390,10 +448,39 @@ $('train').addEventListener('click', () => {
 $('reset-model').addEventListener('click', () => {
   if (trainingBusy || !window.confirm('Reset all learned evaluator weights to the original starter values?')) return;
   model = { weights: cloneWeights(DEFAULT_WEIGHTS), version: 0, attempts: 0 };
+  cancelComputer();
   trainingMessage = 'Learning weights reset to the initial hand-designed model.';
   saveModel();
-  startAnalysis();
+  schedule();
 });
+$('review-game').addEventListener('click', () => {
+  if (game.turn !== null || reviewJob !== null) return;
+  reviewJob = nextJob++;
+  reviewModelVersion = model.version;
+  $('game-review').textContent = `Reviewing your decisions at depth ${$('analysis-depth').value} with model ${model.version}…`;
+  reviewer.postMessage({ type: 'review', id: reviewJob, history: game.history, human: game.human,
+    depth: Number($('analysis-depth').value), weights: model.weights });
+  render();
+});
+let reviewModelVersion = null;
+reviewer.onmessage = ({ data }) => {
+  if (data.id !== reviewJob) return;
+  reviewJob = null;
+  const box = $('game-review'); box.replaceChildren();
+  if (data.type === 'error') box.textContent = `Review failed: ${data.message}`;
+  else {
+    const title = document.createElement('p');
+    title.textContent = `Your decisions ranked by search-point loss using model ${reviewModelVersion}. Click to replay; heuristic losses depend on the stated depth.`;
+    box.append(title);
+    for (const row of data.rows) {
+      const button = document.createElement('button');
+      button.textContent = `Ply ${row.index + 1}: ${row.played} vs ${row.best}, loss ${row.loss.toFixed(1)}, depth ${row.depth} (${row.exact ? 'solved' : 'heuristic'})`;
+      button.addEventListener('click', () => { reviewIndex = row.index; schedule(); });
+      box.append(button);
+    }
+  }
+  render();
+};
 $('export-model').addEventListener('click', () => {
   const json = JSON.stringify({ format: 'reversi-coach-lab-model-v1', exportedAt: new Date().toISOString(), ...model }, null, 2);
   const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));

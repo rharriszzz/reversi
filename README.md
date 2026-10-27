@@ -20,6 +20,8 @@
 2. The server prints a URL such as `http://127.0.0.1:8000/`. On WSL2 it tries to open **your Windows default browser** through Windows PowerShell. If that fails or WSL integration is disabled, open the printed URL manually in Windows Chrome/Edge. The server binds only to local loopback.
 3. Keep the WSL terminal running during play. Press **Ctrl+C** to stop. You may use `./start.sh --no-browser` to suppress automatic browser launch.
 
+HTTP access and error messages go to `logs/http.log`, with rotation at 1 MB and up to three backups. The terminal prints the URL and log location. Use `./start.sh --http-log /tmp/reversi-http.log` to choose another file; relative paths are relative to the calling directory. Logs are ignored by Git. `--port 0` chooses an OS-assigned port; otherwise the launcher tries 8000–8009.
+
 **WSL note:** Save and develop under the Linux filesystem (for example, `~/git/reversi`) instead of `/mnt/c/...`. This typically gives better file-system performance for Git and development tools. Windows 11 normally forwards `localhost` connections into WSL2. If you have disabled WSL localhost forwarding or altered WSL networking, open the URL in a browser within WSL or restore localhost forwarding.
 
 ## First start: current macOS (Apple Silicon or Intel)
@@ -41,18 +43,21 @@ Double-click `start_windows.cmd`, or execute `py -3 launch.py` from PowerShell. 
 
 **Do not open `index.html` with a `file://` URL.** The app uses JavaScript modules and Web Workers, so serve it through `launch.py`.
 
-## Features in starter v0.1
+## Features
 
 - Play Black or White against the computer; selectable search depth 2–6, undo, and game replay.
 - Legal Reversi moves, disc flips, mandatory passes, and correct game termination.
 - All legal moves scored at **the same search depth**, with negamax, alpha-beta, move ordering, and a transposition table.
-- Click any move in the analysis table to inspect its score, an illustrative search continuation, and immediate positional feature contributions.
+- Click any move in the analysis table (or focus it and press Enter/Space) and choose any comparison move. Both moves show backed-up scores, their difference, verified continuations, searched replies, and actual mobility/corner/pass facts from those lines.
+- After a game, **Review my completed game** ranks your decisions by search-point loss at the selected coach depth and current model. Click a decision to replay it.
 - Replay past positions and analyze your alternatives.
 - Phase-dependent heuristic features: corners, mobility, potential mobility, vulnerable X/C squares, frontier discs, and disc count.
 - Experimental weight tuning by seeded, paired self-play games, with model persistence in local browser storage and JSON export.
 - Background Web Workers separate opponent search and learning from the UI.
 
-**Interpretation:** Heuristic search scores are *not* win probabilities or predicted final disc margins. Immediate feature contributions do *not* decompose the score from a multi-ply alpha-beta search. Search lines are illustrative until the principal variation is independently verified. The starter learning tournament is not proof of improved strength.
+**Interpretation:** Heuristic search scores are *not* win probabilities or predicted final disc margins. Immediate feature contributions do *not* decompose the score from a multi-ply alpha-beta search. Each continuation move is verified against a full-window search at the stated remaining depth; tied replies can produce different lines. A “solved” row uses terminal search values (win/loss plus actual disc margin, or zero for a draw). Limited-depth results remain heuristic. The learning tournament is not proof of improved strength.
+
+The positional evaluator has a sensible set of features, but its hand-selected weights are not calibrated against expert play. The first small held-out experiment was inconclusive, so the default weights remain unchanged. See [the initial review](docs/INITIAL_CODEX_REVIEW.md) for measurements and a short improvement plan.
 
 ## Set up the GitHub repository
 
@@ -81,7 +86,18 @@ node --test tests/*.test.mjs
 python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-The first tests check rules, opening perft counts, short endgames, search, seeded learning, and a fake-DOM UI smoke test. The second checks the Python HTTP launcher. An actual browser end-to-end test on **both WSL2/Windows-browser and macOS** is still required; success here on Linux does **not** establish that those environments were tested.
+The JavaScript tests check rules, opening perft counts, endgames, search, seeded learning, and UI behavior. The Python tests check the HTTP launcher. Platform claims require tests on the actual platform; Linux tests alone cannot establish macOS or Windows-browser compatibility.
+
+The expanded tests include a separate sentinel-board rules implementation, exhaustive small endgames, same-depth minimax and continuation checks, symmetries, stale-worker regressions, and training/holdout separation. Real Chromium acceptance and Windows Chrome accessing WSL2 localhost have now passed; **Mac hardware remains untested**. See [platform details and optional browser commands](docs/VALIDATION.md).
+
+Run the bounded, CPU-only evaluation experiment and search benchmark with Node:
+
+```bash
+node scripts/evaluate.mjs 8 2 > /tmp/reversi-evaluation.json
+node scripts/benchmark.mjs
+```
+
+The experiment compares weight mutation and a separate linear TD(0) prototype with the default evaluator. Training and holdout openings are disjoint including board symmetries; holdout games use paired colors and equal fixed search depths. The JSON records seeds, model parameters/versions, sample sizes, and conservative uncertainty over opening pairs. Neither experimental model is installed in the browser. This run takes seconds on the development machine; deeper searches can take longer.
 
 ## Files and responsibilities
 
@@ -96,6 +112,8 @@ The first tests check rules, opening perft counts, short endgames, search, seede
 | `src/features.js` | Interpretable positional features and phase-aware weights |
 | `src/search.js` | Original negamax alpha-beta and legal-move scoring |
 | `src/learning.js` | Seeded candidate weights and paired self-play comparison |
+| `src/td.js`, `scripts/evaluate.mjs` | Separate transparent TD prototype and reproducible held-out comparison |
+| `src/coaching.js`, `src/review.js` | Facts from searched lines and fixed-depth post-game review |
 | `src/worker.js` | Background search/training workers |
 | `src/app.js` | Browser game, move explanations, replay, persistence |
 | `index.html`, `style.css` | Browser UI |

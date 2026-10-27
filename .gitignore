@@ -4,3 +4,6 @@ dist/
 *.log
 *.pyc
 __pycache__/
+logs/
+*.zip
+reversi-coach-model-*.json

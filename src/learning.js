@@ -78,7 +78,8 @@ export function runGeneration(current = DEFAULT_WEIGHTS, options = {}) {
   let wins = 0, draws = 0, losses = 0;
   const games = [];
   for (let p = 0; p < openingPairs; p++) {
-    const opening = randomOpening(rng, 6);
+    const opening = options.openings ? options.openings[p] : randomOpening(rng, 6);
+    if (!opening?.board || ![BLACK, WHITE].includes(opening.player)) throw new Error('Invalid training opening');
     for (const candidateColor of [BLACK, WHITE]) {
       const match = playModelMatch(opening,
         candidateColor === BLACK ? candidate : current,

@@ -11,3 +11,11 @@ I am so sorry.  I forgot to mention that I want the code to work in Windows 11 W
 ---
 
 I also want a markdown file that contains only my requests, and also whatever md files will help the process.
+
+---
+
+Read AGENTS.md, USER_REQUESTS.md, README.md, and CODEX_PROMPT.md.
+
+Then execute the plan in CODEX_PROMPT.md, following the requirements and priorities in those files.
+
+Run the tests, fix any problems, and commit and push your completed work.  Also, please make the http log go to a file rather than the terminal.  Also give me a summary of what the next steps could be.  I am hoping the code already has a reasonabley good positional evaluation.  If you are unsure about this, please plan a way to improve the evaluation, while also not taking very long.  Also, this counts as a user req

@@ -46,7 +46,7 @@
               <select id="human-color"><option value="1">Black (first)</option><option value="-1">White (second)</option></select>
             </label>
             <label>Computer search
-              <select id="computer-depth"><option value="2">2 plies · Gentle</option><option value="3">3 plies · Developing</option><option value="4" selected>4 plies · Challenging</option><option value="5">5 plies · Stronger</option><option value="6">6 plies · Patient</option></select>
+              <select id="computer-depth"><option value="2">2 plies</option><option value="3">3 plies</option><option value="4" selected>4 plies</option><option value="5">5 plies</option><option value="6">6 plies</option></select>
             </label>
             <label>Coach search
               <select id="analysis-depth"><option value="2">2 plies</option><option value="3" selected>3 plies</option><option value="4">4 plies</option><option value="5">5 plies</option><option value="6">6 plies</option></select>
@@ -63,6 +63,12 @@
             <div class="review-caption"><span>Opening</span><span>Current position</span></div>
           </div>
           <div class="moves-history"><strong>Move history</strong><div id="history">No moves played yet.</div></div>
+          <button class="secondary-btn" id="review-game" disabled>Review my completed game</button>
+          <div id="game-review" role="status" aria-live="polite"></div>
+          <details><summary>Full game rules</summary>
+            <p>Black moves first from the four central discs. Place a disc on an empty square so that at least one straight line of opposing discs is bracketed between your new disc and an existing disc of your color. Lines can run horizontally, vertically, or diagonally, without gaps. Flip every bracketed opposing disc in all eight directions.</p>
+            <p>You must make a legal move when one exists. If you have none, you must pass and your opponent moves again. The game ends when neither player has a legal move, even if empty squares remain; a full board or elimination of one color also ends play. The player with more discs wins; equal counts are a draw. Empty squares do not count toward either score.</p>
+          </details>
         </div>
       </section>
 
@@ -72,6 +78,7 @@
           <p class="explain-caption" id="analysis-caption">Every move is searched to the same depth, from the side to move. Select a row to understand it; click the board to play.</p>
           <div class="table-scroll"><table class="move-table"><thead><tr><th>Rank</th><th>Move</th><th>Search score</th><th>Behind best</th></tr></thead><tbody id="move-rows"><tr><td colspan="4">Analyzing...</td></tr></tbody></table></div>
           <p class="metrics" id="search-metrics">Evaluations are measured in heuristic points, not win probabilities.</p>
+          <label>Compare selected move with <select id="compare-move" disabled aria-label="Comparison move"></select></label>
           <div class="interpretation" id="interpretation" aria-live="polite"><h3>What makes a move good?</h3><p>Consider mobility, corners, vulnerable corner-adjacent squares, and your opponent's replies—not just the number of discs gained immediately.</p></div>
         </div>
 

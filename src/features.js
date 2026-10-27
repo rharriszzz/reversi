@@ -43,6 +43,13 @@ export function phaseOf(board) {
 
 const normalized = (a, b, offset = 0) => (a - b) / (a + b + offset || 1);
 
+// Board geometry never changes. Precompute it once, avoiding 64 temporary
+// adjacency arrays and repeated coordinate arithmetic at every search leaf.
+const NEIGHBORS = Array.from({ length: 64 }, (_, i) => DIRECTIONS.flatMap(([dr, dc]) => {
+  const r = (i >> 3) + dr, c = (i & 7) + dc;
+  return r >= 0 && r < 8 && c >= 0 && c < 8 ? [r * 8 + c] : [];
+}));
+
 export function extractFeatures(board, player) {
   const other = -player;
   const ownMoves = legalMoves(board, player).length;
@@ -64,22 +71,23 @@ export function extractFeatures(board, player) {
   let ownFrontier = 0, otherFrontier = 0, ownPotential = 0, otherPotential = 0;
   let ownDiscs = 0, otherDiscs = 0;
   for (let i = 0; i < 64; i++) {
-    const row = i >> 3, col = i & 7;
-    const adj = [];
-    for (const [dr, dc] of DIRECTIONS) {
-      const r = row + dr, c = col + dc;
-      if (r >= 0 && r < 8 && c >= 0 && c < 8) adj.push(board[r * 8 + c]);
+    let emptyNeighbor = false, ownNeighbor = false, otherNeighbor = false;
+    for (const neighbor of NEIGHBORS[i]) {
+      const value = board[neighbor];
+      if (value === 0) emptyNeighbor = true;
+      else if (value === player) ownNeighbor = true;
+      else if (value === other) otherNeighbor = true;
     }
     if (board[i] === player) {
       ownDiscs++;
-      if (adj.includes(0)) ownFrontier++;
+      if (emptyNeighbor) ownFrontier++;
     } else if (board[i] === other) {
       otherDiscs++;
-      if (adj.includes(0)) otherFrontier++;
+      if (emptyNeighbor) otherFrontier++;
     } else {
       // Empty squares next to *opponent* discs are potential moves for us.
-      if (adj.includes(other)) ownPotential++;
-      if (adj.includes(player)) otherPotential++;
+      if (otherNeighbor) ownPotential++;
+      if (ownNeighbor) otherPotential++;
     }
   }
   return {

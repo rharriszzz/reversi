@@ -27,6 +27,7 @@ class MockDocument {
   createElement() { return new Element(); }
 }
 class MockWorker {
+  terminate() {}
   postMessage({type, id, board, player, depth, weights, options}) {
     queueMicrotask(() => {
       try {
@@ -73,4 +74,47 @@ test('UI controller: initial analysis, a complete turn, undo, replay, training',
   await tick();
   assert.match(get('training-status').textContent, /challenger/i);
   assert.equal(get('train').disabled, false);
+});
+
+test('late worker responses, depth changes, replay and restart cannot overwrite the current game', async () => {
+  const workers = [];
+  class ControlledWorker {
+    constructor() { workers.push(this); this.jobs = []; }
+    postMessage(job) { this.jobs.push(job); }
+    terminate() { this.terminated = true; }
+    answer(job = this.jobs.at(-1)) {
+      this.onmessage({ data: { type: 'analyzed', id: job.id,
+        analysis: scoreAllMoves(Int8Array.from(job.board), job.player, job.depth, job.weights) } });
+    }
+  }
+  const document = new MockDocument();
+  globalThis.document = document; globalThis.Worker = ControlledWorker;
+  await import('../src/app.js?controlled');
+  const get = id => document.getElementById(id);
+  const oldAnalyzer = workers[0];
+  get('analysis-depth').value = '2'; get('analysis-depth').events.change();
+  oldAnalyzer.answer();
+  assert.equal(get('move-rows').children.length, 1, 'old analysis ignored');
+  workers.at(-1).answer();
+  assert.equal(get('move-rows').children.length, 4);
+  get('move-rows').children[1].click();
+  get('compare-move').events.change({ target: { value: '37' } });
+  assert.match(get('interpretation').children[0].textContent, /versus F5/);
+  get('board').children[19].click();
+  const oldOpponent = workers[1];
+  get('computer-depth').value = '2'; get('computer-depth').events.change();
+  const newOpponent = workers.at(-1);
+  oldOpponent.answer();
+  assert.equal(get('history').children.length, 1, 'old computer depth ignored');
+  get('review-slider').events.input({ target: { value: '0' } });
+  newOpponent.answer();
+  assert.equal(get('history').children.length, 1, 'computer does not move during replay');
+  get('review-slider').events.input({ target: { value: '1' } });
+  const resumed = workers.at(-1);
+  get('new-game').click(); resumed.answer();
+  assert.equal(get('history').children.length, 0, 'old computer move ignored after new game');
+  get('human-color').value = '-1'; get('human-color').events.change();
+  workers.at(-1).answer();
+  assert.equal(get('turn-title').textContent, 'White to move');
+  assert.equal(get('history').children.length, 1);
 });
