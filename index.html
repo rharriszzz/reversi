@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Reversi Coach Lab</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="masthead">
+      <div>
+        <div class="eyebrow">A playable strategy laboratory</div>
+        <h1>Reversi <span>Coach Lab</span></h1>
+        <p>Play a game. Inspect every move. Test what the engine learns.</p>
+      </div>
+      <div class="header-tag">Original alpha–beta engine · Local-first</div>
+    </header>
+
+    <main class="workspace">
+      <section class="play-side" aria-label="Reversi board and controls">
+        <div class="panel game-panel">
+          <div class="game-head">
+            <div>
+              <div class="section-kicker">THE BOARD</div>
+              <h2 id="turn-title">Black to move</h2>
+              <p class="subtle" id="turn-detail">You are Black · Select a highlighted square.</p>
+            </div>
+            <div class="disc-count" aria-label="Disc counts">
+              <div class="count-pill"><span class="mini-disc black"></span><strong id="black-count">2</strong></div>
+              <div class="count-pill"><span class="mini-disc white"></span><strong id="white-count">2</strong></div>
+            </div>
+          </div>
+          <div class="board-wrap">
+            <div class="board" role="grid" aria-label="Reversi game board" id="board"></div>
+          </div>
+          <p class="status" id="status" role="status" aria-live="polite">Preparing the opening...</p>
+          <div class="board-foot"><span id="position-label">Live position</span><span id="last-play">No moves played</span></div>
+        </div>
+
+        <div class="panel controls-panel">
+          <div class="panel-header"><h2>Game controls</h2><span class="helper">Change levels at any time</span></div>
+          <div class="control-grid">
+            <label>Play as
+              <select id="human-color"><option value="1">Black (first)</option><option value="-1">White (second)</option></select>
+            </label>
+            <label>Computer search
+              <select id="computer-depth"><option value="2">2 plies · Gentle</option><option value="3">3 plies · Developing</option><option value="4" selected>4 plies · Challenging</option><option value="5">5 plies · Stronger</option><option value="6">6 plies · Patient</option></select>
+            </label>
+            <label>Coach search
+              <select id="analysis-depth"><option value="2">2 plies</option><option value="3" selected>3 plies</option><option value="4">4 plies</option><option value="5">5 plies</option><option value="6">6 plies</option></select>
+            </label>
+          </div>
+          <div class="action-row">
+            <button class="primary-btn" id="new-game">New game</button>
+            <button class="secondary-btn" id="undo">Undo turn</button>
+            <button class="secondary-btn" id="refresh-analysis">Reanalyze</button>
+          </div>
+          <div class="review-block">
+            <div class="review-title"><strong>Position replay</strong><span id="review-value">Start</span></div>
+            <input id="review-slider" type="range" min="0" max="0" value="0" step="1" aria-label="View game position">
+            <div class="review-caption"><span>Opening</span><span>Current position</span></div>
+          </div>
+          <div class="moves-history"><strong>Move history</strong><div id="history">No moves played yet.</div></div>
+        </div>
+      </section>
+
+      <section class="teach-side" aria-label="Analysis and learning tools">
+        <div class="panel analysis-panel">
+          <div class="panel-header"><div><div class="section-kicker">THE COACH</div><h2>Every legal move, evaluated</h2></div><span class="hint-pill" id="depth-label">Depth 3</span></div>
+          <p class="explain-caption" id="analysis-caption">Every move is searched to the same depth, from the side to move. Select a row to understand it; click the board to play.</p>
+          <div class="table-scroll"><table class="move-table"><thead><tr><th>Rank</th><th>Move</th><th>Search score</th><th>Behind best</th></tr></thead><tbody id="move-rows"><tr><td colspan="4">Analyzing...</td></tr></tbody></table></div>
+          <p class="metrics" id="search-metrics">Evaluations are measured in heuristic points, not win probabilities.</p>
+          <div class="interpretation" id="interpretation" aria-live="polite"><h3>What makes a move good?</h3><p>Consider mobility, corners, vulnerable corner-adjacent squares, and your opponent's replies—not just the number of discs gained immediately.</p></div>
+        </div>
+
+        <div class="panel trainer-panel">
+          <div class="panel-header"><div><div class="section-kicker">EXPERIMENTAL</div><h2>Learn through self-play</h2></div><span class="hint-pill" id="model-version">Model 0</span></div>
+          <p class="explain-caption">Mutate a few positional weights, then compare the challenger with the current model in paired games from the same openings, switching colors. Keep a challenger only if it passes the tournament threshold.</p>
+          <div class="action-row trainer-actions">
+            <button class="primary-btn" id="train">Train one generation</button>
+            <button class="secondary-btn" id="export-model">Export model</button>
+            <button class="quiet-btn" id="reset-model">Reset</button>
+          </div>
+          <div id="training-status" class="training-status" role="status" aria-live="polite">Starter weights loaded. No training performed.</div>
+          <details>
+            <summary>Inspect evaluator weights</summary>
+            <div class="weights-wrap" id="weights-table"></div>
+          </details>
+          <p class="caveat">A small tournament is a learning experiment, not proof of improved playing strength. Independent benchmarks are a priority for the next version.</p>
+        </div>
+      </section>
+    </main>
+    <footer>All game logic and learning run in your browser. No external engine or server account. Scores and explanations are estimates until an endgame is searched to completion.</footer>
+  </div>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
