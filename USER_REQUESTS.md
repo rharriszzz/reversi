@@ -285,3 +285,7 @@ I can exit Chrome if you want
 ---
 
 Can you add commit and push a bit of information to tell the other ai what is happening, and also tell me what I can do locally to check on progress?  thanks.
+
+---
+
+Can you please record the results in github, next?

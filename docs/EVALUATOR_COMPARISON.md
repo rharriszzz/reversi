@@ -1,5 +1,7 @@
 # Three evaluator strategies: quality, cost, depth, and strength
 
+Subsequent evidence: [the completed autonomous study](LOCAL_RESEARCH_RESULTS_20261027.md) reports 768 moderate-time and 384 longer-time confirmation opening pairs for a newly learned candidate. It failed promotion; B remains the production evaluator. This document retains the earlier A/B/C comparison and its original holdouts.
+
 This round starts at `4576ace` on `main` and builds on [the previous experiments](EVALUATION_EXPERIMENTS.md). It does not repeat the random/greedy comparisons or smooth-phase pilot. The original evaluator and all weights in `src/features.js` are unchanged.
 
 ## Strategies and decision rule

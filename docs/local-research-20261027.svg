@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="470" viewBox="0 0 1120 470">
+<rect width="1120" height="470" fill="white"/><style>text{font:14px sans-serif;fill:#222}.small{font-size:12px}.title{font-size:18px;font-weight:bold}</style>
+<text x="25" y="28" class="title">Independent late-game quality and paired timed confirmation</text>
+<text x="70" y="62">Exact disc regret at depth 3 (64 ten-empty positions)</text>
+<path d="M70 80 V355 H490" fill="none" stroke="#444"/>
+<path d="M65 323.75 H490" stroke="#ddd"/><text x="42" y="328.75">2</text>
+<path d="M65 261.25 H490" stroke="#ddd"/><text x="42" y="266.25">3</text>
+<path d="M65 198.75 H490" stroke="#ddd"/><text x="42" y="203.75">4</text>
+<path d="M65 136.25 H490" stroke="#ddd"/><text x="42" y="141.25">5</text>
+<text x="136.66666666666666" y="378">2</text>
+<text x="270.0" y="378">3</text>
+<text x="403.33333333333337" y="378">4</text>
+<circle cx="152.6557777718537" cy="171.40625" r="6" fill="#1764ad"/><text x="162.6557777718537" y="163.40625">B</text>
+<circle cx="200.02933337249686" cy="161.640625" r="6" fill="#777777"/><text x="210.02933337249686" y="153.640625">C</text>
+<circle cx="366.2875555372901" cy="287.6171875" r="6" fill="#b85018"/><text x="376.2875555372901" y="279.6171875">add-stable</text>
+<text x="100" y="406">Evaluation cost, microseconds (lower is cheaper)</text>
+<text x="70" y="431" class="small">Vertical: mean exact final-disc regret; lower is better.</text>
+<text x="620" y="62">Frozen add-stable vs B: opening-pair points</text>
+<path d="M845.0 85 V335" stroke="#555" stroke-dasharray="5 5"/>
+<path d="M620 355 H1070" stroke="#444"/>
+<text x="608.0" y="378">0.2</text>
+<text x="683.0" y="378">0.3</text>
+<text x="758.0" y="378">0.4</text>
+<text x="833.0" y="378">0.5</text>
+<text x="908.0" y="378">0.6</text>
+<text x="983.0" y="378">0.7</text>
+<text x="1058.0" y="378">0.8</text>
+<text x="620" y="118">80 ms; 768 opening pairs; 43.2%</text>
+<path d="M715.6450171068506 150 H872.7924828931496 M715.6450171068506 143 V157 M872.7924828931496 143 V157" stroke="#b85018" stroke-width="2"/><circle cx="794.21875" cy="150" r="6" fill="#b85018"/>
+<text x="620" y="238">300 ms; 384 opening pairs; 41.1%</text>
+<path d="M666.9854300462271 270 H889.2255074537729 M666.9854300462271 263 V277 M889.2255074537729 263 V277" stroke="#b85018" stroke-width="2"/><circle cx="778.10546875" cy="270" r="6" fill="#b85018"/>
+<text x="620" y="406">Conservative simultaneous 95% intervals</text>
+<text x="620" y="431" class="small">512 possible conditions × all prefixes through 1,024 pairs.</text>
+<text x="25" y="458" class="small">Prediction and playing strength answer different questions. B remains the production evaluator.</text></svg>

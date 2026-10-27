@@ -1,5 +1,7 @@
 # Evaluation quality, speed, and playing strength
 
+The completed autonomous study is recorded in [LOCAL_RESEARCH_RESULTS_20261027.md](LOCAL_RESEARCH_RESULTS_20261027.md): 3,088 tournament games, larger untouched confirmation, independent ten-empty labels, and no promoted evaluator. Its improved late-position accuracy did not meet the equal-time strength rule. The historical measurements below retain their original scope.
+
 Follow-up round: [EVALUATOR_COMPARISON.md](EVALUATOR_COMPARISON.md) compares the unchanged evaluator A, result-preserving faster implementation B, and independently selected stable-edge candidate C on new development/selection/final datasets. It adds expanded paired 20/80 ms trials under a stated total time cap, cross-phase quality/rank measurements, a graph, and the requested Egaroucid methods assessment. The measurements below remain the historical `4576ace` round; they are not repeated as fresh confirmation. Search now defaults to B's identical mathematical values, while A remains available and C remains experimental.
 
 This extends the completed [initial review](INITIAL_CODEX_REVIEW.md), rather than restarting it. Original evaluation features and weights remain the browser defaults and reference. The latest user request is appended verbatim to `USER_REQUESTS.md`; `CODEX_PROMPT.md` now records this priority.

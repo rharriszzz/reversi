@@ -1,8 +1,10 @@
 # Six-hour WSL2 research run: handoff
 
-Snapshot checked **2026-10-27 05:36:50 UTC**. This is a dated handoff, not a live status page. Read the local manifest for the current state. The user wants local computation to proceed without AI supervision, methodology redesign, or repeated development work.
+**Completed 2026-10-27, approximately 09:53 UTC.** All 19 comparison conditions finished, with 1,544 opening pairs / 3,088 games and no failed tasks, in 4 h 26 min 22 s. Keep-awake was released automatically. B remains the production evaluator. See the [published final results](LOCAL_RESEARCH_RESULTS_20261027.md) and [compact evidence](data/local-research-20261027.json). Do not restart or resume this completed experiment.
 
-## Run and current state
+The launch snapshot below was checked **2026-10-27 05:36:50 UTC** and is retained as history, not current status. The user requested publication of final results after completion; no follow-up study has been started.
+
+## Run identity and historical launch snapshot
 
 - Started **2026-10-27 05:26:39 UTC**, independently of the conversation, using the existing detached launcher on the WSL host.
 - Coordinator PID: **559597** on WSL host `daisy`. Sandbox process lists cannot see this host PID. PIDs are only valid for this launch and can be reused after exit.
@@ -24,18 +26,18 @@ python3 scripts/research-launch.py --mode full --hours 6 --workers 2 --seed 2026
 
 Preflight found 28 logical CPUs (i7-14700F), Windows CPU samples 2–9%, WSL CPU about 0.3%, Windows available physical RAM approximately 2.4–2.5 GiB, WSL available RAM 6.4 GiB, WSL swap usage 88 MiB, and no active paging in the measurement windows. Windows C: had 367 GiB free; WSL advertised 904 GiB on its virtual filesystem. Chrome used approximately 3.0 GiB private working set, Photos 472 MiB, and WSL 946 MiB. **Two workers were chosen for memory headroom**, rather than automatically choosing four. No duplicate research process was found; the old sandbox `detached-check/run.lock` was left alone.
 
-Windows Balanced power settings sleep after one hour on AC. The user explicitly approved a temporary keep-awake request and two workers; the request is active in Windows PowerShell PID **40836** (WSL interop PID **559572**). It releases automatically after the experiment stops/finishes, or at its safety deadline **2026-10-27 11:28:39 UTC**. Saved power settings are unchanged and display sleep remains allowed. No applications were closed or existing processes terminated. The administrator-only `powercfg /requests` listing was skipped and recorded.
+Windows Balanced power settings sleep after one hour on AC. The user explicitly approved a temporary keep-awake request and two workers; it ran in Windows PowerShell PID **40836** (WSL interop PID **559572**) and was released at **2026-10-27 09:53:10 UTC** after completion. Saved power settings are unchanged. No applications were closed or existing processes terminated. The administrator-only `powercfg /requests` listing was skipped and recorded.
 
 The user subsequently instructed: **do not ask for further approval; record and skip or work around steps needing it**. Do not change settings or close applications under an inferred permission.
 
-## Check progress from a normal WSL terminal
+## Inspect completed artifacts from a normal WSL terminal
 
 ```bash
 cd /home/rharris/git/reversi
-tail -f .local-research/six-hour-20261027/launcher.log
+tail -n 30 .local-research/six-hour-20261027/launcher.log
 ```
 
-Press **Ctrl+C** to stop following the log; this does **not** stop the detached experiment. Progress lines appear about every 15 seconds. Read the periodically generated report with:
+The log is now finished; there are no further progress lines to wait for. Read the final generated local report with:
 
 ```bash
 less .local-research/six-hour-20261027/report.md
@@ -59,7 +61,7 @@ PY
 
 `results.json`, `report.md`, `curves.svg`, `quality-cost.svg`, and the manifest live in the output directory. Task/model files and the exact frozen selection remain local. The checkpoint and report may lag the live process by 15–30 seconds; they are rewritten atomically. A single sample can be stale, so check whether the log/checkpoint advances before diagnosing a stall.
 
-## Resume only after an interruption
+## Historical resume instructions — not needed for this completed run
 
 The following **local-only** helper calls the existing detached launcher with `--resume`, then renews the approved temporary Windows keep-awake request:
 
@@ -74,8 +76,8 @@ Other local-only operational records are `.local-research/six-hour-preflight-202
 
 ## Instructions for the next AI
 
-Read this file, `USER_REQUESTS.md`, and [LOCAL_RESEARCH_PLAN.md](LOCAL_RESEARCH_PLAN.md). Leave the program running until the user returns to review results. Do not launch duplicate experiments or tune models from partial results. Avoid unrelated CPU-heavy work during timed comparisons.
+Read `USER_REQUESTS.md`, this file, and [the final results](LOCAL_RESEARCH_RESULTS_20261027.md). The computation is complete and the user requested GitHub publication. Do not launch another study or tune against the disclosed final data without a new request. The report records the need to include newly published roots/reference boards in any future exclusions.
 
 **Do not edit `src/`, `scripts/`, `tests/`, `package.json`, or `docs/data/` while this run is active.** They are hashed inputs; changes stop the run and prevent compatible resume. In particular, do not regenerate the smoke-summary JSON. Documentation-only changes to this file, README, CODEX_PROMPT and USER_REQUESTS are outside that digest. A documentation commit may change Git HEAD while the manifest correctly continues to identify the original framework commit.
 
-When the user returns, read the final manifest, report, results, frozen-selection record and failures. Confirm completion and sample sizes before interpreting strength. Preserve training/development/selection/confirmation separation and pair-level uncertainty; no premature champion or Elo claim. Commit only a compact, reproducible final report if requested, never raw datasets, models or logs. This handoff contains no final strength conclusion.
+The final manifest, report, results and frozen-selection record remain local. Preserve training/development/selection/confirmation separation and pair-level uncertainty; no premature champion or Elo claim. Only the compact reproducible evidence/report is published, never raw datasets, trained weights or logs. The published final report supersedes this launch snapshot.
