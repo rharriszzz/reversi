@@ -559,3 +559,35 @@ What is the available physical ram now?
 ---
 
 Can you start the program that does the investigation, or is it better if I do it?
+
+---
+
+Windows task manager seems to show that no process is using more than 0.1% of the cpu.
+
+---
+
+I do not know how to use Task Mananger to learn anything interesting about VmmemWSL
+
+---
+
+Is there a non command line type of way to do something like "tail"
+
+---
+
+how many minutes will this step run for, and can you give me an eta?
+
+---
+
+What is happening now?
+
+---
+
+The other chatgpt is worried that this experiment might not finish within its time limits.  If it stops due to the time limits, can I then ask it to finish this experiment?
+
+---
+
+is it soon finished?
+
+---
+
+i want an extension.  should i wait until it times out?  how do iask for it?

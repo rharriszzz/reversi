@@ -141,6 +141,18 @@ Current macOS Apple Silicon/Intel and actual Windows-browser acceptance are not 
 
 ## Six-hour launch status: running
 
+**Authorized extension, 28 October 02:23 UTC:** after the original six-hour cap checkpointed normally, the user requested additional time. The saved total active allowance was increased from 360 to **390 minutes**, after verifying that the old coordinator had exited and acquiring its writer lock. An fsynced, byte-identical checkpoint backup and a durable extension audit were saved before atomic replacement. Verification confirmed that all pre-existing checkpoint fields except the time allowance/audit were unchanged, including every completed task; selection-freeze and model SHA-256 values were also unchanged.
+
+The original run resumed as PID **1985590**, with 162/256 pairs at 80 ms, all 128/128 at 300 ms and all 16/16 at 20 ms already complete. It is finishing the same fixed sample, with no retraining, new candidate selection or changed statistical threshold. The extension was requested to cover missing computation, not selected from interim game outcomes. The new cap is around **10:53 p.m. Eastern on 27 October**, with completion expected earlier if the remaining 94 pairs keep their recent pace. Resource checks passed at 5.38 GiB available physical memory, and the temporary power request was renewed. The local audit file is `budget-extension-30-minutes.json`; the pre-extension manifest is `manifest-before-30-minute-extension.json`. This is an extension of the existing confirmation campaign, not the separately proposed 24–72-hour research round.
+
+Resume command used:
+
+```bash
+python3 scripts/strong-launch.py --resume --output .local-research/strong-six-hour-20261027
+```
+
+The following launch record describes the original six-hour session; its PID has exited, and the extension above is the current session.
+
 **Successfully started 27 October 2026 at 20:32:51 UTC**, following the user's request to launch it. Coordinator PID **1944968**; **two workers** at reduced priority; **six active hours maximum**, fresh seed **2026102807**. Output: `/home/rharris/git/reversi/.local-research/strong-six-hour-20261027`. This is the full learning campaign, not another tiny pilot. It repeats calibration internally to size its learning/confirmation reserve. B remains production.
 
 The actual launch preflight found **5.07 GiB available Windows physical RAM**, Windows CPU 3%, WSL CPU about 0.2%, 88 MiB allocated swap with no active swapping, about 903 GiB WSL filesystem space, and no duplicate research coordinator. The detached launch returned, and subsequent checkpoints advanced into calibration with new games and labels and no task failures. A separate host process check verified persistence after launcher exit. The already-authorized temporary keep-awake request is active, Windows PID **64404**, with a bounded expiry; no saved settings or applications were changed.
