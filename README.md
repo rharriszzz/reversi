@@ -1,6 +1,8 @@
 # Reversi
 
-**Latest research:** the frozen long-pattern screen completed all 288 games within its cap and did not beat B. B remains production; no new long training run is recommended. See [the results and engineering round](docs/NEXT_EVALUATOR_RESEARCH.md), [profiling](docs/PERFORMANCE_PROFILING.md), [language comparison](docs/LANGUAGE_COMPARISON.md), and [worker scaling](docs/RESOURCE_SCALING.md).
+**Stage A teacher audit:** Edax passed independent exact validation, but depth-eight/depth-ten stability was 70.8%, below the 90% gate. Stage B was not started; B remains production. See [the teacher audit](docs/TEACHER_AUDIT.md).
+
+**Previous research:** the frozen long-pattern screen completed all 288 games within its cap and did not beat B. B remains production; no new long training run is recommended. See [the results and engineering round](docs/NEXT_EVALUATOR_RESEARCH.md), [profiling](docs/PERFORMANCE_PROFILING.md), [language comparison](docs/LANGUAGE_COMPARISON.md), and [worker scaling](docs/RESOURCE_SCALING.md).
 
 **Proposed GitHub repository:** `rharriszzz/reversi` (one word).
 

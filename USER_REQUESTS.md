@@ -1087,3 +1087,35 @@ If you believe our current approach is fundamentally misguided, say so and expla
 Run any relevant lightweight verification, and commit and push the completed strategy document.
 
 **The goal is not to produce another large collection of inconclusive experiments. The goal is to choose a research direction with a credible path to a substantially stronger Reversi player.**
+
+---
+
+Please begin implementing Stage A of the research strategy in `docs/ASTRA_STRATEGY.md`.
+
+Use the latest `main` branch of `rharriszzz/reversi`.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/ASTRA_STRATEGY.md`, and the latest research and performance reports.
+
+For this round, concentrate on establishing a reliable independent Reversi teacher, preferably Edax, and performing the bounded teacher audit described by Astra.
+
+Implement the external-engine adapter, pin its version and relevant evaluation data, verify move coordinates, player perspective, pass behavior, terminal scoring, and all-alternative search values. Keep the external engine separate from our own implementation and respect its licensing requirements.
+
+Use independent exact endgame positions to validate the adapter before generating substantial labels.
+
+Then implement the phase-stratified teacher audit with its predefined depth-stability and disagreement criteria.
+
+Benchmark actual labeling throughput and resource consumption before committing to the full audit. Preserve adequate time for reporting and verification.
+
+Use the improved logging, profiling, checkpointing, and CPU resource management from the previous round. Avoid repetitive log lines that do not explain what work is being performed.
+
+Do not modify production evaluator B or replace our original alpha-beta engine.
+
+Do not start Stage B training, a new six-hour campaign, or a larger computation merely because Stage A finishes.
+
+Produce `docs/TEACHER_AUDIT.md`, documenting the implementation, tests, teacher configuration, measurements, independent disagreements with B, limitations, and whether Astra's Stage A criteria were satisfied.
+
+Run the relevant tests, commit and push the verified work, and explain any remaining uncertainties.
+
+Minimize AI supervision during the local computations.
+
+The goal is to determine whether a sufficiently strong, independent teacher provides reliable and useful information that our previous learning systems lacked.
