@@ -8,6 +8,7 @@ import {findBestMove} from '../../src/search.js';
 import {legalMovesFast} from '../../src/fast-features.js';
 import {seededRandom} from '../../src/learning.js';
 export const ORIGINAL_RESERVATION={directory:'teacher-qualification-v2-20261028',digest:'380ec247b80087296a993e6d2925bd1a81735b8b4291e93da68c1040f920242b',receiptSha:'88fa005675864fe9bd247172283f0e09cd5f77a9b30147612ec292d1eba3aadb',resultsSha:'e8890494361dac2f1efcde74c141de8d430d4e6ccb789bc2ef77c5cc829eba03'};
+export const UNOPENED_V4={directory:'teacher-qualification-v4-20261028',digest:'77efd57b14b5c4289b63c1bad204b048c2defe7311342056456716bc0f00519a',receiptSha:'9b19b207e1dcf03ba00ab110d5f3f5f97a5591052a9b26eef98ffdb8b9ab1d98',resultsSha:'b6483d3e64ae903db91eef9930a1fe740f365f090f201160b8ae3ce781a85302'};
 const same=(a,b)=>hash(a)===hash(b);
 export function verifyTrajectory(root,tr,namespace){
  if(!Array.isArray(root.board)||root.board.length!==64||!root.board.every(x=>[-1,0,1].includes(x))||![-1,1].includes(root.player)||root.occupied!==64-counts(root.board).empty||root.key!==canonical(root.board,root.player)||legalMoves(root.board,root.player).length<2)throw Error('Invalid imported board/turn/canonical identity');
@@ -41,6 +42,17 @@ export function inspectOriginal(repository){
  for(const name of readdirSync(`${repository}/src`))if(/\.js$/.test(name)&&hash(readFileSync(`${repository}/src/${name}`,'utf8'))!==hash(readFileSync(`${dir}/source/src/${name}`,'utf8')))throw Error('Original source-policy implementation changed');
  return {dir,old,reservation:r.result};
 }
+// A scientific query failure remains non-resumable. Only its unopened roles
+// may enter a NEW run, with their original digest, order, policy and odd IDs.
+export function inspectUnopenedV4(repository){
+ const id=UNOPENED_V4,dir=`${repository}/.local-research/${id.directory}`,r=read(`${dir}/tasks/reservation.json`),old=read(`${dir}/results.json`),manifest=read(`${dir}/manifest.json`);
+ if(hash(readFileSync(`${dir}/tasks/reservation.json`,'utf8'))!==id.receiptSha||hash(readFileSync(`${dir}/results.json`,'utf8'))!==id.resultsSha||r.result.digest!==id.digest||hash(r.result.roles)!==id.digest)throw Error('Unopened V4 reservation digest mismatch');
+ if(old.status!=='stopped'||old.stage!=='calibration'||old.resumable!==false||old.assessment||old.exactAssessment||old.selection||manifest.runIdentity!==old.runIdentity||hash({frozen:old.source,pin:old.pin,protocol:old.protocol})!==old.runIdentity||r.inputHash!==hash({input:r.input,runIdentity:old.runIdentity})||sourceDigest(`${dir}/source`)!==old.source)throw Error('Unopened V4 stopped-run provenance mismatch');
+ for(const sub of ['tasks','raw','failed-tasks'])if(existsSync(`${dir}/${sub}`))for(const file of readdirSync(`${dir}/${sub}`))if(/^(assessment-|exact-assessment-)/.test(file))throw Error('V4 assessment has been evaluated');
+ const expected=r.result.roles.assessment.filter((_,i)=>i%64<8).map(s=>s.id);if(!same(expected,r.result.oddIds)||expected.length!==32)throw Error('V4 odd subset changed');
+ for(const name of readdirSync(`${repository}/src`))if(/\.js$/.test(name)&&hash(readFileSync(`${repository}/src/${name}`,'utf8'))!==hash(readFileSync(`${dir}/source/src/${name}`,'utf8')))throw Error('V4 source-policy implementation changed');
+ return {dir,old,reservation:r.result,identity:id};
+}
 export function importReservations(repository,output,historical,check,inspection=inspectOriginal(repository)){
  const {dir,old,reservation}=inspection,roles={assessment:reservation.roles.assessment,'exact-assessment':reservation.roles['exact-assessment']},seen=new Set(),seeds=new Set(),trajectories={};
  if(roles.assessment.length!==256||roles['exact-assessment'].length!==64)throw Error('Wrong import denominator');
@@ -51,6 +63,6 @@ export function importReservations(repository,output,historical,check,inspection
   const tr=read(`${dir}/trajectories/${root.id}.json`),keys=verifyTrajectory(root,tr,old.protocol.namespace);
   for(const k of keys){if(historical.keys.has(k)||seen.has(k))throw Error('Imported reservation historical/duplicate leakage');seen.add(k);}verifySourcePolicy(root,tr);trajectories[root.id]=hash(tr);atomic(`${output}/trajectories/${root.id}.json`,tr);
  }
- const provenance={...ORIGINAL_RESERVATION,oldSource:old.source,oldProtocol:old.protocol,oldRunIdentity:old.runIdentity,previouslyReserved:true,previouslyEvaluated:false,deterministicSourcePolicyReplay:true,sourcePolicyByteIdentity:true,rolesDigest:hash(roles),oddIds:roles.assessment.filter((_,i)=>i%64<8).map(s=>s.id),trajectoryHashes:trajectories,verifiedKeys:seen.size};
+ const provenance={...(inspection.identity??ORIGINAL_RESERVATION),oldSource:old.source,oldProtocol:old.protocol,oldRunIdentity:old.runIdentity,previouslyReserved:true,previouslyEvaluated:false,deterministicSourcePolicyReplay:true,sourcePolicyByteIdentity:true,rolesDigest:hash(roles),oddIds:roles.assessment.filter((_,i)=>i%64<8).map(s=>s.id),trajectoryHashes:trajectories,verifiedKeys:seen.size};
  return {roles,provenance,keys:seen,seeds};
 }

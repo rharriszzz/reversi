@@ -8,7 +8,7 @@ import {freemem,uptime} from 'node:os';
 import {identity,alternatives,sha} from './edax.mjs';
 import {validate} from './validate.mjs';
 import {reserveData} from './qualification-data.mjs';
-import {PROTOCOL,hash,receipt,writerLock,parallel,compare,calibrationPass,quantile,mean,feasible,assessGates,summarize,bootstrapMean,tops,exactCalibration,recoveryCharge} from './qualification-core.mjs';
+import {PROTOCOL,hash,receipt,writerLock,parallel,compare,calibrationPass,quantile,mean,feasible,assessGates,summarize,bootstrapMean,tops,exactCalibration,recoveryCharge,optionalDepthDecision} from './qualification-core.mjs';
 import {atomic,read,sourceDigest} from '../research/io.mjs';
 import {QualificationProgress as Progress} from './qualification-progress.mjs';
 import {Profiler} from '../strong/telemetry.mjs';
@@ -65,7 +65,7 @@ export async function main(argv=process.argv.slice(2)){
   progress.set({stage:'calibration',substage:'independent-exact',task:'both conventions plus Edax D6/D8/D10/exact',total:8});let exactCompleted=0;state.exactCost=await parallel(reservation.roles['exact-cost'],workers,async s=>{const result=await exact(s);progress.update({completed:++exactCompleted});return result;});checkpoint();
   const comparisons=(h,r)=>cost.map(s=>({...compare(cal[s.id][h],cal[s.id][r]),phase:s.phase,policy:s.policy}));
   // D16 is optional only when ALL 24 searches plus allowance fit the calibration stage.
-  const costSum=d=>cost.reduce((n,s)=>n+cal[s.id][d].wallMs,0),growth=Math.max(1,costSum(14)/costSum(12)),d16Forecast=costSum(14)*growth;state.d16Decision={growth,forecastSerialMs:d16Forecast,remainingCalibrationMs:protocol.stageCaps.calibration-stageElapsed(),attempted:protocol.allowance*d16Forecast<protocol.stageCaps.calibration-stageElapsed()};
+  state.d16Decision=optionalDepthDecision(cost.map(s=>cal[s.id][12].wallMs),cost.map(s=>cal[s.id][14].wallMs),protocol.stageCaps.calibration-stageElapsed(),protocol);
   progress.emit('optional-d16-decision',state.d16Decision);if(state.d16Decision.attempted){progress.set({stage:'calibration',substage:'optional-D16',task:'all 24 predetermined roots D16',total:24});let d16Completed=0;await parallel(cost,workers,async s=>{cal[s.id][16]=await label(s,16);progress.update({completed:++d16Completed});});}
   let b6Ms=0;for(const s of cost)b6Ms+=(await bChoice(s)).elapsedMs;state.costB6Ms=b6Ms;
   state.calibration={depths:state.d16Decision.attempted?[10,12,14,16]:[10,12,14],pairs:[...[[10,12],[12,14]],...(state.d16Decision.attempted?[[14,16]]:[])].map(([h,r])=>({h,r,pass:calibrationPass(comparisons(h,r)),summary:summarize(comparisons(h,r))})),odd:oddCost.map(s=>({id:s.id,...compare(cal[s.id][12],cal[s.id][13])})),cost:cost.map(s=>({id:s.id,phase:s.phase,policy:s.policy,depths:Object.fromEntries(Object.entries(cal[s.id]).map(([d,v])=>[d,{wallMs:v.wallMs,native:v.native,nodes:v.rows.reduce((a,x)=>a+x.nodes,0)}]))}))};

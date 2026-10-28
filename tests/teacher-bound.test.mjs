@@ -41,7 +41,7 @@ test('V4 admission reserves every role freshly without reading old assessment ou
  const {reserveData}=await import('../scripts/teacher/qualification-data.mjs');const {PROTOCOL}=await import('../scripts/teacher/qualification-core.mjs');const {mkdirSync}=await import('node:fs');const {verifyTrajectory}=await import('../scripts/teacher/qualification-import.mjs');
  const dir=mkdtempSync(join(tmpdir(),'fresh-v4-'));try{
   for(const name of ['strong-six-hour-20261027','six-hour-20261027','next-frozen-screen-20261028','teacher-audit-v1-20261028'])atomic(`${dir}/.local-research/${name}/manifest.json`,{seed:1});mkdirSync(`${dir}/.local-research/teacher-audit-v1-20261028/tasks`);atomic(`${dir}/docs/data/teacher-audit-20261028.json`,{summary:{examples:[]}});
-  const protocol={...PROTOCOL,namespace:'fresh-v4-test',costPerPhase:2,assessmentPerPhase:2,exactCostPerEmpty:1,exactAssessmentPerEmpty:1,assessmentOddPerPhase:1},output=`${dir}/.local-research/current`;
+  const protocol={...PROTOCOL,namespace:'fresh-v4-test',reservationImport:null,costPerPhase:2,assessmentPerPhase:2,exactCostPerEmpty:1,exactAssessmentPerEmpty:1,assessmentOddPerPhase:1},output=`${dir}/.local-research/current`;
   const r=await reserveData(dir,output,()=>{},()=>{},{protocol});assert.equal(r.import,null);assert.deepEqual(Object.values(r.roles).map(a=>a.length),[8,8,2,2]);assert.equal(r.oddIds.length,4);
   for(const roots of Object.values(r.roles))for(const s of roots)verifyTrajectory(s,read(`${output}/trajectories/${s.id}.json`),protocol.namespace);
   assert.equal((await reserveData(dir,output,()=>{},()=>{},{protocol})).digest,r.digest);

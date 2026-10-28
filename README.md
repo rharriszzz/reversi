@@ -1,5 +1,7 @@
 # Reversi
 
+**Teacher qualified in V4R1:** D10/R12 passed all eight predefined gates on the complete 256-root reliability and 64-root independent exact samples. It found 56 stable useful corrections to B, including 19 early-game corrections; all 449 exact-endgame alternatives matched independently. The authorized retry preserved V4's unopened assessment set and repaired optional-depth scheduling. See [the full results](docs/TEACHER_DEPTH_QUALIFICATION_V4.md) and [the proposed 21-weight frontier residual experiment](docs/RESIDUAL_FRONTIER_EXPERIMENT_PLAN.md). Training has not started; B remains production.
+
 **Stage A teacher audit:** Edax passed independent exact validation, but depth-eight/depth-ten stability was 70.8%, below the 90% gate. Stage B was not started; B remains production. See [the teacher audit](docs/TEACHER_AUDIT.md).
 
 **Deeper teacher qualification:** D10/D12/D14 calibration completed, but an independent twelve-empty reference exceeded its fixed ten-second cap. Qualification stopped before the locked assessment; no training started. See [the results and next action](docs/TEACHER_DEPTH_QUALIFICATION.md).
@@ -8,7 +10,7 @@
 
 **Teacher qualification V3:** D10/R12 was selected after complete fresh calibration, including D16. The fixed assessment stopped at 154/256 roots when Edax emitted a bounded `>+63` result; no invalid label was accepted. The complete early sample contains 27 useful estimated corrections to B, but qualification remains incomplete and no training started. See [V3 evidence and the focused next action](docs/TEACHER_DEPTH_QUALIFICATION_V3.md).
 
-**Edax interface repaired:** a separate, hashed experimental build resolves the bound at the requested fixed horizon and passes independent endgame, horizon and window checks. All 308 completed V3 root/depth results are unchanged. Fresh V4 reservations and an executable configuration are prepared; no V4 assessment or training has started. See [the diagnosis, overhead and V4 launch recommendation](docs/EDAX_BOUND_RESOLUTION.md).
+**Edax interface repaired:** a separate, hashed experimental build resolves the bound at the requested fixed horizon and passes independent endgame, horizon and window checks. All 308 completed V3 root/depth results are unchanged. That engineering round prepared fresh V4 reservations without opening assessment; the subsequent completed qualification is reported above. See [the diagnosis, overhead and V4 launch recommendation](docs/EDAX_BOUND_RESOLUTION.md).
 
 **Previous research:** the frozen long-pattern screen completed all 288 games within its cap and did not beat B. B remains production; no new long training run is recommended. See [the results and engineering round](docs/NEXT_EVALUATOR_RESEARCH.md), [profiling](docs/PERFORMANCE_PROFILING.md), [language comparison](docs/LANGUAGE_COMPARISON.md), and [worker scaling](docs/RESOURCE_SCALING.md).
 

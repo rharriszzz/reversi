@@ -7,7 +7,7 @@ import {initialBoard,play,counts,legalMoves} from '../../src/rules.js';
 import {legalMovesFast} from '../../src/fast-features.js';
 import {findBestMove} from '../../src/search.js';
 import {seededRandom} from '../../src/learning.js';
-import {inspectOriginal,importReservations,verifyTrajectory} from './qualification-import.mjs';
+import {inspectOriginal,inspectUnopenedV4,importReservations,verifyTrajectory} from './qualification-import.mjs';
 import {PROTOCOL,hash} from './qualification-core.mjs';
 export function boardKeys(s,children=false){const boards=[s.board];if(children)for(const m of legalMoves(s.board,s.player))boards.push([...play(s.board,s.player,m)]);return boards.flatMap(b=>[canonical(b,1),canonical(b,-1)]);}
 export function loadHistorical(repository,excludeOutput=null,skipReservation=null){const previous=['strong-six-hour-20261027','six-hour-20261027','next-frozen-screen-20261028'].map(x=>resolve(repository,'.local-research',x));const local=resolve(repository,'.local-research');for(const name of readdirSync(local))if((name.startsWith('teacher-qualification')||name.startsWith('bound-benchmark'))&&resolve(local,name)!==resolve(excludeOutput??'/nonexistent')&&resolve(local,name)!==resolve(skipReservation??'/nonexistent')&&existsSync(`${local}/${name}/tasks/reservation.json`))previous.push(resolve(local,name));for(const name of readdirSync(local))if(name.startsWith('exact-benchmark')&&existsSync(`${local}/${name}/results.json`))previous.push(resolve(local,name));const h=historicalKeys(repository,previous),seeds=new Set();
@@ -19,7 +19,7 @@ export function loadHistorical(repository,excludeOutput=null,skipReservation=nul
  if(h.audit.missingLocalInputs)throw Error('Historical inputs incomplete');return {...h,seeds,audit:{...h.audit,teacherTasks,allKeys:h.keys.size,priorSeeds:seeds.size}};
 }
 export async function reserveData(repository,output,check,progress,{protocol=PROTOCOL}={}){
- const inspection=protocol.version<4?inspectOriginal(repository):null,h=loadHistorical(repository,output,inspection?.dir);
+ const inspection=protocol.reservationImport?.startsWith('teacher-v4-20261028:')?inspectUnopenedV4(repository):protocol.version<4?inspectOriginal(repository):null,h=loadHistorical(repository,output,inspection?.dir);
  // Only untouched assessment roles are exempted; every old engineering trajectory stays excluded.
  if(inspection)for(const role of ['cost','exact-cost'])for(const root of inspection.reservation.roles[role]){for(const k of verifyTrajectory(root,read(`${inspection.dir}/trajectories/${root.id}.json`),inspection.old.protocol.namespace))h.keys.add(k);h.seeds.add(root.seed);}
  if(inspection)h.audit.importExemption={directory:inspection.dir,digest:inspection.reservation.digest,engineeringRolesStillExcluded:['cost','exact-cost'],keysBeforeImport:h.keys.size};

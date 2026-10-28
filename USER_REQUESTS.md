@@ -1877,3 +1877,168 @@ Run all relevant tests, commit and push the verified results, and keep the origi
 Use local computation autonomously, with informative logging and minimal additional AI supervision.
 
 **Our immediate goal is to remove the remaining teacher-interface defect so that the next experiment can finally determine whether independently generated strategic supervision is good enough to improve B.**
+
+
+---
+
+# Reversi — Execute the Prepared V4 Edax Teacher Qualification
+
+Continue in `~/git/reversi` using GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, and:
+
+- `docs/EDAX_BOUND_RESOLUTION.md`
+- `docs/TEACHER_DEPTH_QUALIFICATION_V3.md`
+- `docs/ASTRA_TEACHER_STRATEGY.md`
+- `docs/EXACT_SOLVER_OPTIMIZATION.md`
+
+The Edax bound-resolution work is finished and independently tested.
+
+The new experimental Edax executable corrects the native bound and horizon-search problems identified in V3. A separate independent horizon oracle, native regression tests, exact-endgame tests, and parser validation have passed.
+
+The original Edax installation, all previous experimental records, and production evaluator B remain unchanged.
+
+**I authorize you to execute the already prepared V4 teacher-qualification experiment, with its existing 120-active-minute ceiling.**
+
+## 1. Use the existing V4 preparation
+
+The prepared run is located at:
+
+`.local-research/teacher-qualification-v4-20261028`
+
+It already contains:
+
+- 24 fresh depth-calibration positions.
+- Eight fresh exact-calibration positions.
+- 256 fresh independent reliability-assessment positions.
+- 64 fresh independent exact-assessment positions.
+- A predetermined 32-position odd-depth subset.
+- A frozen source snapshot, protocol and reservation identities.
+
+Do not regenerate these positions or change their order.
+
+Verify the prepared run identity, source hashes, patched Edax executable and evaluation-data hashes before launching.
+
+Confirm that no qualification labels already exist and that no duplicate experiment is running.
+
+The documented launch command is:
+
+```bash
+python3 scripts/teacher/qualification-launch.py \
+  --output .local-research/teacher-qualification-v4-20261028 --resume
+```
+
+Use the existing prepared configuration, not an independently reconstructed experiment.
+
+## 2. Execute the frozen protocol
+
+First complete the depth and exact-calibration stages.
+
+The protocol includes:
+
+- D10, D12 and D14 searches.
+- Fixed D13 checks.
+- Optional complete-sample D16 calibration, only if the existing forecast permits it.
+- Exact verification using both terminal scoring conventions.
+- Selection of the lowest qualifying horizon/reference depth pair.
+
+Do not assume D10/D12 is qualified before calibration.
+
+If calibration passes and the conservative runtime forecast shows that the full assessment can finish within the allowance, execute the original fixed assessment.
+
+Preserve every predefined reliability, regret, significant-reversal, exact-agreement and useful-disagreement criterion.
+
+Do not relax thresholds, change the search definition or reduce the sample after looking at results.
+
+## 3. Manage computational resources
+
+Use the existing Windows/WSL resource preflight.
+
+Use up to two independent native search workers when available memory permits, otherwise reduce concurrency safely.
+
+Keep Windows responsive. Do not close applications, change saved system settings or terminate unrelated processes.
+
+Use the bounded temporary keep-awake mechanism already implemented and approved for these experiments.
+
+Preserve durable checkpoints and restart recovery. Do not repeat completed tasks after an interruption.
+
+Maintain the 120-minute active-time limit, 35% forecast allowance and final 20-minute reporting reserve.
+
+If the fixed assessment cannot fit, stop before opening it.
+
+If another required query produces an unresolved native bound or a correctness failure, preserve the evidence and stop. Do not silently substitute a value.
+
+## 4. Provide informative logging
+
+Continue using the improved logging system.
+
+Show the current stage, depth, completed and remaining positions, native CPU consumption, memory usage, measured throughput, active long-running queries, estimated completion when justified, and last successful checkpoint.
+
+Avoid repeated identical progress lines that provide no explanation of active work.
+
+Keep detailed telemetry in separate machine-readable files.
+
+The local program should perform the substantial computation without requiring repeated AI supervision.
+
+## 5. Analyze the completed experiment
+
+Once the run finishes, prepare `docs/TEACHER_DEPTH_QUALIFICATION_V4.md`.
+
+Include the complete results and relevant graphs.
+
+I particularly want to understand:
+
+1. Which Edax teacher/reference search depths were selected.
+2. Whether the search results were sufficiently stable and reliable.
+3. How frequently B chose significantly worse moves.
+4. Whether those errors were concentrated in particular game phases.
+5. Whether independently solved endgames support the teacher's accuracy.
+6. How many useful strategic corrections were found.
+7. Whether every predefined qualification gate passed.
+8. The elapsed time, total CPU work, memory consumption and forecast accuracy.
+
+Distinguish teacher-relative estimates from mathematically exact game values.
+
+If the experiment stops early, report the precise reason and completed sample counts. Do not describe partial results as a successful qualification.
+
+## 6. Scientific conclusions
+
+If the qualification succeeds, determine whether the results justify proceeding with our proposed B-preserving residual evaluator.
+
+The proposed first learning model is:
+
+E_new = B + learned correction
+
+Initially, it should adjust only the 21 original phase-dependent feature weights.
+
+The subsequent learning experiment should use independently labeled search-frontier positions, as proposed in `ASTRA_TEACHER_STRATEGY.md`.
+
+Do not automatically begin that training.
+
+If qualification fails, identify the main reason and recommend one specific next action.
+
+In particular, distinguish lack of teacher reliability from lack of useful disagreements with B. They are different scientific conclusions.
+
+## 7. Completion
+
+Audit all experimental receipts and protocol identities.
+
+Verify that assessment independence was maintained, that the patched native search was used consistently, and that the original production code was unchanged.
+
+Run the appropriate tests, publish compact evidence and graphs, and commit and push the final report and verified changes.
+
+Preserve large raw data, native executables, trained models and third-party evaluation files locally.
+
+At completion, summarize:
+
+- Whether V4 qualified the teacher.
+- The strongest evidence supporting that conclusion.
+- Whether the next round should begin learning corrections to B.
+- Your recommended next experiment and model choice.
+
+**The immediate objective is to complete a trustworthy independent Edax teacher qualification. We are not yet trying to train or promote a new Reversi evaluator.**
+
+
+---
+
+I am sorry, I don't want to have to report that kind of failure back to the chat.  Please fix it, and re-run the test, you have permission to use somewhat more time.
