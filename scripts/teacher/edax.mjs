@@ -8,7 +8,7 @@ import { legalMoves, play, counts } from '../../src/rules.js';
 export const SOURCE='713a434f13b3d15fb69c61b9ba3641aed82c496c';
 export const EVAL_SHA='f8b2299612d9fa4414157e70e932636e33111c2602d0c2fc382a7d90ef21b792';
 export const sha=path=>createHash('sha256').update(readFileSync(path)).digest('hex');
-export function obf(board,player){if(board.length!==64||!board.every(v=>[-1,0,1].includes(v))||![1,-1].includes(player))throw Error('Invalid board/turn');return Array.from(board,v=>v===1?'X':v===-1?'O':'-').join('')+` ${player===1?'X':'O'};`;} 
+export function obf(board,player){if(board.length!==64||!board.every(v=>[-1,0,1].includes(v))||![1,-1].includes(player))throw Error('Invalid board/turn');return Array.from(board,v=>v===1?'X':v===-1?'O':'-').join('')+` ${player===1?'X':'O'};`;}
 export function moveIndex(s){if(/^(pa|ps|pass)$/i.test(s))return null;if(!/^[a-h][1-8]$/i.test(s))throw Error(`Invalid coordinate ${s}`);return s.toLowerCase().charCodeAt(0)-97+8*(Number(s[1])-1);}
 export function parse(text,n,depths){
  const rows=[];
