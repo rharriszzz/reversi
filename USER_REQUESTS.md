@@ -896,3 +896,194 @@ Is there more memory now?
 ---
 
 ok, please resume, using the memory if you need it.
+
+---
+
+# Reversi: Independent Strategic Review
+
+Work with repository `rharriszzz/reversi`.
+
+I want you to act primarily as a research scientist and algorithm designer, rather than immediately as a programmer.
+
+**Use your strongest independent reasoning to devise a new strategy for producing an excellent Reversi evaluation function and a substantially stronger playing engine.**
+
+The current baseline, evaluator B, is still the best demonstrated player despite several substantial experiments with machine learning.
+
+This is surprising to me because B is a simple, handcrafted linear evaluator with 21 approximately chosen weights. I originally wrote Reversi programs using alpha-beta search in assembler and Fortran around 1982, and I believe the problem ought to be tractable with modern computing resources.
+
+I want to understand why our learned evaluators have failed and identify the most promising next approach.
+
+## 1. Study the existing evidence
+
+Read the repository documentation, particularly:
+
+- `USER_REQUESTS.md`
+- `AGENTS.md`
+- `docs/STRONG_EVALUATOR_RESULTS_20261028.md`
+- `docs/STRONG_EVALUATOR_REVIEW.md`
+- `docs/NEXT_EVALUATOR_RESEARCH.md`
+- `docs/PERFORMANCE_PROFILING.md`
+- `docs/LANGUAGE_COMPARISON.md`
+- `docs/RESOURCE_SCALING.md`
+- `docs/EVALUATOR_ARCHITECTURES.md`
+
+Inspect the actual search, evaluation, training, and experimental code wherever necessary to understand the findings.
+
+Distinguish measured facts from interpretations and hypotheses.
+
+Avoid recommending experiments that have already been performed without explaining what materially changes in the new experiment.
+
+## 2. Diagnose the fundamental problem
+
+Why is evaluator B still so competitive?
+
+Investigate several possible explanations independently:
+
+- B's handcrafted features encode unusually useful strategic knowledge.
+- Our training games are played by insufficiently strong opponents.
+- Predicting game outcomes or final disc margins is not the appropriate learning objective.
+- Search-generated training labels inherit biases from B itself.
+- The learned models are inaccurate in the opening and middlegame.
+- Pattern architectures or phase divisions are inadequate.
+- The optimizer, checkpoint-selection criteria, or training procedure are preventing improvements.
+- Evaluation improvements are too expensive to compensate for reduced search depth.
+- Our tests of positional quality are not sufficiently predictive of actual playing strength.
+
+Do not assume these hypotheses are equally likely.
+
+Inspect whether the current training and search implementations contain conceptual problems that ordinary correctness tests would not detect.
+
+Identify which hypotheses are already contradicted by our measurements and which remain plausible.
+
+## 3. Reconsider the learning problem from first principles
+
+What would you train if your goal were to build a genuinely strong Reversi player?
+
+Consider, but do not limit yourself to:
+
+- Supervised learning using stronger independent search results.
+- Learning move preferences rather than position values.
+- Temporal-difference learning and improved self-play.
+- Learning from exact endgames.
+- Compact n-tuple and pattern-table evaluators.
+- Improvements to the existing linear evaluation.
+- Hybrid evaluators retaining B's strategic features.
+- More modern approaches, including small neural networks, if justified.
+- Iterative improvement in which a stronger engine creates progressively better training examples.
+
+Consider whether we are trying to approximate the wrong mathematical quantity.
+
+For example, a position's expected final score under weak self-play is different from its minimax value against optimal opposition.
+
+Investigate whether this distinction could explain our failures.
+
+Also consider how search depth changes the optimal evaluation function and how the horizon effect influences learning.
+
+## 4. Investigate the state of the art
+
+Review established Reversi methods, including Edax, Egaroucid, and relevant research into learned n-tuple evaluators.
+
+Also consider applicable lessons from modern chess engines, particularly efficient neural evaluation and search-guided training.
+
+I do not insist on neural networks or any particular method.
+
+I want an informed judgment about which approaches are likely to work well for Reversi on a modern desktop PC.
+
+An independent strong engine may be useful as a teacher or benchmark without replacing our original engine.
+
+## 5. Consider the computational architecture
+
+The latest round measured a substantial improvement from a C++ prototype, but JavaScript remains our reference implementation.
+
+Evaluate whether we should:
+
+- Retain JavaScript throughout.
+- Use C++ for expensive training and reference searches.
+- Move the entire search core to C++.
+- Use a hybrid with C++ computation and JavaScript orchestration/browser UI.
+
+Consider eventual macOS support and potential WebAssembly integration.
+
+Do not recommend a full rewrite merely because C++ is faster. Explain what additional scientific capability or stronger playing performance that speed could enable.
+
+The experiment framework now supports improved logging, profiling, efficient checkpointing, and higher parallel throughput. Build on those improvements rather than redesigning them unnecessarily.
+
+## 6. Invent and compare alternative research strategies
+
+I would like at least three genuinely different approaches to improving playing strength.
+
+For each, estimate:
+
+- Probability of making useful progress, with uncertainty.
+- Necessary training data and label quality.
+- Local CPU hours.
+- Memory and storage requirements.
+- Implementation effort.
+- Expected evaluation speed.
+- Major risks and likely failure modes.
+- How quickly we could distinguish a promising direction from a dead end.
+
+Do not fabricate numerical probabilities or expected strength gains without sufficient support. Qualitative assessments and transparent assumptions are acceptable.
+
+Compare the approaches critically.
+
+Then **choose one primary strategy** and explain why you prefer it over the alternatives.
+
+Do not simply recommend doing everything.
+
+## 7. Design a sequence of experiments
+
+Once you have chosen a direction, devise a staged experimental program.
+
+I am willing to devote many hours of local computation, possibly running experiments overnight, but want to minimize AI supervision.
+
+Start with a relatively inexpensive experiment designed to falsify the main hypothesis quickly.
+
+If that succeeds, define progressively larger experiments, potentially 6, 24, or more hours of local work.
+
+For each stage, specify:
+
+- What will be implemented.
+- What will be measured.
+- What constitutes success or failure.
+- What data are needed.
+- How many games or positions should be examined.
+- How evaluation accuracy and playing strength will be distinguished.
+- What results justify proceeding to the next stage.
+- When we should abandon or reconsider the approach.
+
+Reserve independent final tests and do not tune against previously published holdouts.
+
+Use paired games, both colors, credible uncertainty estimates, and equal-time comparisons.
+
+Build in sufficient scheduling margin to finish all predeclared tests without repeated extensions.
+
+Use available CPU parallelism efficiently while keeping my Windows 11 WSL2 computer responsive.
+
+## 8. Do not start another long run yet
+
+For this round, I primarily want your **reasoned strategic assessment**.
+
+Do not start a multi-hour computation, implement a new evaluator, or begin a major code rewrite until the strategy has been reviewed.
+
+You may perform small, focused tests if genuinely necessary to resolve an important uncertainty.
+
+Please prepare `docs/ASTRA_STRATEGY.md`, containing:
+
+1. Executive summary.
+2. Diagnosis of why B has remained strongest.
+3. Comparison of plausible research directions.
+4. Your selected strategy and supporting reasoning.
+5. The first decisive experiment.
+6. A staged longer-term research plan.
+7. Computing requirements and estimated training time.
+8. Open questions requiring my input.
+9. A suggested implementation plan for a subsequent Codex session.
+
+Be willing to challenge assumptions in the current project, including assumptions in previous ChatGPT recommendations.
+
+If you believe our current approach is fundamentally misguided, say so and explain why.
+
+Run any relevant lightweight verification, and commit and push the completed strategy document.
+
+**The goal is not to produce another large collection of inconclusive experiments. The goal is to choose a research direction with a credible path to a substantially stronger Reversi player.**
