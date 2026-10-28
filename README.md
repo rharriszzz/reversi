@@ -147,6 +147,8 @@ See `CODEX_PROMPT.md` for the current plan and completed milestone history. The 
 
 ## Autonomous local evaluator research
 
+**V2 campaign completed:** [final results](docs/STRONG_EVALUATOR_RESULTS_20261028.md) and [review recommendations](docs/STRONG_EVALUATOR_REVIEW.md). It accumulated 600,885 positions and completed all fixed test targets after an authorized extension. The learned finalist did not demonstrate stronger equal-time play, so B remains production. Do not resume that completed run; the launch commands below are framework documentation.
+
 **New learning-first campaign:** use [STRONG_EVALUATOR_PLAN.md](docs/STRONG_EVALUATOR_PLAN.md), [TRAINING_DATA.md](docs/TRAINING_DATA.md), [EVALUATOR_ARCHITECTURES.md](docs/EVALUATOR_ARCHITECTURES.md) and [TRAINING_RESULTS.md](docs/TRAINING_RESULTS.md). The v2 launcher sizes workers from current physical memory, freezes its source, checkpoints small work units and resumes after Windows reboot:
 
 ```bash

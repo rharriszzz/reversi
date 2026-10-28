@@ -1,5 +1,7 @@
 # Strong evaluator training: implementation and pilot
 
+**The full campaign is complete.** All 256/128/16 original confirmation pairs finished after the authorized extension. The learned finalist scored 44.43% at 80 ms and 47.07% at 300 ms, failing promotion; B stays production. Read [the completed results](STRONG_EVALUATOR_RESULTS_20261028.md) and [the suggested next review](STRONG_EVALUATOR_REVIEW.md). The launch, pilot and extension notes below are historical, not a running status. No additional long experiment has started.
+
 **B remains the production evaluator.** The six-hour campaign and the short correctness/calibration experiments must be distinguished. This report will record the launch and bounded pilot evidence; a launched run is not a completed strength result.
 
 ## Previous failure: measured representation cost

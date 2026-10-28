@@ -1,5 +1,7 @@
 # Strong positional evaluator research, v2
 
+**Completion handoff:** the authorized campaign and extension are finished. Read [the audited final results](STRONG_EVALUATOR_RESULTS_20261028.md) and [the next-review prompt](STRONG_EVALUATOR_REVIEW.md) before proposing more work. B remains production; the commands below describe the framework and do not authorize another long run. Do not resume the completed output directory.
+
 The user request in USER_REQUESTS.md authorizes this framework and one approximately six-hour campaign. B remains production. The original alpha-beta search and coaching interface are preserved. This document describes assistant implementation decisions, not additional user requirements.
 
 ## What changes from v1

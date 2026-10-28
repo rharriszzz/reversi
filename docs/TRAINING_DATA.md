@@ -1,5 +1,7 @@
 # Offline training data and recovery
 
+The completed v2 run contains **600,885 retained positions, 11,406 exact labels and 26,595 search labels**. See [the final audited report](STRONG_EVALUATOR_RESULTS_20261028.md) and `scripts/summarize-strong-research.py` for read-only publication/checking. The new publication's disclosed roots and references join historical exclusions; full local trajectories must also be excluded or retain their original roles in any authorized continuation. Never resume the completed run merely to inspect it.
+
 V2 lives in `scripts/strong/`; raw artifacts belong under Git-ignored `.local-research/`. Ordinary Python/browser play gains no dependency. Node 20+ runs these optional developer experiments.
 
 ## Durable records

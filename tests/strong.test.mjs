@@ -111,6 +111,9 @@ test('historical exclusion carries labeled alternatives across independent campa
     writeFileSync(join(folder,'labels.json'),JSON.stringify({labels:[{board:[...p.board],player:p.player,rows:[{move}]}]}));
     writeFileSync(join(folder,'manifest.json'),JSON.stringify({labels:{train:[join(folder,'labels.json')]}}));
     const h=historicalKeys(folder,[folder]);assert.ok(h.keys.has(canonical(child,-p.player)));
+    mkdirSync(join(folder,'docs/data'),{recursive:true});
+    writeFileSync(join(folder,'docs/data/strong-evaluator-20261028.json'),JSON.stringify({publishedKeys:[canonical(child,-p.player)]}));
+    assert.ok(historicalKeys(folder).keys.has(canonical(child,-p.player)));
   } finally {rmSync(folder,{recursive:true,force:true});}
 });
 test('historical allocation-free linear/stable compilation preserves values and minimax',()=>{

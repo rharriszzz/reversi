@@ -591,3 +591,7 @@ is it soon finished?
 ---
 
 i want an extension.  should i wait until it times out?  how do iask for it?
+
+---
+
+Is it done? Can you summarize, suggest next steps for the chatgpt to revies, add, commit, push.  thanks.
