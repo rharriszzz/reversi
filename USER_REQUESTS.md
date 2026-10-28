@@ -595,3 +595,304 @@ i want an extension.  should i wait until it times out?  how do iask for it?
 ---
 
 Is it done? Can you summarize, suggest next steps for the chatgpt to revies, add, commit, push.  thanks.
+
+---
+
+# Reversi — Next research round: better evaluator selection, profiling, parallelism, and logging
+
+Work in `/home/rharris/git/reversi`.
+
+Read `USER_REQUESTS.md`, `AGENTS.md`, `docs/STRONG_EVALUATOR_RESULTS_20261028.md`, `docs/STRONG_EVALUATOR_REVIEW.md`, and the current research implementation.
+
+The previous experiment is complete. Preserve its results and trained models. Do not repeat it unchanged.
+
+## Principal objective
+
+Find the most promising route to a substantially stronger Reversi evaluator while also improving the computational efficiency and observability of the research framework.
+
+My main interests are:
+
+1. Better positional evaluation.
+2. Better use of my PC's processing power.
+3. Profiling and benchmarking to identify expensive operations.
+4. Clear, useful progress logging.
+5. More reliable computation-budget estimates, with ample margin.
+6. An evidence-based programming-language decision.
+
+**I prefer substantial local computation over repeated AI involvement.**
+
+## 1. Prioritize the fast long-pattern evaluator
+
+The completed experiment found that the learned long-pattern margin evaluator cost approximately 0.80 microseconds per evaluation, versus 2.61 microseconds for B, while giving better development exact-move ranking and regret.
+
+It was excluded from serious tournaments by a very small difference in a screening metric, because the selection procedure considered speed only as a tiebreaker.
+
+This seems like our most promising missed opportunity.
+
+Start by evaluating the existing frozen long-pattern margin and preference models against B.
+
+Do not retrain them before the first comparison.
+
+Use fresh development-only openings, paired colors, and equal 80-ms and 300-ms budgets. Include equal-depth tests where useful.
+
+Reserve approximately 30–60 minutes for this initial screening, with a predeclared time cap and sample sizes. It is a development screen, not a final strength claim.
+
+Compare:
+
+- Playing results and uncertainty.
+- Completed search depth.
+- Nodes and static evaluations per second.
+- Evaluation cost.
+- Exact endgame regret.
+- Move-ranking quality.
+
+Preserve the entire original baseline B.
+
+## 2. Fix candidate selection
+
+Replace the previous screening rule with one that explicitly considers evaluation quality AND execution cost.
+
+Investigate a Pareto-frontier approach: retain candidates that are not clearly dominated in both quality and speed.
+
+Also preserve some diversity among evaluator families.
+
+A tiny difference in an approximate ranking score should not eliminate a substantially faster evaluator without meaningful playing tests.
+
+Avoid choosing a complex model merely because it achieves slightly lower prediction MSE.
+
+The primary objective is playing strength at equal elapsed computation time.
+
+## 3. Improve logging substantially
+
+I do not want dozens of progress lines containing identical position and label counts with no indication of what the program is doing.
+
+Implement event-based progress logging with a less frequent heartbeat.
+
+Every meaningful progress report should show:
+
+- Current stage and substage.
+- Exact active task, model, and training batch.
+- Positions processed or epochs completed.
+- Actual new data generated since the last report.
+- Time spent in the current operation.
+- Measured throughput.
+- Completed and remaining tasks.
+- Estimated stage completion and overall completion, with uncertainty.
+- CPU and memory utilization when readily available.
+- Time of the last successful checkpoint.
+
+When a long task is running, explicitly say so. For example:
+
+"Fitting long-pattern model, batch 18/24, epoch 3/6; CPU active; no new training positions expected until fitting finishes."
+
+Do not display misleading estimates of progress based only on elapsed time.
+
+Keep the regular heartbeat compact, perhaps every 30–60 seconds. Print an immediate line on stage changes, substantial completed tasks, failures, and checkpoint milestones.
+
+Write detailed machine-readable telemetry separately from the human-readable log.
+
+Keep the ordinary text log easy to follow in Notepad++.
+
+Detect unusually long tasks and report their age and current status without automatically terminating legitimate computation.
+
+## 4. Profile the research framework
+
+The previous run consumed about 103 wall minutes in the fitting category, but much less time was recorded inside fitting workers.
+
+The manifest and results files also grew to approximately 200 MB each.
+
+Investigate where time is actually spent.
+
+Profile separately:
+
+- Game generation and move application.
+- Static evaluation.
+- Search and transposition-table operations.
+- Position encoding and feature extraction.
+- Model loading and compilation.
+- Gradient updates and optimization.
+- Reading training shards.
+- JSON serialization and parsing.
+- Checkpoint writing, fsync, and report generation.
+- Garbage collection and memory allocation.
+
+Measure CPU time and elapsed time independently.
+
+Optimize the largest demonstrated bottlenecks, rather than making speculative changes.
+
+In particular, consider moving large learning histories into chunked or append-only files so the program does not repeatedly serialize hundreds of megabytes.
+
+Keep checkpoints atomic, resumable, and auditable.
+
+Do not sacrifice reliability or reproducibility for speed.
+
+## 5. Investigate programming languages
+
+I want an informed answer to whether JavaScript is a good language for this work and whether another language is likely to be appreciably better.
+
+Keep the present JavaScript system as the reference implementation.
+
+Investigate C++, C, and Rust, considering performance, development effort, WSL2/macOS portability, and possible browser integration.
+
+My provisional preference is to investigate C++ as a native computational backend.
+
+Implement a small, isolated C++ prototype of the most performance-critical measured operations, not an entire engine rewrite.
+
+Potential prototype operations include:
+
+- Bitboard-based legal-move generation.
+- Move application.
+- Compact pattern-table evaluation.
+- A representative alpha-beta search kernel.
+
+Use identical positions, evaluator values, and search semantics when benchmarking.
+
+Measure actual end-to-end speedups, not just microbenchmark speedups.
+
+Verify native results against the existing JavaScript implementation and independent rule tests.
+
+Estimate the complexity of interfacing a native backend with the existing Node research system and, eventually, WebAssembly for browser play.
+
+Do not commit to a complete C++ rewrite without convincing evidence of a substantial benefit.
+
+Document whether JavaScript is sufficiently close to the best practical choice or whether native code would materially accelerate research.
+
+## 6. Use more available CPU capacity
+
+My PC has an Intel Core i7-14700F with 28 logical processors. The previous experiment often consumed only about one logical CPU, despite having two workers configured.
+
+Investigate both CPU utilization and useful work completed per hour.
+
+Benchmark representative research workloads with one, two, four, and, if resources permit, six or eight workers.
+
+Do not assume logical processors have equal computing power, and do not assume doubling workers doubles performance.
+
+Identify which operations are serial and whether independent work can safely execute concurrently.
+
+Parallelize independent data-generation, labeling, and training tasks where useful.
+
+Keep timed head-to-head tournaments fair: avoid uncontrolled CPU contention that distorts per-move wall-time budgets. Isolated or deliberately serial tournament execution is acceptable.
+
+Use resource checks before launching CPU-intensive work. Monitor Windows and WSL memory, CPU activity, swapping and disk space.
+
+Do not close applications, terminate unrelated processes, or change saved settings without permission.
+
+Select the worker count using measured throughput and memory headroom. Keep the computer responsive.
+
+## 7. Improve training if the long-pattern family is promising
+
+If the initial screen justifies further development, concentrate on making the fast long-pattern evaluator stronger.
+
+Investigate:
+
+- More accurately labeled opening and middlegame positions.
+- Larger quantities of diverse training positions.
+- Search-guided move preferences.
+- Exact endgame supervision.
+- Training on difficult positions where B and the pattern model disagree.
+- Phase-dependent weights.
+- Learning-rate schedules and better regularization.
+- Checkpoint selection based on move quality rather than regression MSE alone.
+- Incremental pattern-index updates, if they improve end-to-end execution.
+
+The previous selected linear checkpoint came from an early training cycle despite much more data being processed afterward. Investigate that selection behavior rather than assuming later data were unhelpful.
+
+Use development metrics to select checkpoints and reserve fresh, untouched positions for confirmation.
+
+Avoid expanding the model's complexity unless experiments justify it.
+
+If the long-pattern evaluator disappoints, document the result and identify the strongest alternative. Do not automatically begin another large training campaign.
+
+## 8. Make runtime estimates conservative
+
+The last experiment needed an extension to finish its predeclared confirmation games.
+
+I want that avoided.
+
+Before launching a substantial experiment, benchmark actual task costs with the current code and models.
+
+Use repeated measurements, including slower observed runs, not only a single optimistic pilot.
+
+Allow for:
+
+- Increasing dataset and checkpoint size.
+- Garbage collection.
+- Training and labeling variability.
+- Rejected opening pairs.
+- Model/report serialization.
+- Resource contention.
+- Final audit and report generation.
+
+Reserve at least 25–35% overhead on estimated confirmation costs, plus an explicit final safety margin.
+
+Make the selection freeze and confirmation sample sizes independent of confirmation outcomes.
+
+If the experiment cannot reasonably finish its planned tests within the total budget, reduce optional training or select feasible sample sizes **before accessing final confirmation results**.
+
+Prefer finishing a smaller, scientifically sound experiment to beginning a larger experiment that requires an unplanned extension.
+
+Do not use extra time merely because it is available. It is acceptable to finish early.
+
+## 9. Autonomous execution and acceptance tests
+
+First implement and test the new logging, profiling, performance improvements, and selection rules.
+
+Then run a short integrated benchmark and a bounded development comparison of the existing fast long-pattern models.
+
+If those results support further investigation and the system is reliable, prepare a six-hour research configuration emphasizing long-pattern training and independent validation.
+
+Do not automatically start any 24–72-hour experiment.
+
+For a six-hour local run, allocate time from measured costs, maintaining a substantial end-of-run margin. Require a preflight resource check and a successful smoke test before launch.
+
+The local experiment should execute without further AI calls. Preserve atomic checkpoints, crash recovery, fixed confirmation targets, and frozen source/model identities.
+
+Do not change the experimental rules after examining final confirmation results.
+
+## 10. Deliverables
+
+Create:
+
+- `docs/NEXT_EVALUATOR_RESEARCH.md`
+- `docs/PERFORMANCE_PROFILING.md`
+- `docs/LANGUAGE_COMPARISON.md`
+- `docs/RESOURCE_SCALING.md`
+
+Document the results of the fast long-pattern screen, including negative or inconclusive findings.
+
+Provide reproducible benchmarks and graphical comparisons where useful.
+
+Show the performance impact of any implementation changes and verify that intended mathematical results are unchanged.
+
+Report expected versus actual runtime, the safety margin retained, and the percentage of local computing time devoted to useful training.
+
+Append my actual latest request verbatim to `USER_REQUESTS.md`; do not confuse this technical plan with my original wording.
+
+Run all relevant tests, commit and push verified work, and leave large data and model artifacts Git-ignored.
+
+At completion, answer these questions:
+
+1. Is the existing long-pattern evaluator a better candidate than the learned linear evaluator?
+2. Which programming language should we use for the computational core, and why?
+3. What are the largest remaining performance bottlenecks?
+4. How many CPU workers give the best useful throughput without excessive memory usage?
+5. Have the logging and checkpointing improvements reduced wasted computation?
+6. Which single further improvement is most likely to produce a genuinely stronger Reversi player?
+
+**Concentrate on measured improvements and one promising evaluator family. Do not spend AI time supervising long-running local calculations.**
+
+---
+
+stop for a moment.  How can I free up some memory?
+
+---
+
+how much memory is there now?
+
+---
+
+Is there more memory now?
+
+---
+
+ok, please resume, using the memory if you need it.

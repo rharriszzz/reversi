@@ -90,7 +90,7 @@ $disks=Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" | Select-Object
                 continue
             try:
                 args = (proc / 'cmdline').read_bytes().split(b'\0')
-                if args and b'node' in Path(os.fsdecode(args[0])).name.encode() and any(b'/strong/run.mjs' in arg or arg.endswith(b'/research.mjs') for arg in args[1:]):
+                if args and b'node' in Path(os.fsdecode(args[0])).name.encode() and any(b'/strong/run.mjs' in arg or b'/next/screen.mjs' in arg or arg.endswith(b'/research.mjs') for arg in args[1:]):
                     duplicates.append({'pid': int(proc.name), 'command': [os.fsdecode(a) for a in args if a]})
             except (OSError, ValueError):
                 pass
@@ -100,7 +100,7 @@ $disks=Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" | Select-Object
     if windows.get('availableKiB') is not None:
         available = min(available, float(windows['availableKiB']) / 2**20)
     busy = max(record.get('cpuBusy', 0), float(windows.get('cpuPercent') or 0) / 100)
-    workers = 2 if available >= 3.5 and busy < .35 else 1
+    workers = min(8, max(1, int((available - 1.5) / .6)), max(1, (os.cpu_count() or 2) - 2)) if busy < .35 else 1
     blockers = []
     if 'microsoft' in os.uname().release.lower() and not windows.get('availableKiB'):
         blockers.append('Windows physical memory unavailable; run resource check from the normal WSL host')
@@ -115,7 +115,7 @@ $disks=Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" | Select-Object
     if duplicates:
         blockers.append('An existing research coordinator is live')
     record.update(workers=workers,limitingAvailableGiB=available,blockers=blockers,
-                  policy='At most two 320 MiB worker heaps; one below 3.5 GiB available physical memory. No application or saved setting changes.')
+                  policy='At most eight workers, 0.6 GiB headroom per worker plus 1.5 GiB reserved; measured scaling selects useful count. No application or saved setting changes.')
     atomic(output / 'preflight.json', record)
     return record
 
@@ -142,6 +142,10 @@ def main():
     parser.add_argument('--seed', type=int)
     parser.add_argument('--smoke', action='store_true')
     parser.add_argument('--pilot', action='store_true')
+    parser.add_argument('--long-pattern', action='store_true')
+    parser.add_argument('--screen', action='store_true')
+    parser.add_argument('--scaling-results')
+    parser.add_argument('--smoke-run')
     parser.add_argument('--continue-from')
     parser.add_argument('--exclude-run', action='append', default=[])
     parser.add_argument('--check-only', action='store_true')
@@ -172,9 +176,35 @@ def main():
             return 0
     if (output / 'manifest.json').exists() and not options.resume:
         parser.error('Output already contains a run; use --resume')
+    if options.scaling_results:
+        scaling = json.loads(Path(options.scaling_results).read_text())
+        import statistics
+        rates = {}
+        for row in scaling['results']:
+            if row['type'] == 'fit':
+                rates.setdefault(row['workers'], []).append(row['unitsPerHour'])
+        if not rates:
+            parser.error('No completed fitting scaling measurements')
+        medians = {n: statistics.median(v) for n, v in rates.items()}
+        best = max(medians.values())
+        measured = min(n for n, value in medians.items() if value >= .90 * best)
+        resources['workers'] = min(resources['workers'], measured)
+        resources['measuredWorkers'] = measured
+        atomic(output / 'preflight.json', resources)
+    if options.long_pattern and not options.smoke and not options.pilot and not options.resume:
+        if not options.smoke_run:
+            parser.error('Long-pattern campaign requires --smoke-run with a completed matching-source smoke test')
+        smoke = json.loads((Path(options.smoke_run) / 'manifest.json').read_text())
+        probe = command([node, '--input-type=module', '-e', "import {sourceDigest} from './scripts/research/io.mjs';console.log(sourceDigest('.'));"])
+        if smoke.get('status') != 'complete' or not smoke.get('config', {}).get('smoke') or not smoke.get('config', {}).get('longPattern') or smoke.get('source') != probe.get('stdout'):
+            parser.error('Smoke test incomplete or source changed: rerun long-pattern smoke before launch')
     source = snapshot(output)
     run = [node, str(source / 'scripts/strong/run.mjs'), '--output', str(output), '--repository', str(ROOT)]
-    if options.resume:
+    if options.screen:
+        run = [node, str(source / 'scripts/next/screen.mjs'), '--output', str(output), '--repository', str(ROOT), '--preflight', str(output / 'preflight.json')]
+        if options.smoke:
+            run.append('--smoke')
+    elif options.resume:
         run += ['--resume', '--worker-cap', str(resources['workers'])]
     else:
         run += ['--workers', str(min(options.workers or resources['workers'], resources['workers']))]
@@ -182,6 +212,8 @@ def main():
             run.append('--smoke')
         if options.pilot:
             run.append('--pilot')
+        if options.long_pattern:
+            run.append('--long-pattern')
         for name in ['hours', 'seconds', 'seed', 'continue_from']:
             value = getattr(options, name)
             if value is not None:
@@ -198,7 +230,7 @@ def main():
         path = output / 'manifest.json'
         if path.exists():
             state = json.loads(path.read_text())
-            if state['sessions'][-1]['pid'] == process.pid:
+            if (options.screen and state.get('pid') == process.pid) or (not options.screen and state['sessions'][-1]['pid'] == process.pid):
                 verified = True
                 break
         if process.poll() is not None:
@@ -248,12 +280,12 @@ def main():
         recovery_paths += ['/usr/local/bin', '/usr/bin', '/bin']
         recovery = ['wsl.exe', '-d', distribution, '--cd', str(ROOT), '--', '/usr/bin/env',
                     'PATH=' + ':'.join(recovery_paths), sys.executable,
-                    str(ROOT / 'scripts/strong-launch.py'), '--resume', '--output', str(output)]
+                    str(ROOT / 'scripts/strong-launch.py'), '--resume', '--output', str(output)] + (['--screen'] if options.screen else [])
         (output / 'resume-after-reboot.cmd').write_text('@echo off\r\n' + subprocess.list2cmdline(recovery) + '\r\npause\r\n')
     print('Started PID', process.pid)
-    print('Report:', output / 'report.md')
+    print('Report:', output / ('results.json' if options.screen else 'report.md'))
     print('Progress: tail -f %s' % (output / 'launcher.log'))
-    print('Resume after reboot: python3 scripts/strong-launch.py --resume --output %s' % output)
+    print('Resume after reboot: python3 scripts/strong-launch.py --resume %s--output %s' % ('--screen ' if options.screen else '', output))
     print('No saved power settings or startup tasks changed.')
     return 0
 

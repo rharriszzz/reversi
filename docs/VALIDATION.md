@@ -98,3 +98,18 @@ See [LOCAL_RESEARCH_SMOKE.md](LOCAL_RESEARCH_SMOKE.md) for the generated compact
 The subsequent WSL host run finished independently in 4 h 26 min with all 19 comparison conditions complete and zero failed tasks. [The final report](LOCAL_RESEARCH_RESULTS_20261027.md) records 1,544 opening pairs / 3,088 tournament games and independent ten-empty references. Production B remains unchanged. A reporting-only exporter audits pair/color order, W/D/L, paired scores and predefined bounds, margins, node/evaluation counts, depth distributions, wall/CPU totals, deadline tails, quality-summary arithmetic and confirmation-after-freeze ordering before publishing compact JSON/SVG evidence. Trained weights, complete trajectories and logs stay local.
 
 Publication verification: **48 named JavaScript tests and 10 Python tests passed**, plus `git diff --check` and `python3 scripts/summarize-local-research.py .local-research/six-hour-20261027 --check`. The latter uses the retained local artifacts and plays no additional games. No new browser or physical Mac acceptance is implied by this reporting-only change.
+
+## Next evaluator engineering round — 28 October 2026
+
+The full JavaScript suite passes (62 tests in 14 files), as does the Python suite (18 tests). Coverage includes exact rule/search agreement, bit-identical cached/uncached fitting weights/counts/loss, guarded cost-aware selection, conservative budget refusal, event logging, completed-screen idempotence, model tampering refusal, source paths containing spaces, stale-boot locks, and the existing forced-crash/resume tests. Python HTTP launcher tests require local socket permissions; the sandbox's denied-socket failures were rerun successfully outside that sandbox. Existing subprocess cleanup ResourceWarnings in launcher tests remain non-fatal.
+
+The actual frozen development screen completed all 288 games in 34.73 active minutes of its 45-minute cap. The independent Python publication audit replays every game, verifies scores/colors/points, solves all alternatives in 22 fresh exact endgames, verifies the source/model freeze, and checks the original campaign's published raw hashes and all 14 best-model hashes. Its verification command is:
+
+```bash
+python3 scripts/summarize-next-research.py \
+  .local-research/next-frozen-screen-20261028 --check
+```
+
+The isolated C++ prototype agrees on 48 seeded positions across phases, every legal child board, static values, matching-kernel search values/node counts/evaluation counts and production search values. An additional compiled run checks forced pass, terminal positions with empty squares, early elimination and an empty terminal board against the independent oracle. Worker throughput, checkpoint serialization and encoding reuse have separate repeated benchmarks; see NEXT_EVALUATOR_RESEARCH.md and its three engineering reports. The exported SVG was parsed and its raster rendering visually inspected.
+
+WSL2 execution, Windows memory/CPU/page/disk/power interrogation, detached screen launch and temporary keep-awake release were actually exercised. The screen's playing result was negative, so the prepared six-hour configuration remains inactive. No new long training campaign or browser runtime change occurred. Current Intel/Apple Silicon macOS hardware and native/browser-Wasm integration remain untested.

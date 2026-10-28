@@ -1,18 +1,23 @@
+import { cpuClock } from './telemetry.mjs';
 import { play, counts, isTerminal } from '../../src/rules.js';
 import { seededRandom } from '../../src/learning.js';
 import { findBestMove, terminalScore } from '../../src/search.js';
 import { legalMovesFast, evaluateFast } from '../../src/fast-features.js';
-import { sparse, dot, compile, phaseOf } from './model.mjs';
+import { sparse, dot, compile, phaseOf, shrink } from './model.mjs';
 
 const target=(g,objective)=>objective==='outcome'?100*g.outcome:100*g.margin/64;
-export function fit(model,games,labels,development,{epochs=2,seed=1,rate=0.04,l2=0.002,countGames=games,countLabels=labels}={}) {
+export function fit(model,games,labels,development,{epochs=2,seed=1,rate=0.04,l2=0.002,countGames=games,countLabels=labels,developmentLabels=[],progress=()=>{},profile=null,encodingCache=null}={}) {
   const start=performance.now(),rng=seededRandom(seed);
+  const measured=(name,fn)=>profile?profile.measure(name,fn):fn();
+  progress({substage:'encoding',positions:0,totalPositions:games.reduce((n,g)=>n+Math.ceil(g.states.length/2),0),note:'encoding fitting batch; no new positions expected'});
+  const encodingStart=performance.now(),encodingCpu=cpuClock();
+  const raw=encodingCache?encodingCache.bind(model):board=>sparse(board,model,{raw:true});
   // Counts accumulate NEW sampled observations, excluding replay repetitions.
   // Reverse-color indices receive the same observations through signed coding.
   const samples=games.flatMap(g=>g.states.filter((_,i)=>i%2===0).map(s=>({s,g})));
   const labelBoards=countLabels.flatMap(r=>[r,...r.rows.map(row=>({board:play(r.board,r.player,row.move)}))]);
-  for(const {board} of [...countGames.flatMap(g=>g.states.filter((_,i)=>i%2===0)),...labelBoards]) for(const [i] of sparse(board,model,{raw:true})) model.counts[i]++;
-  const encode=board=>{const x=sparse(board,model);return {indices:Uint32Array.from(x.map(r=>r[0])),values:Float32Array.from(x.map(r=>r[1]))};};
+  for(const {board} of [...countGames.flatMap(g=>g.states.filter((_,i)=>i%2===0)),...labelBoards]) for(const [i] of raw(board)) model.counts[i]++;
+  const encode=board=>{const x=raw(board).map(([i,v])=>[i,v*(model.spec.linear&&i<model.spec.phases*7?1:shrink(model,i))]);return {indices:Uint32Array.from(x.map(r=>r[0])),values:Float32Array.from(x.map(r=>r[1]))};};
   const value=x=>{let v=0;for(let j=0;j<x.indices.length;j++) v+=model.weights[x.indices[j]]*x.values[j];return v;};
   const rows=samples.map(({s,g})=>({x:encode(s.board),y:target(g,model.objective)}));
   // Exact targets retain disc scale. Search labels contribute only order, never
@@ -35,8 +40,11 @@ export function fit(model,games,labels,development,{epochs=2,seed=1,rate=0.04,l2
       model.weights[i]=Math.max(-500,Math.min(500,w+rate*multiplier*(error*x.values[j]/norm-l2*w/(1+model.counts[i]))));
     }
   };
-  const curve=[];let bestLoss=Infinity,bestWeights=null,bestEpoch=model.epochs,stale=0;
+  if(profile) {const c=cpuClock(),span=profile.spans['fit.encoding']??={calls:0,wallMs:0,cpuMs:0};span.calls++;span.wallMs+=performance.now()-encodingStart;span.cpuMs+=(c.user+c.system-encodingCpu.user-encodingCpu.system)/1000;}
+  const curve=[];let bestLoss=Infinity,bestWeights=null,bestEpoch=model.epochs,stale=0,bestQuality=Infinity;
   for(let epoch=0;epoch<epochs;epoch++) {
+    progress({substage:'gradient-updates',epoch:`${epoch+1}/${epochs}`,positions:epoch*rows.length,note:'fitting active; no new training positions expected until fitting finishes'});
+    measured('fit.optimization',()=>{
     for(let i=rows.length-1;i>0;i--) {const j=Math.floor(rng()*(i+1));[rows[i],rows[j]]=[rows[j],rows[i]];}
     for(const row of rows) update(row.x,row.y-value(row.x),model.objective==='rank'?0.25:1);
     for(const row of exact) update(row.x,row.y-value(row.x),2);
@@ -46,16 +54,20 @@ export function fit(model,games,labels,development,{epochs=2,seed=1,rate=0.04,l2
       const gradient=10/(1+Math.exp(Math.max(-40,Math.min(40,delta/10))));
       update(p.a,p.player*gradient,2);update(p.b,-p.player*gradient,2);
     }
+    });
     model.epochs++;model.version++;
-    const metrics=prediction(model,development);
-    curve.push({epoch:model.epochs,fitMs:performance.now()-start,positions:rows.length,preferencePairs:pairs.length,...metrics});
-    if(Number.isFinite(metrics.mse)&&metrics.mse<bestLoss*(1-0.0001)) {bestLoss=metrics.mse;bestWeights=Float32Array.from(model.weights);bestEpoch=model.epochs;stale=0;}
+    const metrics=measured('fit.development_prediction',()=>prediction(model,development));
+    const quality=developmentLabels.length?measured('fit.development_ranking',()=>ranking(model,developmentLabels)):null;
+    const decision=quality?.exact.regret??metrics.mse;
+    progress({substage:'epoch-complete',epoch:`${epoch+1}/${epochs}`,positions:(epoch+1)*rows.length,note:'epoch completed; no new training data generated'});
+    curve.push({epoch:model.epochs,fitMs:performance.now()-start,positions:rows.length,preferencePairs:pairs.length,quality,...metrics});
+    if(Number.isFinite(decision)&&(decision<bestQuality-1e-8||(Math.abs(decision-bestQuality)<1e-8&&metrics.mse<bestLoss))) {bestQuality=decision;bestLoss=metrics.mse;bestWeights=Float32Array.from(model.weights);bestEpoch=model.epochs;stale=0;}
     else stale++;
     if(development.length&&stale>=3) break;
   }
   if(bestWeights) {model.weights=bestWeights;model.checkpointEpoch=bestEpoch;}
   if(model.weights.some(w=>!Number.isFinite(w))) throw new Error('Divergent model');
-  return {model,curve,loss:prediction(model,development),examples:rows.length,preferencePairs:pairs.length};
+  return {model,curve,encodingCache:encodingCache?.snapshot(),quality:developmentLabels.length?ranking(model,developmentLabels):null,loss:prediction(model,development),examples:rows.length,preferencePairs:pairs.length};
 }
 export function calibrateBaseline(games,kind='margin') {
   const sums=Array.from({length:4},()=>({xx:0,xy:0}));

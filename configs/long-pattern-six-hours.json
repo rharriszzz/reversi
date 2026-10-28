@@ -1,0 +1,36 @@
+{
+  "purpose": "Prepared configuration; never automatically launched",
+  "hours": 6,
+  "seed": 2026102853,
+  "family": "long",
+  "objectives": [
+    "margin",
+    "rank"
+  ],
+  "continueFrom": ".local-research/strong-six-hour-20261027",
+  "excludeRuns": [
+    ".local-research/next-frozen-screen-20261028"
+  ],
+  "workerPolicy": "Choose smallest measured count reaching 90% of best independent-fit throughput, capped by current Windows/WSL headroom; at most six. Only two dependent model fits can execute concurrently.",
+  "confirmationTargets": {
+    "80": 64,
+    "300": 32,
+    "20": 8
+  },
+  "confirmationCostMultiplier": 1.35,
+  "finalSafetyMinutes": 15,
+  "additionalAuditMinutes": 3,
+  "pilotRepetitionsPerBudget": 3,
+  "continuationGate": "All screen targets complete; at least one frozen long model scores at least 50% at both 80 and 300 ms. Development gate only; no superiority claim.",
+  "launchGates": [
+    "successful current-source long-pattern smoke",
+    "fresh Windows and WSL resource check",
+    "no duplicate coordinator",
+    "fixed targets affordable using slower pilot costs"
+  ],
+  "selection": "Cost/quality Pareto guard with family diversity, then serial equal-time development games; finalist and targets frozen before independent confirmation",
+  "trainingPriority": "Reuse existing training corpus and models; new diverse B/model-disagreement search preferences and independent exact labels; decision-quality checkpoint selection; no added pattern complexity",
+  "sourceAndModelIdentity": "Frozen source snapshot and SHA-256 finalist; atomic checkpoints and immutable history chunks",
+  "enabled": false,
+  "screenDisposition": "Inactive: the completed screen did not meet the predeclared continuation gate. No six-hour training launch is recommended."
+}

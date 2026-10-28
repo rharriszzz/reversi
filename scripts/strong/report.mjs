@@ -25,9 +25,8 @@ function chart(output,name,title,series,xLabel,yLabel) {
 export function report(s,output) {
   const conditions=s.conditions.map(c=>{const pairs=c.tasks.map(p=>read(p));return {...c,summary:interval(pairs.map(p=>p.point),{comparisons:c.stage==='confirmation'?2:1}),wins:pairs.flatMap(p=>p.games).filter(g=>g.outcome>0).length,draws:pairs.flatMap(p=>p.games).filter(g=>g.outcome===0).length,losses:pairs.flatMap(p=>p.games).filter(g=>g.outcome<0).length};});
   const result={version:s.version,status:s.status,stage:s.stage,source:s.source,config:s.config,elapsedMs:s.elapsedMs,cpuMs:s.cpuMs,allocation:s.allocation,
-    counts:s.counts,pilot:s.pilot,history:s.history,latest:s.latestAssessment,confirmation:s.confirmationAssessment,freeze:s.freeze,conditions,failures:s.failures,exclusions:s.exclusionAudit,
+    counts:s.counts,pilot:s.pilot,history:s.history,historyChunks:s.historyChunks,profile:s.profile,latest:s.latestAssessment,confirmation:s.confirmationAssessment,freeze:s.freeze,conditions,failures:s.failures,exclusions:s.exclusionAudit,
     conclusion:'B retained. No automatic evaluator promotion. Incomplete conditions do not support fixed-sample inference.'};
-  atomic(`${output}/results.json`,result);
   const lines=[`# Strong evaluator research: ${s.status}`, '',`Stage: **${s.stage}**; active ${fmt(s.elapsedMs/3600000,2)} / ${fmt(s.config.budgetMs/3600000,2)} hours; process CPU ${fmt(s.cpuMs/3600000,2)} hours.`,
     '',`Training games: ${s.counts.trainGames}; accepted unique positions: ${s.counts.positions}; exact / search labels: ${s.counts.exact} / ${s.counts.search}. Rejected trajectories: ${s.counts.rejected}.`,
     '',`Last checkpoint: ${s.updated}. Source ${s.source}. Production B retained.`,

@@ -78,3 +78,14 @@ The exact reference uses the independent mailbox oracle in `tests/oracle.mjs` an
 `report.mjs` periodically emits Markdown, JSON, learning/quality-cost SVGs and Pareto candidates. Pair-level Hoeffding bounds cover 512 possible candidate/control conditions and every possible prefix up to 1,024 pairs, including duration-dependent stopping. Confirmation targets may expand using selection timing and unused budget, before confirmation outcomes are opened. Selection and confirmation remain distinct. See LOCAL_RESEARCH_PLAN.md for fallback, incomplete-run, and evidence rules.
 
 `scripts/research-launch.py` starts a new POSIX session with closed stdin, file logs and reduced priority. It verifies a durable startup checkpoint before returning. No daemon installation, network, privileged operation or conversation lifetime is required in a normal local terminal. A hosted sandbox may still remove descendants after a tool invocation; this was observed and is not claimed as persistent hosting.
+
+
+## Research v3 engineering round
+
+The v2 results above remain historical. `scripts/strong/run.mjs` now uses version `strong-evaluator-v3`; old campaigns resume from their own preserved source. New v3 runs use guarded cost/quality screening with explicit family retention and audited unplayed candidates. Development exact top-choice regret selects checkpoints before MSE; no candidate is installed automatically.
+
+Worker tasks emit named stages/epochs and wall/thread-CPU profiles. `telemetry.mjs` writes event logs plus a 45-second heartbeat; large histories are immutable chunks, and the manifest keeps at most 1,024 scalar fit summaries. `encoding-cache.mjs` retains bounded raw geometry in a worker while reapplying current learned counts. Atomic checkpoint fsync/rename remains in `research/io.mjs`, with optional operation profiling. Generation and label tasks use deterministic partitions and coordinator admission; partitions retain their identities on lower-concurrency recovery. Two dependent model fits remain limited to two useful concurrent fits.
+
+`next/screen.mjs` and `next/pool.mjs` implement the separately bounded frozen development screen and hashed atomic task receipts. Its source and models are frozen before play. `strong-launch.py --screen` resource-checks, snapshots and detaches it, with temporary keep-awake and completed-run refusal. The screen completed with negative results; see NEXT_EVALUATOR_RESEARCH.md. `next/kernel.cpp` is an isolated optional benchmark kernel, not a browser dependency or replacement engine.
+
+The prepared long-pattern six-hour template is inactive. A real future long-pattern launch requires a matching-source completed smoke, fresh resource checks, fixed pre-confirmation targets, slower repeated pilot timings, 35% confirmation overhead, an audit allowance and a 15-minute final safety reserve. The original framework/browser remains dependency-free for play.

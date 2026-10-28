@@ -1,5 +1,7 @@
+import { EncodingCache } from './encoding-cache.mjs';
+import { Profiler } from './telemetry.mjs';
 import { parentPort } from 'node:worker_threads';
-import { read } from '../research/io.mjs';
+import { read, instrumentIO } from '../research/io.mjs';
 import { generate, policyPool, selectStates, searchLabel, solveIndependent, exactContinuation } from './data.mjs';
 import { unpack, pack, evaluator, compile, sparse, dot } from './model.mjs';
 import { fit, prediction, ranking, speed, calibrateBaseline } from './train.mjs';
@@ -8,9 +10,12 @@ import { legalMovesFast } from '../../src/fast-features.js';
 import { counts, play, winner } from '../../src/rules.js';
 import { decodeTerminal, canonical } from '../research/core.mjs';
 
-const gamesFrom=paths=>paths.flatMap(p=>read(p).games??[]);
-const refsFrom=paths=>paths.flatMap(p=>read(p).labels??[]);
-const load=p=>p==='B'?'B':unpack(read(p));
+const encodingCache=new EncodingCache();
+let profiler=null,progress=()=>{};
+const measured=(name,fn)=>profiler?profiler.measure(name,fn):fn();
+const gamesFrom=paths=>measured('shards.read_parse',()=>paths.flatMap(p=>read(p).games??[]));
+const refsFrom=paths=>measured('labels.read_parse',()=>paths.flatMap(p=>read(p).labels??[]));
+const load=p=>measured('model.read_unpack',()=>p==='B'?'B':unpack(read(p)));
 function game(opening,black,white,budget) {
   let b=Int8Array.from(opening.board),p=opening.player,passes=0;const moves=[],keys=[],stats={black:[],white:[]};
   while(passes<2) {
@@ -25,9 +30,9 @@ function game(opening,black,white,budget) {
 }
 async function task(j) {
   switch(j.type) {
-    case 'generate': {const compiledPolicies=policyPool(j.models);return {games:Array.from({length:j.n},(_,k)=>generate({...j,compiledPolicies,index:j.index+k,seed:j.seeds[k]}))};}
+    case 'generate': {const compiledPolicies=measured('model.compile',()=>policyPool(j.models));return {games:measured('generation.search_rules_canonical',()=>Array.from({length:j.n},(_,k)=>{progress({substage:'generating',batch:`${k+1}/${j.n}`});return generate({...j,compiledPolicies,index:j.index+k,seed:j.seeds[k]});}))};}
     case 'label': {
-      const games=gamesFrom(j.paths),models=(j.models??[]).map(p=>read(p)),labels=[],skipped=[];
+      const games=gamesFrom(j.paths).filter((_,i)=>!j.partition||i%j.partition.parts===j.partition.part),models=(j.models??[]).map(p=>read(p)),labels=[],skipped=[];
       const selected=selectStates(games,models,j.limit??8),engines=models.map(evaluator);
       for(const s of selected) {
         let ref=searchLabel(s,j.depth??5);
@@ -49,7 +54,7 @@ async function task(j) {
     }
     case 'fit': {
       const m=load(j.model),g=gamesFrom(j.paths),dev=gamesFrom(j.development),refs=refsFrom(j.labels);
-      const r=fit(m,g,refs,dev,{...j,countGames:gamesFrom(j.countPaths??j.paths),countLabels:refsFrom(j.countLabels??j.labels)});return {...r,model:pack(r.model)};
+      const r=measured('fit.total',()=>fit(m,g,refs,dev,{...j,profile:profiler,progress,encodingCache,developmentLabels:refsFrom(j.developmentLabels??[]),countGames:gamesFrom(j.countPaths??j.paths),countLabels:refsFrom(j.countLabels??j.labels)}));return {...r,model:measured('model.pack',()=>pack(r.model))};
     }
     case 'assess': {
       const games=gamesFrom(j.paths),refs=refsFrom(j.labels),states=games.flatMap(g=>g.states.filter((_,i)=>i%8===0)).slice(0,90),training=gamesFrom(j.calibrationPaths??[]),gains=calibrateBaseline(training);
@@ -77,7 +82,13 @@ async function task(j) {
     default: throw new Error(`Unknown job ${j.type}`);
   }
 }
-parentPort.on('message',async({id,job})=>{
-  const start=performance.now();try {const result=await task(job);parentPort.postMessage({id,ok:true,result,wallMs:performance.now()-start});}
-  catch(e) {parentPort.postMessage({id,ok:false,error:e.stack??String(e),wallMs:performance.now()-start});}
+export { task };
+parentPort?.on('message',async({id,job})=>{
+  const start=performance.now();profiler=new Profiler();instrumentIO(profiler);
+  progress=fields=>parentPort.postMessage({id,progress:fields});
+  try {const result=await profiler.measure(`task.${job.type}`,()=>task(job));
+    await new Promise(resolve=>setImmediate(resolve));
+    parentPort.postMessage({id,ok:true,result,profile:profiler.snapshot(),wallMs:performance.now()-start});}
+  catch(e) {parentPort.postMessage({id,ok:false,error:e.stack??String(e),profile:profiler.snapshot(),wallMs:performance.now()-start});}
+  finally {profiler.close();instrumentIO(null);profiler=null;progress=()=>{};}
 });

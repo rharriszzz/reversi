@@ -1,5 +1,7 @@
 # Reversi
 
+**Latest research:** the frozen long-pattern screen completed all 288 games within its cap and did not beat B. B remains production; no new long training run is recommended. See [the results and engineering round](docs/NEXT_EVALUATOR_RESEARCH.md), [profiling](docs/PERFORMANCE_PROFILING.md), [language comparison](docs/LANGUAGE_COMPARISON.md), and [worker scaling](docs/RESOURCE_SCALING.md).
+
 **Proposed GitHub repository:** `rharriszzz/reversi` (one word).
 
 **Application:** Reversi Coach Lab — an original Reversi/Othello opponent and learning-oriented browser interface. The game code, alpha-beta engine, feature evaluator, and self-play learning experiment are included. No external Reversi engine, build service, subscription, or network connection is required to play. The local HTTP server uses only the Python 3 standard library.
