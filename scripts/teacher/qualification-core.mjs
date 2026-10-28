@@ -1,0 +1,41 @@
+import {existsSync,readFileSync,openSync,closeSync,unlinkSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {atomic,read} from '../research/io.mjs';
+export const hash=x=>createHash('sha256').update(typeof x==='string'?x:JSON.stringify(x)).digest('hex');
+export const PROTOCOL={version:1,namespace:'teacher-v2-20261028',strata:[[12,19],[20,35],[36,47],[48,55]],costPerPhase:6,assessmentPerPhase:64,exactCostPerEmpty:4,exactAssessmentPerEmpty:32,emptyCounts:[10,12],depths:[10,12,14],costOddDepth:13,costOddPerPhase:2,assessmentOddPerPhase:8,optionalDepth:16,maxWorkers:2,hashBits:16,selectivity:5,capMs:7200000,calibrationOnlyCapMs:1800000,stageCaps:{admission:600000,calibration:1200000,assessment:3300000,exact:900000},reportReserveMs:1200000,allowance:1.35,maxAttempts:20000,exactCapMs:10000,queryCapMs:180000,bootstrap:10000,seedNamespaces:['cost','assessment','exact-cost','exact-assessment','future-train','future-select','future-games'],gates:{mean:.75,earlyPhaseMean:1,within2:231,earlyWithin2:116,large:12,earlyLarge:6,maxExclusive:8,sign:2,reversal:5,oddMean:1,useful:32,earlyUseful:12},rules:'Full-window, all legal alternatives; passes preserve placement depth; estimated Edax discs unless independently solved; raw and awarded-empty margins kept separate',sampling:'One full trajectory per root; equal legacy B1/12% and B4/2% policies in each phase, 12 occupied exclusion boundary; exact roots use seeded random complete trajectories'};
+export const quantile=(xs,p)=>xs.length?[...xs].sort((a,b)=>a-b)[Math.max(0,Math.ceil(p*xs.length)-1)]:null;
+export const mean=xs=>xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null;
+export const values=r=>new Map(r.rows.map(x=>[x.move,x.value]));
+export const tops=r=>{const v=Math.max(...r.rows.map(x=>x.value));return r.rows.filter(x=>x.value===v).map(x=>x.move).sort((a,b)=>a-b);};
+export function compare(shallow,deep,bMove=null){
+ const a=values(shallow),b=values(deep);if(a.size!==b.size||[...a.keys()].some(m=>!b.has(m)))throw Error('Alternative mismatch');
+ const best=Math.max(...b.values()),top=tops(shallow),choice=top[0],regret=best-b.get(choice);
+ const near=[...a.keys()].filter(m=>Math.max(...a.values())-a.get(m)<=2||best-b.get(m)<=2||m===bMove);
+ const changes=[],gapBins={};let reversal=false;
+ for(let i=0;i<near.length;i++)for(let j=i+1;j<near.length;j++){
+  const x=a.get(near[i])-a.get(near[j]),y=b.get(near[i])-b.get(near[j]);changes.push(Math.abs(x-y));
+  const bin=Math.abs(x)<=1?'0-1':Math.abs(x)<=3?'2-3':'4+';const z=gapBins[bin]??={n:0,changeSum:0,signReversals:0};z.n++;z.changeSum+=Math.abs(x-y);z.signReversals+=x*y<0;
+  reversal ||= (x>=4&&y<=-4)||(y>=4&&x<=-4);
+ }
+ const ap=shallow.rows.find(x=>x.move===choice)?.pv??[],bp=deep.rows.find(x=>x.move===choice)?.pv??[];let prefix=0;while(prefix<Math.min(ap.length,bp.length)&&ap[prefix]===bp[prefix])prefix++;
+ return {choice,regret,worstTiedRegret:Math.max(...top.map(m=>best-b.get(m))),stable:top.every(m=>tops(deep).includes(m)),choiceStable:tops(deep).includes(choice),signError:best>=2&&b.get(choice)<=-2,anySignError:best>0&&b.get(choice)<0,reversal,gapChangeMean:mean(changes),gapBins,pvCommonPrefix:prefix,pvComparedLength:Math.min(ap.length,bp.length),bRegret:b.has(bMove)?best-b.get(bMove):null,useful:!a.has(bMove)?null:a.get(choice)-a.get(bMove)>=2&&b.get(choice)-b.get(bMove)>=2&&regret<=2};
+}
+export function wilson(k,n){if(!n)return null;const z=1.959963984540054,p=k/n,d=1+z*z/n,c=(p+z*z/(2*n))/d,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;return [Math.max(0,c-h),Math.min(1,c+h)];}
+export function summarize(rows){const r=rows.map(x=>x.regret),n=r.length;const count=fn=>rows.filter(fn).length;const hist={};for(const x of r)hist[x]=(hist[x]??0)+1;return {n,mean:mean(r),median:quantile(r,.5),p90:quantile(r,.9),p95:quantile(r,.95),max:n?Math.max(...r):null,histogram:hist,stable:count(x=>x.stable),choiceStable:count(x=>x.choiceStable),within2:count(x=>x.regret<=2),large:count(x=>x.regret>=4),sign:count(x=>x.signError),anySign:count(x=>x.anySignError),reversals:count(x=>x.reversal),useful:rows.some(x=>x.useful!==null)?count(x=>x.useful):null,worstTiedMean:mean(rows.map(x=>x.worstTiedRegret)),bMeanRegret:mean(rows.map(x=>x.bRegret).filter(x=>x!==null)),gapChangeMean:mean(rows.map(x=>x.gapChangeMean).filter(x=>x!==null)),rates:Object.fromEntries(['stable','choiceStable','useful','within2','large','sign','reversal'].map(k=>{const v=k==='within2'?count(x=>x.regret<=2):k==='large'?count(x=>x.regret>=4):count(x=>x[k==='sign'?'signError':k]);const eligible=k==='useful'?rows.filter(x=>x.useful!==null).length:n;return [k,{count:eligible?v:null,n:eligible,rate:eligible?v/eligible:null,interval95:wilson(v,eligible)}];}))};}
+export function calibrationPass(rows){const s=summarize(rows);return s.n===24&&s.mean<=.75&&s.within2/s.n>=.9&&s.max<8;}
+export function assessGates(records,odd,exactOK,integrity=true){const s=summarize(records),e=summarize(records.filter(x=>x.phase<2)),g=PROTOCOL.gates;
+ return {integrity:integrity&&s.n===256&&e.n===128&&odd.length===32,mean:s.mean<=g.mean&&e.mean<=g.mean&&[0,1].every(p=>mean(records.filter(x=>x.phase===p).map(x=>x.regret))<=g.earlyPhaseMean),coverage:s.within2>=g.within2&&e.within2>=g.earlyWithin2,significant:s.large<=g.large&&e.large<=g.earlyLarge&&s.max<g.maxExclusive,signAndReversal:s.sign<=g.sign&&s.reversals<=g.reversal,odd:odd.length===32&&mean(odd)<=g.oddMean&&Math.max(...odd)<8,exactCalibration:exactOK,useful:s.useful>=g.useful&&e.useful>=g.earlyUseful};}
+export function feasible(elapsedMs,forecastMs,capMs=PROTOCOL.capMs){return elapsedMs+PROTOCOL.allowance*forecastMs+PROTOCOL.reportReserveMs<=capMs;}
+export function bootstrapMean(rows,seed=91845,reps=PROTOCOL.bootstrap){if(!rows.length)return null;let rng=seed>>>0;const next=n=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng%n;};const groups=[...new Set(rows.map(r=>`${r.phase}/${r.policy}`))].map(k=>rows.filter(r=>`${r.phase}/${r.policy}`===k));const samples=[];for(let i=0;i<reps;i++){let sum=0;for(const group of groups)for(let j=0;j<group.length;j++)sum+=group[next(group.length)].regret;samples.push(sum/rows.length);}return [quantile(samples,.025),quantile(samples,.975)];}
+export async function parallel(items,n,fn){const result=new Array(items.length);let next=0,error;await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{while(!error){const i=next++;if(i>=items.length)return;try{result[i]=await fn(items[i],i);}catch(e){error=e;}}}));if(error)throw error;return result;}
+// Immutable receipts bind work to both input and frozen run identity.
+export async function receipt(path,input,runIdentity,fn){const expected=hash({input,runIdentity});if(existsSync(path)){const r=read(path);if(r.inputHash!==expected)throw Error('Receipt identity mismatch');return r.result;}const result=await fn();atomic(path,{inputHash:expected,input,result});return result;}
+export function writerLock(path){if(existsSync(path)){const r=read(path);try{process.kill(r.pid,0);}catch(e){if(e.code==='ESRCH'){unlinkSync(path);return writerLock(path);}throw e;}throw Error(`Active qualification writer ${r.pid}`);}const fd=openSync(path,'wx');closeSync(fd);atomic(path,{pid:process.pid});return ()=>unlinkSync(path);}
+
+export function exactCalibration(rows){
+ const groups={};for(const empty of [null,10,12]){const xs=rows.filter(x=>empty===null||x.empty===empty),depths=empty===12?[6,8,10]:[6,8];
+ groups[empty??'pooled']=Object.fromEntries(depths.map(d=>{const eligible=xs.filter(x=>x.measures[d]);return [d,{n:eligible.length,meanRegret:mean(eligible.map(x=>x.measures[d].regret)),wdlErrors:eligible.filter(x=>x.measures[d].wdlError).length,rawWdlErrors:eligible.filter(x=>x.measures[d].rawWdlError).length}];}));}
+ const pass=Object.values(groups).every(g=>Object.keys(g).slice(1).every((d,i)=>{const prior=g[Object.keys(g)[i]];return g[d].n>0&&g[d].meanRegret<=prior.meanRegret&&g[d].wdlErrors<=prior.wdlErrors&&g[d].rawWdlErrors<=prior.rawWdlErrors;}));return {groups,pass};
+}
+
+export function recoveryCharge(state,uptimeMs,bootId){if(state.status!=='running')return 0;if(bootId&&state.bootId===bootId&&Number.isFinite(state.heartbeatBootMs))return Math.max(5000,uptimeMs-state.heartbeatBootMs);return PROTOCOL.stageCaps[state.stage]??PROTOCOL.queryCapMs;}

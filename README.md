@@ -2,6 +2,8 @@
 
 **Stage A teacher audit:** Edax passed independent exact validation, but depth-eight/depth-ten stability was 70.8%, below the 90% gate. Stage B was not started; B remains production. See [the teacher audit](docs/TEACHER_AUDIT.md).
 
+**Deeper teacher qualification:** D10/D12/D14 calibration completed, but an independent twelve-empty reference exceeded its fixed ten-second cap. Qualification stopped before the locked assessment; no training started. See [the results and next action](docs/TEACHER_DEPTH_QUALIFICATION.md).
+
 **Previous research:** the frozen long-pattern screen completed all 288 games within its cap and did not beat B. B remains production; no new long training run is recommended. See [the results and engineering round](docs/NEXT_EVALUATOR_RESEARCH.md), [profiling](docs/PERFORMANCE_PROFILING.md), [language comparison](docs/LANGUAGE_COMPARISON.md), and [worker scaling](docs/RESOURCE_SCALING.md).
 
 **Proposed GitHub repository:** `rharriszzz/reversi` (one word).

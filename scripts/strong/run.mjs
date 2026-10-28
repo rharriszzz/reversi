@@ -12,7 +12,7 @@ import { spawnSync } from 'node:child_process';
 import { atomic, read, sourceDigest, seedFor, instrumentIO } from '../research/io.mjs';
 import { canonical } from '../research/core.mjs';
 import { randomOpening, seededRandom } from '../../src/learning.js';
-import { play } from '../../src/rules.js';
+import { play, legalMoves as legalMovesForHistory } from '../../src/rules.js';
 import { createModel, pack } from './model.mjs';
 import { report } from './report.mjs';
 
@@ -35,7 +35,7 @@ export function historicalKeys(repository=root,previous=[]) {
     }
     else if(value&&typeof value==='object') for(const v of Object.values(value)) visit(v);
   };
-  for(const name of ['local-research-20261027.json','local-research-smoke.json','evaluator-comparison.json','strong-evaluator-pilot.json','strong-evaluator-20261028.json','next-evaluator-20261028.json']) {
+  for(const name of ['local-research-20261027.json','local-research-smoke.json','evaluator-comparison.json','strong-evaluator-pilot.json','strong-evaluator-20261028.json','next-evaluator-20261028.json','teacher-depth-qualification-20261028.json']) {
     const path=`${repository}/docs/data/${name}`;if(existsSync(path)) visit(read(path));
   }
   const fixture=`${repository}/tests/fixtures/positional.json`;if(existsSync(fixture)) visit(read(fixture));
@@ -45,6 +45,8 @@ export function historicalKeys(repository=root,previous=[]) {
   for(const dir of previous) {
     const manifest=`${resolve(dir)}/manifest.json`;if(!existsSync(manifest)) {missing++;continue;}
     const s=read(manifest);visit(s.usedKeys??[]);visit(s.openings??[]);
+    const qualification=`${resolve(dir)}/tasks/reservation.json`;
+    if(existsSync(qualification)){const receipt=read(qualification),roles=receipt.result?.roles??{};visit(roles);for(const roots of Object.values(roles))for(const root of roots){const path=`${resolve(dir)}/trajectories/${root.id}.json`;if(!existsSync(path)){missing++;continue;}visit(read(path));trajectories++;for(const move of legalMovesForHistory(root.board,root.player))visit([...play(root.board,root.player,move)]);}}
     if(existsSync(`${resolve(dir)}/development-keys.json`))visit(read(`${resolve(dir)}/development-keys.json`));
     for(const c of s.conditions??[])for(const p of c.pairs??[])if(existsSync(p))visit(read(p).result);
     if(existsSync(`${resolve(dir)}/historical-keys.json`)) visit(read(`${resolve(dir)}/historical-keys.json`).keys);

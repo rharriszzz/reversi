@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { readFileSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { legalMoves, play, counts } from '../../src/rules.js';
 export const SOURCE='713a434f13b3d15fb69c61b9ba3641aed82c496c';
@@ -20,15 +21,17 @@ export function parse(text,n,depths){
  return rows;
 }
 export function identity(binary,evalFile){if(sha(evalFile)!==EVAL_SHA)throw Error('Evaluation hash mismatch');return {source:SOURCE,version:'Edax 4.6',binary:resolve(binary),evalFile:resolve(evalFile),binarySha:sha(binary),evalSha:sha(evalFile),selectivity:5,tasks:1,hashBits:16,book:false,units:'Edax discs (winner receives unplayed empties)',license:'GPL-3.0; external checkout LICENSE retained'};}
-async function queryRaw(pin,states,depth,{timeoutMs=60000,transcript}={}) {
+async function queryRaw(pin,states,depth,{timeoutMs=60000,transcript,measureNative=false}={}) {
  if(!Number.isInteger(depth)||depth<1||depth>60)throw Error('Invalid depth');
  const dir=mkdtempSync(join(tmpdir(),'reversi-edax-')),input=join(dir,'input.obf');writeFileSync(input,states.map(s=>obf(s.board,s.player)).join('\n')+'\n');
  const args=['-eval-file',pin.evalFile,'-n','1','-h',String(pin.hashBits),'-depth',String(depth),'-selectivity','5','-verbose','1','-noise','0','-width','200','-alpha','-64','-beta','64','-solve',input];
  const start=performance.now();
- try{return await new Promise((ok,bad)=>{const child=spawn(pin.binary,args,{cwd:dir,stdio:['ignore','pipe','pipe']});let stdout='',stderr='',expired=false;
-  const timer=setTimeout(()=>{expired=true;child.kill('SIGKILL');},timeoutMs);
-  child.stdout.on('data',s=>{stdout+=s;if(stdout.length>8e6)child.kill('SIGKILL');});child.stderr.on('data',s=>{stderr+=s;});child.on('error',e=>{clearTimeout(timer);bad(e);});
-  child.on('close',(code,signal)=>{clearTimeout(timer);try{if(transcript){mkdirSync(resolve(transcript,'..'),{recursive:true});writeFileSync(transcript,JSON.stringify({args,stdout,stderr,code,signal,expired}));}if(code!==0||expired||/ERROR|cannot|failed/i.test(stderr))throw Error(`Edax failure ${code}: ${stderr}`);const rows=parse(stdout,states.length,states.map(s=>Math.min(depth,counts(s.board).empty)));ok({rows,wallMs:performance.now()-start});}catch(e){bad(e);}});
+ try{return await new Promise((ok,bad)=>{const metrics=join(dir,'usage.json');
+  const child=measureNative?spawn('python3',[fileURLToPath(new URL('./native-resource.py',import.meta.url)),metrics,pin.binary,...args],{cwd:dir,detached:true,env:{...process.env,REVERSI_NATIVE_TIMEOUT_MS:String(timeoutMs)},stdio:['ignore','pipe','pipe']}):spawn(pin.binary,args,{cwd:dir,stdio:['ignore','pipe','pipe']});
+  const kill=()=>{try{if(measureNative)process.kill(-child.pid,'SIGKILL');else child.kill('SIGKILL');}catch(e){if(e.code!=='ESRCH')throw e;}};let stdout='',stderr='',expired=false;
+  const timer=setTimeout(()=>{expired=true;kill();},timeoutMs);
+  child.stdout.on('data',s=>{stdout+=s;if(stdout.length>8e6)kill();});child.stderr.on('data',s=>{stderr+=s;});child.on('error',e=>{clearTimeout(timer);bad(e);});
+  child.on('close',(code,signal)=>{clearTimeout(timer);try{if(transcript){mkdirSync(resolve(transcript,'..'),{recursive:true});writeFileSync(transcript,JSON.stringify({args,stdout,stderr,code,signal,expired}));}if(code!==0||expired||/ERROR|cannot|failed/i.test(stderr))throw Error(`Edax failure ${code}: ${stderr}`);const rows=parse(stdout,states.length,states.map(s=>Math.min(depth,counts(s.board).empty)));ok({rows,wallMs:performance.now()-start,...(measureNative?{native:JSON.parse(readFileSync(metrics,'utf8'))}:{})});}catch(e){bad(e);}});
  });}finally{rmSync(dir,{recursive:true,force:true});}
 }
 export async function alternatives(pin,state,depth,options={}) {

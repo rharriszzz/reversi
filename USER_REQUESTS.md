@@ -1279,3 +1279,162 @@ I want you to challenge the existing approach if necessary. The objective is not
 ---
 
 It told me "Selected model is at capacity. Please try a different model."  so I switched to gpt-6.1-sol.  Please continue
+
+---
+
+# Reversi — Implement and run deeper Edax teacher qualification
+
+Continue in `~/git/reversi` using GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/ASTRA_TEACHER_STRATEGY.md`, `docs/TEACHER_AUDIT.md`, and the relevant code and performance reports.
+
+The strategic review is complete. I agree with its principal direction: qualify deeper independent Edax supervision before attempting another learning experiment.
+
+**I authorize implementation and a bounded local qualification experiment of up to 120 active minutes, subject to successful calibration, resource checks and the predefined feasibility rules.**
+
+Do not start another six-hour training campaign.
+
+## 1. Implement the protocol
+
+Follow sections 5 and 6 of `docs/ASTRA_TEACHER_STRATEGY.md`.
+
+Reuse the existing verified Edax adapter, pinned executable and evaluation data, immutable receipts, checkpointing, historical exclusions, resource preflight and improved logging.
+
+Implement configurable search depths, a separate qualification driver, and safe parallelization of independent root searches.
+
+Preserve all existing correctness and validation checks.
+
+The implementation must distinguish:
+
+- Actual terminal disc margins.
+- Edax's terminal scoring convention.
+- Horizon-limited estimated values.
+- Completed full-window values versus search bounds.
+- Near-tied moves versus substantial errors.
+
+Do not change production evaluator B or our original alpha-beta engine.
+
+## 2. Calibrate stronger Edax searches
+
+Use the new, reserved 24-position cost sample.
+
+Measure all-alternative Edax searches at depths 10, 12 and 14, with the specified odd-depth checks.
+
+Consider depth 16 only if the measured costs support completing the entire required sample within the calibration allowance.
+
+Measure actual native CPU use, wall time, high-tail task durations, memory use and completed-node counts.
+
+Select the lowest qualifying teacher/reference depth pair according to the frozen strategy document.
+
+Do not assume deeper is always better.
+
+If no acceptable configuration exists, stop after calibration and publish the findings. Do not improvise a weaker protocol during the run.
+
+## 3. Execute the bounded reliability assessment
+
+If calibration succeeds and a conservative runtime forecast fits within the total allowance, execute the prescribed 120-minute qualification.
+
+Preserve the predetermined:
+
+- 256 independent assessment roots, with 64 in each phase stratum.
+- 32 odd-horizon checks.
+- 64 exact assessment roots.
+- All-alternative search requirement.
+- Phase and source-policy separation.
+- Historical and cross-split exclusions.
+- Statistical measures and decision gates.
+
+Use both search-choice stability and regret-based measures.
+
+In particular, distinguish a changed preference between nearly equivalent moves from a substantial reversal of strategic judgment.
+
+Examine whether deeper searches improve actual decision quality relative to independently solved late-game positions.
+
+Measure B's disagreement with the teacher, emphasizing opening and middlegame positions.
+
+Do not interpret agreement between two Edax search depths as proof of game-theoretic correctness.
+
+## 4. Make efficient use of my computer
+
+I want to use more available CPU capacity when it produces real throughput improvements.
+
+Use up to two concurrent teacher workers initially, subject to current Windows/WSL memory and CPU conditions.
+
+Benchmark the concurrency benefit before increasing it.
+
+Keep the PC responsive, avoid memory pressure and active swapping, and do not close unrelated applications or modify saved system settings.
+
+Use safe, bounded temporary keep-awake handling if needed for the authorized run.
+
+The work should survive interruption and resume without repeating completed tasks.
+
+## 5. Keep the logging informative
+
+Maintain the improved readable logging from the previous round.
+
+I want to see what the program is doing, including:
+
+- Current stage and search depth.
+- Completed and remaining positions.
+- Current expensive query and its elapsed time.
+- Measured labeling throughput.
+- CPU and memory use.
+- Forecast completion and uncertainty.
+- Last completed durable checkpoint.
+
+Avoid repetitive progress lines that contain identical counts without explaining the active work.
+
+Keep detailed telemetry separate from the readable log.
+
+## 6. Finish within the time allowance
+
+The total active-time ceiling is 120 minutes, including calibration, assessment and reporting.
+
+Use the strategy's allocation and conservative forecasting rules, including a 35% cost allowance and a final 20-minute reserve.
+
+If the fixed protocol cannot fit, stop before opening the locked assessment. Do not begin an experiment that is likely to require an extension.
+
+Do not reduce assessment samples, lower search depth or relax decision gates after accessing the assessment results.
+
+It is perfectly acceptable to finish much earlier than the time limit.
+
+## 7. Decide whether the teacher is qualified
+
+Apply the strategy document's predefined reliability, regret, exact-calibration, significant-reversal and useful-correction-yield gates.
+
+Report the complete results, including failures.
+
+If the teacher passes, explain why the evidence supports proceeding to a small learning experiment.
+
+If it fails, explain whether the problem appears to be teacher instability, insufficient meaningful disagreement with B, computational cost or something else.
+
+Do not automatically convert a failure into a new experiment.
+
+## 8. Deliverables
+
+Create `docs/TEACHER_DEPTH_QUALIFICATION.md`, with compact audited evidence and reproducible commands.
+
+Include relevant graphs comparing search depth, runtime, regret, stability, phase behavior and disagreement with B.
+
+Preserve raw evidence locally and Git-ignored.
+
+Run relevant tests, verify checkpoint/recovery behavior, and commit and push the completed implementation and report.
+
+Do not begin training a new evaluator.
+
+## 9. Recommend the next action
+
+At completion, answer:
+
+1. What Edax search depth is worth using as our teacher?
+2. Are its evaluations sufficiently reliable for the next learning experiment?
+3. How many useful, independent disagreements with B can we obtain per CPU hour?
+4. Is the proposed B-plus-linear correction still the best next model?
+5. What is the smallest training experiment likely to tell us whether that approach works?
+6. Should the next implementation use Sol High, or would another Astra High strategy review be warranted?
+
+If qualification succeeds, prepare a concrete next-round prompt for the B-preserving frontier-learning experiment, but do not execute it.
+
+If it fails, recommend one alternative research direction based on the measured reasons for failure.
+
+**I want the local program to do the computation autonomously, with minimal AI supervision. The objective is a trustworthy source of training information that can eventually help us outperform B at equal search time.**
