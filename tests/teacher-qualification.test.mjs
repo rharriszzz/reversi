@@ -64,3 +64,32 @@ test('unclean recovery conservatively charges checkpoint gaps and changed boots'
  const {recoveryCharge}=await import('../scripts/teacher/qualification-core.mjs');const state={status:'running',stage:'admission',bootId:'boot',heartbeatBootMs:1000};
  assert.equal(recoveryCharge(state,21000,'boot'),20000);assert.equal(recoveryCharge(state,2000,'boot'),5000);assert.equal(recoveryCharge(state,2000,'other'),PROTOCOL.stageCaps.admission);assert.equal(recoveryCharge({...state,status:'stopped'},2000,'other'),0);
 });
+
+test('reservation import replays source moves, pass/terminal history, seed, board and canonical identity',async()=>{
+ const {verifyTrajectory}=await import('../scripts/teacher/qualification-import.mjs');const {seedFor}=await import('../scripts/research/io.mjs');const {canonical}=await import('../scripts/research/core.mjs');const {seededRandom}=await import('../src/learning.js');const {initialBoard,legalMoves,play}=await import('../src/rules.js');
+ const namespace='import-test',seed=seedFor(namespace,'assessment',0),target=12+Math.floor(seededRandom(seed)()*8),rng=seededRandom(seed);let board=[...initialBoard()],player=1,passes=0,root;const moves=[],history=[];
+ while(passes<2){const legal=legalMoves(board,player),occupied=board.filter(Boolean).length;if(occupied>=12)history.push({board:[...board],player});if(occupied===target&&!root)root={board:[...board],player,id:'assessment-0',role:'assessment',phase:0,policy:'B1-12%',seed,index:0,occupied,key:canonical(board,player)};
+ if(!legal.length){passes++;moves.push({player,move:null});player=-player;continue;}passes=0;const move=legal[Math.floor(rng()*legal.length)];moves.push({player,move});board=[...play(board,player,move)];player=-player;}
+ const tr={...root,moves,history,terminal:board};assert.ok(verifyTrajectory(root,tr,namespace).size>0);
+ for(const [changed,trajectory] of [[{...root,player:0},tr],[{...root,key:'wrong'},tr],[{...root,seed:seed+1},{...tr,seed:seed+1}],[root,{...tr,moves:tr.moves.slice(1)}],[root,{...tr,history:tr.history.slice(1)}],[root,{...tr,terminal:Array(64).fill(0)}]])assert.throws(()=>verifyTrajectory(changed,trajectory,namespace));
+ const {importReservations}=await import('../scripts/teacher/qualification-import.mjs');const {atomic}=await import('../scripts/research/io.mjs');const dir=mkdtempSync(join(tmpdir(),'import-leakage-'));try{
+ atomic(`${dir}/trajectories/${root.id}.json`,tr);const inspection={dir,old:{protocol:{namespace}},reservation:{roles:{assessment:Array(256).fill(root),'exact-assessment':Array(64).fill(root)}}};
+ assert.throws(()=>importReservations('',dir,{keys:new Set(),seeds:new Set([seed])},()=>{},inspection),/seed/);
+ assert.throws(()=>importReservations('',dir,{keys:verifyTrajectory(root,tr,namespace),seeds:new Set()},()=>{},inspection),/leakage/);
+ assert.throws(()=>importReservations('',dir,{keys:new Set(),seeds:new Set()},()=>{},inspection),/seed|policy/);
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('reservation import rejects changed original reservation bytes',async()=>{
+ const {inspectOriginal,ORIGINAL_RESERVATION}=await import('../scripts/teacher/qualification-import.mjs');const {atomic}=await import('../scripts/research/io.mjs');const dir=mkdtempSync(join(tmpdir(),'import-digest-'));try{const old=`${dir}/.local-research/${ORIGINAL_RESERVATION.directory}`;atomic(`${old}/tasks/reservation.json`,{result:{roles:{}}});atomic(`${old}/results.json`,{});atomic(`${old}/manifest.json`,{});assert.throws(()=>inspectOriginal(dir),/digest mismatch/);}finally{rmSync(dir,{recursive:true,force:true});}
+});
+
+
+test('partial publication retains only fully completed predetermined roots and requires fixed odd checks',async()=>{
+ const {assessmentRecords}=await import('../scripts/teacher/qualification-publish.mjs');const reservation={roles:{assessment:[{id:'assessment-0',phase:0,policy:'B1-12%'},{id:'assessment-1',phase:0,policy:'B4-2%'}]},import:{oddIds:['assessment-0']}};
+ const tasks={'assessment-0-d10':result([4,0]),'assessment-0-d12':result([4,0]),'assessment-0-b6':{move:1},'assessment-1-d10':result([1,2])};
+ let x=assessmentRecords(reservation,tasks,{h:10,r:12});assert.equal(x.records.length,0);assert.deepEqual(x.missing[0].tasks,['assessment-0-d11']);
+ tasks['assessment-0-d11']=result([2,4]);x=assessmentRecords(reservation,tasks,{h:10,r:12});assert.equal(x.records.length,1);assert.equal(x.records[0].oddRegret,2);assert.equal(x.records[0].useful,true);assert.equal(x.missing[0].id,'assessment-1');
+});
+test('published qualification boards enter historical exclusions without local run files',async()=>{
+ const {historicalKeys}=await import('../scripts/strong/run.mjs');const {canonical}=await import('../scripts/research/core.mjs');const {atomic}=await import('../scripts/research/io.mjs');const dir=mkdtempSync(join(tmpdir(),'v3-published-history-'));try{const board=trajectory(91407)[20].board;atomic(`${dir}/docs/data/teacher-depth-qualification-v3-20261028.json`,{example:{board}});assert.ok(historicalKeys(dir,[]).keys.has(canonical(board,1)));}finally{rmSync(dir,{recursive:true,force:true});}
+});

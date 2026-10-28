@@ -35,7 +35,7 @@ export function historicalKeys(repository=root,previous=[]) {
     }
     else if(value&&typeof value==='object') for(const v of Object.values(value)) visit(v);
   };
-  for(const name of ['local-research-20261027.json','local-research-smoke.json','evaluator-comparison.json','strong-evaluator-pilot.json','strong-evaluator-20261028.json','next-evaluator-20261028.json','teacher-depth-qualification-20261028.json','exact-solver-optimization-20261028.json']) {
+  for(const name of ['local-research-20261027.json','local-research-smoke.json','evaluator-comparison.json','strong-evaluator-pilot.json','strong-evaluator-20261028.json','next-evaluator-20261028.json','teacher-depth-qualification-20261028.json','teacher-depth-qualification-v3-20261028.json','exact-solver-optimization-20261028.json']) {
     const path=`${repository}/docs/data/${name}`;if(existsSync(path)) visit(read(path));
   }
   const fixture=`${repository}/tests/fixtures/positional.json`;if(existsSync(fixture)) visit(read(fixture));

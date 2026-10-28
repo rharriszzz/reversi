@@ -33,14 +33,20 @@ def main():
                     # Periodic resource-only checks are invoked by the current coordinator.
                     if not a.resources_only:resources['blockers'].append('Existing teacher coordinator '+proc.name)
             except OSError:pass
-    resources['workers']=min(2,resources['workers']);resources['preflightMs']=(time.monotonic()-start)*1000
+    resources['workers']=min(2,resources['workers'])
+    if not a.resources_only and not manifest.exists() and resources['limitingAvailableGiB'] < 3.7:
+        resources['workers']=1
+        resources['qualificationHeadroom']='One worker: retain 1 GiB for the historical admission index in addition to existing reserves'
+    if resources['limitingAvailableGiB'] < 1.5 + .6 * resources['workers']:
+        resources['blockers'].append('Teacher headroom reserve requires 1.5 GiB plus 0.6 GiB per worker')
+    resources['preflightMs']=(time.monotonic()-start)*1000
     launch.atomic(out/'preflight.json',resources)
     if a.resources_only:
         print(json.dumps(resources));return 0
     if resources['blockers']:print(json.dumps(resources));return 2
     source=launch.snapshot(out)
     if not (source/'.local-research').exists():(source/'.local-research').symlink_to(ROOT/'.local-research',target_is_directory=True)
-    argv=['nice','-n','10','node',str(source/'scripts/teacher/qualification.mjs'),'--output',str(out),'--repository',str(ROOT),'--mode',a.mode]
+    argv=['nice','-n','10','node','--expose-gc',str(source/'scripts/teacher/qualification.mjs'),'--output',str(out),'--repository',str(ROOT),'--mode',a.mode]
     if a.resume and manifest.exists():argv[-1]=json.loads(manifest.read_text())['protocol']['mode']
     if a.foreground:return subprocess.call(argv,cwd=source)
     with (out/'launcher.log').open('ab',buffering=0) as log:

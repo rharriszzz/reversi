@@ -1597,3 +1597,173 @@ After completing the engineering work, tell me:
 The objective is to establish a reliable, efficient independent reference so our eventual learning experiments can be based on trustworthy strategic information.
 
 Minimize AI supervision of local computation. Commit and push the verified results.
+
+---
+
+# Reversi — Complete Independent Edax Teacher Qualification
+
+Continue in `~/git/reversi` using GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, and especially:
+
+- `docs/EXACT_SOLVER_OPTIMIZATION.md`
+- `docs/TEACHER_DEPTH_QUALIFICATION.md`
+- `docs/ASTRA_TEACHER_STRATEGY.md`
+- `docs/TEACHER_AUDIT.md`
+
+Inspect the relevant implementation and tests before making changes.
+
+The previous round successfully optimized our independent exact-endgame solver. The formerly capped twelve-empty position now finishes both scoring conventions in approximately 64 milliseconds. All eight original exact-calibration positions completed, and the new solver passed extensive independent correctness tests.
+
+**I authorize you to implement the necessary integration and execute a new, bounded Edax depth-qualification experiment with a maximum of 120 active minutes.**
+
+Do not begin training an evaluator or modify production evaluator B.
+
+## 1. Integrate the improved exact solver
+
+Update the teacher-qualification framework to use the optimized independent solver in `scripts/teacher/exact.mjs`.
+
+Preserve the old reference implementation for correctness checks.
+
+Maintain the ten-second combined-convention limit per exact position.
+
+Verify raw-disc scoring, Edax's winner-awarded-empty convention, forced passes, terminal positions with remaining empty squares, exact values for every legal alternative, and safe timeout handling.
+
+Do not import Edax's implementation into our solver.
+
+## 2. Preserve the original assessment reservations
+
+The previous qualification stopped before evaluating any of its 256 reliability-assessment positions or 64 independent exact-assessment positions.
+
+Prefer reusing these untouched reservations, including the fixed 32 odd-depth subset.
+
+Implement a verified reservation-import mechanism that:
+
+- Checks the original reservation digest.
+- Verifies each board, player to move, source trajectory and canonical identity.
+- Preserves the original source-policy and phase distributions.
+- Records both the old and new source/protocol identities.
+- Prevents historical-data leakage and duplicate admission.
+- Explicitly records that the assessment positions were reserved previously but never evaluated.
+
+Do not alter the old stopped run or bypass its completed-run safety checks.
+
+If safe reservation import is not possible, create an entirely fresh, independently reserved assessment set. Do not selectively replace positions based on their perceived difficulty.
+
+Use a **new source snapshot and protocol identity** for this experiment.
+
+## 3. Repeat calibration with fresh engineering positions
+
+Reserve 24 new depth-calibration positions and eight new exact-calibration positions.
+
+Exclude all previously disclosed engineering fixtures and historical research positions.
+
+Repeat the original D10/D12/D14 all-alternative searches and fixed D13 checks.
+
+Attempt the optional D16 calibration only if its full required sample fits the predeclared calibration budget.
+
+Use the established depth-selection criteria. D10/D12 is promising but must not be assumed qualified in advance.
+
+Measure native CPU, elapsed time, peak memory, search nodes, score stability, regret and the cost of exact-endgame verification.
+
+Complete exact calibration under the unchanged ten-second combined scoring-convention cap.
+
+## 4. Complete the independent teacher assessment
+
+If calibration passes and a conservative runtime forecast demonstrates that the entire predetermined assessment can finish, execute it.
+
+The original assessment requirements remain:
+
+- 256 reliability positions, 64 in each occupied-square stratum.
+- 32 predetermined odd-depth checks within those 256 positions.
+- 64 independent exact-endgame positions, split equally between ten and twelve empties.
+- All legal alternatives evaluated at comparable, full-window search depths.
+- Both terminal scoring conventions independently checked.
+
+Preserve the original regret, reliability, sign-reversal, exact-calibration and useful-disagreement criteria from `ASTRA_TEACHER_STRATEGY.md`.
+
+Do not modify thresholds after examining assessment results.
+
+In particular, measure whether Edax identifies meaningful, reasonably stable mistakes in B's opening and middlegame choices.
+
+## 5. Manage processing resources efficiently
+
+Use the existing Windows/WSL resource checks.
+
+Start with at most two concurrent independent teacher workers, subject to memory headroom.
+
+Keep the computer responsive. Do not close applications, terminate unrelated processes or modify saved system settings.
+
+Use the previously authorized bounded temporary keep-awake mechanism if appropriate.
+
+Preserve crash recovery, immutable receipts, source verification and safe resumption.
+
+Do not repeat already completed tasks after an interruption.
+
+## 6. Provide useful progress logging
+
+I want the readable log to make progress immediately understandable.
+
+Each stage should report:
+
+- Current operation and search depth.
+- Completed and remaining positions.
+- Actual throughput and measured task durations.
+- CPU and memory utilization.
+- Estimated remaining time when supported by measurements.
+- Last durable checkpoint.
+- Any unusually slow task and its elapsed time.
+
+Avoid repeated indistinguishable lines.
+
+Keep detailed machine-readable telemetry separate from the human-readable progress log.
+
+## 7. Finish within the allocated time
+
+The maximum active-time allowance is 120 minutes, not a target duration.
+
+Retain the existing 35% forecast allowance and final 20-minute reporting/safety reserve.
+
+If calibration indicates that the complete assessment cannot fit, stop and report the limitation before opening the locked positions.
+
+Do not reduce the fixed targets, weaken statistical criteria or extend the computation after examining results.
+
+Finishing early is preferable to exhausting the entire allowance unnecessarily.
+
+## 8. Produce final results
+
+Create `docs/TEACHER_DEPTH_QUALIFICATION_V3.md`, with compact audited evidence and relevant graphs.
+
+Report:
+
+1. The selected Edax teacher/reference depths.
+2. Search-depth reliability and regret distributions.
+3. Opening, middlegame and later-phase results separately.
+4. Significant preference reversals and estimated win/loss changes.
+5. Independent exact-endgame agreement.
+6. Useful stable disagreements with B.
+7. Processing time, CPU utilization, memory, and forecast accuracy.
+8. Whether every predefined gate passed.
+9. Remaining uncertainties about teacher quality.
+
+Clearly distinguish approximate Edax scores from mathematically exact endgame results.
+
+Run all relevant tests, verify source and result hashes, and commit and push the completed work.
+
+Do not change the browser application, production evaluator B, or the ordinary playing engine.
+
+## 9. Recommend the next experiment
+
+If qualification succeeds, prepare a specific implementation plan for the small B-preserving residual-learning experiment described in `ASTRA_TEACHER_STRATEGY.md`.
+
+The initial model should retain B's seven features and three phase boundaries and learn only corrections to its 21 existing weights.
+
+The learning experiment should use independently evaluated search-frontier positions, not merely weak self-play outcomes.
+
+Do not automatically start that training experiment.
+
+If qualification fails, explain precisely whether the cause is computational cost, teacher instability, insufficient useful disagreements with B, or another measured problem.
+
+Recommend one next action rather than another broad collection of speculative experiments.
+
+**The purpose of this round is to establish whether we finally have reliable independent training information capable of improving B. Use the computer for the substantial computation and minimize unnecessary AI supervision.**
