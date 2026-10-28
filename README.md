@@ -4,6 +4,8 @@
 
 **Deeper teacher qualification:** D10/D12/D14 calibration completed, but an independent twelve-empty reference exceeded its fixed ten-second cap. Qualification stopped before the locked assessment; no training started. See [the results and next action](docs/TEACHER_DEPTH_QUALIFICATION.md).
 
+**Independent solver optimized:** the previously capped board now completes both terminal conventions in about 64 ms. All 44 engineering roots matched Edax on every awarded-empty alternative. The teacher qualification remains incomplete; no new qualification or training was launched. See [exact solver optimization](docs/EXACT_SOLVER_OPTIMIZATION.md).
+
 **Previous research:** the frozen long-pattern screen completed all 288 games within its cap and did not beat B. B remains production; no new long training run is recommended. See [the results and engineering round](docs/NEXT_EVALUATOR_RESEARCH.md), [profiling](docs/PERFORMANCE_PROFILING.md), [language comparison](docs/LANGUAGE_COMPARISON.md), and [worker scaling](docs/RESOURCE_SCALING.md).
 
 **Proposed GitHub repository:** `rharriszzz/reversi` (one word).

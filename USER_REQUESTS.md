@@ -1438,3 +1438,162 @@ If qualification succeeds, prepare a concrete next-round prompt for the B-preser
 If it fails, recommend one alternative research direction based on the measured reasons for failure.
 
 **I want the local program to do the computation autonomously, with minimal AI supervision. The objective is a trustworthy source of training information that can eventually help us outperform B at equal search time.**
+
+---
+
+# Reversi — Accelerate the Independent Exact-Endgame Solver
+
+Continue in `~/git/reversi` using GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/TEACHER_DEPTH_QUALIFICATION.md`, `docs/ASTRA_TEACHER_STRATEGY.md`, and the relevant code.
+
+The most recent Edax qualification experiment stopped because our independent exact-endgame solver exceeded its ten-second combined-convention limit on a twelve-empty position.
+
+The important finding is that Edax's deeper searches appear computationally affordable. The immediate obstacle is our own reference solver.
+
+**Your primary task is to remove this measured bottleneck without compromising the scientific independence or correctness of our reference calculations.**
+
+## 1. Diagnose the solver
+
+Inspect `scripts/teacher/validate.mjs`, `scripts/teacher/qualification-exact.mjs`, and their dependencies.
+
+Profile the existing exact solver on a representative selection of endgame positions.
+
+Measure:
+
+- Nodes visited.
+- Time per root and legal alternative.
+- Time spent generating legal moves and applying them.
+- Alpha-beta pruning efficiency.
+- Repeated positions.
+- Memory allocations.
+- CPU and elapsed time.
+- The separate costs of raw-disc and winner-awarded-empty terminal scoring.
+
+Investigate why some twelve-empty positions are much slower than others.
+
+Use the previously capped position as a disclosed engineering benchmark, not as a new independent assessment sample.
+
+## 2. Implement a faster independent solver
+
+Consider improvements such as:
+
+- A transposition table with correct bound handling.
+- Better move ordering.
+- Reusing exact results and compatible transposition information across root alternatives.
+- Faster board representation and move generation.
+- Reducing unnecessary allocations.
+- Efficient pass detection and terminal evaluation.
+
+Choose changes based on measured costs.
+
+A compact bitboard implementation may be useful, but a full native rewrite is not required unless profiling demonstrates that it is warranted.
+
+Preserve the independent rules implementation and the exact search semantics.
+
+In particular, ensure that:
+
+- Every legal root alternative receives its correct exact minimax value.
+- Forced passes do not consume a placement.
+- Terminal positions with unoccupied squares are handled correctly.
+- Raw-disc and Edax-awarded terminal conventions remain mathematically distinct.
+- Transposition entries never mix incompatible scoring conventions, search perspectives or bound types.
+- A completed exact result is never confused with a cutoff bound.
+- Timeouts cannot return incomplete results labeled as exact.
+
+Do not copy Edax's solver or evaluation implementation into ours. Edax may be used as an independent cross-check, not as a replacement for our reference calculation.
+
+## 3. Verify mathematical correctness
+
+Maintain the existing independently validated six-empty examples.
+
+Add exhaustive or independently checked small-endgame fixtures, including:
+
+- Passes and consecutive passes.
+- Unoccupied terminal squares.
+- Wins, draws and losses.
+- Alternative moves with different optimal continuations.
+- Positions that exercise transposition-table lower and upper bounds.
+- Symmetry and color/turn transformations.
+- Both terminal scoring conventions.
+
+Compare the optimized solver against the original reference on manageable positions, and against Edax's exact searches on larger positions.
+
+For every required comparison, verify all legal alternatives, not just the best move.
+
+Include randomized regression tests and explicit timeout/cancellation tests.
+
+Retain a trustworthy, straightforward implementation as a correctness reference if practical.
+
+## 4. Benchmark on fresh positions
+
+Do not optimize solely for the one position that previously timed out.
+
+Benchmark multiple independently generated positions with 8, 10 and 12 empty squares, including difficult cases.
+
+Measure speedup, worst-case behavior, peak memory usage and correctness.
+
+I would particularly like to know whether the optimized solver can finish the original difficult twelve-empty position, including both terminal conventions, within the unchanged ten-second cap.
+
+If it cannot, investigate why and report the remaining bottleneck. Do not relax the cap merely to declare success.
+
+Use fresh independent benchmark positions to guard against overfitting the implementation to a single example.
+
+## 5. Preserve the research protocol
+
+Keep the previous Edax qualification stopped and scientifically incomplete.
+
+Do not modify its frozen executable, historical receipts, recorded results or assessment gates.
+
+The 256 reserved reliability-assessment positions were never evaluated. Preserve that fact and their identities.
+
+If a subsequent qualification requires a new source/protocol identity or revised reservations, document that explicitly. Distinguish reusable untouched assessment data from disclosed engineering fixtures.
+
+Prepare a clear, reproducible plan for restarting qualification with the improved solver.
+
+Do not silently resume the scientifically stopped run with changed code.
+
+## 6. Resource management and logging
+
+Use the existing profiling, checkpointing, progress reporting and memory-preflight mechanisms.
+
+Keep Windows responsive and avoid excessive memory consumption.
+
+Do not close applications or change saved settings.
+
+Log meaningful completed tasks, active operations, throughput and checkpoints rather than repeated identical progress lines.
+
+The optimization and benchmarks should be bounded, with conservative runtime estimates and a clear stopping point.
+
+## 7. Deliverables
+
+Create `docs/EXACT_SOLVER_OPTIMIZATION.md` containing:
+
+1. Explanation of the original bottleneck.
+2. Implemented optimizations and their rationale.
+3. Correctness and equivalence evidence.
+4. Before/after time, node-count and memory comparisons.
+5. Results for the previously capped twelve-empty position.
+6. Results on fresh benchmark positions.
+7. Remaining limitations.
+8. The exact steps required to repeat Edax depth qualification safely.
+
+Include reproducible benchmark commands and useful graphs if warranted.
+
+Run the relevant test suites and commit and push the verified implementation and report.
+
+**Do not train a new evaluator, change production B, or automatically launch another 120-minute teacher qualification.**
+
+## 8. Recommend the following round
+
+After completing the engineering work, tell me:
+
+- How much faster is the independent solver?
+- Does it now satisfy the exact-calibration requirement?
+- Are any major technical obstacles still present?
+- Is it appropriate to run the full Edax depth qualification next?
+- What sample sizes, concurrency settings and runtime budget would you recommend, using the newly measured costs?
+
+The objective is to establish a reliable, efficient independent reference so our eventual learning experiments can be based on trustworthy strategic information.
+
+Minimize AI supervision of local computation. Commit and push the verified results.

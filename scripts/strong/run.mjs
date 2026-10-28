@@ -35,7 +35,7 @@ export function historicalKeys(repository=root,previous=[]) {
     }
     else if(value&&typeof value==='object') for(const v of Object.values(value)) visit(v);
   };
-  for(const name of ['local-research-20261027.json','local-research-smoke.json','evaluator-comparison.json','strong-evaluator-pilot.json','strong-evaluator-20261028.json','next-evaluator-20261028.json','teacher-depth-qualification-20261028.json']) {
+  for(const name of ['local-research-20261027.json','local-research-smoke.json','evaluator-comparison.json','strong-evaluator-pilot.json','strong-evaluator-20261028.json','next-evaluator-20261028.json','teacher-depth-qualification-20261028.json','exact-solver-optimization-20261028.json']) {
     const path=`${repository}/docs/data/${name}`;if(existsSync(path)) visit(read(path));
   }
   const fixture=`${repository}/tests/fixtures/positional.json`;if(existsSync(fixture)) visit(read(fixture));
@@ -43,8 +43,9 @@ export function historicalKeys(repository=root,previous=[]) {
   // was published. Missing local files are recorded, never silently invented.
   let trajectories=0,missing=0;
   for(const dir of previous) {
-    const manifest=`${resolve(dir)}/manifest.json`;if(!existsSync(manifest)) {missing++;continue;}
-    const s=read(manifest);visit(s.usedKeys??[]);visit(s.openings??[]);
+    let manifest=`${resolve(dir)}/manifest.json`;if(!existsSync(manifest)){const benchmark=`${resolve(dir)}/results.json`;if(existsSync(benchmark)&&read(benchmark).protocol?.namespace?.startsWith('exact-engineering-'))manifest=benchmark;else{missing++;continue;}}
+    const s=read(manifest);
+    if(s.protocol?.namespace?.startsWith('exact-engineering-')){visit(s.inputs?.states??[]);for(const state of s.inputs?.states??[]){const path=`${resolve(dir)}/trajectories/${state.id}.json`;if(existsSync(path)){visit(read(path));trajectories++;}for(const move of legalMovesForHistory(state.board,state.player))visit([...play(state.board,state.player,move)]);}}visit(s.usedKeys??[]);visit(s.openings??[]);
     const qualification=`${resolve(dir)}/tasks/reservation.json`;
     if(existsSync(qualification)){const receipt=read(qualification),roles=receipt.result?.roles??{};visit(roles);for(const roots of Object.values(roles))for(const root of roots){const path=`${resolve(dir)}/trajectories/${root.id}.json`;if(!existsSync(path)){missing++;continue;}visit(read(path));trajectories++;for(const move of legalMovesForHistory(root.board,root.player))visit([...play(root.board,root.player,move)]);}}
     if(existsSync(`${resolve(dir)}/development-keys.json`))visit(read(`${resolve(dir)}/development-keys.json`));

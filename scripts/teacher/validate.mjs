@@ -2,8 +2,10 @@ import {oracleChildren} from '../../tests/oracle.mjs';
 import {initialBoard,legalMoves,play,counts} from '../../src/rules.js';
 import {seededRandom} from '../../src/learning.js';
 import {alternatives,query} from './edax.mjs';
-// Independent mailbox rules and alpha-beta, with explicit terminal convention.
-export function solve(board,player,awarded=true,deadline=performance.now()+10000){let nodes=0;const visit=(b,p,a=-65,z=65)=>{if(++nodes%256===0&&performance.now()>deadline)throw Error('Independent solve cap');const children=oracleChildren(b,p);if(!children.length){if(oracleChildren(b,-p).length)return -visit(b,-p,-z,-a);const raw=b.reduce((v,x)=>v+x*p,0);return raw+(awarded?Math.sign(raw)*b.filter(x=>!x).length:0);}let best=-65;for(const c of children){best=Math.max(best,-visit(c.board,-p,-z,-a));a=Math.max(a,best);if(a>=z)break;}return best;};const rows=oracleChildren(board,player).map(c=>({move:c.move,value:-visit(c.board,-player)}));return {value:rows.length?Math.max(...rows.map(r=>r.value)):visit(board,player),rows,nodes};}
+// Optimized independent mailbox search; straightforward oracle remains available.
+export {solveExact as solve} from './exact.mjs';
+import {solveExact as solve} from './exact.mjs';
+export {solveReference} from './reference-exact.mjs';
 export function trajectory(seed){const rng=seededRandom(seed);let board=[...initialBoard()],player=1,passes=0;const states=[];while(passes<2){const moves=legalMoves(board,player);states.push({board:[...board],player});if(!moves.length){passes++;player=-player;continue;}passes=0;board=[...play(board,player,moves[Math.floor(rng()*moves.length)])];player=-player;}return states;}
 export async function validate(pin,output){const fixtures=[];for(let i=0;i<32;i++){const states=trajectory(880100+i);fixtures.push(states.find(s=>counts(s.board).empty===6));}
  const pass=Array.from({length:200},(_,i)=>trajectory(881000+i)).flat().find(s=>!legalMoves(s.board,s.player).length&&legalMoves(s.board,-s.player).length&&counts(s.board).empty<=6);if(!pass)throw Error('No forced pass fixture');fixtures.push(pass,{board:Array(64).fill(1),player:-1},{board:[0,...Array(63).fill(1)],player:1});
