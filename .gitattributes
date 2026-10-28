@@ -1,0 +1,2 @@
+# Unified-diff context preserves upstream tabs and blank context prefixes.
+scripts/teacher/edax-bound.patch -whitespace

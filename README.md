@@ -8,6 +8,8 @@
 
 **Teacher qualification V3:** D10/R12 was selected after complete fresh calibration, including D16. The fixed assessment stopped at 154/256 roots when Edax emitted a bounded `>+63` result; no invalid label was accepted. The complete early sample contains 27 useful estimated corrections to B, but qualification remains incomplete and no training started. See [V3 evidence and the focused next action](docs/TEACHER_DEPTH_QUALIFICATION_V3.md).
 
+**Edax interface repaired:** a separate, hashed experimental build resolves the bound at the requested fixed horizon and passes independent endgame, horizon and window checks. All 308 completed V3 root/depth results are unchanged. Fresh V4 reservations and an executable configuration are prepared; no V4 assessment or training has started. See [the diagnosis, overhead and V4 launch recommendation](docs/EDAX_BOUND_RESOLUTION.md).
+
 **Previous research:** the frozen long-pattern screen completed all 288 games within its cap and did not beat B. B remains production; no new long training run is recommended. See [the results and engineering round](docs/NEXT_EVALUATOR_RESEARCH.md), [profiling](docs/PERFORMANCE_PROFILING.md), [language comparison](docs/LANGUAGE_COMPARISON.md), and [worker scaling](docs/RESOURCE_SCALING.md).
 
 **Proposed GitHub repository:** `rharriszzz/reversi` (one word).

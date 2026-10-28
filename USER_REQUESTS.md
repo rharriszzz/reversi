@@ -1767,3 +1767,113 @@ If qualification fails, explain precisely whether the cause is computational cos
 Recommend one next action rather than another broad collection of speculative experiments.
 
 **The purpose of this round is to establish whether we finally have reliable independent training information capable of improving B. Use the computer for the substantial computation and minimize unnecessary AI supervision.**
+
+---
+
+# Reversi — Resolve Edax's Bounded-Value Failure
+
+Continue in `~/git/reversi` using GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/TEACHER_DEPTH_QUALIFICATION_V3.md`, `docs/ASTRA_TEACHER_STRATEGY.md`, and the relevant teacher-adapter and qualification code.
+
+The V3 Edax qualification stopped after 154 of 256 required assessment roots because a D12 child search returned `>+63`, an inclusive lower bound, rather than an exact full-window value.
+
+The adapter correctly rejected this result. Do not weaken that protection.
+
+The completed opening and middlegame data were encouraging: 126/128 Edax D10 decisions were within two estimated discs of their D12 best choices, and 27/128 were useful stable disagreements with evaluator B.
+
+However, qualification remains incomplete.
+
+## Primary objective
+
+Identify why the pinned Edax 4.6 executable produces an unresolved bound despite our requested full-window search, and implement a mathematically sound method of obtaining complete alternative values.
+
+## 1. Reproduce and diagnose
+
+Use the disclosed `assessment-154` fixture and its original transcript.
+
+Inspect Edax's pinned search implementation, OBF interface, search windows, result reporting and relevant score conventions.
+
+Determine whether the bound arises from:
+
+- Search-window handling.
+- A special terminal score or saturation.
+- The child-search interface.
+- Internal search bounds or transposition-table behavior.
+- A native engine limitation or defect.
+- An incorrect assumption in our adapter.
+
+Distinguish an exact value of +63, an exact +64, and a lower bound of +63.
+
+Do not infer any exact value from a bound without a valid proof.
+
+## 2. Design a robust correction
+
+Prefer a solution that preserves the pinned engine and its existing validated behavior.
+
+Consider whether a different supported Edax query or search interface can obtain the same depth-limited value without an unresolved bound.
+
+If changing native engine behavior is necessary, keep a separate, auditable experimental build with explicit source and binary hashes. Do not silently patch the existing pinned installation.
+
+Preserve common-depth, full-window, all-alternative semantics.
+
+Do not silently increase search depth, enable selectivity or substitute a result from another position.
+
+If a verified fallback query is required for exceptional bounds, document precisely why its returned value is exact for the requested search problem.
+
+## 3. Verify the solution independently
+
+Create targeted tests for scores near both extrema, including +63, +64, −63 and −64 wherever valid fixtures can be constructed.
+
+Test exact values, lower and upper bounds, forced passes, terminal positions with empty squares, color/turn transformations and alternative-move enumeration.
+
+Compare against our independently optimized exact solver wherever the positions are tractable.
+
+Verify that valid earlier Edax results are unchanged.
+
+Ensure unresolved bounds, malformed results and mismatched depths are still rejected.
+
+Use fresh development fixtures in addition to the disclosed failure position.
+
+## 4. Benchmark the repaired adapter
+
+Measure:
+
+- Additional computation required for resolving bounds.
+- Frequency of bounded outputs on a fresh development sample.
+- Native CPU and elapsed time.
+- Memory use.
+- Whether exceptional queries affect conservative qualification forecasts.
+- Any remaining cases that cannot be resolved.
+
+Keep this work bounded. Do not run a multi-hour experiment merely to reproduce a single failure.
+
+## 5. Prepare a scientifically independent V4 qualification
+
+Do not resume or modify the scientifically stopped V3 run.
+
+Its 154 completed assessment positions are now disclosed evidence. Preserve all V3 results and original reservations.
+
+Prepare a V4 protocol with a new frozen executable/source identity and fresh, jointly reserved assessment positions. Do not selectively reuse favorable V3 results.
+
+Preserve the original sample sizes, reliability gates, scoring conventions, depth-selection rule, independent exact assessment and conservative scheduling margins unless a change is explicitly justified and made before collecting new assessment outcomes.
+
+Verify the repaired adapter through an independent preflight before any new qualification.
+
+## 6. Decide whether to proceed
+
+After the engineering tests, produce `docs/EDAX_BOUND_RESOLUTION.md`.
+
+Explain the failure mechanism, correction, correctness evidence, measured overhead and remaining limitations.
+
+If the solution is reliable, prepare an executable V4 qualification configuration and a concise launch recommendation.
+
+If it remains uncertain, do not proceed to scientific assessment. Explain the best alternative interface or independent teacher to investigate.
+
+Do not begin residual learning or replace production evaluator B.
+
+Run all relevant tests, commit and push the verified results, and keep the original experimental data intact.
+
+Use local computation autonomously, with informative logging and minimal additional AI supervision.
+
+**Our immediate goal is to remove the remaining teacher-interface defect so that the next experiment can finally determine whether independently generated strategic supervision is good enough to improve B.**

@@ -10,6 +10,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',required=True);p.add_argument('--mode',choices=['full','calibration'],default='full')
     p.add_argument('--resume',action='store_true');p.add_argument('--resources-only',action='store_true')
+    p.add_argument('--prepare',action='store_true');p.add_argument('--teacher-build');p.add_argument('--adapter-preflight')
     p.add_argument('--foreground',action='store_true')
     a=p.parse_args();out=Path(a.output).resolve()
     if out==ROOT or not out.is_relative_to((ROOT/'.local-research').resolve()):p.error('Use a dedicated .local-research subdirectory')
@@ -47,7 +48,13 @@ def main():
     source=launch.snapshot(out)
     if not (source/'.local-research').exists():(source/'.local-research').symlink_to(ROOT/'.local-research',target_is_directory=True)
     argv=['nice','-n','10','node','--expose-gc',str(source/'scripts/teacher/qualification.mjs'),'--output',str(out),'--repository',str(ROOT),'--mode',a.mode]
-    if a.resume and manifest.exists():argv[-1]=json.loads(manifest.read_text())['protocol']['mode']
+    if a.resume and manifest.exists():
+        previous=json.loads(manifest.read_text());argv[-1]=previous['protocol']['mode']
+        if previous.get('adapterPreflightPath'):a.adapter_preflight=previous['adapterPreflightPath']
+        if previous.get('pin',{}).get('experimental'):a.teacher_build=previous['pin']['experimental']['buildFile']
+    if a.adapter_preflight:argv+=['--adapter-preflight',str(Path(a.adapter_preflight).resolve())]
+    if a.prepare:argv+=['--prepare','true']
+    if a.teacher_build:argv+=['--teacher-build',str(Path(a.teacher_build).resolve())]
     if a.foreground:return subprocess.call(argv,cwd=source)
     with (out/'launcher.log').open('ab',buffering=0) as log:
         proc=subprocess.Popen(argv,cwd=source,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)

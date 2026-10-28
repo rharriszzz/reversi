@@ -87,6 +87,13 @@ class ResearchRunnerTests(unittest.TestCase):
                 time.sleep(0.05)
             self.assertEqual(state['status'], 'complete')
             self.assertEqual(state['stage'], 'done')
+            # Completion is checkpointed before the detached process finishes
+            # its final reports and releases its writer lock. Wait for that
+            # release before TemporaryDirectory removes the output tree.
+            end = time.monotonic() + 5
+            while (Path(folder) / 'run.lock').exists() and time.monotonic() < end:
+                time.sleep(0.05)
+            self.assertFalse((Path(folder) / 'run.lock').exists())
 
     def test_sigterm_checkpoints_and_resumes_without_partial_pairs(self):
         with tempfile.TemporaryDirectory(prefix='reversi-resume-') as folder:
@@ -110,7 +117,9 @@ class ResearchRunnerTests(unittest.TestCase):
             self.assertEqual(state['status'], 'stopped')
             self.assertIn('SIGTERM', state['stoppingReason'])
             self.assertFalse((output / 'run.lock').exists())
-            resume = self.run_node(output, '--resume', '--seconds', '5', timeout=15)
+            # This is a cumulative allowance, including correctness on both
+            # starts. Leave room for the expanded native-adapter test suite.
+            resume = self.run_node(output, '--resume', '--seconds', '10', timeout=20)
             self.assertEqual(resume.returncode, 0, resume.stderr)
             state = json.loads((output / 'manifest.json').read_text())
             self.assertEqual(len(state['sessions']), 2)

@@ -1,6 +1,6 @@
 // Separate executable teacher. No Edax source or weights are linked/imported.
 import { spawn } from 'node:child_process';
-import { readFileSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -11,16 +11,25 @@ export const EVAL_SHA='f8b2299612d9fa4414157e70e932636e33111c2602d0c2fc382a7d90e
 export const sha=path=>createHash('sha256').update(readFileSync(path)).digest('hex');
 export function obf(board,player){if(board.length!==64||!board.every(v=>[-1,0,1].includes(v))||![1,-1].includes(player))throw Error('Invalid board/turn');return Array.from(board,v=>v===1?'X':v===-1?'O':'-').join('')+` ${player===1?'X':'O'};`;}
 export function moveIndex(s){if(/^(pa|ps|pass)$/i.test(s))return null;if(!/^[a-h][1-8]$/i.test(s))throw Error(`Invalid coordinate ${s}`);return s.toLowerCase().charCodeAt(0)-97+8*(Number(s[1])-1);}
+export function provenBoundary(bound,score){return (bound==='>'&&score===64)||(bound==='<'&&score===-64);}
 export function parse(text,n,depths){
  const rows=[];
  for(const line of text.split('\n')) {const m=line.match(/^\s*(\d+)\|\s*(\d+)(@\s*\d+%)?\s+([<>? ]?)([+-]\d+)\s+(\d+:\d+\.\d+)\s+(\d+)\s+(.*)$/);if(!m)continue;
   const pv=m[8].trim().split(/\s+/);if(/^\d+$/.test(pv[0]))pv.shift();
+  if(pv.some(v=>!(/^[a-h][1-8]$|^(pa|ps)$/i.test(v))))throw Error('Malformed Edax continuation');
   rows.push({index:Number(m[1]),depth:Number(m[2]),bound:m[4].trim()||'exact-window',score:Number(m[5]),nodes:Number(m[7]),pv:pv.filter(v=>/^[a-h][1-8]$|^(pa|ps)$/i.test(v)).map(moveIndex),selective:!!m[3]});
  }
- if(rows.length!==n||rows.some((r,i)=>r.index!==i+1||r.selective||Math.abs(r.score)>64||(r.bound!=='exact-window'&&Math.abs(r.score)!==64)||r.depth!==depths[i]))throw Error(`Incomplete, bounded, selective or wrong-depth Edax output: ${JSON.stringify(rows)}`);
+ if(rows.length!==n||rows.some((r,i)=>r.index!==i+1||r.selective||Math.abs(r.score)>64||(r.bound!=='exact-window'&&!provenBoundary(r.bound,r.score))||r.depth!==depths[i]))throw Error(`Incomplete, bounded, selective or wrong-depth Edax output: ${JSON.stringify(rows)}`);
  return rows;
 }
-export function identity(binary,evalFile){if(sha(evalFile)!==EVAL_SHA)throw Error('Evaluation hash mismatch');return {source:SOURCE,version:'Edax 4.6',binary:resolve(binary),evalFile:resolve(evalFile),binarySha:sha(binary),evalSha:sha(evalFile),selectivity:5,tasks:1,hashBits:16,book:false,units:'Edax discs (winner receives unplayed empties)',license:'GPL-3.0; external checkout LICENSE retained'};}
+export function identity(binary,evalFile,{buildFile}={}){if(sha(evalFile)!==EVAL_SHA)throw Error('Evaluation hash mismatch');const experimental=buildFile?verifyExperimental(buildFile,binary):null;return {...(experimental?{experimental}:{}),source:SOURCE,version:'Edax 4.6',binary:resolve(binary),evalFile:resolve(evalFile),binarySha:sha(binary),evalSha:sha(evalFile),selectivity:5,tasks:1,hashBits:16,book:false,units:'Edax discs (winner receives unplayed empties)',license:'GPL-3.0; external checkout LICENSE retained'};}
+export function verifyExperimental(buildFile,binary){
+ const meta=JSON.parse(readFileSync(buildFile,'utf8')),root=resolve(buildFile,'..');
+ if(meta.kind!=='edax-fixed-window-v2'||meta.upstream!==SOURCE||meta.patchSha256!==sha(fileURLToPath(new URL('./edax-bound.patch',import.meta.url)))||meta.binarySha256!==sha(binary)||resolve(meta.binary)!==resolve(binary))throw Error('Experimental teacher identity mismatch');
+ for(const f of meta.sourceFiles)if(!resolve(root,f.path).startsWith(root+'/')||sha(resolve(root,f.path))!==f.sha256)throw Error('Experimental source file mismatch');
+ if(createHash('sha256').update(JSON.stringify(meta.sourceFiles)).digest('hex')!==meta.sourceTreeSha256)throw Error('Experimental source tree mismatch');
+ return {kind:meta.kind,buildFile:resolve(buildFile),metadataSha256:sha(buildFile),patchSha256:meta.patchSha256,sourceTreeSha256:meta.sourceTreeSha256};
+}
 async function queryRaw(pin,states,depth,{timeoutMs=60000,transcript,measureNative=false}={}) {
  if(!Number.isInteger(depth)||depth<1||depth>60)throw Error('Invalid depth');
  const dir=mkdtempSync(join(tmpdir(),'reversi-edax-')),input=join(dir,'input.obf');writeFileSync(input,states.map(s=>obf(s.board,s.player)).join('\n')+'\n');
@@ -31,7 +40,7 @@ async function queryRaw(pin,states,depth,{timeoutMs=60000,transcript,measureNati
   const kill=()=>{try{if(measureNative)process.kill(-child.pid,'SIGKILL');else child.kill('SIGKILL');}catch(e){if(e.code!=='ESRCH')throw e;}};let stdout='',stderr='',expired=false;
   const timer=setTimeout(()=>{expired=true;kill();},timeoutMs);
   child.stdout.on('data',s=>{stdout+=s;if(stdout.length>8e6)kill();});child.stderr.on('data',s=>{stderr+=s;});child.on('error',e=>{clearTimeout(timer);bad(e);});
-  child.on('close',(code,signal)=>{clearTimeout(timer);try{if(transcript){mkdirSync(resolve(transcript,'..'),{recursive:true});writeFileSync(transcript,JSON.stringify({args,stdout,stderr,code,signal,expired}));}if(code!==0||expired||/ERROR|cannot|failed/i.test(stderr))throw Error(`Edax failure ${code}: ${stderr}`);const rows=parse(stdout,states.length,states.map(s=>Math.min(depth,counts(s.board).empty)));ok({rows,wallMs:performance.now()-start,...(measureNative?{native:JSON.parse(readFileSync(metrics,'utf8'))}:{})});}catch(e){bad(e);}});
+  child.on('close',(code,signal)=>{clearTimeout(timer);try{const native=measureNative&&existsSync(metrics)?JSON.parse(readFileSync(metrics,'utf8')):undefined;if(transcript){mkdirSync(resolve(transcript,'..'),{recursive:true});writeFileSync(transcript,JSON.stringify({args,stdout,stderr,code,signal,expired,...(native?{native}:{})}));}if(code!==0||expired||/ERROR|cannot|failed/i.test(stderr))throw Error(`Edax failure ${code}: ${stderr}`);const rows=parse(stdout,states.length,states.map(s=>Math.min(depth,counts(s.board).empty)));ok({rows,wallMs:performance.now()-start,...(native?{native}:{})});}catch(e){bad(e);}});
  });}finally{rmSync(dir,{recursive:true,force:true});}
 }
 export async function alternatives(pin,state,depth,options={}) {
@@ -55,6 +64,6 @@ export async function query(pin,states,depth,options={}) {
   const pass=!moves.length;requests.push({...s,player:pass?-s.player:s.player});slots.push({index,pass});return null;
  });
  const r=requests.length?await queryRaw(pin,requests,depth,options):{rows:[],wallMs:0};
- for(let i=0;i<slots.length;i++){const {index,pass}=slots[i],v=r.rows[i];rows[index]={...v,index:index+1,score:pass?-v.score:v.score,pv:pass?[null,...v.pv]:v.pv,normalizedPass:pass};}
+ for(let i=0;i<slots.length;i++){const {index,pass}=slots[i],v=r.rows[i];rows[index]={...v,index:index+1,score:pass?-v.score:v.score,bound:pass?(v.bound==='>'?'<':v.bound==='<'?'>':v.bound):v.bound,pv:pass?[null,...v.pv]:v.pv,normalizedPass:pass};}
  return {...r,rows};
 }

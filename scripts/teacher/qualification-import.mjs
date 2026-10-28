@@ -13,7 +13,7 @@ export function verifyTrajectory(root,tr,namespace){
  if(!Array.isArray(root.board)||root.board.length!==64||!root.board.every(x=>[-1,0,1].includes(x))||![-1,1].includes(root.player)||root.occupied!==64-counts(root.board).empty||root.key!==canonical(root.board,root.player)||legalMoves(root.board,root.player).length<2)throw Error('Invalid imported board/turn/canonical identity');
  for(const key of Object.keys(root))if(!same(root[key],tr[key]))throw Error('Trajectory root metadata mismatch');
  if(root.seed!==seedFor(namespace,root.role,root.index))throw Error('Trajectory seed mismatch');
- const [lo,hi]=root.role==='assessment'?[[12,19],[20,35],[36,47],[48,55]][root.phase]:[root.occupied,root.occupied];
+ const [lo,hi]=(root.role==='assessment'||root.role==='cost')?[[12,19],[20,35],[36,47],[48,55]][root.phase]:[root.occupied,root.occupied];
  const target=lo+Math.floor(seededRandom(root.seed)()*(hi-lo+1));if(target!==root.occupied)throw Error('Trajectory target mismatch');
  let board=[...initialBoard()],player=1,passes=0,found=false;const history=[];
  for(const step of tr.moves){if(passes===2||step.player!==player)throw Error('Invalid source trajectory turn');
