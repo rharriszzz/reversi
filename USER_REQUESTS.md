@@ -1119,3 +1119,163 @@ Run the relevant tests, commit and push the verified work, and explain any remai
 Minimize AI supervision during the local computations.
 
 The goal is to determine whether a sufficiently strong, independent teacher provides reliable and useful information that our previous learning systems lacked.
+
+---
+
+# Reversi — Strategic Review After the Edax Teacher Audit
+
+Work in repository `rharriszzz/reversi`.
+
+Use GPT-6-Astra with High reasoning.
+
+I want you to reconsider our research strategy in light of the completed independent Edax teacher audit.
+
+Please read:
+
+- `docs/ASTRA_STRATEGY.md`
+- `docs/TEACHER_AUDIT.md`
+- `docs/data/teacher-audit-20261028.json`
+- `docs/STRONG_EVALUATOR_RESULTS_20261028.md`
+- `docs/NEXT_EVALUATOR_RESEARCH.md`
+
+Inspect the relevant teacher-adapter, search, data-generation and learning code as necessary.
+
+## 1. Interpret the audit critically
+
+The audit examined 1,000 positions and successfully verified all 668 exact alternatives from 128 endgame anchors.
+
+However, depth-8 versus depth-10 Edax move-selection stability was only 70.8%, below the predefined 90% threshold.
+
+Only 69 stable disagreements with B depth 6 were found on the 250 depth-checked positions, versus a target of 100. Only 15 were in the specified representative early-game subset, versus a target of 30.
+
+All three decision gates failed, so Stage B was correctly not started.
+
+Explain what these results actually tell us about the quality of our training labels.
+
+In particular, distinguish instability caused by near-tied moves from instability involving substantial strategic mistakes.
+
+Consider whether the original decision thresholds were appropriately designed, including their sample-size denominators and how often meaningful disagreements could reasonably be expected.
+
+Do not retroactively declare the audit successful. Any revised criteria must apply to fresh, independently reserved data.
+
+## 2. Investigate stronger teacher evaluations
+
+The completed audit took only about 5.4 minutes of local computation, substantially less than the available two-hour budget.
+
+I suspect we should investigate stronger Edax evaluations before abandoning this approach.
+
+Consider depth 10, 12, 14 and possibly deeper searches, depending on measured costs.
+
+Examine the tradeoff between:
+
+- Search depth and evaluation stability.
+- Number of positions labeled.
+- Number of legal alternatives evaluated per position.
+- Reliability of the best move.
+- Accuracy of the relative scores of competing moves.
+- CPU time and memory consumption.
+- Value of the labels for improving our own depth-limited player.
+
+Consider whether Edax's full-width settings, selective-search options, or another strong reference engine would be most appropriate.
+
+Do not assume that simply increasing search depth solves every problem. Propose measurements that distinguish genuine strategic improvement from agreement between related search horizons.
+
+## 3. Design a better measure of teacher reliability
+
+The existing best-move stability percentage may be too crude.
+
+Investigate alternatives such as:
+
+- Regret of the shallower choice under a deeper reference search.
+- Frequency of significant move-order reversals.
+- Win/draw/loss disagreements.
+- Stability of preferences among near-best moves.
+- Confidence-weighted training constraints.
+- Variation in the principal continuation.
+- Agreement with independently solved endgames where available.
+
+A one-disc preference reversal should not necessarily have the same importance as a move changing a probable win into a probable loss.
+
+Establish how these measurements should be calibrated and interpreted.
+
+Distinguish estimated teacher values from exact minimax results.
+
+## 4. Reconsider our underlying learning strategy
+
+Our ultimate objective is to make the complete Reversi player stronger than evaluator B at equal computation time.
+
+Reconsider whether search-aware residual learning remains the best strategy.
+
+In particular, investigate whether we should:
+
+A. Learn small corrections to B's existing feature weights.
+
+B. Train B plus a small number of pattern features.
+
+C. Learn a move-ranking or move-ordering model separately.
+
+D. Train directly from independently searched frontier positions.
+
+E. Pursue search-aware differentiation through minimax-selected leaves.
+
+F. First improve the search engine and use its increased strength to generate better supervision.
+
+These approaches are not necessarily mutually exclusive, but choose a primary direction rather than proposing another large experiment that tries everything.
+
+Explain why you believe that direction is most likely to improve playing strength.
+
+## 5. Design a decisive next experiment
+
+I would prefer an experiment that can initially run for 30–120 minutes on my WSL2 computer, with minimal AI involvement.
+
+Use the existing verified Edax adapter, checkpointing, logging and profiling wherever possible.
+
+First measure costs and label quality at several depths on a small new set of positions. Use those measurements to select an appropriate depth and evaluation protocol.
+
+Then, only if the evidence supports it, prepare the next learning experiment.
+
+Predeclare sample sizes, stability/regret measures, selection criteria, and stopping conditions.
+
+Use fresh seeds and preserve the separation between development and independent assessment data.
+
+Allow generous scheduling margins and use the available CPU resources efficiently without making my Windows PC unresponsive.
+
+Do not automatically start another six-hour training campaign.
+
+## 6. Estimate what it would take to beat B
+
+Given all the experiments we have performed, provide your best evidence-based assessment of:
+
+- Why B remains strongest.
+- Whether independent deep-search supervision is likely to overcome that advantage.
+- How many high-quality training positions we might need.
+- Whether improving search depth might be more productive than improving evaluation.
+- How important evaluation speed is likely to be.
+- Which experimental result would most strongly convince you that we are finally on the right track.
+
+I understand that precise predictions of improvement may not be possible. State assumptions and uncertainties explicitly.
+
+## 7. Deliverables
+
+Create `docs/ASTRA_TEACHER_STRATEGY.md`.
+
+Include:
+
+1. Interpretation of the Edax audit.
+2. Critique of the existing teacher-stability metrics.
+3. Assessment of stronger search depths and alternatives.
+4. Recommended training objective.
+5. One preferred next experiment.
+6. A concrete experiment protocol and CPU-time estimate.
+7. Decision gates for proceeding or stopping.
+8. A proposed subsequent Codex implementation prompt.
+
+Do not substantially rewrite the engine, start a long computation, or change production evaluator B during this strategic review.
+
+Run lightweight verification as appropriate, commit and push the completed document.
+
+I want you to challenge the existing approach if necessary. The objective is not simply to accumulate more training data; it is to discover a method that produces a demonstrably stronger Reversi player.
+
+---
+
+It told me "Selected model is at capacity. Please try a different model."  so I switched to gpt-6.1-sol.  Please continue

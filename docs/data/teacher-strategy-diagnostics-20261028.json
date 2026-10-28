@@ -1,0 +1,185 @@
+{
+  "kind": "post-hoc descriptive reanalysis; not a changed audit gate",
+  "sourceCommit": "3936e2784c9df59476c3675ea97530525f1c09c1",
+  "sourceRun": ".local-research/teacher-audit-v1-20261028",
+  "sourceArtifactHashes": {
+    "manifest": "e04e582d9e56858b43a4d688e15d60498d07274516c1ea77c9b41c3342562d58",
+    "roots": "4d261151bb550dfb2cc489709fa1bde22038bc5a5ee4665d87194be6b2982838",
+    "results": "a73329f438efce605d9a15cffbdc75822e6ce3722758cc5de2225e4330b6fd05"
+  },
+  "orderedRootReceiptsSha256": "22645b354f265cb06ca0e0a185005161af4c07cb17fc1c546f31f98c294e899d",
+  "units": "estimated Edax discs, D10 reference; not exact minimax regret",
+  "tieBreak": "lowest row-major move index among D8 maxima",
+  "choiceRegret": {
+    "n": 250,
+    "sum": 128,
+    "mean": 0.512,
+    "histogram": {
+      "0": 188,
+      "1": 21,
+      "2": 25,
+      "3": 10,
+      "4": 5,
+      "7": 1
+    }
+  },
+  "worstTiedRegret": {
+    "n": 250,
+    "sum": 154,
+    "mean": 0.616,
+    "histogram": {
+      "0": 177,
+      "1": 27,
+      "2": 26,
+      "3": 12,
+      "4": 6,
+      "7": 1,
+      "8": 1
+    }
+  },
+  "b6Regret": {
+    "n": 250,
+    "sum": 543,
+    "mean": 2.172,
+    "histogram": {
+      "0": 132,
+      "1": 25,
+      "2": 16,
+      "3": 14,
+      "4": 21,
+      "5": 5,
+      "6": 7,
+      "7": 9,
+      "8": 5,
+      "9": 2,
+      "10": 7,
+      "11": 1,
+      "13": 1,
+      "14": 4,
+      "22": 1
+    }
+  },
+  "stableB6DisagreementRegret": {
+    "n": 69,
+    "sum": 383,
+    "mean": 5.550724637681159,
+    "histogram": {
+      "1": 12,
+      "2": 4,
+      "3": 8,
+      "4": 14,
+      "5": 3,
+      "6": 4,
+      "7": 6,
+      "8": 4,
+      "9": 2,
+      "10": 5,
+      "11": 1,
+      "13": 1,
+      "14": 4,
+      "22": 1
+    }
+  },
+  "representativeEarly": {
+    "checked": 63,
+    "stable": 48,
+    "stableDisagreementRegret": {
+      "n": 15,
+      "sum": 31,
+      "mean": 2.066666666666667,
+      "histogram": {
+        "1": 7,
+        "2": 3,
+        "3": 2,
+        "4": 3
+      }
+    }
+  },
+  "strata": [
+    {
+      "group": "representative",
+      "stratum": 0,
+      "checked": 32,
+      "stable": 24,
+      "stableDisagreements": 7,
+      "stableDisagreementsAtLeast4": 0
+    },
+    {
+      "group": "representative",
+      "stratum": 1,
+      "checked": 31,
+      "stable": 24,
+      "stableDisagreements": 8,
+      "stableDisagreementsAtLeast4": 3
+    },
+    {
+      "group": "representative",
+      "stratum": 2,
+      "checked": 32,
+      "stable": 24,
+      "stableDisagreements": 8,
+      "stableDisagreementsAtLeast4": 8
+    },
+    {
+      "group": "representative",
+      "stratum": 3,
+      "checked": 31,
+      "stable": 26,
+      "stableDisagreements": 9,
+      "stableDisagreementsAtLeast4": 9
+    },
+    {
+      "group": "disagreement",
+      "stratum": 0,
+      "checked": 31,
+      "stable": 20,
+      "stableDisagreements": 9,
+      "stableDisagreementsAtLeast4": 7
+    },
+    {
+      "group": "disagreement",
+      "stratum": 1,
+      "checked": 31,
+      "stable": 23,
+      "stableDisagreements": 8,
+      "stableDisagreementsAtLeast4": 3
+    },
+    {
+      "group": "disagreement",
+      "stratum": 2,
+      "checked": 31,
+      "stable": 20,
+      "stableDisagreements": 13,
+      "stableDisagreementsAtLeast4": 11
+    },
+    {
+      "group": "disagreement",
+      "stratum": 3,
+      "checked": 31,
+      "stable": 16,
+      "stableDisagreements": 7,
+      "stableDisagreementsAtLeast4": 4
+    }
+  ],
+  "nearBestReversalDefinition": "Some pair in union of D8/D10 within-2 best sets plus B6 is ahead by >=4 at D8 and behind by >=4 at D10",
+  "nearBestReversalRoots": 2,
+  "referenceSignErrorRoots": 1,
+  "cost": {
+    "teacher": {
+      "roots": 1000,
+      "summedWallSeconds": 118.44238573800023,
+      "meanSeconds": 0.11844238573800007,
+      "medianSeconds": 0.11036260450000374,
+      "p95Seconds": 0.1820246060000063,
+      "maxSeconds": 0.32357733800000277
+    },
+    "deep": {
+      "roots": 250,
+      "summedWallSeconds": 72.52486789499983,
+      "meanSeconds": 0.2900994715799995,
+      "medianSeconds": 0.19955470800000147,
+      "p95Seconds": 0.7925041779999956,
+      "maxSeconds": 1.6057127170000167
+    }
+  }
+}
