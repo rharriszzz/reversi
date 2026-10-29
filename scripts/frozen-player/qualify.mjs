@@ -189,6 +189,6 @@ report.resources.push(resourceSample());report.cpu=process.cpuUsage();report.max
 report.configuredWorkers=1;report.actualWorkers=1;report.safeCap=1;
 report.workerNote='Conservative single-worker engineering qualification; no concurrency speedup assumed. Native queries run serially; games have no labeling/search competitors.';
 report.engineeringWallMs=performance.now()-started;
-report.status='engineering-complete-provenance-blocked';report.independentLaunchPermitted=false;
+report.status='engineering-complete-history-awaits-independent-audit';report.independentLaunchPermitted=false;
 atomic(`${output}/qualification.json`,{...report,checksum:hash(report)});
 event(report.status);

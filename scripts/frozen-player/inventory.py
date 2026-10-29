@@ -11,12 +11,24 @@ import os
 from pathlib import Path
 
 
-def inventory(root):
+def inventory(root, record_pc_links=False):
     root = Path(root).resolve()
     rows = []
     for path in sorted(root.rglob('*')):
         if path.is_symlink():
-            raise ValueError(f'Symlink requires explicit provenance review: {path}')
+            target = os.readlink(path)
+            relative = path.relative_to(root).as_posix()
+            # Reviewed PC snapshot aliases. Record the literal link, never follow
+            # it into either the current checkout or the imported archive.
+            allowed = (path.name == '.local-research' and target == '/home/rharris/git/reversi/.local-research'
+                       or 'fit-source' in relative and target in (
+                           '/home/rharris/git/reversi/src', '/home/rharris/git/reversi/scripts/teacher'))
+            if not record_pc_links or not allowed:
+                raise ValueError(f'Symlink requires explicit provenance review: {path}')
+            raw = os.fsencode(target)
+            rows.append({'path': relative, 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest(),
+                         'kind': 'symlink', 'target': target, 'followed': False})
+            continue
         if not path.is_file():
             continue
         before = path.stat()
@@ -38,11 +50,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', type=Path)
     parser.add_argument('output', type=Path)
+    parser.add_argument('--record-reviewed-pc-links', action='store_true')
     args = parser.parse_args()
     root, output = args.input.resolve(), args.output.resolve()
     if output == root or root in output.parents:
         parser.error('Output must be outside inventoried input')
-    rows = inventory(root)
+    rows = inventory(root, args.record_reviewed_pc_links)
     body = {'format': 'frozen-player-history-inventory-v1', 'files': rows,
             'fileCount': len(rows), 'bytes': sum(r['bytes'] for r in rows),
             'independenceCertified': False}

@@ -1,3 +1,5 @@
+> Continuation in progress, 29 October 2026: the historical archive is now available and audited on the M4. Fresh native engineering qualification and the complete admission/runtime pilot passed. The [prelaunch evidence](data/frozen-player-prelaunch-qualification-20261029.json) binds the exact models, source and historical index. The conservative complete forecast is 3.13 hours including 35% contingency and the separate 15-minute reporting reserve. Scientific reservation and games follow; the prior preparation report below is historical and will be replaced by the complete result. No new scored outcomes exist at this checkpoint.
+
 # Frozen B/L/P playing-strength screen: preparation and blocker
 
 **Independent playing-strength experiment not started: essential PC historical provenance is absent on the M4.** No fresh assessment source or opening was reserved; no scored game or new fit occurred. All earlier scientific evidence remains unchanged. B remains production.

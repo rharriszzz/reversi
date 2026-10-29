@@ -1,3 +1,5 @@
+> Continuation, 29 October 2026: the user transferred the complete PC archive to the iMac. The local read-only extraction now passes, including exact L/P identities, the training/development corpus hash, receipt/PV/game replays and the missing 1,326 engineering-game keys. No further PC transfer is requested. The original blocker and requirements below are retained as historical documentation; see [current screen results](FROZEN_PLAYER_SCREEN_RESULTS.md).
+
 # PC provenance package required before the frozen-player screen
 
 The M4 contains only the benchmark installation/runs and committed summaries. It does **not** contain the six-hour campaigns, teacher research receipts, original residual run or latest constraint/pattern run. The compact numerical publications cannot certify all historical sources, direct learning targets, unused reservations, engineering-game descendants or query PVs. Exact L and P artifacts need not be transferred: their published coefficients/metadata reconstruct the required checksums on the Mac.

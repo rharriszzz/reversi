@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {legalMoves,play} from '../src/rules.js';
 import assert from 'node:assert/strict';
 import { mkdtempSync,rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -68,4 +69,42 @@ test('pair-level Student and bounded inference agree with reference constants, R
   assert.deepEqual(nomination({L:{n:64,mean:.55},P:{n:64,mean:.55}},{L:{n:32,mean:.5},P:{n:32,mean:.5}}),
     {candidate:'L',developmentDecisionOnly:true,production:'B'});
   assert.throws(()=>nomination({L:{n:2},P:{n:64}},{L:{n:32},P:{n:32}}),/complete/);
+});
+
+test('independent sealed-label replay handles normalized root passes exactly once', async()=>{
+  const {replayTeacher}=await import('../scripts/frozen-player/analyze.mjs');
+  // A known forced-pass board is disclosed by the adapter extrema fixtures.
+  const {extremeFixtures}=await import('../scripts/teacher/bound-preflight.mjs');
+  const s=extremeFixtures().find(s=>!legalMoves(s.board,s.player).length&&legalMoves(s.board,-s.player).length);
+  assert.ok(s);let visited=0;
+  replayTeacher(s,{rows:[{move:null,pv:[null]}]},()=>visited++);
+  assert.equal(visited,2);
+  assert.throws(()=>replayTeacher(s,{rows:[{move:null,pv:[null,null]}]}));
+});
+
+test('admission exempts terminal convergence but retains nonterminal ancestry and direct children', async()=>{
+  const {admissionKeys}=await import('../scripts/frozen-player/execution.mjs');
+  const {trajectory}=await import('../scripts/machine-benchmark/suite.mjs');
+  const {keysFor}=await import('../scripts/residual/data.mjs');
+  const states=trajectory(74102901),root=states.find(s=>s.board.filter(Boolean).length===16);
+  const finished=Array(64).fill(1),tr={root,history:[root,{board:finished,player:1}]};
+  const keys=admissionKeys(tr);
+  for(const k of keysFor(root.board))assert.ok(keys.all.has(k));
+  for(const k of keysFor(finished))assert.ok(!keys.all.has(k));
+  for(const move of legalMoves(root.board,root.player))for(const k of keysFor(play(root.board,root.player,move)))assert.ok(keys.all.has(k));
+});
+
+test('scientific worker receipts survive a new pool and reject changed inputs',async()=>{
+  const {Pool}=await import('../scripts/frozen-player/pool.mjs');
+  const {trajectory}=await import('../scripts/machine-benchmark/suite.mjs');
+  const directory=mkdtempSync(join(tmpdir(),'reversi frozen scientific ')),state=trajectory(74102901).find(s=>s.board.filter(Boolean).length===16);
+  const job={type:'search',state,depth:4,model:'B'};let first=new Pool(1,directory,'engineering-identity');
+  try{
+    const expected=await first.task('disclosed-search',job);await first.close();
+    const second=new Pool(1,directory,'engineering-identity');
+    assert.deepEqual(await second.task('disclosed-search',job),expected);
+    await assert.rejects(second.task('disclosed-search',{...job,depth:5}),/mismatch/);
+    assert.equal(second.slots[0].worker,null,'reused completed work creates no worker');
+    await second.close();
+  }finally{await first.close();rmSync(directory,{recursive:true,force:true});}
 });

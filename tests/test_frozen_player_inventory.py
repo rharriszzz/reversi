@@ -29,6 +29,18 @@ class FrozenInventoryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Symlink'):
                 module.inventory(root)
 
+    def test_reviewed_pc_alias_is_recorded_literally_and_never_followed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / '.local-research').symlink_to('/home/rharris/git/reversi/.local-research')
+            rows = module.inventory(root, record_pc_links=True)
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]['kind'], 'symlink')
+            self.assertFalse(rows[0]['followed'])
+            (root / 'unreviewed').symlink_to('/home/rharris/git/reversi/src')
+            with self.assertRaisesRegex(ValueError, 'Symlink'):
+                module.inventory(root, record_pc_links=True)
+
 
 if __name__ == '__main__':
     unittest.main()

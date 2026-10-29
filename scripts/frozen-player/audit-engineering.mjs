@@ -57,9 +57,9 @@ for(const g of report.games) {
 assert.equal(checked.size,tasks.length,'Unaccounted engineering tasks');
 // Preserve raw monitor output. Its initial substring classifier counted the
 // Python resource wrapper as another search. Reclassify by argv[0], not text.
-const occupancyPath=resolve(dir,'../occupancy.jsonl');
+const occupancyPath=existsSync(`${dir}/monitor.jsonl`)?`${dir}/monitor.jsonl`:resolve(dir,'../occupancy.jsonl');
 const occupancy=existsSync(occupancyPath)?readFileSync(occupancyPath,'utf8').trim().split('\n').map(JSON.parse).map(r=>{
-  const native=r.native.filter(line=>line.trim().split(/\s+/,6)[5]?.endsWith('/mEdax-armv8-a'));
+  const native=r.native.filter(line=>line.trim().split(/\s+/).at(-1)?.endsWith('/mEdax-armv8-a'));
   return {...r,rawSubstringCount:r.activeNativeSearches,activeNativeSearches:native.length,native};
 }):[];
 assert.ok(occupancy.length);assert.ok(occupancy.every(r=>r.activeNativeSearches<=1));

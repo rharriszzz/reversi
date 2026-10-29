@@ -3436,3 +3436,41 @@ If both are weaker, explain whether the evidence favors an evaluation-objective 
 If the games are inconclusive, say so. Do not turn uncertainty into a story of success or failure.
 
 **Our objective is a stronger Reversi player at equal elapsed time. The purpose of this experiment is to measure that directly before paying for another round of machine learning.**
+
+---
+
+## Additional information — Historical research data transferred to the iMac
+
+The complete PC Reversi research directory (approximately 21 GiB) has been copied to the iMac and verified using `rsync`.
+
+The imported data are located at:
+
+`~/git/reversi/.local-research/pc-import-20261029/`
+
+This directory contains the **contents** of the PC's original:
+
+`/home/rharris/git/reversi/.local-research/`
+
+Consequently, the original PC path:
+
+`/home/rharris/git/reversi/.local-research/residual-constraint-pattern-screen-v1-20261029/`
+
+corresponds on the Mac to:
+
+`~/git/reversi/.local-research/pc-import-20261029/residual-constraint-pattern-screen-v1-20261029/`
+
+The same correspondence applies to the other historical experiments.
+
+Please locate and validate the required frozen L/P artifacts, training provenance, historical exclusions, task receipts and teacher records within this archive.
+
+Treat imported historical results as **read-only scientific evidence**. Do not overwrite, migrate in place, or modify them. Keep all new Mac experiments in separate directories.
+
+The archive contains PC/Linux binaries and absolute paths that may not work on macOS. Use the separately validated native ARM64 Edax installation and adapt references carefully without altering historical checksums or numerical evidence.
+
+The entire transfer was verified. You no longer need to request the historical data from the PC unless a specific required artifact is demonstrably missing.
+
+Continue the frozen B/L/P playing-strength experiment using the original scientific protocol and previously authorized resource limits.
+
+---
+
+Can you please do a test to verify that you can do a "git push" successfully?
