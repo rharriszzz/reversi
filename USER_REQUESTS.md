@@ -2808,3 +2808,38 @@ At completion, commit and push the verified results and explain whether the rela
 ---
 
 how long do I need to wait before "Selected model is at capacity. Please try a different model." goes away?
+
+---
+
+# Reversi — M4 iMac versus Alienware Performance Benchmark
+
+Work in `rharriszzz/reversi`.
+
+I want to compare my two computers for future Reversi research:
+
+- Windows 11 / WSL2, Intel i7-14700F, 16 GB RAM.
+- M4 iMac, 4 performance cores, 6 efficiency cores, 24 GB unified memory.
+
+Read `AGENTS.md`, the recent performance and research reports, and the relevant teacher, search, solver and training code.
+
+Prepare a reproducible, architecture-neutral benchmark suite using a fixed, modest set of disclosed engineering positions. Both computers must perform exactly the same scientific work. Do not require transferring the multi-gigabyte private research corpus.
+
+First validate native macOS ARM64 support, including the separately patched Edax teacher, its pinned source and evaluation data, pass/terminal correctness and search-value equivalence. Record any differences; don't silently accept changed numerical results.
+
+Benchmark representative Edax D10/D12 all-alternative searches, B alpha-beta searches, exact endgame solving, and linear/pattern fitting. Include complete task overhead, not just microbenchmarks.
+
+Measure single-worker performance and throughput with 2, 4 and 6 workers where memory permits. Also test 8 on the Intel PC if practical. Record actual worker occupancy, useful tasks per hour, elapsed and CPU times, peak memory, swapping and system responsiveness.
+
+Use repeated matched trials with a fixed workload and report variability. Keep scientific task inputs unchanged between systems, while permitting native compiler optimization appropriate to each architecture.
+
+Do not modify the production evaluator, start a new learning campaign, or alter existing research checkpoints.
+
+Provide a simple procedure for running the benchmark once on each computer, with Codex handling installation and shell commands.
+
+Produce a compact machine-readable result on each computer and a final side-by-side comparison when both results are available. Recommend which machine is preferable for independent labeling, model fitting, and longer research campaigns.
+
+Include a reproducible report in `docs/MAC_PC_BENCHMARK.md`, with the benchmark source, compiler versions, model and data hashes, commands, measurements and limitations. Commit and push verified code and reports.
+
+Keep the benchmark reasonably short, approximately 20–40 minutes per machine unless measurements justify more.
+
+The objective is to identify the computer that completes the most useful, correct research work per hour, not merely the highest synthetic CPU score.

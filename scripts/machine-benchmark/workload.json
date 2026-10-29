@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "repetitions": 3,
+  "tasks": { "edax10": 128, "edax12": 128, "B": 256, "exact": 128, "linear": 128, "pattern": 128 },
+  "unit": {
+    "edax10": "One D10 full-window all-alternative root query, single native thread, including evaluation loading",
+    "edax12": "One D12 full-window all-alternative root query, single native thread, including evaluation loading",
+    "B": "One root searched at both D4 and D6 with unchanged production B alpha-beta",
+    "exact": "One root solved for every alternative under both raw-disc and awarded-empty conventions",
+    "linear": "One complete converged 21-coefficient fit from zero, feature encoding, packing and durable receipt",
+    "pattern": "One complete converged 10932-coefficient compact pattern fit from zero, fixed engineering L, encoding, packing and durable receipt"
+  },
+  "scheduling": "Index modulo the 16 roots or 8 exact endings; fits repeat the identical small engineering corpus. Rotate worker-count and kind order by repetition. No per-machine duration calibration or sample resizing.",
+  "fitting": { "linearLambda": 0, "linearBound": 100, "patternLambda": 0.00001, "patternBound": 25, "tolerance": 0.0000001, "engineeringReplicas": 16, "independence": "Replicate the same 591 preferences exactly 16 times to exercise encoding/optimization; 9456 rows, 15 informative original roots, no new evidence or strength sample" },
+  "timing": "Cold complete task subprocesses; includes imports and scientific input reads, child startup, encoding/optimization, full model packing, JSON, fsync/rename/directory fsync, pool orchestration and sampled telemetry. Build and correctness gates separately reported.",
+  "publication": "Engineering fixtures and replicas only; no independent strength sample, model promotion, private corpus or historical checkpoints. Do not extrapolate tiny fits to memory-bound multi-gigabyte training."
+}
