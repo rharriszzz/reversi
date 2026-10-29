@@ -17,7 +17,7 @@ import { game, evaluationCost, pairBootstrap, gameSummary } from './games.mjs';
 import { Pool } from './pool.mjs';
 import { Progress } from './progress.mjs';
 import { KeyIndex } from './index.mjs';
-import { executionIdentity } from './planning-source.mjs';
+import { executionIdentity, compactSearchReceipt } from './planning-source.mjs';
 
 class Pause extends Error {}
 const args={};for(let i=2;i<process.argv.length;i+=2)args[process.argv[i].replace(/^--/,'')]=process.argv[i+1];
@@ -25,6 +25,7 @@ const output=resolve(args.output),repository=resolve(args.repository??'.'),mode=
 if(!['pilot','session-one','continue'].includes(mode))throw Error('Invalid residual execution mode');
 mkdirSync(output,{recursive:true});
 const path=name=>`${output}/${name}.json`,execution=executionIdentity(fileURLToPath(new URL('../..',import.meta.url)),output),source=execution.source;
+const experimentCapMs=execution.scheduling?.experimentCapMs??PROTOCOL.experimentCapMs;
 const qualification=read(`${repository}/.local-research/teacher-qualification-v4r1-20261028/manifest.json`);
 const pin=identity(qualification.pin.binary,qualification.pin.evalFile,{buildFile:qualification.pin.experimental.buildFile});
 if(hash(pin)!==hash(qualification.pin)||qualification.status!=='complete'||!Object.values(qualification.gates??{}).every(Boolean))throw Error('Qualified teacher identity/gates mismatch');
@@ -45,7 +46,7 @@ const recoveryCharge=state.status==='running'?(state.bootId===bootId&&state.hear
 let stopped=false,pool=null,progress=null,keys=null,owners=null,historicalSeeds=null;
 const elapsed=()=>prior+recoveryCharge+performance.now()-started;
 const sessionElapsed=()=>session.priorActiveMs+recoveryCharge+performance.now()-started;
-const remaining=()=>Math.min(session.budgetMs-sessionElapsed(),session.deadlineEpochMs-Date.now(),PROTOCOL.experimentCapMs-elapsed());
+const remaining=()=>Math.min(session.budgetMs-sessionElapsed(),session.deadlineEpochMs-Date.now(),experimentCapMs-elapsed());
 const checkpoint=()=>{
   state.elapsedMs=elapsed();state.updated=new Date().toISOString();state.pid=process.pid;state.bootId=bootId;state.heartbeatBootMs=uptime()*1000;
   state.session={id:session.id,activeMs:sessionElapsed(),budgetMs:session.budgetMs,remainingMs:remaining(),deadlineEpochMs:session.deadlineEpochMs};
@@ -214,8 +215,11 @@ async function searchedAssessment(roots,model,ids) {
       transcript:`${output}/raw/transfer-${root.id}-d${depth}.json`});
     const h=new Map(labels[10].rows.map(r=>[r.move,r.value])),r=new Map(labels[12].rows.map(r=>[r.move,r.value])),best=Math.max(...r.values());
     for(const depth of [4,6]) {
-      const search={};for(const which of ['B','candidate'])search[which]=await pool.task(`search-${root.id}-${depth}-${which}`,{
-        type:'root-search',state:{board:root.board,player:root.player},depth,weights:which==='B'?weightsFor(zero()):model.weights});
+      const search={};for(const which of ['B','candidate']) {
+        const id=`search-${root.id}-${depth}-${which}`;
+        search[which]=compactSearchReceipt(await pool.task(id,{
+          type:'root-search',state:{board:root.board,player:root.player},depth,weights:which==='B'?weightsFor(zero()):model.weights}),id);
+      }
       const b=search.B.rows[0].move,candidate=search.candidate.rows[0].move;
       rows.push({source:root.id,phase:root.phase,policy:root.policy,sourceDepth:root.depth,depth,b,candidate,
         disagreement:b!==candidate,bRegret:best-r.get(b),candidateRegret:best-r.get(candidate),
@@ -308,7 +312,7 @@ function refreshForecast(pilotResult) {
   });
   const gamePairs=Object.fromEntries([80,300].map(timeMs=>[timeMs,existsSync(`${output}/confirmation`)?readdirSync(`${output}/confirmation`).filter(n=>n.startsWith(`${timeMs}-`)&&n.endsWith('.json')).length:0]));
   const conservativePilot={...pilotResult,costs:[...pilotResult.costs,...scientificCosts]};
-  state.forecast=forecast(conservativePilot,{...state.resources,effectiveWorkers:workers},elapsed(),{reserved,labeled,gamePairs});
+  state.forecast=forecast(conservativePilot,{...state.resources,effectiveWorkers:workers},elapsed(),{reserved,labeled,gamePairs,experimentCapMs});
   state.initialForecast??=state.forecast;atomic(path('forecast'),state.forecast);checkpoint();event('complete-experiment-forecast',state.forecast);
   return state.forecast.feasible;
 }
@@ -411,7 +415,7 @@ try {
   await resources(true);await pilot();
   const pilotResult=read(path('pilot-results'));
   const feasible=refreshForecast(pilotResult);
-  if(!feasible){state.status='paused';state.planningHold=true;state.pauseReason='Full fixed experiment forecast exceeds scientific eight-hour ceiling at the actual pool size; no locked assessment opened';}
+  if(!feasible){state.status='paused';state.planningHold=true;state.pauseReason=`Full fixed experiment forecast exceeds authorized ${experimentCapMs/3600000}-hour ceiling at the actual pool size; no locked assessment opened`;}
   else if(mode==='pilot'){state.status='paused';state.pauseReason='Integrated pilot complete; full targets preserved';}
   else {
     const reservation=await reserve(['pilot','training','development','assessment','games']);
@@ -436,7 +440,7 @@ try {
       }
       atomic(path('learning-curve'),{runIdentity,lambda:result.selected.lambda,curve});
       if(args['open-assessment']==='true') {
-        if(!refreshForecast(pilotResult))throw new Pause('Complete fixed experiment no longer fits eight-hour ceiling; locked outcomes remain unopened');
+        if(!refreshForecast(pilotResult))throw new Pause(`Complete fixed experiment no longer fits authorized ${experimentCapMs/3600000}-hour ceiling; locked outcomes remain unopened`);
         const assessment=await assess(roles,frozen,result.model);
         await tournament(roles,result.model,assessment.gates);
       }

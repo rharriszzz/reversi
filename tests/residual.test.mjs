@@ -19,7 +19,7 @@ import { pairBootstrap, game } from '../scripts/residual/games.mjs';
 import { KeyIndex } from '../scripts/residual/index.mjs';
 import { positionalGate, bootstrapSources, lossSummary, forecast } from '../scripts/residual/diagnostics.mjs';
 import { workerHistory } from '../scripts/residual/worker-history.mjs';
-import { changesBetween, executionIdentity } from '../scripts/residual/planning-source.mjs';
+import { changesBetween, executionIdentity, compactSearchReceipt } from '../scripts/residual/planning-source.mjs';
 import { sourceDigest } from '../scripts/research/io.mjs';
 
 function trajectory(seed=61028931) {
@@ -204,6 +204,21 @@ test('forecast caps measured speedup at the actual pool, regardless of a recover
     gameCosts:[{timeMs:80,wallMs:100},{timeMs:300,wallMs:100}]};
   const one=forecast(pilot,{workers:3,effectiveWorkers:1}),two=forecast(pilot,{workers:3,effectiveWorkers:2});
   assert.equal(one.speedup,1);assert.equal(two.speedup,1.8);assert.ok(one.conservativeMs>two.conservativeMs);
+  const elapsed=9*3600000;
+  const oldCap=forecast(pilot,{effectiveWorkers:1},elapsed),newCap=forecast(pilot,{effectiveWorkers:1},elapsed,{experimentCapMs:10*3600000});
+  assert.equal(oldCap.feasible,false);assert.equal(newCap.feasible,true);
+  assert.equal(oldCap.conservativeMs,newCap.conservativeMs);
+  assert.deepEqual(oldCap.stages,newCap.stages);
+});
+test('assessment references search observations without changing scores or the immutable witness',()=>{
+  const result=fullWindow({board:initialBoard(),player:1},4),before=hash(result);
+  assert.ok(result.observed.length>0);
+  const compact=compactSearchReceipt(result,'search-fixture-4-B');
+  const {observed,...numerical}=result;
+  const {observedCount,observedReceipt,...saved}=JSON.parse(JSON.stringify(compact));
+  assert.deepEqual(saved,numerical);assert.equal(observedCount,observed.length);
+  assert.equal(observedReceipt,'tasks/search-fixture-4-B.json');assert.equal(hash(result),before);
+  assert.ok(JSON.stringify(compact).length<JSON.stringify(result).length);
 });
 test('reviewed scheduling lineage preserves science identity and rejects changes to frozen math or gates',()=>{
   const dir=mkdtempSync(join(tmpdir(),'residual-planning-')),original=join(dir,'source'),execution=join(dir,'source-planning-v1');
@@ -214,13 +229,23 @@ test('reviewed scheduling lineage preserves science identity and rejects changes
     writeFileSync(join(original,'scripts/residual/diagnostics.mjs'),diagnostics);cpSync(original,execution,{recursive:true});
     writeFileSync(join(execution,'scripts/residual/diagnostics.mjs'),diagnostics.replace('return 1','return 2'));
     const science=sourceDigest(original);
-    const register=()=>{
-      const body={kind:'residual-scheduling-only-v1',originalSource:science,executionSource:sourceDigest(execution),executionDirectory:execution,changes:changesBetween(original,execution)};
+    const register=(extra={})=>{
+      const body={kind:'residual-scheduling-only-v1',originalSource:science,executionSource:sourceDigest(execution),executionDirectory:execution,changes:changesBetween(original,execution),...extra};
       const certificate={...body,checksum:hash(body)};
       writeFileSync(join(dir,'planning-amendment.json'),JSON.stringify(certificate));
       writeFileSync(join(dir,'manifest.json'),JSON.stringify({source:science,planningAmendmentHash:certificate.checksum}));
     };
     register();assert.equal(executionIdentity(execution,dir).source,science);
+    const previous=JSON.parse(readFileSync(join(dir,'planning-amendment.json'),'utf8'));
+    mkdirSync(join(dir,'amendments'));writeFileSync(join(dir,`amendments/${previous.checksum}.json`),JSON.stringify(previous));
+    const scheduling={previousExperimentCapMs:PROTOCOL.experimentCapMs,experimentCapMs:10*3600000,
+      sessionAllowanceMs:8*3600000,protocolHash:hash(PROTOCOL),authorization:'Explicit user authorization'};
+    register({previousAmendmentHash:previous.checksum,scheduling});
+    assert.deepEqual(executionIdentity(execution,dir).scheduling,scheduling);
+    register({previousAmendmentHash:previous.checksum,scheduling:{...scheduling,experimentCapMs:11*3600000}});
+    assert.throws(()=>executionIdentity(execution,dir),/scheduling ceiling/);
+    register({previousAmendmentHash:previous.checksum,scheduling:{...scheduling,protocolHash:'changed'}});
+    assert.throws(()=>executionIdentity(execution,dir),/scheduling ceiling/);
     writeFileSync(join(execution,'src/engine.js'),'export const B=22;');register();assert.throws(()=>executionIdentity(execution,dir),/frozen numerical/);
     writeFileSync(join(execution,'src/engine.js'),'export const B=21;');
     writeFileSync(join(execution,'scripts/residual/diagnostics.mjs'),diagnostics.replace('return 1','return 2').replace('return 42','return 43'));

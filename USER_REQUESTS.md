@@ -2360,3 +2360,157 @@ Where are you in this step?  What have you learned so far?  when is the estimate
 ---
 
 Chat says: ask Codex to make that last distinction explicit in its final report, including when and why the pool was reduced to one worker.  I do not need the answer now.
+
+---
+
+# Reversi — Continue and Complete the Frozen Residual-Learning Experiment
+
+Continue in `~/git/reversi` using GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/RESIDUAL_FRONTIER_RESULTS.md`, `docs/RESIDUAL_FRONTIER_PROTOCOL.md`, and `docs/RESIDUAL_FRONTIER_EXPERIMENT_PLAN.md`.
+
+The first computational session finished successfully. All 1,600 training source roots are labeled, producing 44,790 supported preferences. Development, locked assessment and confirmation games remain unopened.
+
+**I authorize a new computational session of up to eight active hours, and an increase of the cumulative scientific computation ceiling from eight to ten active hours, if necessary to complete the originally planned experiment.**
+
+This is a scheduling authorization, not permission to change scientific methodology.
+
+## 1. Preserve all completed work
+
+Use the existing run:
+
+`.local-research/residual-frontier-v1r2-20261028`
+
+Preserve all 1,600 completed training roots, teacher labels, continuation witnesses, scientific seeds, data partitions, model definitions, optimizer settings and immutable task receipts.
+
+Do not restart the experiment or regenerate completed data.
+
+Verify the frozen run, current scheduling amendment, checkpoint integrity and absence of an active duplicate process.
+
+## 2. Audit the additional time allowance
+
+The latest report forecasts approximately 8.60 cumulative hours with one worker, versus the original eight-hour ceiling.
+
+Implement the smallest auditable scheduling-only amendment necessary to permit ten cumulative active hours.
+
+Keep the original source snapshot and scientific protocol unchanged.
+
+Record the authorization, old and new computation ceilings, source identities, exact changed files and verification that no numerical, sampling, evaluation, optimizer, assessment or statistical-gate rules changed.
+
+Preserve the distinction between cumulative scientific time and the new session's eight-hour allowance.
+
+If the existing source-lineage mechanism cannot safely support this limited amendment, stop and report the issue instead of modifying frozen scientific inputs silently.
+
+## 3. Recheck resource utilization and forecasts
+
+Before resuming, run the Windows/WSL resource preflight.
+
+Distinguish explicitly:
+
+- Configured worker count.
+- Current safe worker cap.
+- Actual worker-pool size.
+- Number of actively executing native queries.
+- Measured sustained throughput.
+
+The earlier forecast incorrectly used two-worker throughput after the actual pool had fallen to one. Do not repeat that mistake.
+
+Calculate a conservative completion forecast for both one-worker and two-worker operation using actual completed training-task costs.
+
+Use two workers when memory headroom permits, but keep the computer responsive and avoid active swapping. Do not close applications or modify saved system settings.
+
+Use the existing verified bounded keep-awake mechanism.
+
+Maintain at least 35% cost allowance and a separate final reporting reserve.
+
+If the original full experiment still cannot fit within the new ceiling, pause cleanly before accessing locked results.
+
+## 4. Complete development and select the model
+
+Label all 400 predetermined development sources with the qualified independent Edax teacher.
+
+Fit the frozen 21-correction model using the 1,600 training sources.
+
+Use exactly the previously defined temperature, regularization choices, coefficient bounds and optimizer.
+
+Include B as the zero-correction control.
+
+Select the finalist using development data only, then freeze its weights and checksum.
+
+Record the chosen regularization, training and development preference losses, learning curves, and original versus corrected feature weights.
+
+Do not change hyperparameters after examining development results unless we explicitly begin a new experiment.
+
+## 5. Complete locked positional assessment
+
+After the model is frozen, evaluate the complete 400-source locked assessment and the predetermined 128 root-transfer positions.
+
+Apply the original positional gates:
+
+- At least 5% relative improvement in held-out preference loss.
+- No increase in mean D12-relative depth-six root-choice regret.
+
+Include the planned phase, policy, source-depth, feature-ablation and exact-endgame diagnostics.
+
+Use source-level uncertainty estimates.
+
+Clearly distinguish improved frontier preferences from improved minimax root decisions.
+
+If the positional gates fail, stop before confirmation games and publish the scientific result. Do not attempt to rescue the candidate by tuning against locked data.
+
+## 6. Play the original confirmation tournament if eligible
+
+If all gates pass, play the one frozen candidate against unchanged B.
+
+Use all 256 previously reserved openings, both colors, at both 80 ms and 300 ms per move.
+
+Preserve ordinary production search semantics.
+
+Run timed games without competing background labeling/training workers.
+
+Measure complete game points, paired-opening outcomes, uncertainty, search depth, nodes, evaluations, evaluator cost and deadline behavior.
+
+Apply the original simultaneous statistical promotion criteria.
+
+Do not add games based on interim results, adjust the finalist, or change the opening sample.
+
+No automatic production promotion.
+
+## 7. Make the continuation autonomous and resumable
+
+The next eight-hour allowance is a ceiling, not a requirement to compute unnecessarily.
+
+Use task-level checkpoints and resume completed work without repetition.
+
+If a task hits an engineering time limit, investigate whether useful partial computation can be preserved and whether a bounded operational correction is possible without changing scientific outcomes or breaking the declared time budget.
+
+Do not discard extensive completed work merely because an individual expensive task encountered an overly conservative timeout.
+
+At the same time, never convert an incomplete bound, partial search or timed-out computation into a valid scientific result.
+
+Maintain clear event-based logging, accurate actual-worker reporting and realistic ETAs.
+
+Stop gracefully if the session allowance expires, and publish enough information for another exact continuation.
+
+Use local CPU computation rather than repeated AI supervision.
+
+## 8. Final reporting
+
+Update `docs/RESIDUAL_FRONTIER_RESULTS.md` with the continuation and final experimental outcome, including compact audited evidence and appropriate graphs.
+
+Report:
+
+1. Training and development losses and the learned 21 corrections.
+2. Independent positional assessment and search-transfer results.
+3. Whether the predefined gates passed.
+4. Actual playing results against B, if eligible.
+5. Actual worker utilization and resource limitations.
+6. Forecast versus actual computation time.
+7. Evidence about the expressive capacity of B's seven features.
+8. The single most promising research direction afterward.
+
+Run all relevant tests, audit source/data/model/checkpoint hashes, and commit and push verified work.
+
+Preserve all original research evidence and production evaluator B.
+
+**The goal is to finish this one rigorous experiment, not to begin another architecture search. I want to learn whether high-quality independent Edax supervision can actually improve B's playing strength.**

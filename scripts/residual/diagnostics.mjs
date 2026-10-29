@@ -49,7 +49,7 @@ export function corrections(delta) {
   const updated=weightsFor(delta),base=weightsFor(zero());
   return PHASES.flatMap((phase,i)=>FEATURES.map((feature,j)=>({phase,feature,original:base[phase][feature],correction:delta[i*7+j],new:updated[phase][feature]})));
 }
-export function forecast(pilot,resources,elapsedMs=0,{reserved=[],labeled=[],gamePairs={}}={}) {
+export function forecast(pilot,resources,elapsedMs=0,{reserved=[],labeled=[],gamePairs={},experimentCapMs=PROTOCOL.experimentCapMs}={}) {
   const cell=r=>`${r.phase}/${r.policy}/${r.depth}`,cells={};
   for(const row of pilot.costs) (cells[cell(row)]??=[]).push(row);
   const stages={generation:0,reconstruction:0,teacher10:0,teacher12:0,rootTransfer:0,optimization:0,games80:0,games300:0,auditCheckpointRecovery:0};
@@ -77,7 +77,7 @@ export function forecast(pilot,resources,elapsedMs=0,{reserved=[],labeled=[],gam
   const serial=Object.values(stages).reduce((a,b)=>a+b,0)-parallelizable;
   const rawMs=parallelizable/speedup+serial,conservativeMs=PROTOCOL.allowance*rawMs+PROTOCOL.reportingReserveMs;
   return {stages,speedup,rawMs,allowance:PROTOCOL.allowance,reportReserveMs:PROTOCOL.reportingReserveMs,conservativeMs,
-    elapsedMs,totalProjectedMs:elapsedMs+conservativeMs,feasible:elapsedMs+conservativeMs<=PROTOCOL.experimentCapMs,
+    elapsedMs,totalProjectedMs:elapsedMs+conservativeMs,experimentCapMs,feasible:elapsedMs+conservativeMs<=experimentCapMs,
     resources,method:PROTOCOL.forecast,warning:'24-root pilot has sparse tails; cell maxima and rejection inflation are conservative measurements, not guaranteed bounds'};
 }
 
