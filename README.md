@@ -1,6 +1,6 @@
 # Reversi
 
-The [M4 iMac / Windows WSL2 research benchmark](docs/MAC_PC_BENCHMARK.md) uses disclosed fixed positions, checks the patched teacher and numerical equivalence, and measures complete labeling, search, solving and fitting tasks. It requires no private research corpus; native Mac results remain pending.
+The [M4 iMac / Windows WSL2 research benchmark](docs/MAC_PC_BENCHMARK.md) uses disclosed fixed positions, checks the patched teacher and numerical equivalence, and measures complete labeling, search, solving and fitting tasks. It requires no private research corpus; native M4 and PC results now show about 14–22% faster single-worker tasks on the Mac, with larger independent-task throughput under the measured memory limits.
 
 **Latest constraint/pattern study completed:** all 256 reserved assessment sources and 128 root-transfer positions were evaluated. The original positional gates failed, and newly revealed PV collisions blocked the strict independence qualification; no confirmation games or promotion followed. The report identifies a terminal-utility incompatibility dominating preference loss, alongside substantial old-development gains after relaxing regularization. See [the complete results and coefficients](docs/NEXT_RESIDUAL_RESULTS.md). B remains production. Earlier status paragraphs below preserve prior handoffs; the preceding residual experiment is also completed, as recorded in its results.
 

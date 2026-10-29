@@ -56,6 +56,12 @@ def setup(destination):
     arch = 'armv8-a' if platform.machine() in ('arm64', 'aarch64') else 'x86-64-v3'
     command = ['nice', '-n', '10', 'make', 'build', f'ARCH={arch}', f'CC={compiler}',
                f'OS={"osx" if sys.platform == "darwin" else "linux"}', '-j1']
+    portability = None
+    if sys.platform == 'darwin':
+        header = ROOT / 'scripts/machine-benchmark/darwin-allocation.h'
+        portability = dict(path=str(header.relative_to(ROOT)), sha256=sha(header.read_bytes()),
+                           reason='Round aligned_alloc byte size up; logical hash entries/search unchanged')
+        command.append(f'DFLAGS=-include {header}')
     files = [{'path': str(f.relative_to(build)), 'sha256': sha(f.read_bytes())} for f in sorted((build / 'src').iterdir())
              if f.suffix in ('.c', '.h') or f.name == 'Makefile']
     start = time.monotonic()
@@ -67,6 +73,7 @@ def setup(destination):
                 binary=str(binary), binarySha256=sha(binary.read_bytes()), compiler=subprocess.check_output([compiler, '--version'], text=True).splitlines()[0],
                 command=command, buildSeconds=time.monotonic() - start, dataSource=DATA, evalSha256=EVAL_SHA,
                 binaryFormat=subprocess.check_output(['file', str(binary)], text=True).strip(),
+                portability=portability,
                 license='GPL-3.0; complete upstream LICENSE/notices and corresponding source retained locally')
     (build / 'build.json').write_text(json.dumps(meta, indent=2) + '\n')
     return build / 'build.json', destination / 'eval.dat'

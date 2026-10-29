@@ -4,12 +4,42 @@ import argparse
 import json
 from pathlib import Path
 import statistics
+import hashlib
+
+ROOT = Path(__file__).resolve().parents[2]
+PC_SOURCE = '3d091dc672c7244327123a60d87647007e97fdbe03056d046d33be9c1fb7306c'
+# Reviewed installation/comparison-only changes. Numerical modules, runner,
+# fixtures, workload and upstream patched source must still be identical.
+PORTABILITY_FILES = {'scripts/machine-benchmark/setup.py',
+                     'scripts/machine-benchmark/darwin-allocation.h',
+                     'scripts/machine-benchmark/compare.py', 'tests/test_machine_benchmark.py'}
+
+
+def source_compatibility(left, right):
+    if left == right:
+        return dict(identical=True, changedFiles=[])
+    if not isinstance(left, dict) or not isinstance(right, dict) or left.get('sha256') != PC_SOURCE:
+        raise ValueError('Incompatible source; no reviewed portability exception')
+    for inventory in [left, right]:
+        digest = hashlib.sha256(json.dumps(inventory['files'], sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        if digest != inventory['sha256']:
+            raise ValueError('Invalid source inventory digest')
+    a, b = left['files'], right['files']
+    changed = sorted(p for p in a.keys() | b.keys() if a.get(p) != b.get(p))
+    if not set(changed) <= PORTABILITY_FILES:
+        raise ValueError('Incompatible source: numerical or task source changed')
+    for p in changed:
+        if b.get(p) != hashlib.sha256((ROOT / p).read_bytes()).hexdigest():
+            raise ValueError('Incompatible source: portability files differ from reviewed checkout')
+    return dict(identical=False, changedFiles=changed, leftSha256=left['sha256'], rightSha256=right['sha256'],
+                reason='Explicit Darwin allocation/build and comparison-only exception; numerical/task source unchanged')
 
 KINDS = ['edax10', 'edax12', 'B', 'exact', 'linear', 'pattern']
 
 
 def compare(left, right):
-    for key in ['schema', 'mode', 'plan', 'source', 'fixtureSha256', 'fixtureIdentity', 'corpusHash', 'baselineModelSha256', 'engineeringLinearChecksum', 'evalSha256']:
+    compatibility = source_compatibility(left.get('source'), right.get('source'))
+    for key in ['schema', 'mode', 'plan', 'fixtureSha256', 'fixtureIdentity', 'corpusHash', 'baselineModelSha256', 'engineeringLinearChecksum', 'evalSha256']:
         if left.get(key) != right.get(key):
             raise ValueError(f'Incompatible {key}; do not compare changed scientific work')
     if left['mode'] != 'full' or any(r['status'] not in ['complete', 'complete-with-skips'] or not r['validation']['passed'] for r in [left, right]):
@@ -49,7 +79,7 @@ def compare(left, right):
             eligible = [r for r in result['summary'] if r['kind'] == kind and r['elapsedSeconds']['n'] == result['plan']['repetitions']]
             best[side][kind] = max(eligible, key=lambda r: r['usefulTasksPerHour']['median'])
     winners = {kind: ('right' if best['right'][kind]['usefulTasksPerHour']['median'] > best['left'][kind]['usefulTasksPerHour']['median'] else 'left') for kind in KINDS}
-    return dict(schema='reversi-machine-comparison-v1', rows=rows, best=best, pointEstimateWinner=winners,
+    return dict(schema='reversi-machine-comparison-v1', sourceCompatibility=compatibility, rows=rows, best=best, pointEstimateWinner=winners,
                 limitations='Three matched repetitions estimate run variability, not confidence in general hardware superiority. Best count must also have acceptable paging and operator responsiveness. Small cold fits do not model large-corpus memory pressure. Campaign choice depends on the fixed task mix; no synthetic aggregate CPU score.')
 
 

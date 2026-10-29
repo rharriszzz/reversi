@@ -2843,3 +2843,7 @@ Include a reproducible report in `docs/MAC_PC_BENCHMARK.md`, with the benchmark 
 Keep the benchmark reasonably short, approximately 20–40 minutes per machine unless measurements justify more.
 
 The objective is to identify the computer that completes the most useful, correct research work per hour, not merely the highest synthetic CPU score.
+
+---
+
+for today, I don't care about desktop performace.  Please save that question for a later round of work.

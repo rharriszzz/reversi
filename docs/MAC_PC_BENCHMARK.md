@@ -1,6 +1,6 @@
 # M4 iMac versus Alienware: useful Reversi work per hour
 
-The portable suite is implemented. The available computer is the Windows 11 / WSL2 i7-14700F PC. **No M4 iMac is accessible from this session: native macOS correctness, Mac measurements and a hardware winner remain pending.** A Linux build is not macOS validation. Production B, game/search code and historical research checkpoints are unchanged. This is an engineering benchmark, not a new learning campaign or playing-strength experiment.
+The portable suite has a published Windows 11 / WSL2 i7-14700F result. This follow-up runs on the native ARM64 M4 iMac and records its platform validation and matched measurements below. Production B, game/search code and historical research checkpoints are unchanged. This is an engineering benchmark, not a new learning campaign or playing-strength experiment.
 
 ## Run once on each computer
 
@@ -16,7 +16,8 @@ python3 - <<'PY'
 import json, sys
 sys.path.insert(0, 'scripts/machine-benchmark')
 from run import source_identity
-assert source_identity() == json.load(open('docs/data/mac-pc-pc.json'))['source'], 'Check out the published PC benchmark source before running'
+from compare import source_compatibility
+print(source_compatibility(json.load(open('docs/data/mac-pc-pc.json'))['source'], source_identity()))
 PY
 caffeinate -i -s python3 scripts/machine-benchmark/run.py --setup \
   --output .local-research/mac-benchmark
@@ -36,7 +37,7 @@ python3 scripts/machine-benchmark/compare.py \
   --report docs/MAC_PC_BENCHMARK.md
 ```
 
-Codex should inspect the raw correctness/resource receipts, add the Mac compiler/build/version details and operator responsiveness observation to this report, run the regression tests, then commit/push the two compact results and comparison. The comparison command refuses changed numerical source, fixtures, workload, scoring, teacher patch/data, smoke results and unsuccessful correctness gates. Only counts with all three repetitions qualify for comparison. Keep raw task/model/transcript/sample files under `.local-research/`.
+Codex should inspect the raw correctness/resource receipts, add the Mac compiler/build/version details and operator responsiveness observation to this report, run the regression tests, then commit/push the two compact results and comparison. The comparison command refuses changed numerical source, fixtures, workload, scoring, teacher patch/data, smoke results and unsuccessful correctness gates. It records a narrow, explicit exception for the reviewed Darwin allocation header, installation script, comparison script and its tests; all other source files must remain identical to the published PC inventory. Only counts with all three repetitions qualify for comparison. Keep raw task/model/transcript/sample files under `.local-research/`.
 
 ## Frozen work and correctness
 
@@ -77,13 +78,13 @@ Actual active tasks are measured by task lifetimes, including startup/I/O/waitin
 
 Memory admission reserves 1.5 GiB plus 1.35 times measured task/native RSS per worker, using the limiting Windows/WSL physical headroom. Unsafe counts are skipped with the actual readings/reason. Linux/macOS swap counters, available-memory estimates, swap occupancy, load, Windows memory/CPU/hard-page reads at worker-block admission, and sampled process-tree RSS are retained. Sustained measured swap activity above 256 pages/second or less than 768 MiB available local memory stops queued work and invalidates that trial. Windows hard-page reads also include file-backed faults; they are not proof of paging to the swap file. Windows pressure between admission samples is a measurement limitation. macOS free+inactive+speculative memory is a conservative approximation, not a complete memory-pressure model.
 
-Responsiveness uses a three-second baseline and one-second samples of Python launch latency (p50/p95/max), a scheduling/startup proxy. It does not measure Windows or macOS UI latency. Operator observations must be supplied separately; missing observations are labeled unmeasured. No program closes applications, terminates unrelated processes, changes CPU affinity, power plan or saved sleep settings. Normal background applications introduce noise and the two operating systems schedule hybrid cores differently.
+Responsiveness uses a three-second baseline and one-second samples of Python launch latency (p50/p95/max), a scheduling/startup proxy. It does not measure Windows or macOS UI latency. Operator observations must be supplied separately; missing observations are labeled unmeasured. During the Mac run the user explicitly deferred desktop performance to a later round. Today’s recommendation therefore uses correctness, useful throughput and memory/swap safety; GUI responsiveness is deferred, not a pending question or a claim of acceptance. No program closes applications, terminates unrelated processes, changes CPU affinity, power plan or saved sleep settings. Normal background applications introduce noise and the two operating systems schedule hybrid cores differently.
 
 ## Recorded identities and PC measurements
 
 The [compact PC result](data/mac-pc-pc.json) is 111,447 bytes. The full run completed **2026-10-29 03:59:25–04:17:04 UTC**, **17.66 minutes**, with status `complete-with-skips`: 42 timing cells and 6,272 complete tasks. It finished below the approximate 20-minute target because memory admission skipped eight worker-count blocks. Nothing was added just to fill time. Correctness took 34.94 seconds, the six memory probes 2.47 seconds, and the isolated compiler build 1.71 seconds (download/setup and regression testing are outside the timed run). All timed scientific tasks together used 1,620.82 user+system CPU seconds; 620.87 were separately accounted native teacher CPU seconds. These categories overlap and must not be added.
 
-This is the actual i7-14700F WSL2 host, exposing 28 logical processors. Windows reported 15.73 GiB physical RAM; WSL had approximately 7.61 GiB configured. Runtime: Python **3.10.12**, native x64 Node **v24.16.0**, GCC **11.4.0** (`gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0`), Linux **6.18.33.2-microsoft-standard-WSL2**. The read-only initial power check reported Windows Balanced, AC idle sleep 60 minutes. No saved setting was changed. Apple Clang version, Mach-O ARM64 teacher identity, native macOS acceptance and Mac performance are all **unmeasured**.
+This is the actual i7-14700F WSL2 host, exposing 28 logical processors. Windows reported 15.73 GiB physical RAM; WSL had approximately 7.61 GiB configured. Runtime: Python **3.10.12**, native x64 Node **v24.16.0**, GCC **11.4.0** (`gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0`), Linux **6.18.33.2-microsoft-standard-WSL2**. The read-only initial power check reported Windows Balanced, AC idle sleep 60 minutes. No saved setting was changed. That original PC session could not measure the Mac; native Mac evidence is added below.
 
 Actual commands used on this PC:
 
@@ -118,7 +119,7 @@ The following pins are fixed:
 | Pattern numerical reference SHA-256 | `aa145b8daa72a58756582dac22f962221cfbf19f812673cc36f51b95f7850042` |
 | Published PC result SHA-256 | `f1a02153108373c70ba73bbdc7f8069dbd75400573e9e170a6b17a91b0913a25` |
 
-The isolated build retains upstream GPL source, license and notices and applies the existing separately licensed patch. No executable or eval.dat is committed. Linux uses GCC `-Ofast -flto` and `-march=x86-64-v3`; macOS uses native Apple Clang `-O3 -flto -ffast-math` and `-march=armv8-a` (NEON) on ARM64, x86-64-v3 on Intel. These are upstream optimized Makefile profiles. Different binary hashes and compiler versions are expected and recorded; numerical differences must pass the explicit checks. The M4 profile is portable ARMv8, not a claim that every M4-specific instruction is exploited.
+The Mac build additionally force-includes `scripts/machine-benchmark/darwin-allocation.h`, discussed below. The isolated build retains upstream GPL source, license and notices and applies the existing separately licensed patch. No executable or eval.dat is committed. Linux uses GCC `-Ofast -flto` and `-march=x86-64-v3`; macOS uses native Apple Clang `-O3 -flto -ffast-math` and `-march=armv8-a` (NEON) on ARM64, x86-64-v3 on Intel. These are upstream optimized Makefile profiles. Different binary hashes and compiler versions are expected and recorded; numerical differences must pass the explicit checks. The M4 profile is portable ARMv8, not a claim that every M4-specific instruction is exploited.
 
 The actual PC compiler command was `nice -n 10 make build ARCH=x86-64-v3 CC=gcc OS=linux -j1`, in the isolated patched `src` directory. Its exact expanded invocation/warnings remain in `.local-research/machine-benchmark-teacher/fixed/build.log`; upstream Makefile flags and the compiler/binary/source identities are in the compact result.
 
@@ -170,12 +171,127 @@ The first final Python suite failed its source-freeze resume guard because this 
 
 For a short installation/integration check only, use `--smoke` with a separate output directory. Its reduced work is explicitly incompatible with full benchmark comparisons. Do not run tests or edit numerical/benchmark source during final timings; source hashes are verified again on completion.
 
+## Native macOS portability validation
+
+The first native Apple Clang build compiled but failed before searching: Darwin rejected `aligned_alloc(32, (size + HASH_N_WAY + 1) * sizeof(Hash))` with EINVAL. C17 requires a size divisible by alignment; the pinned upstream caller violates that requirement and glibc tolerates it. The separate build-only header includes stdlib first, checks overflow, and rounds allocated bytes up to the next alignment multiple. It changes neither logical table entries, table masks, indexing nor search/evaluation source. Upstream source, existing teacher patch and evaluation-data hashes remain identical to the PC. The extra header and its hash are explicitly bound in the Mac build metadata and source inventory. No previous teacher installation or checkpoint was modified.
+
+The comparison exception permits only this header, setup.py, compare.py and its Python tests to differ from the exact published PC inventory; it checks inventory digests, every other file, and changed-file hashes against this checkout. The comparison JSON records both inventories and every changed path. This is an explicit portability exception, not byte-identical complete build inputs. Scientific task runner, native-resource accounting, JS search/solver/training, workload and fixtures remain unchanged. Every timed numerical result still must match its frozen reference.
+
+Mac regression testing initially exposed `/var` versus `/private/var` temporary-path aliases in historical launcher tests. `TMPDIR=/private/tmp` resolves those without production changes. Localhost integration tests require execution outside the Codex sandbox. With both conditions met, all 34 Python tests passed; their historical detached-launch tests still emit nonfatal subprocess ResourceWarnings. The initial smoke attempt overlapping regression tests correctly refused another active test research coordinator. The failed unaligned build and refused/failed smoke outputs remain local and are excluded from performance results.
+
+Mac environment: macOS 27.0.1, Apple M4, ten logical CPUs, native ARM64 Node v24.22.1, Python 3.13.18, Apple Clang 21.0.0 (`clang-2100.3.34.2`). Rosetta detection returned zero. The PC used Node v24.16.0 and Python 3.10.12; runtime patch versions, OS, compiler, storage/fsync and background workloads differ. Results compare these actual supported systems, not isolated CPU architecture. Apple Clang emitted one upstream pthread start-function cast warning; the native validation gates passed, but this is not a formal audit of all upstream threading code.
+
+Mac build command (run in the isolated patched `src` directory):
+
+```bash
+nice -n 10 make build ARCH=armv8-a CC=clang OS=osx -j1 \
+  "DFLAGS=-include /Users/rharris/git/reversi/scripts/machine-benchmark/darwin-allocation.h"
+```
+
+The fixed-source inventory includes the additional header and build/comparison code; their source files are published with this report. The native executable is Mach-O 64-bit ARM64, SHA-256 `643b4a39dea9d85f3a862c37510c90e70188f0b7f02b37bde693841746c8f1c2`. Header SHA-256: `3351a3d1a9c0f8d82ae7daeb6d1a6979d701a93ec8b41ef00a7752c4703dc81c`. The upstream source-tree, existing patch, fixture, encoded corpus, production weights and engineering model/reference hashes above apply unchanged. Mac benchmark source inventory SHA-256: `0e47c715e07cbca94f8c5725f103d51064b38bc49dc2324b9ea02989ddd44754`.
+
+The initial saved AC power configuration reported system sleep disabled, low power mode disabled and display sleep after ten minutes. A temporary `caffeinate -i -s` assertion covered only the benchmark command; no saved power settings changed. Approximately 607 GiB disk space was available. Actual Mac commands:
+
+```bash
+python3 scripts/machine-benchmark/setup.py .local-research/machine-benchmark-teacher-mac-aligned
+TMPDIR=/private/tmp python3 -m unittest discover -s tests -p 'test_*.py'
+npm test
+caffeinate -i -s python3 scripts/machine-benchmark/run.py \
+  --installation .local-research/machine-benchmark-teacher-mac-aligned \
+  --smoke --output .local-research/mac-benchmark-smoke-aligned-2
+caffeinate -i -s python3 scripts/machine-benchmark/run.py \
+  --installation .local-research/machine-benchmark-teacher-mac-aligned \
+  --output .local-research/mac-benchmark-20261029
+```
+
+Tests ended before the full timed run. Raw receipts and telemetry remain in the ignored local directories. No private research corpus was downloaded, no prior research model was accessed or revised, and no learning campaign was launched. Fits are disposable engineering controls.
+
+## Mac complete-task measurements
+
+The [compact Mac result](data/mac-pc-mac.json) completed **2026-10-29 05:35:06–05:54:23 UTC**, **19.28 minutes**, status `complete`. All **72 cells / 10,752 tasks** completed at 1, 2, 4 and 6 workers, three trials each, with no skips. The fixed workload finished just below the approximate 20-minute target; no extra tasks were added. Correctness took 30.26 seconds; isolated compilation took 2.71 seconds and the six one-task probes took 2.28 seconds. Setup/downloads, smoke and regression checks are outside the full-run elapsed time.
+
+All integer/search outputs and every fitted coefficient, loss and iteration matched exactly; maximum fitting difference was **zero** throughout. The end-of-run source inventory matched the start. Total timed-task user+system CPU was **2,754.97 seconds**, including **984.03 separately recorded native teacher CPU seconds**; these overlap and must not be added. Per-task user/system splits and per-cell native PID samples are in the JSON. Differences in process startup/accounting mean these CPU totals alone do not rank efficiency.
+
+| Task | Workers | Elapsed seconds (range) | Useful tasks/hour | CPU seconds | Mean active tasks | Sampled RSS MiB |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| edax10 | 1 | 42.26 (42.24–43.47) | 10,903 | 41.60 | 1.00 | 194 |
+| edax10 | 2 | 22.17 (21.48–22.26) | 20,780 | 42.37 | 2.00 | 331 |
+| edax10 | 4 | 12.26 (12.11–12.50) | 37,593 | 47.61 | 3.94 | 629 |
+| edax10 | 6 | 10.09 (9.92–10.22) | 45,650 | 57.89 | 5.82 | 899 |
+| edax12 | 1 | 54.44 (54.43–55.80) | 8,465 | 53.79 | 1.00 | 181 |
+| edax12 | 2 | 28.36 (27.64–28.69) | 16,251 | 54.63 | 2.00 | 331 |
+| edax12 | 4 | 15.81 (15.55–16.12) | 29,143 | 61.50 | 3.94 | 630 |
+| edax12 | 6 | 12.71 (12.60–12.98) | 36,243 | 73.84 | 5.83 | 929 |
+| B | 1 | 30.34 (30.22–30.89) | 30,373 | 35.36 | 1.00 | 118 |
+| B | 2 | 16.00 (15.67–16.06) | 57,602 | 37.04 | 2.00 | 198 |
+| B | 4 | 9.56 (8.87–9.62) | 96,384 | 46.73 | 3.98 | 364 |
+| B | 6 | 7.84 (7.77–8.12) | 117,524 | 55.60 | 5.96 | 516 |
+| exact | 1 | 11.19 (11.17–11.48) | 41,192 | 13.60 | 1.00 | 115 |
+| exact | 2 | 5.97 (5.84–5.98) | 77,143 | 14.21 | 1.99 | 199 |
+| exact | 4 | 3.51 (3.26–3.54) | 131,389 | 17.61 | 3.97 | 351 |
+| exact | 6 | 2.93 (2.87–2.93) | 157,294 | 20.80 | 5.88 | 444 |
+| linear | 1 | 25.66 (25.65–25.94) | 17,957 | 28.15 | 1.00 | 124 |
+| linear | 2 | 13.22 (13.02–13.70) | 34,863 | 28.99 | 2.00 | 216 |
+| linear | 4 | 7.97 (7.57–8.02) | 57,833 | 36.15 | 3.96 | 398 |
+| linear | 6 | 6.60 (6.54–6.74) | 69,839 | 43.09 | 5.91 | 584 |
+| pattern | 1 | 15.92 (15.92–16.30) | 28,949 | 22.24 | 1.00 | 134 |
+| pattern | 2 | 8.68 (8.60–8.76) | 53,066 | 23.66 | 2.00 | 238 |
+| pattern | 4 | 5.15 (4.97–5.20) | 89,546 | 28.87 | 3.95 | 441 |
+| pattern | 6 | 4.34 (4.33–4.42) | 106,184 | 33.42 | 5.88 | 527 |
+
+Elapsed CVs ranged **0.64%–4.45%**. Slot occupancy across cells was **96.79%–99.98%**; six-worker mean active-task occupancy ranged **5.81–5.97**. OS task peak RSS reached **118.06 MiB**, while sampled simultaneous tree RSS reached **929.25 MiB**. Available-memory estimates stayed above **6.11 GiB**. Admission used **180.50 MiB per worker**, including the 35% allowance, plus the 1.5-GiB reserve. Swap occupancy stayed at **0.25 MiB** with **zero observed swap-in/out pages**. These counters measure this run, not absence of past memory compression or future corpus pressure.
+
+The Mac baseline Python startup/scheduling p50/p95 was **22.17/22.59 ms**; the largest loaded per-cell p95 was **70.21 ms**. The PC used a different Python build and OS, so raw startup latency is not an architecture-normalized desktop measure. **Desktop responsiveness was explicitly deferred by the user to a later round**. It is neither an acceptance claim nor a blocker for today’s throughput recommendation.
+
+Mac result SHA-256: `c69b1ef1290ecf3e0d7d72b19247fd65b3160d5afc7d3e9ff75e3bcbb4ac083a`. The original PC result remains byte-identical. The [comparison JSON](data/mac-pc-comparison.json) binds both source inventories and lists the four reviewed portability-only file differences. Actual Mac revision was checkout parent `40a0cf2`, with the final changed source bound by the inventory above.
+
 ## Hardware decision
 
-The PC is validated for these tasks; the Mac remains pending. There is no defensible machine preference yet for independent labeling, fitting or long campaigns. **On the PC, two independent workers have repeatable approximately 2× throughput with no observed WSL paging; four are promising only when memory permits and need repeated evidence before a campaign recommendation.** Six/eight have no measurements under this desktop memory load. Operator responsiveness still needs confirmation.
+**Prefer the M4 iMac for the next campaign under the measured system conditions.** Use up to six independent labeling workers when a fresh memory preflight admits them. D10/D12 six-worker median throughput was **45,650/36,243 complete roots per hour**, versus the PC’s fully repeated two-worker **19,101/14,745**: **2.39×/2.46×**. The Mac’s single-worker medians were about **15% faster** for both teacher depths; the larger throughput gain reflects its admitted worker pool as well as task speed.
 
-After the Mac run, compare both single-worker speed and the best **responsive, non-swapping** measured throughput. Independent labeling can use a pool; fitting the same evolving model cannot multiply throughput by running conflicting updates. A longer campaign's forecast should sum its actual stage task counts divided by measured useful throughput, retain serial/dependency costs and the existing 35% allowance/reporting reserve. The M4's larger nominal RAM alone does not establish a speed or memory-pressure winner; this small fixture cannot establish large-corpus behavior.
+**Prefer the Mac for these linear/pattern fits**, with single-fit median elapsed speedups of **1.22×/1.18×** (ratio of host medians). The matched-repetition linear ratio is 1.20×, shown below; paired ratios and ratios of medians are different summaries. Six independent fit workers yielded **69,839/106,184 fits/hour**, **2.28×/2.15×** the PC’s repeated two-worker medians. Parallel independent candidate fits do not accelerate sequential updates of one evolving model. These tiny disclosed fits do not rank large private-corpus parsing or large-model training.
+
+B searches and exact solving also favor the Mac at fully repeated admitted counts, about **2.28×/2.13×** the PC’s two-worker throughput. Use the Mac for a longer research campaign with this task mix, retain the existing 35% forecast allowance and reporting reserve, and check real corpus memory/complete-stage costs before a long run. No new campaign is authorized or started by this recommendation.
+
+The PC had only one admitted four-worker block and no six/eight-worker blocks because Windows physical memory was limiting. **This is not evidence that an otherwise idle i7-14700F cannot outperform the M4 at higher concurrency.** A later PC run with more headroom could change the practical ranking. The comparison below includes only counts with all three repetitions on both hosts. The user deferred desktop performance; the comparator’s generic responsiveness caveat is retained for a later round. No macOS Intel execution or multi-hour thermal/corpus stress test was performed. Browser interaction was unchanged and was not manually retested in this benchmark round.
+
+Reproduce publication and verification:
+
+```bash
+cp .local-research/mac-benchmark-20261029/result.json docs/data/mac-pc-mac.json
+python3 scripts/machine-benchmark/compare.py docs/data/mac-pc-pc.json docs/data/mac-pc-mac.json \
+  --output docs/data/mac-pc-comparison.json --report docs/MAC_PC_BENCHMARK.md
+npm test
+TMPDIR=/private/tmp python3 -m unittest discover -s tests -p 'test_*.py'
+git diff --check
+```
+
+Final Mac regression checks passed **132 JavaScript and 34 Python tests**; the native benchmark preflight independently exercised the installed ARM64 teacher, 35 adapter fixtures, seven extrema/pass/terminal cases, all 32 depth/root references, 16 B roots, eight independent exact roots and both converged fits. Legacy native test opt-ins hardcode the old Linux teacher paths; they are not claimed as native Mac tests. The actual Mac native acceptance is the full preflight and each timed task’s reference check.
 
 <!-- MACHINE COMPARISON -->
 
-M4 result unavailable. The side-by-side comparison will be generated here after its native correctness and full timing run, using the command above.
+
+| Task | Workers | PC seconds | Mac seconds | Mac/PC useful throughput |
+| --- | ---: | ---: | ---: | ---: |
+| edax10 | 1 | 48.57 | 42.26 | 1.15× (1.10–1.17) |
+| edax10 | 2 | 24.12 | 22.17 | 1.08× (1.08–1.14) |
+| edax12 | 1 | 62.82 | 54.44 | 1.15× (1.11–1.17) |
+| edax12 | 2 | 31.25 | 28.36 | 1.10× (1.08–1.14) |
+| B | 1 | 36.88 | 30.34 | 1.22× (1.21–1.23) |
+| B | 2 | 17.91 | 16.00 | 1.14× (1.12–1.16) |
+| exact | 1 | 12.73 | 11.19 | 1.14× (1.09–1.15) |
+| exact | 2 | 6.24 | 5.97 | 1.04× (1.04–1.07) |
+| linear | 1 | 31.21 | 25.66 | 1.20× (1.19–1.23) |
+| linear | 2 | 15.06 | 13.22 | 1.14× (1.10–1.15) |
+| pattern | 1 | 18.77 | 15.92 | 1.18× (1.17–1.18) |
+| pattern | 2 | 9.31 | 8.68 | 1.07× (1.07–1.08) |
+
+Ratios are paired elapsed-time ratios for identical work, median and observed range over three trials.
+
+Independent labeling measured point estimates: edax10: Mac at 6 workers (45650 tasks/hour); edax12: Mac at 6 workers (36243 tasks/hour).
+Model fitting measured point estimates: linear: Mac at 6 workers (69839 tasks/hour); pattern: Mac at 6 workers (106184 tasks/hour).
+Exact solving measured point estimates: exact: Mac at 6 workers (157294 tasks/hour).
+
+For longer campaigns, choose using the measured cost of the planned labeling/solving/fitting mix and safe memory headroom. These fixtures do not establish full-corpus capacity or stronger play.
+
+Three matched repetitions estimate run variability, not confidence in general hardware superiority. Best count must also have acceptable paging and operator responsiveness. Small cold fits do not model large-corpus memory pressure. Campaign choice depends on the fixed task mix; no synthetic aggregate CPU score.

@@ -3,6 +3,8 @@ import copy
 from pathlib import Path
 import sys
 import unittest
+import json
+import hashlib
 
 HERE = Path(__file__).resolve().parents[1] / 'scripts/machine-benchmark'
 sys.path.insert(0, str(HERE))
@@ -19,6 +21,18 @@ runner, comparison = module('run'), module('compare')
 
 
 class MachineBenchmarkTests(unittest.TestCase):
+    def test_portability_exception_binds_exact_files_and_rejects_numerical_changes(self):
+        pc = json.loads((HERE.parents[1] / 'docs/data/mac-pc-pc.json').read_text())
+        current = runner.source_identity()
+        audit = comparison.source_compatibility(pc['source'], current)
+        self.assertFalse(audit['identical'])
+        self.assertIn('scripts/machine-benchmark/darwin-allocation.h', audit['changedFiles'])
+        changed = copy.deepcopy(current)
+        changed['files']['src/search.js'] = '0' * 64
+        changed['sha256'] = hashlib.sha256(json.dumps(changed['files'], sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        with self.assertRaisesRegex(ValueError, 'source'):
+            comparison.source_compatibility(pc['source'], changed)
+
     def test_memory_uses_actual_probe_cost_and_preserves_headroom(self):
         safe, _ = runner.safe_workers(6, 200 * 2**20, {'availableBytes': 2 * 2**30}, {'availableBytes': 2 * 2**30})
         self.assertFalse(safe)
