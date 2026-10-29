@@ -268,6 +268,21 @@ git diff --check
 
 Final Mac regression checks passed **132 JavaScript and 34 Python tests**; the native benchmark preflight independently exercised the installed ARM64 teacher, 35 adapter fixtures, seven extrema/pass/terminal cases, all 32 depth/root references, 16 B roots, eight independent exact roots and both converged fits. Legacy native test opt-ins hardcode the old Linux teacher paths; they are not claimed as native Mac tests. The actual Mac native acceptance is the full preflight and each timed task’s reference check.
 
+## Local Git publication setup
+
+The verified benchmark commit `3804b57` initially could not push over HTTPS: neither configured helper (`osxkeychain`, `store`) returned a GitHub credential. Public cloning does not establish push authentication. The existing SSH configuration selected an RSA key rejected by GitHub; explicitly selecting the existing Ed25519 key authenticated successfully as `rharriszzz`. No new key, token or GitHub login was needed. Key contents were never printed.
+
+Read-only inspection found SSH origin URLs in all seven sibling repositories (`arxiv-shelf`, `beads`, `beads2`, `hsv_tools`, `madweave`, `navier-stokes-vortex-lab`, `sound`), without repository-specific key commands. Reversi now uses the same SSH URL convention and explicitly selects its working key. No sibling, global Git setting or SSH configuration file was modified. The two repository-local settings, which are not committed, are reproducible with:
+
+```bash
+git remote set-url origin git@github.com:rharriszzz/reversi.git
+git config --local core.sshCommand '/usr/bin/ssh -i /Users/rharris/.ssh/id_ed25519 -o IdentitiesOnly=yes'
+git push --dry-run origin main
+git push origin main
+```
+
+The dry run confirmed authenticated fast-forward push access. Normal Git push publishes the existing local commit history; the cancelled GitHub-app tree fallback did not update the remote branch. Other computers need their own usable local key/authentication; do not copy private keys as part of this benchmark.
+
 <!-- MACHINE COMPARISON -->
 
 

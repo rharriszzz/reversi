@@ -2847,3 +2847,19 @@ The objective is to identify the computer that completes the most useful, correc
 ---
 
 for today, I don't care about desktop performace.  Please save that question for a later round of work.
+
+---
+
+Why create a git tree?  The repo already exists on github.
+
+---
+
+Fix the local authentication failure.  What are the possibilities, lets work through them.
+
+---
+
+I did a git clone, but I probably did not tell it how to push
+
+---
+
+please check the sibling directories to see how they are set up.
