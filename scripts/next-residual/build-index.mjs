@@ -8,6 +8,7 @@ import { legalMoves,play,initialBoard,counts } from '../../src/rules.js';
 import { seededRandom } from '../../src/learning.js';
 import { atomic,read } from '../research/io.mjs';
 import { hash } from './protocol.mjs';
+import { pilotGameKeys } from './exclusions.mjs';
 const [old,output,runIdentity]=process.argv.slice(2),start=performance.now();
 const base=KeyIndex.load(`${old}/historical-index.bin`),saved=read(`${old}/historical-index.json`);
 if(base.digest()!==saved.digest)throw Error('Base historical index corrupted');
@@ -45,6 +46,7 @@ for(const seed of Array.from({length:12},(_,i)=>9302811+i)) {
   const random=seededRandom(seed);let board=[...initialBoard()],player=1,passes=0;
   while(passes<2){add(board);const moves=legalMoves(board,player);if(!moves.length){passes++;player=-player;continue;}passes=0;board=[...play(board,player,moves[Math.floor(random()*moves.length)])];player=-player;}
 }
+const played=pilotGameKeys(read(`${old}/pilot-results.json`),read(`${output}/engineering-v2/pilot.json`),read(`${old}/reservations.json`));for(const key of played.keys)extra.add(key);
 const delta=KeyIndex.from(extra),merged=Buffer.allocUnsafe(base.bytes.length+delta.bytes.length);let i=0,j=0,k=0;
 while(i<base.size||j<delta.size){let source,index;
   if(j===delta.size||i<base.size&&base.bytes.compare(delta.bytes,j*32,j*32+32,i*32,i*32+32)<0){source=base.bytes;index=i++;}
@@ -54,5 +56,5 @@ while(i<base.size||j<delta.size){let source,index;
 }
 const index=new KeyIndex(merged.subarray(0,k*32));index.save(`${output}/historical-index.bin`);
 const body={runIdentity,base:{path:resolve(old),digest:saved.digest,keys:base.size},delta:delta.size,keys:index.size,digest:index.digest(),seeds:[...seeds],
-  inventoryHash:hash(inventory),inventory,wallMs:performance.now()-start,rssBytes:process.resourceUsage().maxRSS*1024};
+  inventoryHash:hash(inventory),inventory,engineeringGames:played.games,engineeringGameKeys:played.keys.size,wallMs:performance.now()-start,rssBytes:process.resourceUsage().maxRSS*1024};
 atomic(`${output}/historical-index.json`,body);console.log(JSON.stringify({keys:index.size,delta:delta.size,seconds:body.wallMs/1000,rssMiB:body.rssBytes/2**20}));

@@ -167,3 +167,13 @@ test('memory-only source lineage retains science identity and rejects numerical 
     register([...MEMORY_PATCHES,{before:'gate',after:'changed'}]);assert.throws(()=>executionIdentity(execution,out),/certificate/);
   }finally{rmSync(out,{recursive:true,force:true});}
 });
+import { gameKeys } from '../scripts/next-residual/exclusions.mjs';
+import { keysFor } from '../scripts/residual/data.mjs';
+test('historical engineering-game exclusion includes the actual played continuation and both colors',async()=>{
+  const opening={...trajectory().find(s=>counts(s.board).empty===5),id:'engineering'},result=await game(opening,makeModel(zero()),'B',1,1),keys=gameKeys(opening,result);
+  let board=opening.board,player=opening.player;
+  for(const step of result.moves){for(const key of keysFor(board))assert.ok(keys.has(key));
+    if(step.move!==null)board=oracleChildren(board,player).find(c=>c.move===step.move).board;player=-player;}
+  for(const key of keysFor(board))assert.ok(keys.has(key));
+  assert.throws(()=>gameKeys(opening,{...result,moves:result.moves.slice(0,-1)}),/Incomplete/);
+});

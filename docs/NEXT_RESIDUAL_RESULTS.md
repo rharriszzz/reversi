@@ -261,7 +261,7 @@ The audit independently recomputed all accepted fit losses/KKT residuals, sparse
 | expanded | 1 | 6.704 |
 | fallback | 1 | 4.052 |
 
-Chosen design: expanded. Actual accumulated pipeline time: **0.307 hours**. Engineering fit/encoding/curves: 7.89 seconds; integrated old-data pilot: 151.2 seconds; statistical analysis: 2.09 seconds. All eligible game costs were forecast before fresh outcomes, including the optional shadow. Reporting and final checks use the separately reserved time.
+Chosen design: expanded. Actual accumulated pipeline time: **0.307 hours**. Engineering fit/encoding/curves: 7.89 seconds; integrated old-data pilot: 151.2 seconds; statistical analysis: 2.09 seconds. All eligible game costs were forecast before fresh outcomes, including the optional shadow. The forecast reserved 20 minutes separately for reporting. The accumulated pipeline clock excludes initial engineering verification and post-run auditing/publication; it is not total task wall time.
 
 Configured workers: 2. The safe cap and actual pool differ; actual pools follow the timeline below. Fresh replay scaling qualified a conservative 1.881× two-worker label speedup. Minimum sampled Windows/WSL free memory: 1.832 / 5.622 GiB. Maximum sampled active WSL swapping: 0 pages/s. Peak event-reported Node process RSS (including worker threads): 798.3 MiB. Native peak: 57.2 MiB. The separate historical-index extension peaked at 743.7 MiB and took 31.6 seconds. Maximum sampled Windows paging reads/writes were 7 / 0 pages/s; these include host activity and are distinct from WSL swap counters. Total receipt-audited native CPU, including engineering queries: 1037.7 seconds. Final-manifest Node CPU excludes the preceding resource-paused process; it is not presented as total pipeline CPU.
 
@@ -279,9 +279,11 @@ The audit verified 5701 scientific and 286 engineering task receipts, the joint 
 
 Forbidden PV collisions: 50 flagged occurrences / 18 canonical board/turn keys in sources assessment-99, assessment-108, assessment-174, assessment-236. The revealed collisions occur at occupied counts 22, 23, 53, 62, 63 and 64. The root/trajectory admission checks had passed; the later PV audit correctly blocked the independence claim. Retaining the complete sample avoids post-outcome selection, but cannot restore the planned independent-confirmation status.
 
+A final exclusion-coverage audit replayed 16 saved engineering games from both integrated pilots. It identified 1326 canonical board/turn keys absent from the frozen compact index. Checking every reserved complete trajectory/frontier and every new teacher PV against those extra keys found 0 additional collisions. The omission and additional read-only audit are retained; a future index builder now includes those played paths. The frozen index, all 256 sources, gates and four-source independence failure remain unchanged.
+
 New teacher-PV independence audit: FAILED; affected claims blocked, with 50 retained collision records. No post-outcome identity replacement was allowed. Complete local receipts, raw teacher transcripts, source snapshots and checkpoints stay ignored at `/home/rharris/git/reversi/.local-research/residual-constraint-pattern-screen-v1-20261029`.
 
-WSL2 execution and real Windows memory/power measurements were made on this host. macOS Apple Silicon/Intel hardware was unavailable, so no Mac execution is claimed. Production browser interaction code did not change. The current Windows Chrome/156.0.8078.48 integration test passed from WSL2: rendered initial alternatives, verified continuation, playing-worker reply, and the real PowerShell default-browser launch route. Full interactive acceptance was not repeated. The application remains dependency-free Python/browser; this research adds no runtime package. Automated checks: 128 JavaScript tests and 30 Python tests; final exact commands and Git status are recorded in the completion response.
+WSL2 execution and real Windows memory/power measurements were made on this host. macOS Apple Silicon/Intel hardware was unavailable, so no Mac execution is claimed. Production browser interaction code did not change. The current Windows Chrome/156.0.8078.48 integration test passed from WSL2: rendered initial alternatives, verified continuation, playing-worker reply, and the real PowerShell default-browser launch route. Full interactive acceptance was not repeated. The application remains dependency-free Python/browser; this research adds no runtime package. Automated checks: 129 JavaScript tests and 30 Python tests; final exact commands and Git status are recorded in the completion response.
 
 ## Interpretation and one next direction
 
@@ -292,6 +294,7 @@ Relaxing shrinkage materially improved old-development fit, but the complete ind
 ## Reproduce the audit and publication
 
 ```bash
+node scripts/next-residual/audit-pilot-games.mjs '/home/rharris/git/reversi/.local-research/residual-constraint-pattern-screen-v1-20261029'
 node scripts/next-residual/audit.mjs '/home/rharris/git/reversi/.local-research/residual-constraint-pattern-screen-v1-20261029'
 python3 scripts/next-residual/publish.py '/home/rharris/git/reversi/.local-research/residual-constraint-pattern-screen-v1-20261029' .
 python3 scripts/next-residual/plots.py docs/data/next-residual-results-20261029.json docs

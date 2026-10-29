@@ -134,6 +134,6 @@ node scripts/next-residual/audit.mjs .local-research/residual-constraint-pattern
 git diff --check
 ```
 
-Current verification: 128 JavaScript tests and 30 Python tests passed. Actual Windows Chrome/156.0.8078.48 loaded the WSL2 localhost application, rendered four analyzed moves, verified a continuation and a playing-worker reply; the real PowerShell default-browser launch route also succeeded. Full interactive acceptance was not repeated. macOS Apple Silicon and Intel hardware remained unavailable; no new Mac execution is claimed.
+Current verification: 129 JavaScript tests and 30 Python tests passed. Actual Windows Chrome/156.0.8078.48 loaded the WSL2 localhost application, rendered four analyzed moves, verified a continuation and a playing-worker reply; the real PowerShell default-browser launch route also succeeded. Full interactive acceptance was not repeated. macOS Apple Silicon and Intel hardware remained unavailable; no new Mac execution is claimed.
 
 Numerical integrity passed, including all 41,519 preserved files of the preceding completed experiment. The new experiment's strict PV-independence qualification failed for four sources, and its positional gates failed. Those scientific limitations are retained in [NEXT_RESIDUAL_RESULTS.md](NEXT_RESIDUAL_RESULTS.md); a passing correctness/audit suite does not turn them into independent confirmation or stronger play.
