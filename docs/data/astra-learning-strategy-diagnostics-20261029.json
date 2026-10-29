@@ -1,0 +1,220 @@
+{
+  "kind": "disclosed-evidence-review-no-training-v1",
+  "input": "docs/data/next-residual-results-20261029.json",
+  "inputSha256": "8331007c88a80b5f460e3428bfc69176951004928afb8a729bea8a7e00f37727",
+  "historicalRunIdentity": "361277f1de3bd638fe29250a15e9fe6f54cf6fafac2a2f2db9c4cbf1a991b1c2",
+  "note": "Reconstructs one published B frontier and independently solves it; historical raw receipts unavailable. Does not change old gates or independence status.",
+  "terminalExample": {
+    "source": "assessment-174",
+    "sourceDepth": 4,
+    "parentBoard": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      -1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "parentPlayer": 1,
+    "parentOccupied": 55,
+    "parentEmpties": 9,
+    "teacherDepthsReachTerminal": true,
+    "immediateMove": 9,
+    "immediateRaw": 54,
+    "immediateAwarded": 62,
+    "immediateProduction": 10054,
+    "preferredMoves": [
+      16,
+      24,
+      32,
+      48,
+      56
+    ],
+    "alternatives": [
+      {
+        "move": 9,
+        "raw": 54,
+        "awarded": 62,
+        "terminalChild": true
+      },
+      {
+        "move": 16,
+        "raw": 63,
+        "awarded": 64,
+        "terminalChild": false
+      },
+      {
+        "move": 24,
+        "raw": 64,
+        "awarded": 64,
+        "terminalChild": false
+      },
+      {
+        "move": 32,
+        "raw": 64,
+        "awarded": 64,
+        "terminalChild": false
+      },
+      {
+        "move": 40,
+        "raw": 55,
+        "awarded": 62,
+        "terminalChild": false
+      },
+      {
+        "move": 48,
+        "raw": 62,
+        "awarded": 64,
+        "terminalChild": false
+      },
+      {
+        "move": 56,
+        "raw": 64,
+        "awarded": 64,
+        "terminalChild": false
+      }
+    ],
+    "firstPair": {
+      "selector": "B",
+      "source": "assessment-174",
+      "parent": 0,
+      "occupied": 55,
+      "player": 1,
+      "preferred": 16,
+      "other": 9,
+      "gap10": 2,
+      "gap12": 2,
+      "baseMargin": -9910.381493506493,
+      "maxLinear": 268.57333842627963,
+      "maxPattern": 50,
+      "upperMargin": -9591.808155080213,
+      "a": {
+        "terminal": false,
+        "base": 143.6185064935065,
+        "occupied": 56
+      },
+      "b": {
+        "terminal": true,
+        "base": 10054,
+        "occupied": 56
+      },
+      "teacher10": [
+        {
+          "move": 9,
+          "value": 62
+        },
+        {
+          "move": 16,
+          "value": 64
+        }
+      ],
+      "teacher12": [
+        {
+          "move": 9,
+          "value": 62
+        },
+        {
+          "move": 16,
+          "value": 64
+        }
+      ],
+      "logisticLoss": 991.0381493506493
+    }
+  },
+  "exactCounts": {
+    "B": {
+      "parents": 95,
+      "sources": 50,
+      "errorParents": {
+        "B": 8,
+        "L": 1,
+        "P": 0
+      },
+      "sourcesWithErrors": {
+        "B": 7,
+        "L": 1,
+        "P": 0
+      }
+    },
+    "L": {
+      "parents": 98,
+      "sources": 50,
+      "errorParents": {
+        "B": 8,
+        "L": 3,
+        "P": 2
+      },
+      "sourcesWithErrors": {
+        "B": 7,
+        "L": 3,
+        "P": 2
+      }
+    }
+  },
+  "planning": {
+    "pairs80PerCandidate": 64,
+    "pairs300PerCandidate": 32,
+    "candidates": 2,
+    "nominalGameSeconds": 3061.76,
+    "oneSidedHoeffdingRadius64Alpha025": 0.16976268946757744,
+    "approximatePairsForFivePointGain80PercentPowerSd05": 786
+  }
+}

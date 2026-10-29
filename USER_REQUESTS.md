@@ -2863,3 +2863,303 @@ I did a git clone, but I probably did not tell it how to push
 ---
 
 please check the sibling directories to see how they are set up.
+
+---
+
+# Reversi — Independent Scientific Review of Our Learning Strategy
+
+Work in `~/git/reversi`.
+
+You are conducting an **independent research-level review** of our attempts to build a Reversi evaluator that plays more strongly than our original handcrafted evaluator B.
+
+Use rigorous mathematical and algorithmic reasoning. I want you to challenge our assumptions, identify mistakes in our experimental methodology, and recommend a scientifically credible way forward.
+
+**Do not implement another learner or start a large experiment.** This assignment is to decide what we should investigate next.
+
+## 1. Read the evidence
+
+Begin with `AGENTS.md` and `USER_REQUESTS.md`.
+
+Read these reports carefully:
+
+- `docs/NEXT_RESIDUAL_RESULTS.md`
+- `docs/NEXT_RESIDUAL_PROTOCOL.md`
+- `docs/NEXT_RESIDUAL_STRATEGY.md`
+- `docs/RESIDUAL_FRONTIER_RESULTS.md`
+- `docs/RESIDUAL_FRONTIER_PROTOCOL.md`
+- `docs/TEACHER_DEPTH_QUALIFICATION_V4.md`
+- `docs/ASTRA_STRATEGY.md`
+- `docs/ASTRA_TEACHER_STRATEGY.md`
+- `docs/NEXT_EVALUATOR_RESEARCH.md`
+- `docs/STRONG_EVALUATOR_RESULTS_20261028.md`
+- `docs/MAC_PC_BENCHMARK.md`
+
+Inspect the relevant source code for B's evaluation function, terminal utility, alpha-beta search, frontier collection, Edax supervision, learning objectives, and independent validation.
+
+Previous Astra recommendations are historical hypotheses, not authoritative conclusions. Critique them where warranted.
+
+The large historical research datasets remain local to the original Windows PC. The M4 repository contains the committed numerical summaries and evidence. Do not assume all historical raw receipts are locally available. Report any conclusion requiring unavailable data as conditional rather than inventing evidence.
+
+## 2. The current scientific situation
+
+We have developed several learners and completed multiple substantial experiments without demonstrating stronger equal-time play than B.
+
+B uses seven normalized features with three phase-specific sets of weights.
+
+Our recent independently supervised experiments have tested:
+
+- A small 21-weight correction to B.
+- A much less constrained 21-weight correction, called L.
+- A nested compact corner/edge pattern correction to L, called P.
+
+Our Edax D10/D12 teacher has undergone substantial qualification and correction. We also have independent exact-endgame solving, tested alpha-beta search, immutable experimental protocols, source-level sampling and auditing infrastructure.
+
+The latest experiment revealed several important findings.
+
+**A. Excessive regularization**
+
+Our original residual learner improved old development preference loss by only 1.80%.
+
+Relaxing regularization and allowing larger coefficients increased that development improvement to 16.75%.
+
+Therefore, the original small improvement was not good evidence that the seven-feature representation had reached its expressive limit.
+
+**B. Fresh positional assessment**
+
+On 256 new source trajectories, evaluated on both B-selected and L-selected frontiers:
+
+- L improved full preference loss over B by 2.80% and 3.37%.
+- P added approximately 1.69% and 1.41% improvement over L.
+- Both panels failed the predefined 5% positional gate.
+- L's mean depth-six root regret was 1.6250 versus B's 1.6172.
+- P's corresponding regret was 1.4375, but uncertainty intervals did not establish superiority.
+
+No confirmation games were played because the frozen gates failed.
+
+**C. A serious terminal-utility mismatch**
+
+A subsequent diagnostic identified five terminal-containing supported preferences in one assessment source that dominated approximately 79% of the total preference loss.
+
+Edax preferred a continuation estimated at +64 discs over an immediate terminal win of +62 under the awarded-empty convention. Our production evaluator uses an approximately +10,054 terminal-win score, while the competing nonterminal position had a heuristic score around +144.
+
+Within our restricted evaluation architecture, those preference targets could not be satisfied.
+
+When decomposed diagnostically, the nonterminal preference-loss improvements were substantially larger:
+
+- L versus B: 15.23% and 18.14% across the two panels.
+- P versus L: 8.29% and 7.06%.
+
+These are post-hoc measurements, not a successful rerun of the original statistical gates.
+
+**D. Exact-endgame diagnostics**
+
+On independently solved frontier positions, the reported W/D/L error counts were:
+
+- B-selected: B 8, L 1, P 0, among 95 positions.
+- L-selected: B 8, L 3, P 2, among 98 positions.
+
+These results are interesting but do not establish equal-time playing superiority. Account for source dependence, positional selection and limited sample size.
+
+**E. Independence audit**
+
+New teacher principal variations intersected historical positions in four assessment sources, with 50 flagged occurrences involving 18 distinct canonical board/turn identities.
+
+The audit appropriately blocked the strict independent-confirmation claim. A later examination found additional historical engineering-game positions missing from the exclusion index but no further collisions in this experiment.
+
+Do not retroactively remove inconvenient sources or reclassify a failed experiment as successful.
+
+**F. Performance and hardware**
+
+The M4 iMac has now passed native correctness checks and a matched benchmark against the i7-14700F Windows/WSL2 PC.
+
+Under observed memory constraints, six iMac workers delivered approximately 2.39×/2.46× the D10/D12 throughput of the PC's fully repeated two-worker configuration.
+
+The Mac is the preferred machine for the next local research campaign, subject to appropriate memory and workload qualification. This review does not need another hardware benchmark.
+
+## 3. First-principles analysis of the learning objective
+
+I want an especially careful examination of what our evaluation function should actually learn.
+
+Formulate the mathematical relationship between:
+
+1. True game-theoretic value under optimal play.
+2. Win/draw/loss and final disc margin.
+3. Heuristic static evaluation.
+4. The scores propagated by depth-limited minimax or alpha-beta search.
+5. Independently estimated teacher values at a different search depth.
+6. Actual equal-time playing strength.
+
+Explain where these quantities can legitimately substitute for one another and where they cannot.
+
+In particular:
+
+- Is our pairwise logistic preference objective mathematically appropriate?
+- Is the terminal-containing example evidence of an incompatible utility scale, a labeling problem, an evaluation design problem, or something more subtle?
+- Does a nonterminal Edax estimate of +64 warrant preferring it to an immediate guaranteed +62 win?
+- Should W/D/L be treated lexicographically before disc margin? What happens to differentiability and practical search scoring?
+- How should terminal and nonterminal alternatives be compared during supervised learning?
+- Could score calibration, normalization or a different loss resolve the problem without sacrificing exact terminal behavior?
+- Should we learn relative move choices rather than absolute evaluation values?
+- Would optimizing root decisions solve the underlying problem, or merely move it elsewhere?
+
+Please distinguish incompatibility of **score scales**, incorrect **ordinal preferences**, and genuine **strategic errors**. They are not interchangeable diagnoses.
+
+Work through concrete numerical examples using our actual scoring conventions.
+
+## 4. The minimax problem
+
+We repeatedly improve immediate frontier evaluations without demonstrating stronger root decisions or equal-time play.
+
+I want you to examine that discrepancy rather than assuming it disappears with more data.
+
+Consider at least these competing approaches:
+
+**A. Utility-consistent frontier preference learning.**
+
+Correct the supervision and loss while retaining the existing linear or compact pattern model.
+
+**B. Root-choice preference learning.**
+
+Supervise the moves selected after search, rather than individual static frontier decisions.
+
+**C. Search-aware optimization.**
+
+Fit evaluator parameters against the backed-up root scores or search decisions, explicitly accounting for minimax.
+
+**D. Value-function learning.**
+
+Train an evaluation function to predict a consistent value or outcome target rather than only pairwise orderings.
+
+**E. Other established approaches worth considering.**
+
+For example, temporal-difference learning, strong-engine search imitation, exact-endgame-informed training, or methods from established Othello engines.
+
+Do not assume a neural network or a very large pattern evaluator is necessary. Conversely, do not protect the seven-feature architecture merely because we have already invested in it.
+
+For each approach, examine:
+
+- Mathematical target and objective.
+- Assumptions about teacher accuracy.
+- Whether the objective is consistent with terminal utility.
+- How it handles minimax, passes, phase changes and exact endgames.
+- Optimization difficulty, including discontinuities or changing principal variations.
+- Susceptibility to distribution shift and overfitting.
+- Expected computational cost.
+- Evidence from our completed experiments that supports or weakens the approach.
+
+Where useful, refer to established algorithms and primary technical literature, clearly separating established results from your own hypotheses.
+
+## 5. What should we conclude about B, L and P?
+
+Evaluate the evidence separately for each architecture.
+
+L changes only the weights on B's original seven features. Some fitted coefficients are dramatically different from their original values, with two corrections at the ±100 bound.
+
+P retains L and adds 10,932 independent coefficients from two corner/edge pattern families. Only 3,152 of those coefficients had informative training-source support.
+
+Consider whether P's apparent gains reflect genuinely useful positional geometry, additional capacity to compensate for L's remaining constraints, or overfitting to the frontier distribution.
+
+Examine the performance cost of P under equal-time search.
+
+Is there sufficient evidence to prefer one architecture for the next carefully controlled experiment? Could a scientifically better choice be to retain both architectures as fixed controls while concentrating on the objective?
+
+Distinguish what we have demonstrated, what we have merely observed, and what remains unknown because games were gated out.
+
+## 6. Experimental independence and teacher reliability
+
+Review our independent sampling and qualification methodology.
+
+The recent teacher-PV collisions deserve a principled solution.
+
+Investigate:
+
+- Whether our historical-exclusion policy is appropriately strict.
+- Which overlapping positions actually threaten independence.
+- How complete teacher principal variations can be checked when they are unknown before the teacher search.
+- How to handle unexpected collisions prospectively without outcome-dependent replacement.
+- Whether source-level rather than board-level separation is sufficient in some circumstances.
+- How repeated openings, symmetry and shared ancestry affect effective sample size.
+- Whether our D10/D12 qualified Edax teacher is sufficiently reliable for the proposed new objective.
+- When exact endgame evidence should take precedence over heuristic teacher scores.
+
+Do not loosen independence requirements retrospectively to rescue previous results.
+
+Also examine our fixed 5% preference-loss gate. It has repeatedly prevented games without reliably answering whether a new player is stronger. Should future protocols use different positional gates, include an independent exploratory game screen, or use staged sequential testing with predetermined stopping rules?
+
+Propose statistically defensible criteria appropriate to the actual goal of improving equal-time play.
+
+## 7. Select the most promising next scientific experiment
+
+After considering the alternatives, recommend **one primary research direction**.
+
+I want a minimal decisive experiment before another long training campaign.
+
+Specify:
+
+1. The precise hypothesis being tested.
+2. The evaluation architecture and meaningful controls.
+3. The proposed mathematical loss or search objective.
+4. Training targets and their provenance.
+5. Independent development and assessment design.
+6. How terminal/nonterminal contradictions are avoided.
+7. How root-search transfer will be measured.
+8. Appropriate uncertainty estimates and statistical gates.
+9. Equal-time playing evaluation, including both colors and paired openings.
+10. Computational cost, risks and stopping criteria.
+
+Be explicit about which outcomes would falsify your preferred explanation and cause us to change direction.
+
+Use the actual M4 benchmark where appropriate for approximate runtime planning. Avoid assuming that independent worker throughput accelerates a single sequential optimization.
+
+Prefer a small, informative first experiment rather than another expensive campaign whose main result is a tiny preference-loss improvement.
+
+## 8. Independence of judgment
+
+Do not simply endorse the most recent report's recommendation for utility-consistent root-choice preference learning.
+
+I want a genuinely independent assessment.
+
+If you believe our strongest candidate is still one of the existing evaluators, say so.
+
+If you believe our evaluation objective is fundamentally misdirected, explain precisely why.
+
+If a different mathematical formulation is preferable, derive it and explain how it would interact with alpha-beta search.
+
+If current evidence cannot distinguish two promising methods, design the smallest experiment that can.
+
+Be especially alert to subtle cases where a procedure produces a statistically impressive improvement on a surrogate measure without improving game-playing strength.
+
+## 9. Deliverables and limits
+
+Create `docs/ASTRA_LEARNING_STRATEGY_REVIEW.md`.
+
+The report should include:
+
+- Executive conclusions.
+- Analysis of the terminal-utility problem.
+- Mathematical treatment of the learning and minimax objectives.
+- Critical comparison of alternative strategies.
+- Interpretation of B, L and P.
+- Independence and teacher-quality recommendations.
+- One preferred experimental design.
+- A bounded computation and statistical plan.
+- The strongest arguments **against** your own recommendation.
+- Explicit unanswered questions that require new evidence.
+
+Use concrete equations and numerical examples where they improve clarity.
+
+Inspect existing code and evidence sufficiently to ground the recommendations. Small, read-only analytical diagnostics are acceptable if useful. Do not access fresh locked assessment results or start a new learning campaign.
+
+Do not modify production B, change evaluation/search semantics, refit existing experimental models, replace frozen evidence or alter completed experiment outcomes.
+
+Commit and push the review document and any small supporting analysis files. Do not begin implementing the proposed experiment.
+
+**My ultimate goal is a genuinely stronger Reversi-playing program at equal elapsed search time. I value a correct diagnosis and a good research design more than a superficially encouraging training result.**
+
+---
+
+the chat wants to know: I'd ask it to report:
+- Which parts of the scientific review are complete.
+- Its principal findings so far, especially concerning terminal utility and minimax learning.
+- What analysis remains.
+- Whether it expects to finish within the remaining context window.
