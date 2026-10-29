@@ -14,3 +14,7 @@ d['archivePreservation']={'entries':source_inventory['fileCount'],'bytes':source
 Path('docs/data/frozen-player-screen-20261029.json').write_text(json.dumps(d,separators=(',',':'))+'\n')
 Path('docs/data/frozen-player-overlap-role-audit-20261029.json').write_text(json.dumps(role,separators=(',',':'))+'\n')
 print(json.dumps({'resources':d['resources'],'archive':d['archivePreservation'],'evidenceBytes':Path('docs/data/frozen-player-screen-20261029.json').stat().st_size},indent=2))
+
+# Matplotlib emits insignificant trailing spaces in SVG path coordinates.
+svg = Path('docs/frozen-player-screen-20261029.svg')
+svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
