@@ -2042,3 +2042,321 @@ At completion, summarize:
 ---
 
 I am sorry, I don't want to have to report that kind of failure back to the chat.  Please fix it, and re-run the test, you have permission to use somewhat more time.
+
+---
+
+# Reversi — First B-Preserving Residual-Learning Experiment
+
+Work in `~/git/reversi` using GPT-6.1-Sol, High reasoning.
+
+Start from the latest main branch. Read `AGENTS.md`, `USER_REQUESTS.md`, and especially:
+
+- `docs/TEACHER_DEPTH_QUALIFICATION_V4.md`
+- `docs/RESIDUAL_FRONTIER_EXPERIMENT_PLAN.md`
+- `docs/ASTRA_TEACHER_STRATEGY.md`
+- `docs/PERFORMANCE_PROFILING.md`
+- `docs/RESOURCE_SCALING.md`
+
+Inspect the relevant search, evaluation, learning, teacher-adapter, and experimental code.
+
+**V4R1 successfully qualified Edax D10/D12 under every predefined gate. We now have sufficient justification to attempt learning small improvements to evaluator B.**
+
+I agree with the central plan in `RESIDUAL_FRONTIER_EXPERIMENT_PLAN.md`.
+
+Your task is to implement, validate, and execute its first B-preserving residual-learning experiment, subject to a successful pilot and conservative resource and runtime forecasts.
+
+The objective is to produce a demonstrably stronger Reversi player at equal search time—not merely a model that predicts Edax labels more accurately.
+
+## 1. Preserve evaluator B
+
+The new model must be:
+
+E_new = B + learned correction
+
+Start with all 21 corrections exactly zero.
+
+Preserve:
+
+- All seven of B's original positional features.
+- The three original game phases and boundaries.
+- The original search algorithm and terminal scoring.
+- The production default and original weight values.
+- The existing browser and coaching functionality.
+
+Train only corrections to B's 21 weights.
+
+Do not add new patterns, features, neural networks, phase divisions, or an alternative search architecture in this experiment.
+
+Zero correction must reproduce B's evaluations and search results, subject only to explicitly verified numerical equivalence.
+
+Keep learned weights in a separate experimental artifact.
+
+## 2. Collect independent search-frontier supervision
+
+Implement the data-collection protocol in `RESIDUAL_FRONTIER_EXPERIMENT_PLAN.md`.
+
+Use the qualified, separately patched Edax D10/D12 teacher and its verified evaluation data.
+
+Generate independent source trajectories with the predetermined policies and search depths.
+
+For each source root, examine B's two best root alternatives and trace their verified minimax continuations.
+
+Identify the nonterminal parent positions immediately above the actual search frontier.
+
+**Verify that these are the positions whose static evaluations influence the searched alternatives.**
+
+Do not assume that a transposition-table move or a cutoff bound identifies a valid principal continuation.
+
+Independently confirm all required continuation moves and scores at the appropriate remaining depth.
+
+Handle passes, terminal positions, move perspective, player-to-move identity and child-board phase correctly.
+
+Query Edax for every legal alternative at the selected frontier parents.
+
+Use common-depth, full-window D10/D12 values. Preserve the teacher's rejection rules.
+
+Retain only the independently supported sibling preferences specified in the plan.
+
+Do not substitute B-derived labels or weak-self-play final margins.
+
+Keep estimated Edax-disc preferences, exact W/D/L results and B heuristic score units mathematically distinct.
+
+## 3. Implement the 21-parameter optimizer
+
+Use the explicitly defined convex preference-learning objective from the plan.
+
+Retain its initial:
+
+- Temperature of 10 B-score units.
+- Three predetermined regularization coefficients.
+- Correction bound of ±25 weight units.
+- Zero-correction B control.
+
+Implement stable numerical evaluation, analytical gradients, finite-difference gradient checks, deterministic optimization and backtracking.
+
+Ensure the training-only feature normalization and regularization have precisely documented semantics.
+
+Normalize total training weight per independent source trajectory so a position with many legal alternatives cannot dominate merely because it produces more pairs.
+
+Select regularization using development data only.
+
+Do not alter optimizer hyperparameters based on the locked assessment or final game results.
+
+Report the original weights, learned corrections and new weights, including changes by phase.
+
+## 4. Build and run a complete small pilot
+
+Before undertaking full data collection, conduct an integrated pilot using a separately reserved 24-root engineering sample.
+
+Exercise:
+
+1. Source trajectory generation and admission.
+2. Full-window B search and verified continuation reconstruction.
+3. Frontier-parent and sibling extraction.
+4. Edax D10/D12 labeling.
+5. Preference filtering.
+6. Feature extraction and phase assignment.
+7. Model fitting and serialization.
+8. Evaluation with the learned weights.
+9. Crash/restart recovery and source/protocol verification.
+
+Benchmark actual Edax labeling time, B-search time, training throughput, memory usage, checkpoints and estimated tournament cost.
+
+Inspect several generated training examples to confirm that they really represent search-frontier decisions.
+
+If the pilot exposes a correctness or efficiency problem, correct it and rerun the pilot before committing to the main experiment.
+
+Do not consume the locked assessment data during pilot development.
+
+## 5. Execute the predefined larger experiment
+
+Once the pilot passes and the runtime forecast is feasible, follow the proposed data contract:
+
+- 1,600 independent training source roots.
+- 400 independent development roots.
+- 400 locked positional-assessment roots.
+- 128 predetermined assessment roots for independently searched root-choice transfer tests.
+- 256 independent paired-game openings, tested at both 80 ms and 300 ms.
+
+Preserve all intended phase, policy, search-depth, occupied-parity and player-to-move balance.
+
+Reserve and audit all splits and their identities before labeling.
+
+Exclude previously disclosed research positions and source trajectories, including teacher qualifications, engineering tests and older training campaigns.
+
+Maintain canonical symmetry/color separation and disclose unavoidable common early prefixes.
+
+Do not let source trajectories or their queried frontier descendants leak between training, development, locked assessment or game-test roles.
+
+Freeze the scientific protocol before opening assessment results.
+
+## 6. Make runtime planning robust
+
+I authorize up to **eight active hours of local computation** for this experiment, provided the pilot and conservative feasibility checks pass.
+
+Eight hours is a ceiling, not a target.
+
+Benchmark the actual complete pipeline before committing to the full run.
+
+Forecast:
+
+- Data generation and rejection rates.
+- B search and continuation reconstruction.
+- Edax labeling at both depths.
+- Frontier and alternative counts per trajectory.
+- Optimization and development scoring.
+- Independent positional assessment.
+- Both paired-game tournaments.
+- Reporting, auditing, checkpointing and recovery overhead.
+
+Use high-tail measured task costs, at least 35% allowance on the forecast, and an additional final reporting/safety reserve.
+
+If the complete predefined experiment is not feasible within eight hours, stop before opening locked assessment results and report a realistic alternative budget.
+
+Any revised sample targets must be frozen before accessing their results.
+
+Do not start a run likely to require a last-minute extension.
+
+## 7. Use the available processing power
+
+Use the previous resource-scaling measurements and fresh Windows/WSL preflight.
+
+Parallelize independent generation and teacher-labeling tasks when measured throughput improves.
+
+Use more than two workers if safe memory headroom and benchmarks justify it, but do not presume that more workers are always better.
+
+Keep the Windows PC responsive. Do not close unrelated applications, change saved settings or cause active swapping.
+
+Keep timed head-to-head tournaments isolated from other CPU-intensive research tasks.
+
+Use the existing atomic checkpoints, detached execution, temporary bounded keep-awake, worker monitoring and recovery protections.
+
+Minimize unnecessary AI involvement while the local program runs.
+
+## 8. Improve scientific diagnostics
+
+I particularly want to understand whether the new training data actually corrects B's strategic weaknesses.
+
+Report, separately:
+
+- Training and development preference loss.
+- Locked assessment preference loss.
+- Teacher-relative top-choice regret.
+- B-versus-candidate decision disagreements.
+- Improvement in independently searched root choices.
+- Opening, middle and endgame performance.
+- Differences between the two source policies and search depths.
+- Cases where the learner improves an immediate frontier preference but worsens a searched root decision.
+- Feature corrections that consistently improve or damage decisions.
+
+Use the predefined 5% held-out preference-loss improvement and no-deterioration searched-root gate before proceeding to game tests.
+
+Additionally report top-choice regret and significant decision reversals, not only aggregate pairwise classification.
+
+Distinguish estimated strategic errors from independently solved exact errors.
+
+If the candidate does not pass the predetermined positional gate, do not run an expensive confirmation tournament merely to use the available time.
+
+## 9. Test actual playing strength
+
+If the positional gates pass, freeze one selected candidate.
+
+Play it against the unchanged evaluator B on the complete predetermined 256 paired openings at 80 ms and 300 ms per move, swapping colors.
+
+Use identical search semantics and controlled CPU conditions.
+
+Measure:
+
+- Candidate wins, draws and losses.
+- Opening-pair mean game points.
+- Corrected pair-bootstrap uncertainty.
+- Actual elapsed time per move.
+- Search nodes and evaluations.
+- Completed search depth.
+- Evaluator execution cost.
+- Deadline handling and failures.
+
+Use the predeclared simultaneous confidence treatment for the two time controls.
+
+A positive result must establish stronger equal-time play, not simply more accurate positional evaluation.
+
+If the tournament is inconclusive, report that plainly. Do not adjust weights or extend the sample after viewing confirmation outcomes.
+
+Do not promote the candidate into production automatically, even if it wins.
+
+## 10. Logging and completion
+
+Use readable event-based logging with clear stages, active task details, progress counts, measured throughput, resource use, and meaningful remaining-time forecasts.
+
+Do not repeatedly print unchanged counters without explaining the active computation.
+
+Save detailed telemetry separately from the human-readable log.
+
+Create `docs/RESIDUAL_FRONTIER_RESULTS.md` and compact reproducible numerical evidence with useful graphs.
+
+Preserve the qualified teacher, the original B, all previous research artifacts and the new training/assessment split identities.
+
+Run relevant tests, audit the results and commit and push the verified work.
+
+## 11. Final assessment
+
+At completion, answer these questions:
+
+1. Did independent Edax supervision improve B's 21 weights?
+2. Did the learned corrections improve decisions after depth-four and depth-six search?
+3. Did the candidate outperform B at equal elapsed time?
+4. Which feature corrections were beneficial or harmful?
+5. Did learning improve with additional independent source trajectories?
+6. Was the original seven-feature architecture sufficient to represent the teacher's corrections?
+7. What is the single most promising next step?
+
+Do not automatically begin another larger training campaign.
+
+If the model fails, diagnose whether the problem was insufficient expressive capacity, poor frontier sampling, training instability, teacher uncertainty, or lack of transfer through minimax search.
+
+**This should be a decisive test of whether high-quality independent supervision can improve our original handcrafted Reversi evaluator. Preserve scientific rigor, but give the local program enough autonomy to complete the work without repeated supervision.**   ## Revised execution schedule — three hours now, longer continuation later
+
+I want to divide this research project into multiple computational sessions.
+
+For the present session, I authorize up to three hours of local computation, ending with a clean, resumable checkpoint. A longer session will be authorized later.
+
+Do not reduce the original training, development, independent-assessment or game-test targets merely to fit this first three-hour session.
+
+Prioritize implementation, correctness testing, the complete integrated pilot, realistic performance measurements, and preparation of the full experiment.
+
+If time remains after those tasks pass, begin the predetermined training-data generation and labeling. Preserve all completed work.
+
+Design the experiment so that it can be suspended and resumed across separate sessions without repeating expensive completed tasks.
+
+Distinguish the three-hour **session allowance** from the total **scientific experiment budget**. Exhausting tonight's allowance must produce a normal, resumable pause—not a scientifically failed or completed experiment.
+
+Preserve the frozen protocol, random seeds, data splits, model identities, optimizer state, and completed task receipts.
+
+Do not inspect locked assessment or final tournament results during this first session. Do not change the scientific protocol based on interim confirmation outcomes.
+
+When the session allowance approaches exhaustion, stop dispatching new expensive tasks, finish or safely checkpoint in-flight work, and save everything necessary for a later continuation.
+
+If the next operation cannot be interrupted safely, estimate its cost before starting it.
+
+Do not extend the present three-hour session automatically. I will authorize the next computational allowance separately.
+
+At the end, publish a concise progress report explaining:
+
+- What was implemented and verified.
+- How many training positions and labels were collected.
+- How much useful computation was completed.
+- Measured CPU throughput and memory usage.
+- Remaining work and a conservative estimate of additional computation required.
+- The exact command to resume.
+
+Commit and push verified code and documentation. Keep large raw datasets, models and checkpoints locally.
+
+The objective is to make meaningful progress tonight while preserving the integrity and efficiency of the eventual complete experiment.
+
+---
+
+Where are you in this step?  What have you learned so far?  when is the estimated time of completion of this step?
+
+---
+
+Chat says: ask Codex to make that last distinction explicit in its final report, including when and why the pool was reduced to one worker.  I do not need the answer now.

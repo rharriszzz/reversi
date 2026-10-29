@@ -63,6 +63,13 @@ The follow-up result-preserving implementation is `src/fast-features.js`. It pre
 - Models export to JSON; an import/validation UI is not yet implemented.
 - Actual WSL2-to-Windows Chrome and Chromium tests pass. macOS hardware and native Windows Python launch remain unverified; see `VALIDATION.md`.
 
+## B-preserving residual research
+
+`scripts/residual/` is an offline experiment, independent of browser learning and the older mixed-target fitting code. It compiles 21 learned weight corrections into the original B weights, preserving the existing evaluator/search and phase boundaries. `frontier.mjs` reconstructs the best two root alternatives using fresh full-window continuation searches, verifies final static children with independent rules, and records pass/terminal witnesses. `data.mjs` admits whole source trajectories with canonical historical/cross-role exclusions and filters independent D10/D12 sibling preferences. `model.mjs` implements the fixed convex source-normalized objective and a deterministic bounded optimizer; original defaults remain unchanged.
+
+`launch.py` freezes source and pins the qualified external teacher, performs Windows/WSL resource checks, detaches the coordinator and holds a bounded temporary keep-awake request. `run.mjs` separates cumulative scientific time from each explicit session allowance, checkpoints individual expensive tasks and optimizer/game state, and bars locked assessment in session one. The historical parsing heap lives in a short-lived builder process; the coordinator uses a compact sorted full-SHA-256 exclusion index. `audit.mjs` verifies receipts, split identities, original source/teacher identities and trajectory separation before `publish.mjs` exports compact evidence. See [the frozen protocol](RESIDUAL_FRONTIER_PROTOCOL.md) for precise score units, normalization, selection and gates.
+
+
 ## Autonomous offline research
 
 `scripts/research.mjs` owns a bounded, seeded state machine: correctness/calibration, disjoint trajectory generation, reference labeling, fitting, development assessment, preliminary and serious selection, durable freeze, untouched confirmation, and reporting. Its workers execute bounded tasks in `scripts/research/worker.mjs`. The coordinator alone writes the atomic manifest and accepts task results in deterministic order. Generation batches are committed together; complete task artifacts survive interruptions and can be reused without publishing partial pairs.
