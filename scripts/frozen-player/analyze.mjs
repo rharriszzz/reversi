@@ -63,7 +63,7 @@ export async function analyze(output,history,preflight,models){
  for(const [i,condition] of frozen.schedule.entries()){
   const r=read(`${output}/games/game-${i}.json`),{checksum,...body}=r;assert.equal(hash(body),checksum);assert.equal(r.launch,launch.checksum);assert.deepEqual(r.condition,condition);
   const opening=frozen.roots.find(s=>s.id===`games-${condition.family}`),g=r.result;assert.equal(r.identity,hash({launch:launch.checksum,condition,opening}));assert.equal(r.resultHash,hash(g));assert.ok(r.committed>launch.at,'Outcome predates freeze');
-  const end=replay(opening,g.moves,{complete:true});assert.deepEqual(end.board,g.board);assert.equal(g.margin,g.board.reduce((a,b)=>a+b,0));assert.equal(g.outcome,Math.sign(g.margin)*condition.color);assert.equal(g.points,(1+g.outcome)/2);
+  const end=replay(opening,g.moves,{complete:true});assert.deepEqual(end.board,g.board);assert.equal(g.margin,g.board.reduce((a,b)=>a+b,0));assert.equal(g.outcome,(Math.sign(g.margin)*condition.color)||0);assert.equal(g.points,(1+g.outcome)/2);
   let board=opening.board,player=opening.player;auditBoard(board,player,opening.id,'played-path',`games/game-${i}`,{step:0});
   for(const [step,m] of g.moves.entries()){if(m.move!==null)board=oracleChildren(board,player).find(c=>c.move===m.move).board;player=-player;auditBoard(board,player,opening.id,'played-path',`games/game-${i}`,{step:step+1});}
   games.push({...condition,...g,receipt:`games/game-${i}.json`});

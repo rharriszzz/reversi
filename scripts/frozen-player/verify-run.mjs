@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Separate-process read-only audit. Produces a small immutable certificate.
 import assert from 'node:assert/strict';
+import {verifyRepair} from './finalize.mjs';
 import {readdirSync,existsSync} from 'node:fs';
 import {read,atomic} from '../research/io.mjs';
 import {hash,PROTOCOL,gameSchedule,assessmentSlots} from './protocol.mjs';
@@ -12,7 +13,7 @@ import {replay} from './game.mjs';
 import {replayTeacher} from './analyze.mjs';
 import {pairSummary,jointGameBootstrap,nomination} from './statistics.mjs';
 const [output,history,preflight]=process.argv.slice(2),state=read(`${output}/state.json`),launch=read(`${output}/launch.json`),reservation=read(`${output}/reservations.json`),summary=read(`${output}/summary.json`),p=read(`${preflight}/preflight.json`),h=read(`${history}/manifest.json`);
-assert.equal(state.status,'complete');frozenModels();assert.equal(hash(inventory()),p.source);
+assert.equal(state.status,'complete');frozenModels();verifyRepair(output,history,preflight);
 for(const r of [launch,reservation,summary,p,h]){const {checksum,...body}=r;assert.equal(hash(body),checksum);}
 assert.equal(launch.reservationChecksum,reservation.checksum);assert.deepEqual(reservation.schedule,gameSchedule());assert.equal(summary.launch,launch.checksum);assert.equal(summary.counts.games,384);
 const index=KeyIndex.load(`${history}/membership.bin`),eng=KeyIndex.load(`${preflight}/engineering-keys.bin`),owners=new Map();assert.equal(index.digest(),h.digest);assert.equal(eng.digest(),p.engineeringDigest);
@@ -23,7 +24,7 @@ for(const spec of assessmentSlots()){const root=reservation.roots.find(r=>r.id==
 const games=[];
 for(const [i,condition] of reservation.schedule.entries()){
  const r=read(`${output}/games/game-${i}.json`),{checksum,...body}=r;assert.equal(hash(body),checksum);assert.equal(r.launch,launch.checksum);assert.deepEqual(r.condition,condition);assert.equal(hash(r.result),r.resultHash);assert.ok(r.committed>launch.at);
- const opening=reservation.roots.find(s=>s.id===`games-${condition.family}`),g=r.result;assert.equal(r.identity,hash({launch:launch.checksum,condition,opening}));assert.deepEqual(replay(opening,g.moves,{complete:true}).board,g.board);assert.equal(g.margin,g.board.reduce((a,b)=>a+b,0));assert.equal(g.outcome,condition.color*Math.sign(g.margin));assert.equal(g.points,(1+g.outcome)/2);games.push({...condition,...g});
+ const opening=reservation.roots.find(s=>s.id===`games-${condition.family}`),g=r.result;assert.equal(r.identity,hash({launch:launch.checksum,condition,opening}));assert.deepEqual(replay(opening,g.moves,{complete:true}).board,g.board);assert.equal(g.margin,g.board.reduce((a,b)=>a+b,0));assert.equal(g.outcome,(condition.color*Math.sign(g.margin))||0);assert.equal(g.points,(1+g.outcome)/2);games.push({...condition,...g});
 }
 const scores={};
 for(const timeMs of [80,300]){
