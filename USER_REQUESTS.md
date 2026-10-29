@@ -2514,3 +2514,47 @@ Run all relevant tests, audit source/data/model/checkpoint hashes, and commit an
 Preserve all original research evidence and production evaluator B.
 
 **The goal is to finish this one rigorous experiment, not to begin another architecture search. I want to learn whether high-quality independent Edax supervision can actually improve B's playing strength.**
+
+---
+
+# Reversi — Diagnose the Residual-Learning Limit and Select the Next Model
+
+Work in `~/git/reversi`.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/RESIDUAL_FRONTIER_RESULTS.md`, `docs/RESIDUAL_FRONTIER_PROTOCOL.md`, `docs/STRONG_EVALUATOR_RESULTS_20261028.md`, `docs/NEXT_EVALUATOR_RESEARCH.md`, and the relevant evaluation and learning code.
+
+The completed B-preserving residual experiment reduced independent preference loss by 2.08% but failed its predefined 5% gate. Depth-six searched regret improved slightly, without a statistically established gain. No confirmation games were played.
+
+I want to determine the most promising next evaluator architecture, avoiding another large inconclusive training experiment.
+
+Investigate these questions:
+
+1. Is the limited improvement primarily caused by the expressive capacity of B's seven features, or could the current loss, regularization or sampling distribution explain it?
+2. What can we learn from the frozen optimizer results, coefficient magnitudes, learning curves and feature ablations?
+3. Would B plus a small number of learned corner, edge or diagonal patterns represent important strategic information that the seven original features miss?
+4. How can we retain the speed advantages of the earlier long-pattern evaluator without discarding B's strategic features?
+5. What is the smallest experiment that could distinguish a representation problem from an optimization or supervision problem?
+
+My preferred candidate is B plus a compact, zero-initialized pattern residual, using existing pattern infrastructure wherever possible. But critically assess that preference before accepting it.
+
+Compare it against a properly controlled seven-feature-only model, including whether the existing regularization substantially limits the corrections.
+
+Use the previous training and development data for exploratory diagnosis where appropriate. Treat all previously published locked-assessment results as disclosed, not as fresh selection evidence.
+
+Design a new, genuinely independent assessment for any new model-selection experiment. Preserve source-trajectory separation and historical exclusions.
+
+Before proposing a lengthy computation, estimate complete evaluation cost and search throughput. Do not repeat the earlier expensive hybrid architecture without a demonstrated justification.
+
+Choose **one primary model architecture and one decisive initial experiment**, preferably executable within one or two hours of local computation.
+
+State in advance what result would justify a larger training campaign and what result would make you abandon this direction.
+
+Preserve production B, the existing search engine, all previous evidence and the qualified Edax teacher.
+
+Do not start another long training campaign automatically.
+
+Create `docs/NEXT_RESIDUAL_STRATEGY.md`, explaining your diagnosis, candidate architecture, computational costs, experiment protocol, failure criteria and recommended implementation sequence.
+
+Run appropriate lightweight checks, then commit and push the strategy.
+
+The goal is a genuinely stronger Reversi player at equal elapsed search time—not simply lower preference loss.
