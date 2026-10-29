@@ -2558,3 +2558,253 @@ Create `docs/NEXT_RESIDUAL_STRATEGY.md`, explaining your diagnosis, candidate ar
 Run appropriate lightweight checks, then commit and push the strategy.
 
 The goal is a genuinely stronger Reversi player at equal elapsed search time—not simply lower preference loss.
+
+---
+
+# Reversi — Test Relaxed Linear Weights Against a Compact Pattern Residual
+
+Work in `~/git/reversi`.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, `docs/NEXT_RESIDUAL_STRATEGY.md`, `docs/RESIDUAL_FRONTIER_RESULTS.md`, and the relevant evaluation, optimization and research code.
+
+I agree with the central conclusion of the new strategy: excessive regularization significantly limited our previous 21-weight residual model. We should correct that limitation before concluding that B's original seven features are inadequate.
+
+**I authorize implementation and one bounded local experiment, with up to three hours of computation after engineering verification.**
+
+## 1. Preserve previous results
+
+Do not modify or resume the completed residual-learning experiment.
+
+Keep production B, the original search engine, prior trained models, historical data and published assessment results unchanged.
+
+Previously disclosed assessment data must not be reused as fresh independent evidence.
+
+## 2. Implement the two planned models
+
+Follow `docs/NEXT_RESIDUAL_STRATEGY.md`.
+
+Primary model L:
+
+- Retain exactly B's seven features and three original phase boundaries.
+- Fit the 21 corrections on the existing training corpus.
+- Use the preregistered λ = 0 and ±100 correction bound.
+- Preserve original terminal and pass behavior.
+- Compile corrected weights into the existing evaluator without an additional feature scan.
+
+Challenger P:
+
+- Begin with L's frozen coefficients.
+- Add only the specified six-square corner and eight-square edge pattern families.
+- Initialize all new pattern coefficients to zero.
+- Preserve D4 symmetry, color transformations, exact phase definitions and the specified pattern normalization.
+- Use the predetermined pattern regularization and coefficient bounds.
+
+Do not add extra patterns, change the temperature, expand coefficient bounds or select additional models based on fresh assessment results.
+
+## 3. Validate the models thoroughly
+
+Verify:
+
+- Zero correction reproduces B.
+- Zero pattern coefficients reproduce L.
+- Full-window search and production search remain correct.
+- Analytical gradients match finite differences.
+- Sparse and compiled evaluations agree.
+- Passes, terminal values, symmetry and color transforms are correct.
+- Every optimized fit genuinely converges.
+- Learned models preserve their frozen identities on resume.
+
+Benchmark complete static-evaluation and search throughput. I especially want to know whether the corner/edge patterns are cheap enough to justify their inclusion.
+
+If P fails the predefined old-development admission test, omit it from fresh assessment and document the reason.
+
+## 4. Complete the fresh independent experiment
+
+Follow the new strategy's fixed assessment design:
+
+- 96 new independent source trajectories.
+- Both B-selected and L-selected search frontiers.
+- The fixed 64-root search-transfer subset.
+- Independently generated Edax D10/D12 labels.
+- Fresh game openings, completely separate from previous research data.
+
+Reserve all assessment and game identities before accessing any new outcomes.
+
+Do not use fresh labels to refit or retune L or P.
+
+Compare B, L and eligible P on the same independently labeled positions.
+
+Report results separately for both frontier-selection distributions.
+
+The central questions are:
+
+1. Can the relaxed seven-feature evaluator substantially improve frontier preferences?
+2. Does that improvement survive four- and six-placement alpha-beta search?
+3. Does adding corner/edge patterns improve anything beyond the relaxed linear model?
+4. Are the improvements large enough to compensate for any additional evaluation cost?
+
+## 5. Run the predefined games only when eligible
+
+Apply the fixed positional gates before playing games.
+
+If L qualifies, run the complete 32-opening-pair L-versus-B comparisons at both 80 and 300 ms.
+
+If P also qualifies under its separate criteria, run the prescribed 32-pair P-versus-L shadow comparison at 80 ms.
+
+Use both colors, unchanged production search semantics and the predefined paired-opening confidence calculations.
+
+Report all outcomes and uncertainty honestly. Small samples may be inconclusive.
+
+Do not increase games or alter candidate selection after examining results.
+
+Do not promote any model automatically.
+
+## 6. Resource management and scheduling
+
+Use fresh Windows/WSL preflight checks, and distinguish the safe worker cap from the actual running pool.
+
+Use two workers when memory allows, and reduce to one when necessary.
+
+Keep Windows responsive and avoid active swapping.
+
+Benchmark before launching, retain the 35% runtime allowance and a separate final reporting reserve.
+
+The three-hour authorization is a safety ceiling, not permission to enlarge the research experiment. Aim for the originally forecast two-hour completion.
+
+Make computation checkpointable and resumable. Do not discard completed expensive work merely because a task takes longer than expected.
+
+Use the existing useful progress logging and independent task receipts. Avoid unnecessary AI supervision.
+
+If the frozen experiment becomes infeasible, pause cleanly rather than compromising the sample or statistical method.
+
+## 7. Final report
+
+Create `docs/NEXT_RESIDUAL_RESULTS.md` with audited numerical evidence and appropriate graphs.
+
+Explain:
+
+- How much of the previous failure was attributable to excessive regularization.
+- Whether L improves fresh independent Edax preferences.
+- Whether L improves actual searched root choices.
+- Whether P adds meaningful positional information beyond L.
+- Whether either model shows stronger equal-time playing results.
+- How much additional evaluation cost P introduces.
+- What the results suggest about the remaining limitations of B's feature set.
+
+Include all model weights, fitted pattern specifications, resource measurements, runtimes, confidence intervals, failures and limitations.
+
+Run relevant tests, commit and push the completed work.
+
+At the end, recommend **one next research direction**, based on the experimental evidence. Do not start another large campaign automatically.
+
+**The goal is to determine whether fixing excessive regularization is enough to improve B, and whether compact corner/edge patterns offer a further advantage.**;  # Supplement — Eight-Hour Allowance and Stronger Independent Testing
+
+This supplement modifies the execution budget and sample-size planning in my preceding request, "Reversi — Test Relaxed Linear Weights Against a Compact Pattern Residual."
+
+All other scientific requirements remain in effect.
+
+## 1. Increase the computation allowance
+
+I authorize up to **eight active hours of local computation**, following implementation, correctness verification and a successful integrated pilot.
+
+Eight hours is a ceiling, not a target. Finish earlier if the experiment is complete or its predefined decision gates fail.
+
+Maintain at least 35% allowance in runtime forecasts and a separate final reporting/safety reserve.
+
+Do not spend additional time merely to use the available budget.
+
+## 2. Improve statistical power
+
+The original proposal used 96 independent assessment sources and only 32 paired openings per playing condition.
+
+With eight hours available, I would prefer larger independent samples, especially for actual game comparisons.
+
+Please cost out this expanded protocol before collecting fresh assessment results:
+
+- **256 independent positional-assessment source trajectories**, balanced across the original strata, policies and source-search depths.
+- **128 predetermined root-transfer positions**, selected from those assessment sources.
+- **256 paired openings at 80 ms and 256 paired openings at 300 ms** for the primary L-versus-B comparison, swapping colors in every pair.
+- **128 paired openings at 80 ms** for the optional P-versus-L shadow comparison, only if P passes its previously defined eligibility criteria.
+
+These targets replace the smaller 96/64/32 targets from the original proposal.
+
+Reserve all assessment and game identities jointly before accessing any new assessment labels or outcomes.
+
+Do not reduce sample sizes after inspecting results.
+
+## 3. Require a feasible pre-experiment forecast
+
+Before launching the expanded experiment, measure the complete pipeline using development-only engineering samples.
+
+Include changed-evaluator frontier reconstruction, all Edax labeling, fitting, statistical analysis, and full game costs.
+
+Forecast completion using the actual worker pool, conservative task timings, 35% allowance, and a final reporting reserve.
+
+If the expanded protocol does not fit comfortably within eight hours, you may choose this predetermined fallback **before opening any fresh assessment results**:
+
+- 192 independent assessment sources.
+- 96 root-transfer positions.
+- 128 paired openings per primary time control.
+- 64 paired openings for the optional P-versus-L shadow comparison.
+
+Freeze whichever complete protocol is feasible, along with its source identities, sample sizes, selection rules and statistical tests, before execution.
+
+Do not repeatedly resize the experiment to fit observed assessment outcomes.
+
+If neither protocol is feasible, finish the verified implementation and cost report without beginning a scientifically incomplete assessment.
+
+## 4. Preserve the causal comparisons
+
+The primary question remains whether relaxed constraints allow B's existing seven features to produce a better player.
+
+The secondary question is whether two compact corner/edge pattern families add something beyond that improved linear evaluator.
+
+Preserve the nested structure:
+
+- B remains unchanged.
+- L changes only B's 21 weights.
+- P retains L's frozen weights and adds only the two specified pattern families.
+
+Use the same independently labeled positions to compare B, L and eligible P.
+
+Evaluate both B-selected and L-selected frontiers.
+
+Do not add further architectures, tune hyperparameters against fresh assessment data, or substitute a different learning objective.
+
+Keep the original positional eligibility gates and the appropriate paired-source and paired-opening statistical treatment. Larger samples must not silently change the meaning of those gates.
+
+## 5. Prioritize actual playing strength
+
+Our previous experiments repeatedly improved positional metrics without demonstrating stronger play.
+
+If L passes the predefined positional gates, prioritize completing its paired equal-time games against B.
+
+If P is eligible, complete its predefined shadow comparison without compromising the primary experiment.
+
+Measure search depth, nodes, evaluation throughput, actual move time and deadline behavior.
+
+Do not claim superiority merely because a model has lower preference loss or lower estimated Edax regret.
+
+Even 256 opening pairs may be insufficient to establish a small strength improvement. Report inconclusive results as inconclusive, without extending the sample based on interim game outcomes.
+
+## 6. Autonomous operation
+
+Use fresh Windows/WSL memory checks, and distinguish configured workers, safe worker cap, actual worker pool and active native searches.
+
+Use additional workers only when measured throughput and memory headroom justify them.
+
+Preserve checkpointing, recovery, human-readable progress logging and immutable scientific receipts.
+
+If an engineering timeout occurs, investigate whether expensive completed work can be retained and whether a bounded correction is possible without compromising scientific independence.
+
+Do not repeatedly ask me to intervene in ordinary recoverable computational problems.
+
+Do not modify production evaluator B or automatically promote a learned model.
+
+At completion, commit and push the verified results and explain whether the relaxed linear model or its compact pattern extension actually demonstrated stronger equal-time Reversi play.
+
+**My priority is a scientifically convincing comparison, not maximizing the number of training positions or using all eight hours.**
+
+---
+
+how long do I need to wait before "Selected model is at capacity. Please try a different model." goes away?

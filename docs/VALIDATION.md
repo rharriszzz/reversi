@@ -121,3 +121,19 @@ The final fast suite passed **114 JavaScript tests and 26 Python tests**. New ca
 Actual Windows 11 Home 10.0.26300 / Chrome 156.0.8078.48 passed WSL2 localhost analysis, a verified continuation, the playing-worker reply and default-browser launch via `python3 tests/windows_browser_check.py`. Current Mac hardware was unavailable. Optional Linux Playwright was unavailable and was not installed; no new Linux full-browser acceptance is claimed. Python's older launcher tests emit non-fatal subprocess cleanup ResourceWarnings; all 26 assertions passed.
 
 The integrated 24-root pilot and completed 1,600-source training collection use the qualified patched teacher. The closing audit verifies all task/result hashes, canonical trajectory separation, full reserved targets, continuation placement counts, pass records and child phases. A scheduling-only source certificate preserves original numerical inputs and receipt identities while correcting actual-pool forecasting; regression tests reject gate or numerical-source changes through that path. No locked teacher queries or confirmation games were run. See [the session results](RESIDUAL_FRONTIER_RESULTS.md).
+
+## Relaxed linear and compact-pattern experiment
+
+The new tests cover exact B/L zero identity, full-window versus independent minimax and production search, phases, forced passes and terminal utilities, D4/color transformations, Float32/sparse tolerance, analytical/finite-difference gradients, optimizer convergence, unique-source support, genuine process-death receipt recovery, model/config identity, simultaneous selector gates, fixed expanded/fallback counts, paired-game recovery, conservative forecasts, and rejection of numerical changes by the resource-only execution certificate.
+
+```bash
+npm test
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 tests/windows_browser_check.py
+node scripts/next-residual/audit.mjs .local-research/residual-constraint-pattern-screen-v1-20261029
+git diff --check
+```
+
+Current verification: 128 JavaScript tests and 30 Python tests passed. Actual Windows Chrome/156.0.8078.48 loaded the WSL2 localhost application, rendered four analyzed moves, verified a continuation and a playing-worker reply; the real PowerShell default-browser launch route also succeeded. Full interactive acceptance was not repeated. macOS Apple Silicon and Intel hardware remained unavailable; no new Mac execution is claimed.
+
+Numerical integrity passed, including all 41,519 preserved files of the preceding completed experiment. The new experiment's strict PV-independence qualification failed for four sources, and its positional gates failed. Those scientific limitations are retained in [NEXT_RESIDUAL_RESULTS.md](NEXT_RESIDUAL_RESULTS.md); a passing correctness/audit suite does not turn them into independent confirmation or stronger play.
