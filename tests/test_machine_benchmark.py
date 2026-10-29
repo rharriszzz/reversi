@@ -23,11 +23,21 @@ runner, comparison = module('run'), module('compare')
 class MachineBenchmarkTests(unittest.TestCase):
     def test_portability_exception_binds_exact_files_and_rejects_numerical_changes(self):
         pc = json.loads((HERE.parents[1] / 'docs/data/mac-pc-pc.json').read_text())
+        # Exercise the historical, narrowly reviewed portability exception.
+        # New experiments add files to the live inventory; that checkout must
+        # correctly fail historical benchmark equivalence, not widen the rule.
         current = runner.source_identity()
-        audit = comparison.source_compatibility(pc['source'], current)
+        portability = copy.deepcopy(pc['source'])
+        for path in comparison.PORTABILITY_FILES:
+            portability['files'][path] = hashlib.sha256((HERE.parents[1] / path).read_bytes()).hexdigest()
+        portability['sha256'] = hashlib.sha256(json.dumps(portability['files'], sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        audit = comparison.source_compatibility(pc['source'], portability)
         self.assertFalse(audit['identical'])
         self.assertIn('scripts/machine-benchmark/darwin-allocation.h', audit['changedFiles'])
-        changed = copy.deepcopy(current)
+        if current != portability:
+            with self.assertRaisesRegex(ValueError, 'source'):
+                comparison.source_compatibility(pc['source'], current)
+        changed = copy.deepcopy(portability)
         changed['files']['src/search.js'] = '0' * 64
         changed['sha256'] = hashlib.sha256(json.dumps(changed['files'], sort_keys=True, separators=(',', ':')).encode()).hexdigest()
         with self.assertRaisesRegex(ValueError, 'source'):

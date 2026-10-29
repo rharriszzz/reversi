@@ -3163,3 +3163,276 @@ the chat wants to know: I'd ask it to report:
 - Its principal findings so far, especially concerning terminal utility and minimax learning.
 - What analysis remains.
 - Whether it expects to finish within the remaining context window.
+
+---
+
+# Reversi — Execute the Frozen B/L/P Playing-Strength Experiment
+
+Work in `~/git/reversi` on the M4 iMac.
+
+Read `AGENTS.md` and `USER_REQUESTS.md` first.
+
+Then read carefully:
+
+- `docs/ASTRA_LEARNING_STRATEGY_REVIEW.md`
+- `docs/NEXT_RESIDUAL_RESULTS.md`
+- `docs/NEXT_RESIDUAL_PROTOCOL.md`
+- `docs/RESIDUAL_FRONTIER_RESULTS.md`
+- `docs/TEACHER_DEPTH_QUALIFICATION_V4.md`
+- `docs/MAC_PC_BENCHMARK.md`
+
+Inspect the relevant search, evaluation, model-serialization, game-playing, experimental sampling, statistical and audit code.
+
+## Objective
+
+I authorize implementation and execution of **one new, bounded, independent playing-strength experiment**, following the frozen-player search-transfer screen proposed in Astra's latest review.
+
+The purpose is to answer a question our previous experiments failed to resolve:
+
+**Do either of our existing trained evaluators, L or P, actually play stronger Reversi than the original B at equal elapsed search time?**
+
+Do not train another evaluator.
+
+Do not change B, L or P.
+
+Do not require an arbitrary preference-loss improvement before allowing actual games.
+
+## 1. Preserve the existing scientific evidence
+
+All previous experiments, including their failed gates and independence limitations, remain unchanged.
+
+This is a new experiment, with a new protocol and separate run directory.
+
+Use:
+
+- B: original production evaluator.
+- L: the previously frozen 21-weight relaxed linear evaluator.
+- P: the previously frozen compact corner/edge pattern evaluator.
+
+Use the exact frozen L and P identities specified in `docs/ASTRA_LEARNING_STRATEGY_REVIEW.md`.
+
+Import verified model artifacts if available. Otherwise reconstruct them from the complete committed coefficients and metadata, then verify the required model checksums.
+
+If an exact reconstruction is impossible, investigate and report the problem. Do not silently substitute a refitted or numerically different model.
+
+No learned coefficients may change during this experiment.
+
+## 2. Complete the Mac-specific prerequisites
+
+The native M4 benchmark has already qualified the ARM64 Edax implementation and verified numerical equivalence to our PC references.
+
+Reuse this verified infrastructure where practical.
+
+Before beginning the independent experiment:
+
+- Validate all three evaluators.
+- Verify full-window and ordinary production search behavior.
+- Verify pass handling, terminal values, board/color symmetries and phase boundaries.
+- Check the trained pattern tables and zero-residual controls.
+- Verify the qualified Edax teacher and independent exact-endgame solver.
+- Qualify serialization, restart and game replay using disclosed engineering positions.
+
+Astra identified a possible obstacle: some historical research artifacts are still local to the Windows PC.
+
+Determine exactly what information is needed to establish source independence.
+
+Prefer a compact, verified historical provenance/exclusion index rather than transferring multi-gigabyte raw datasets.
+
+If the required data are unavailable on the Mac, complete all possible engineering preparation and identify precisely what must be transferred from the PC.
+
+Do not invent missing provenance or make an unsupported independence claim.
+
+## 3. Freeze the complete scientific protocol
+
+Implement the experimental design in Astra's report.
+
+The intended sample is:
+
+- 128 independently reserved assessment source trajectories, balanced across the original 16 source cells.
+- 32 additional independently solved ten-empty endgame sources.
+- 96 independent game-opening families.
+- Fixed game budgets of 80 ms and 300 ms per move.
+- Both colors for each model comparison.
+
+The game comparisons are:
+
+| Comparison | Opening pairs | Games |
+|---|---:|---:|
+| L versus B, 80 ms | 64 | 128 |
+| P versus B, 80 ms | 64 | 128 |
+| L versus B, 300 ms | 32 | 64 |
+| P versus B, 300 ms | 32 | 64 |
+| **Total** | **192 comparison pairs** | **384** |
+
+Use the same 64 opening families for L/B and P/B at 80 ms, and the same 32 families at 300 ms.
+
+These are indirect comparisons of L and P against B, not direct P-versus-L matches.
+
+Reserve all identities and freeze the sample, models, ordering, analysis and stopping rules before any new scored outcomes.
+
+Do not reuse old unused game reservations as supposedly fresh openings.
+
+## 4. Measure actual playing strength
+
+This is the highest-priority scientific measurement.
+
+Run the complete predetermined game schedule regardless of positional preference-loss results.
+
+Only genuine correctness, provenance, resource or execution-integrity failures may stop the experiment.
+
+Use ordinary production iterative deepening, terminal scoring, move ordering, pass rules, transposition-table semantics and deadlines.
+
+Do not instrument individual leaf evaluations with expensive clocks during scored games.
+
+Record:
+
+- Every move and final board.
+- Wins, draws, losses and disc margins.
+- Opening-pair scores with colors reversed.
+- Total move time and deadline overruns.
+- Search nodes, evaluation counts and completed depths.
+- Evaluator cost measured separately.
+- Any crashes, incomplete iterations or protocol violations.
+
+Independently replay completed games and verify their legality and outcomes.
+
+The goal is playing strength at equal elapsed time, not equal node counts or fixed search depth.
+
+## 5. Perform the independent search-transfer diagnostics
+
+Follow Astra's proposed diagnostics:
+
+1. Independently label the 128 assessment roots using qualified Edax D10/D12.
+2. Evaluate B, L and P at fixed depths 4, 5 and 6.
+3. Compare their root choices at 80 and 300 ms.
+4. Solve the 32 reserved ten-empty endgame roots independently.
+5. On the fixed 32-source diagnostic subset, examine B-, L- and P-selected frontiers.
+6. Trace changed root decisions through verified active leaves and opponent alternatives.
+
+Distinguish:
+
+- Immediate sibling preference accuracy.
+- Root-choice regret.
+- Exact W/D/L correctness.
+- Exact disc-margin regret.
+- Numerical calibration.
+- Search-depth and evaluation-cost effects.
+
+Do not allow a few extreme terminal-containing preferences to dominate an unbounded aggregate loss without an explicit separate accounting.
+
+Preserve their underlying positions and valid exact preferences. Do not alter teacher truth or omit difficult decisions from root and playing-strength assessments.
+
+These diagnostics explain the games; they do not determine whether the games are permitted.
+
+## 6. Statistical analysis
+
+Use complete color-swapped opening pairs as the primary observational units.
+
+Apply the paired-opening and source-cluster analysis specified in Astra's review.
+
+At 80 ms, treat L-versus-B and P-versus-B as the two primary exploratory comparisons, with the predefined multiplicity correction.
+
+Report:
+
+- Mean game-point scores.
+- Source/opening-paired confidence intervals.
+- Bootstrap sensitivity checks.
+- The conservative bounded-score inference described by Astra.
+- Fixed-depth root-regret uncertainty.
+- Search-depth and time-control dependence.
+
+Do not treat individual moves, closely related positions or color-swapped games as independent observations.
+
+Report inconclusive results honestly.
+
+Do not add openings after observing results, change the selected candidate or reinterpret a descriptive interval as confirmatory evidence.
+
+Preserve Astra's proposed nomination criteria for deciding whether a later, separately powered confirmation experiment is justified.
+
+B remains production regardless of the outcome.
+
+## 7. Scientific independence
+
+Use the prospective independence policy proposed by Astra.
+
+Distinguish historical direct training-target reuse from incidental internal teacher-PV overlaps and terminal-board convergence.
+
+Preserve source/family clustering, symmetry-aware identities, role metadata and complete provenance.
+
+Do not retrospectively rehabilitate the previous failed experiment.
+
+Record every new overlap, including its location and scientific significance.
+
+A prohibited direct-state leak must block the affected independence claim. Do not replace observed unfavorable sources or game openings.
+
+If essential historical provenance cannot be verified, stop before claiming an independent scientific result and preserve the engineering work.
+
+## 8. Resource and time limits
+
+Use the M4 iMac.
+
+I authorize **up to four active hours of local scientific computation after successful engineering qualification** for this experiment. This extends the execution allowance of Astra's proposed two-hour screen, not its sample sizes or statistical rules.
+
+Four hours is a safety ceiling, not a target.
+
+Before launching scored work, qualify the complete runtime forecast using real M4 measurements.
+
+Retain:
+
+- At least 35% runtime contingency.
+- A separate 15-minute reporting reserve.
+- Conservative estimates for search tails and game overhead.
+- Adequate physical memory and low swap activity.
+
+Use up to six workers for independent labeling/search tasks when memory permits.
+
+Run timed games without competing fitting or labeling workloads. Do not parallelize scored games in a way that compromises equal-time comparability.
+
+Maintain accurate logging of configured workers, safe cap, actual workers, active native searches and real task throughput.
+
+Use atomic checkpoints and immutable receipts, so expensive completed work survives interruption.
+
+Do not shorten the sample or change the scientific gates when time becomes tight. Stop cleanly and report the limitation.
+
+I prefer autonomous diagnosis and correction of ordinary engineering problems, without unnecessary interruptions.
+
+## 9. Final report
+
+Produce:
+
+`docs/FROZEN_PLAYER_SCREEN_RESULTS.md`
+
+Include complete numerical evidence, machine-readable summaries and clear graphical comparisons where useful.
+
+I particularly want the answers to these questions:
+
+1. Does L actually win more games against B?
+2. Does P actually win more games against B?
+3. Does the answer change between 80 and 300 ms?
+4. Does P's extra positional knowledge compensate for its evaluation overhead?
+5. Where do frontier preference improvements fail to transfer through minimax?
+6. How well do independently estimated root regrets predict actual game outcomes?
+7. Are there systematic differences between opening, middle and late-game behavior?
+8. Do the results justify a larger confirmation tournament, a different training objective, or a search-engine improvement?
+
+Include all failures, uncertainty, resource measurements and independence limitations.
+
+Run the relevant regression and correctness tests.
+
+Commit and push the protocol, implementation, numerical evidence, figures and report.
+
+Do not commit private raw research data or large historical checkpoints.
+
+Do not start another training campaign or automatically promote any evaluator.
+
+## 10. Final recommendation
+
+After reviewing all completed results, recommend one scientific next step.
+
+If one frozen candidate appears stronger, explain what evidence would be needed for convincing independent confirmation.
+
+If both are weaker, explain whether the evidence favors an evaluation-objective problem, a representation problem or a search-cost problem.
+
+If the games are inconclusive, say so. Do not turn uncertainty into a story of success or failure.
+
+**Our objective is a stronger Reversi player at equal elapsed time. The purpose of this experiment is to measure that directly before paying for another round of machine learning.**
