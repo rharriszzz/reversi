@@ -135,3 +135,26 @@ test('native fixed engineering schedule and paired inference preserve both color
  const result=analyze(games);assert.equal(result.matched.mean,0);assert.equal(result.conditions[80].n,256);assert.equal(result.conditions[300].n,128);assert.ok(result.conditions[80].bootstrap.score.distinct>1);
  assert.throws(()=>analyze(games.slice(1)),/Complete/);
 });
+
+// Keep native compilation in one test process even on a fresh checkout.
+await import('./native-model-cells.mjs');
+
+
+test('persistent-client deadline ignores a stale performance.timeOrigin after realtime clock adjustment',async()=>{
+ const engine=new NativeEngine();const own=Object.getOwnPropertyDescriptor(performance,'timeOrigin');
+ try {
+  await engine.ready();const origin=performance.timeOrigin;
+  Object.defineProperty(performance,'timeOrigin',{value:origin-1000,configurable:true});
+  const p=positions[4];const r=await engine.search(p.board,p.player,{timeMs:30});
+  assert.ok(r.depth>0);assert.equal(r.timedOut,true);
+  assert.ok(r.elapsedMs>=25&&r.elapsedMs<60,`Unexpected corrected duration ${r.elapsedMs}`);
+ }finally{if(own)Object.defineProperty(performance,'timeOrigin',own);else delete performance.timeOrigin;engine.close();}
+});
+
+
+test('positive Student survival quadrature retains tiny probabilities and analytic references',async()=>{
+ const {studentTail}=await import('../scripts/native/statistics.mjs');
+ near(studentTail(1,2),.5*(1-1/Math.sqrt(3)),1e-12);near(studentTail(1,1),.25,1e-14);near(studentTail(0,127),.5);
+ const a=studentTail(15,255,16384),b=studentTail(15,255,32768);
+ assert.ok(a>0&&b>0&&b<1e-30);assert.ok(Math.abs(a-b)/b<1e-8);near(studentTail(-1,2),1-studentTail(1,2),1e-12);
+});

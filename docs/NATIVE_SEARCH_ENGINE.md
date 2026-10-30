@@ -1,8 +1,10 @@
 # Native Reversi search engine
 
 The original C++17 backend is implemented, numerically qualified and connected
-to actual research playing. The prescribed 768-game equal-time screen is running
-with frozen inputs; playing results remain unopened until completion and audit.
+to actual research playing. The initial 768 games completed and audited, revealing a transport-clock defect
+that made native underuse its intended budget. A clock-corrected repeat of exactly
+the same 768-game schedule is separately frozen; initial outcomes are archived
+and are not pooled with the corrected primary engineering sample.
 The original JavaScript engine and dependency-free Python/browser application
 remain available. **The browser is not accelerated in this release.**
 
@@ -277,8 +279,11 @@ move, ten minutes for audit/analysis, 35% contingency and a separate 20-minute
 reporting reserve. No sample reduction was needed. Pilot complete-game costs
 were 2.50–2.88 s at 80 ms and 9.16–10.47 s at 300 ms.
 
-The registration and all 256 families/768 games were committed and pushed
-before scored play. The 300 ms subset is families 0–127 of the 80 ms set.
+The initial registration and all 256 families/768 games were committed and pushed
+before scored play. The clock defect and cumulative-budget correction are
+registered in the protocol amendment; the C++ executable is byte-identical.
+The corrected full forecast is 234.15 minutes including the initial run and all
+previous measurements, with the original reserves and allowance unchanged. The 300 ms subset is families 0–127 of the 80 ms set.
 Models, executable, sources, game order and analysis were frozen. A [warmup-description discrepancy](data/native-search-exceptions-20261030.json)
 was recorded before opening outcomes: the registration string mentions B/P
 initial warmup, but frozen code warms P only, symmetrically on both backends.

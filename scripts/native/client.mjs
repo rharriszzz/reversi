@@ -41,7 +41,10 @@ export class NativeEngine {
   inspect(board,player,model='P',options) {return this.request(`inspect ${boardArgs(board,player,model)}`,options);}
   async search(board,player,{model='P',depth=14,timeMs,tt=true,hints=true,nodeLimit=0,signal}={}) {
     if(!Number.isInteger(depth)||depth<1||depth>14||timeMs!==undefined&&(!Number.isFinite(timeMs)||timeMs<=0)||!Number.isSafeInteger(nodeLimit)||nodeLimit<0)throw Error('Invalid search options');
-    const deadlineUnixMs=timeMs===undefined?0:performance.timeOrigin+performance.now()+timeMs;
+    // Fresh wall time must match the receiver system clock. timeOrigin+now
+    // is anchored at process startup and can drift from NTP-adjusted realtime.
+    // Date.now floors to a millisecond, conservatively costing at most 1 ms.
+    const deadlineUnixMs=timeMs===undefined?0:Date.now()+timeMs;
     const row=await this.request(`search ${boardArgs(board,player,model)} ${depth} ${timeMs??0} ${+tt} ${+hints} ${nodeLimit} ${deadlineUnixMs}`,{signal,timeoutMs:timeMs===undefined?120000:Math.max(30000,timeMs+10000)});
     if(row.modelIdentity!==this.receipt.models[model])throw Error('Wrong native model');
     return {...row,player,budgetMs:timeMs??null,backend:'native',buildIdentity:this.receipt.fingerprint};

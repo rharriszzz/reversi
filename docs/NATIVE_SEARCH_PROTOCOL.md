@@ -15,3 +15,40 @@ Before launching scored games, estimate the full fixed schedule from the greater
 Analyze complete color-swapped families as units. Report W/D/L, mean game points, paired Student 95% intervals, paired percentile bootstrap sensitivity (10,000 draws, seed 2026103013 plus budget), bounded-score lower bounds, and disc margins. The two primary control comparisons use one-sided alpha .025 each; results remain engineering evidence. For the matched 128 families, analyze the paired difference in 300-minus-80 scores and jointly resample the controls. No optional stopping, interim outcome-based optimization, sample deletion or model tuning. Move-level and phase telemetry is descriptive, not extra independent strength observations.
 
 Publish full compact move paths and outcomes, registration/receipt digests, numerical qualification, fixed/timed benchmarks, compact profiles, resource/budget summaries, and the technical report. Independently replay every public game and recompute pair means, variance and Student intervals in Python. Retain large raw telemetry, frozen binaries and historical indices under ignored local storage.
+
+## Clock-corrected repeat, registered after the complete initial screen
+
+The initial 768 games completed and independently audited, but native interrupted
+80 ms searches gradually used about 79 down to 68 ms: the startup-anchored
+`performance.timeOrigin + performance.now()` timestamp drifted from the receiver's
+fresh realtime clock. The initial screen scored 74.71% / 70.90% for native P, but
+it is archived as timing-defective engineering evidence, not accepted as the
+qualified equal-budget result. Every original game and statistic remains intact.
+
+R2 changes only the Node request clock to fresh `Date.now()` per request. Its
+millisecond timestamp quantization conservatively costs at most 1 ms; input
+transport is still charged, and actual move times/overruns are still reported.
+The entire C++ executable, rules and every B/L/P coefficient remain byte-identical.
+A regression shifts the startup clock anchor by one second and requires the
+search to retain its proper elapsed budget. Fresh pilot searches must also stay
+within 1.5 ms below their requested internal budget when interrupted in opening.
+
+R2 repeats exactly the same original 256 families, 128-family subset and complete
+768-game order. No opening, search algorithm, coefficient or parameter is chosen
+from the first outcomes. Results are not pooled or called new independent
+families. The corrected repeat is the primary engineering sample. The sole
+purpose of repeating is to meet the requested elapsed-budget condition.
+
+The same Student test is evaluated through positive survival-density quadrature,
+using u=1/x and 32,768 Simpson intervals, avoiding cancellation in `1-CDF` for tiny
+p-values. An analytic df=2 test, multiple quadrature grids and independent Python
+normalization/integration verify this numerical evaluation. Confidence intervals,
+paired units, bootstrap seeds, hypotheses, sample sizes and bounded inference
+are unchanged. The old raw negative tiny p-value remains archived explicitly.
+The warmup string is clarified to P on both backends, matching actual frozen code.
+
+The full cumulative forecast, including the original 768 games and all previous
+measurement time, is **234.15 minutes** against the same four-hour allowance,
+with 35% contingency, ten-minute audit allowance and separate 20-minute reporting
+reserve intact. No new computation allowance is assumed. R2 has its own ignored
+directory, source snapshot, immutable executable, registration and receipts.

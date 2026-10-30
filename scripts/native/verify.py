@@ -57,6 +57,20 @@ def critical(df):
             high = mid
     return (low+high)/2
 
+def tail(t, df, n=65536):
+    if t == 0:
+        return .5
+    if t < 0:
+        return 1-tail(-t, df, n)
+    if df == 1:
+        return math.atan(1/t)/math.pi
+    logc = math.lgamma((df+1)/2)-math.lgamma(df/2)-.5*math.log(df*math.pi)
+    end = 1/t
+    h = end/n
+    def f(u):
+        return 0 if u == 0 else math.exp(logc-(df+1)/2*math.log1p(1/(u*u*df))-2*math.log(u))
+    return h/3*(f(end)+sum((4 if j%2 else 2)*f(j*h) for j in range(1,n)))
+
 def verify(public, summary):
     assert public['registration'] == summary['registration']
     games = public['games']
@@ -99,6 +113,9 @@ def verify(public, summary):
         expected = summary['statistics']['conditions'][str(budget)]
         assert abs(expected['mean'] - mean) < 1e-12
         assert abs(expected['standardError'] - se) < 1e-12
+        if se and expected.get('pValueMethod') == 'positive survival density integral':
+            value = tail((mean-.5)/se, count-1)
+            assert math.isclose(expected['approximateOneSidedP'], value, rel_tol=1e-7, abs_tol=1e-300)
         for a, b in zip(expected['approximate95'], (max(0, mean-radius), min(1, mean+radius))):
             assert abs(a-b) < 1e-8
         panel = [g for g in games if g['timeMs'] == budget]
@@ -108,7 +125,8 @@ def verify(public, summary):
     differences = [b-a for a, b in zip(scores[80][:128], scores[300])]
     assert abs(summary['statistics']['matched']['mean'] - statistics.mean(differences)) < 1e-12
     return {'passed': True, 'games': 768, 'pairs80': 256, 'pairs300': 128,
-            'independentRules': True, 'independentStudentIntegration': True}
+            'independentRules': True, 'independentStudentIntegration': True,
+            'positiveTailVerified': all(x.get('pValueMethod') == 'positive survival density integral' for x in summary['statistics']['conditions'].values())}
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
