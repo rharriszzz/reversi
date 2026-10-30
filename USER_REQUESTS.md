@@ -3718,3 +3718,13 @@ I have selected Full Access through `/permissions`, and I have already authorize
 Please proceed autonomously without requesting additional conversational approval for ordinary commands covered by my instructions.
 
 If the Codex execution system continues presenting mandatory approval dialogs, determine whether the effective approval policy differs from Full Access and explain the cause. Do not restart or discard completed experimental work.
+
+---
+
+We need to fix the active execution permissions before I leave the computer.
+
+Please reach a safe checkpoint, preserving all completed reservations, source identities, receipts, and elapsed scientific budget. Do not begin another long stage.
+
+Report whether any preparation or scientific subprocess will remain running after I exit the Codex interface. Do not terminate detached jobs unnecessarily.
+
+I will then resume this same Codex conversation with explicit unrestricted execution and no approval prompts. Do not restart the experiment or regenerate completed work.
