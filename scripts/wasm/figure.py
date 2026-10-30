@@ -32,6 +32,9 @@ for i,c in enumerate(categories):
  val=[s[i] for s in shares];ax.bar(['Opening','Middle','Exact endgame'],val,bottom=bottom,label=c);bottom+=val
 ax.set_ylabel('self samples (%)');ax.set_title('Actual Wasm worker CPU profiles');ax.legend(fontsize=7,loc='upper center',bbox_to_anchor=(.5,-.14),ncol=2,frameon=False)
 fig.suptitle('M4 iMac • Chromium 156 • unchanged frozen B/P • engineering measurements',fontsize=13)
-fig.savefig(ROOT/'docs/wasm-engine-results-20261030.svg')
+svg=ROOT/'docs/wasm-engine-results-20261030.svg'
+fig.savefig(svg)
+# Matplotlib path lines carry insignificant trailing spaces; keep Git checks clean.
+svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines()).rstrip()+'\n')
 
 fig.savefig(ROOT/'.local-research/wasm-20261030/figure.png',dpi=150)
