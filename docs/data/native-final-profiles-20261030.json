@@ -1,0 +1,104 @@
+[
+  {
+    "tag": "baseline",
+    "phase": "opening",
+    "index": 2,
+    "depth": 8,
+    "searches": 527,
+    "nodes": 72082006,
+    "elapsedMs": 3463.743424999999,
+    "sampleExit": 0,
+    "selfSamples": {
+      "reversi::Engine::negamax(reversi::Board, int, int, double, double)": 1002,
+      "reversi::flips(unsigned long long, unsigned long long, int)": 673,
+      "reversi::legal(unsigned long long, unsigned long long)": 400,
+      "reversi::features(reversi::Board, int, unsigned long long)": 231,
+      "reversi::patternSum<0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>(reversi::Board, int, std::integer_sequence<unsigned long, 0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>)": 205,
+      "reversi::evaluate(reversi::Board, int, int, unsigned long long)": 47
+    }
+  },
+  {
+    "tag": "baseline",
+    "phase": "middle",
+    "index": 7,
+    "depth": 7,
+    "searches": 1926,
+    "nodes": 77723730,
+    "elapsedMs": 3430.2826310000087,
+    "sampleExit": 0,
+    "selfSamples": {
+      "reversi::Engine::negamax(reversi::Board, int, int, double, double)": 818,
+      "reversi::flips(unsigned long long, unsigned long long, int)": 647,
+      "reversi::legal(unsigned long long, unsigned long long)": 496,
+      "reversi::patternSum<0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>(reversi::Board, int, std::integer_sequence<unsigned long, 0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>)": 263,
+      "reversi::features(reversi::Board, int, unsigned long long)": 240,
+      "reversi::evaluate(reversi::Board, int, int, unsigned long long)": 73
+    }
+  },
+  {
+    "tag": "baseline",
+    "phase": "endgame",
+    "index": 10,
+    "depth": 12,
+    "searches": 614,
+    "nodes": 85946492,
+    "elapsedMs": 3472.006126000005,
+    "sampleExit": 0,
+    "selfSamples": {
+      "reversi::Engine::negamax(reversi::Board, int, int, double, double)": 1221,
+      "reversi::flips(unsigned long long, unsigned long long, int)": 946,
+      "reversi::legal(unsigned long long, unsigned long long)": 378
+    }
+  },
+  {
+    "tag": "both",
+    "phase": "opening",
+    "index": 2,
+    "depth": 8,
+    "searches": 479,
+    "nodes": 65425173,
+    "elapsedMs": 3472.620224999999,
+    "sampleExit": 0,
+    "selfSamples": {
+      "reversi::Engine::negamax(reversi::Board, int, int, double, double)": 1088,
+      "reversi::flips(unsigned long long, unsigned long long, int)": 660,
+      "reversi::legal(unsigned long long, unsigned long long)": 385,
+      "reversi::featuresKnown(reversi::Board, int, unsigned long long, unsigned long long)": 191,
+      "reversi::patternSum<0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>(reversi::Board, int, std::integer_sequence<unsigned long, 0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>)": 176,
+      "reversi::evaluate(reversi::Board, int, int, unsigned long long)": 55
+    }
+  },
+  {
+    "tag": "both",
+    "phase": "middle",
+    "index": 7,
+    "depth": 7,
+    "searches": 1217,
+    "nodes": 49108384,
+    "elapsedMs": 3249.2492060000036,
+    "sampleExit": 0,
+    "selfSamples": {
+      "reversi::Engine::negamax(reversi::Board, int, int, double, double)": 829,
+      "reversi::flips(unsigned long long, unsigned long long, int)": 574,
+      "reversi::legal(unsigned long long, unsigned long long)": 391,
+      "reversi::patternSum<0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>(reversi::Board, int, std::integer_sequence<unsigned long, 0ul, 1ul, 2ul, 3ul, 4ul, 5ul, 6ul, 7ul, 8ul, 9ul, 10ul, 11ul, 12ul, 13ul, 14ul, 15ul>)": 250,
+      "reversi::featuresKnown(reversi::Board, int, unsigned long long, unsigned long long)": 238,
+      "reversi::evaluate(reversi::Board, int, int, unsigned long long)": 61
+    }
+  },
+  {
+    "tag": "both",
+    "phase": "endgame",
+    "index": 10,
+    "depth": 12,
+    "searches": 469,
+    "nodes": 65288551,
+    "elapsedMs": 3452.950719999999,
+    "sampleExit": 0,
+    "selfSamples": {
+      "reversi::Engine::negamax(reversi::Board, int, int, double, double)": 1386,
+      "reversi::flips(unsigned long long, unsigned long long, int)": 778,
+      "reversi::legal(unsigned long long, unsigned long long)": 363
+    }
+  }
+]

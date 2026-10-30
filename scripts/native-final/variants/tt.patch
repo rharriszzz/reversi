@@ -1,0 +1,36 @@
+--- a/native/engine.cpp
++++ b/native/engine.cpp
+@@ -176,7 +176,15 @@
+   // Static leaves never store entries. Do not hash/probe them; legal moves,
+   // terminal detection and forced passes below still precede evaluation.
+   if(useTT&&depth>0) {
+-    SPAN(TT);stats.probes++;slot=index(b,p);const auto& e=table[slot];
++    SPAN(TT);stats.probes++;slot=index(b,p);if(table.size()>1) {
++      slot&=~size_t(1);
++      if(same(table[slot+1],b,p))slot++;
++      else if(!same(table[slot],b,p)&&table[slot].player) {
++        const auto& a=table[slot];const auto& z=table[slot+1];
++        if(!z.player||(z.generation!=generation&&a.generation==generation)||
++          ((z.generation==generation)==(a.generation==generation)&&z.depth<a.depth))slot++;
++      }
++    }const auto& e=table[slot];
+     if(e.player&&same(e,b,p)) {
+       stats.hits++;if(orderingHints)favored=e.move;
+       // Same-depth only, even when the old score was endgame-solved. This
+@@ -203,7 +211,15 @@
+     if(alpha>=beta){stats.cutoffs++;if(i==0)stats.firstMoveCutoffs++;break;}
+   }
+   if(useTT) {
+-    SPAN(TT);auto& e=table[slot];
++    SPAN(TT);if(table.size()>1) {
++      slot=index(b,p)&~size_t(1);
++      if(same(table[slot+1],b,p))slot++;
++      else if(!same(table[slot],b,p)) {
++        const auto& a=table[slot];const auto& z=table[slot+1];
++        if(!z.player||(z.generation!=generation&&a.generation==generation)||
++          ((z.generation==generation)==(a.generation==generation)&&z.depth<a.depth))slot++;
++      }
++    }auto& e=table[slot];
+     // Prefer current-generation deep entries, but always replace the same
+     // identity/depth so a re-search can strengthen a bound to exact.
+     if(e.generation!=generation||same(e,b,p)||e.depth<=depth) {

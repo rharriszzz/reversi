@@ -4592,3 +4592,493 @@ If the results are inconclusive, report that without extending the tournament au
 ---
 
 One more request: Can uou please add commit push the results after the profiling benchmarking fixing stage?
+
+---
+
+# Reversi — Final Native Optimizations, WebAssembly Integration, and Browser Qualification
+
+Work in `~/git/reversi` on my M4 iMac.
+
+Use GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md` and `USER_REQUESTS.md` first, along with the relevant source code and recent research reports, especially:
+
+- `docs/NATIVE_SEARCH_ENGINE.md`
+- `docs/NATIVE_SEARCH_V2_RESULTS.md`
+- `docs/NATIVE_SEARCH_V2_PROTOCOL.md`
+- `native/engine.cpp` and `native/engine.hpp`
+- `scripts/native/`
+- `src/search.js`
+- `src/worker.js`
+- `src/app.js`
+- `src/coaching.js`
+- `src/review.js`
+- The existing browser tests and launcher.
+
+Start from the latest committed, pushed state, including the completed native P-versus-B results in commit `2492932`.
+
+Inspect Git status before changing anything. Preserve unrelated user changes and all historical scientific results.
+
+## Overall objective
+
+I want four successive stages:
+
+0. Implement and benchmark two additional native C++ performance optimizations.
+1. Compile the shared C++ search engine into WebAssembly and qualify it.
+2. Integrate WebAssembly into the existing browser application for playing, coaching and appropriate review operations.
+3. Profile, benchmark and validate the complete browser implementation.
+
+**Commit and push after each of these four stages.**
+
+I want a usable, fast Reversi application that runs the C++ search engine locally inside an ordinary browser.
+
+Keep one principal C++ implementation for both the native executable and WebAssembly. Avoid maintaining two divergent search engines.
+
+Proceed autonomously through all four stages, resolving ordinary implementation and testing problems.
+
+Do not initiate another large playing-strength research campaign or retrain any evaluator.
+
+The previous scientific result showed that native P beats native B at both tested time controls. Preserve that result and the associated provenance qualifications.
+
+# Stage 0 — Two additional native C++ optimizations
+
+Complete this stage before beginning the WebAssembly port.
+
+## Optimization A: Transposition-table layout and replacement
+
+The V2 profile identifies search, transposition-table operations and ordering as a significant remaining cost.
+
+Investigate a modest improvement to TT locality and replacement behavior.
+
+Evaluate a compact two-way bucket or similar cache-friendly design against the current direct-mapped table.
+
+The objective is better overall search performance, not simply a higher TT hit rate.
+
+Requirements:
+
+- Preserve full board and side-to-move identity checks.
+- Preserve current-generation and equal-horizon bound-reuse semantics.
+- Preserve exact-solution correctness.
+- Preserve safe replacement and generation rollover.
+- Avoid unbounded memory growth.
+- Compare at equivalent TT memory budgets.
+- Measure collisions, hits, replacements, useful cutoffs, elapsed time, nodes per second and nodes needed to complete fixed-depth searches.
+
+Different valid move ordering and different node counts are acceptable. Incorrect minimax scores are not.
+
+Benchmark on opening, middle and endgame positions.
+
+If the new layout improves practical performance and passes correctness tests, retain it. Otherwise revert it and document the experiment.
+
+Do not add principal variation search or other major new search algorithms during this stage.
+
+## Optimization B: Reuse mobility calculations
+
+Inspect the seven-feature evaluator and the C++ search code for redundant legal-move calculations.
+
+Reuse already-available mobility information where this avoids repeating useful work.
+
+Avoid changing feature normalization, summation order, model coefficients or evaluation semantics.
+
+Benchmark the change separately as well as in combination with the TT optimization.
+
+Retain it only if it is correct and provides a useful performance benefit.
+
+## Qualification and profiling
+
+Use existing native regression suites, numerical equivalence tests, sanitizers and independent legal-move checks.
+
+Run before/after profiling with representative positions.
+
+Distinguish reduced execution time from reduced node counts.
+
+Document unsuccessful experiments as well as retained improvements.
+
+Do not tune the frozen P, L or B evaluators.
+
+Produce a brief engineering checkpoint report containing:
+
+- Exact changes.
+- Correctness evidence.
+- Benchmark methodology.
+- Before/after performance.
+- Any observed regressions.
+- Source and executable identities.
+
+### Checkpoint 1 — Commit and push
+
+Commit and push the native optimizations, tests, benchmarks and report.
+
+Record the exact commit SHA.
+
+Do not proceed to WebAssembly until the qualified native implementation is committed and pushed.
+
+# Milestone 1 — Compile and verify the WebAssembly engine
+
+## Build strategy
+
+Install or configure a reproducible, version-pinned Emscripten toolchain on the Mac.
+
+Prefer a user-scoped installation. Avoid unnecessary system-wide changes.
+
+Add an explicit reproducible Wasm build command and document compiler flags, version and generated artifacts.
+
+Compile the existing portable C++17 search implementation into WebAssembly.
+
+Use the same frozen model data generation as the native build.
+
+Preserve numerical semantics, including the existing floating-point restrictions. Do not enable unsafe fast-math optimizations.
+
+The initial build should be single-threaded. Do not introduce WebAssembly threads, shared memory or additional worker pools merely for theoretical speed.
+
+Keep process-specific native stdin/stdout code out of the browser module. Use a small, explicit C-compatible interface with a JavaScript adapter.
+
+The interface should support:
+
+- Initialization and model-identity verification.
+- Board and player input using bitboards or an equivalently compact representation.
+- Legal-move and evaluation queries.
+- Fixed-depth search.
+- Time-controlled iterative-deepening search without an arbitrary depth ceiling.
+- Search diagnostics and statistics.
+- Scoring every legal root move at a common fixed depth.
+- Verified continuations or principal variations.
+- Exact-versus-heuristic result classification.
+- Structured errors and clean lifetime management.
+
+Do not make a JavaScript call for every search node or evaluation.
+
+Keep transposition-table memory bounded and account for Wasm linear memory.
+
+## Critical coaching requirement
+
+The existing JavaScript coach scores every legal move and displays comparisons and verified continuations.
+
+Preserve this behavior.
+
+The WebAssembly implementation must obtain mathematically comparable root-move scores using full-window searches or another equivalently correct method.
+
+Do not display alpha-beta bounds as though they were exact root-move scores.
+
+Verify principal variations against the board rules and the declared search depth.
+
+Preserve forced-pass semantics and distinguish true terminal solutions from heuristic estimates.
+
+If a continuation cannot be verified, report that honestly rather than fabricating it.
+
+## Numerical and functional qualification
+
+Compare the Wasm engine with the native C++ engine and independent JavaScript reference across:
+
+- Opening, middle and endgame boards.
+- Every legal alternative on representative positions.
+- Exact B, L and P evaluator identities.
+- Static evaluation and feature values.
+- Fixed-depth minimax scores and optimal choices.
+- Forced passes and terminal states.
+- Long flips and edge/corner situations.
+- Depths greater than 14.
+- Interrupted iterative deepening.
+- Transposition-table collision and bound behavior.
+- Exact-solution reporting.
+- Repeated requests, model changes and memory lifecycle.
+
+Use tight explicit numerical tolerances and report any expected cross-runtime floating-point differences.
+
+Use actual Wasm execution for qualification, not merely the native code compiled with a different flag.
+
+A numerical or semantic mismatch is a blocker, not something to conceal with a loose tolerance.
+
+### Checkpoint 2 — Commit and push
+
+Once the Wasm module and its qualification harness pass, commit and push:
+
+- The WebAssembly build system.
+- C++ browser-facing interface.
+- Generated distribution artifacts needed by the application.
+- Numerical and functional tests.
+- Build instructions.
+- Qualification report and exact binary/source identities.
+
+Use a separate commit from the native optimization checkpoint.
+
+At this stage the module must work, even if it is not yet connected to the full user interface.
+
+# Milestone 2 — Integrate WebAssembly into the browser
+
+Preserve the existing application structure as much as practical.
+
+The JavaScript interface should continue to manage:
+
+- The board and user interactions.
+- Game and replay state.
+- Coaching explanations and presentation.
+- Model selection and saved preferences.
+- Training controls.
+- Worker coordination and cancellation.
+
+The WebAssembly module should perform complete computational searches internally.
+
+## Worker architecture
+
+Integrate the Wasm engine into the existing module-worker architecture.
+
+Playing and analysis should use appropriately isolated engine instances and transposition tables.
+
+Initialize modules asynchronously and handle requests arriving during initialization correctly.
+
+Preserve request IDs and prevent stale replies from overwriting newer state.
+
+Support cancellation of long searches, including terminating and recreating workers when needed.
+
+Do not block the main browser UI thread during search or initialization.
+
+Account for initialization overhead and memory usage.
+
+## Evaluator selection and compatibility
+
+The frozen native models are:
+
+- B: original handcrafted evaluator.
+- L: frozen learned linear evaluator.
+- P: frozen learned linear-plus-pattern evaluator.
+
+Make B and P explicitly selectable in the browser. L can also be exposed if it fits naturally.
+
+**Do not silently promote P or overwrite the existing default or saved browser model.**
+
+The browser currently supports user-modified and trained seven-feature weights. Keep that capability working.
+
+For the initial release, it is acceptable for custom-weight evaluation and training to remain on the original JavaScript backend, provided the application clearly identifies which evaluator and backend are being used.
+
+Never display a result as P if it was actually computed using B or a custom JavaScript evaluator.
+
+If Wasm initialization fails, provide a visible, safe fallback to supported JavaScript behavior. If a requested evaluator is unavailable through the fallback, explain that rather than silently substituting a different evaluator.
+
+Do not corrupt saved model versions, exported models, replay histories or trained weights.
+
+## Playing
+
+Offer an appropriate elapsed-time control for the Wasm computer opponent, including the familiar 80 ms and 300 ms settings.
+
+Use the uncapped iterative-deepening behavior from native C++.
+
+Keep fixed-depth options where appropriate for diagnostics or existing functionality.
+
+Show useful search statistics, including completed depth, nodes, elapsed time and whether the result is exact.
+
+Do not overstate what a depth-zero fallback or interrupted iteration established.
+
+## Coaching
+
+Integrate Wasm with the existing all-move coaching display.
+
+Preserve:
+
+- Scores for all legal moves at a common horizon.
+- Correct best-move selection.
+- Comparisons between selected and recommended moves.
+- Verified principal variations.
+- Move-by-move factual explanations.
+- Proper distinction between terminal and heuristic scores.
+- Replay and analysis of earlier positions.
+- Cancellation of obsolete analysis.
+
+Avoid explaining a learned P decision as though it were solely caused by one feature when the search evidence cannot establish that attribution.
+
+The active evaluator used for coaching must match what the user selected.
+
+## Review and training
+
+Keep game review functional and model-consistent.
+
+If a user selects P, review must either analyze using P or explicitly explain that a requested review operation is unsupported; it must not silently review with B while labeling the output P.
+
+Preserve the existing JavaScript training workflow for mutable custom weights.
+
+Do not port the training code to C++ merely for completeness.
+
+## Browser and distribution
+
+Keep the existing local Python launcher usable.
+
+Serve the Wasm file with the appropriate MIME type.
+
+Use local static resources so ordinary playing does not require a remote computation service.
+
+Keep dependency installation separate from ordinary application startup.
+
+A user should not need Emscripten installed merely to run the browser application.
+
+Test normal page reloads, failed module loading, cached resources and module version mismatches.
+
+### Checkpoint 3 — Commit and push
+
+Commit and push the working browser integration, UI changes, tests and documentation.
+
+At this checkpoint, a user must be able to open the application, select B or P, play against the Wasm engine, and use the coach.
+
+Verify the actual browser experience before publishing.
+
+Do not postpone essential playing or coaching functionality to the final milestone.
+
+# Milestone 3 — Profile, benchmark and validate the complete application
+
+Now investigate the performance of the actual WebAssembly implementation.
+
+## Performance benchmarks
+
+Use disclosed representative positions across opening, middle and endgame.
+
+Compare:
+
+1. The current qualified native C++ engine.
+2. The new WebAssembly engine in a real browser.
+3. The original JavaScript engine.
+
+Measure both B and P.
+
+Measure:
+
+- Static evaluation throughput.
+- Complete-search nodes per second.
+- Fixed-depth complete-search time.
+- Nodes required per completed depth.
+- Completed depths at 80 ms and 300 ms.
+- Time consumed by the JavaScript/Wasm boundary.
+- Worker and module initialization overhead.
+- Transposition-table behavior.
+- Memory use.
+- Deadline accuracy.
+- CPU and wall-clock time where reliable.
+- Responsiveness of the visible browser UI.
+
+Separate cold initialization from warmed search performance.
+
+Compare the same disclosed positions and identify differences in search trees, not just throughput.
+
+Do not assume the Wasm implementation is as fast as the native ARM64 executable.
+
+## Profile actual Wasm workloads
+
+Use available browser profiling tools and performance traces.
+
+Determine whether the primary bottlenecks are:
+
+- Search and transposition-table operations.
+- Legal-move generation and flips.
+- Linear feature evaluation.
+- Pattern lookups.
+- Wasm memory access.
+- JavaScript/Wasm communication.
+- Worker initialization and message handling.
+
+Report meaningful differences between native C++ and Wasm.
+
+Make small corrective improvements for clear integration or performance defects.
+
+Any change to shared C++ search behavior must trigger appropriate native and Wasm requalification.
+
+Avoid beginning a large new optimization project in this milestone.
+
+## Browser acceptance
+
+Run automated real-browser acceptance tests, including Chromium on the Mac.
+
+Test Safari as well if practical; document unavailable browser environments rather than claiming they passed.
+
+Exercise:
+
+- Complete games against B and P.
+- Legal moves, forced passes and terminal outcomes.
+- All-move coaching.
+- Score and continuation correctness.
+- Undo, replay and analysis of earlier positions.
+- Rapid board changes while analysis is running.
+- Worker cancellation and restart.
+- Changing evaluator selections.
+- Saved and custom weights.
+- Training and export/reload.
+- Exact endgame positions.
+- Search deadlines.
+- Wasm loading and error recovery.
+- Repeated games without memory growth or stale state.
+
+Play at least 48 automated complete games covering both frozen evaluators and multiple budgets, plus targeted stress tests.
+
+These are engineering acceptance games, not a new independent playing-strength confirmation. Do not interpret their outcomes as a statistical P-versus-B study.
+
+## Final documentation
+
+Create:
+
+`docs/WEBASSEMBLY_ENGINE_RESULTS.md`
+
+Document:
+
+1. Architecture and shared-source design.
+2. Both native optimization experiments and their measured effects.
+3. Toolchain, build flags and reproducible compilation.
+4. WebAssembly numerical qualification.
+5. Browser worker integration.
+6. Playing and coaching behavior.
+7. Model selection and custom-weight compatibility.
+8. Browser compatibility and fallback behavior.
+9. Native C++ versus Wasm versus JavaScript performance.
+10. Performance profiles and remaining bottlenecks.
+11. Memory and cancellation behavior.
+12. Test coverage and known limitations.
+13. Ranked recommendations for future optimizations.
+
+Include appropriate figures and compact, reproducible evidence.
+
+Clearly distinguish measured performance from estimated future improvements.
+
+Preserve the existing reports and scientific results.
+
+### Checkpoint 4 — Final commit and push
+
+Commit and push the completed documentation, benchmarks, browser tests and any qualified final corrections.
+
+Verify that the final remote commit contains the expected changes.
+
+Report the four checkpoint commit hashes in the final response.
+
+# Resource management and autonomy
+
+Before substantial computation, inspect CPU, RAM, available storage, process activity and swap.
+
+Use the M4 iMac responsibly. Avoid unnecessary concurrent CPU-intensive workers and sustained swapping.
+
+Use bounded measurement campaigns rather than open-ended benchmarks.
+
+Keep the native research data and previous scientific artifacts intact.
+
+The main goal is a working browser integration, not another multi-hour tournament.
+
+You may install necessary build dependencies and perform routine code, test and performance corrections without asking for step-by-step approval.
+
+Do not change unrelated machine configuration or users' saved application data.
+
+Maintain a clear record of attempted optimizations and problems encountered.
+
+If an optimization fails to improve performance, revert it and continue. If a milestone has an essential unresolved correctness blocker, do not falsely mark it complete.
+
+# Final answers I want
+
+At completion, tell me:
+
+1. Which of the two C++ optimizations were retained, and how much did they help?
+2. Is there still one common C++ search implementation for native and WebAssembly?
+3. Does the Wasm evaluator numerically match native B, L and P?
+4. Can I play against P in the browser?
+5. Can the browser coach correctly evaluate and compare all legal moves using P?
+6. How much faster is Wasm than the original JavaScript engine?
+7. How much slower, if at all, is Wasm than native C++?
+8. Which browsers were actually tested?
+9. What performance bottlenecks remain?
+10. What should we optimize next?
+
+Most importantly, **commit and push after Stage 0 and after each of the three milestones**, rather than saving everything for one final commit.
+
+The objective is to make our qualified, much stronger C++ Reversi engine available in an ordinary browser while preserving correct playing, accurate coaching and the ability to continue improving the shared engine later.

@@ -1,0 +1,78 @@
+--- a/native/engine.cpp
++++ b/native/engine.cpp
+@@ -59,7 +59,7 @@
+ Bits adjacent(Bits x) {return shift<0>(x)|shift<1>(x)|shift<2>(x)|shift<3>(x)|shift<4>(x)|shift<5>(x)|shift<6>(x)|shift<7>(x);}
+ double terminal(Board b,int p) {int margin=(pop(b.black)-pop(b.white))*p;return margin==0?0:(margin>0?10000:-10000)+margin;}
+ double norm(int a,int b,int offset=0) {return double(a-b)/std::max(1,a+b+offset);}
+-std::array<double,7> features(Board b,int p,Bits ownMoves) {
++static std::array<double,7> featuresKnown(Board b,int p,Bits ownMoves,Bits opponentMoves) {
+   SPAN(Features);
+   Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black,empty=~(own|opp),nearEmpty=adjacent(empty);
+   int ownX=0,oppX=0,ownC=0,oppC=0;
+@@ -68,10 +68,13 @@
+     ownX+=int((own>>row[1])&1);oppX+=int((opp>>row[1])&1);
+     for(int k=2;k<4;k++){ownC+=int((own>>row[k])&1);oppC+=int((opp>>row[k])&1);}
+   }
+-  return {norm(pop(ownMoves),pop(legal(opp,own)),2),norm(pop(empty&adjacent(opp)),pop(empty&adjacent(own)),2),
++  return {norm(pop(ownMoves),pop(opponentMoves),2),norm(pop(empty&adjacent(opp)),pop(empty&adjacent(own)),2),
+     double(pop(own&CORNERS)-pop(opp&CORNERS))/4,double(oppX-ownX)/4,double(oppC-ownC)/8,
+     norm(pop(opp&nearEmpty),pop(own&nearEmpty),2),norm(pop(own),pop(opp))};
+ }
++std::array<double,7> features(Board b,int p,Bits ownMoves) {
++ return featuresKnown(b,p,ownMoves,legal(p==1?b.white:b.black,p==1?b.black:b.white));
++}
+ // Small geometry-only integer tables. These encode occupancy contributions;
+ // frozen Float32 evaluation cells and their ordered double sum are untouched.
+ template<int J> constexpr auto makePatternContributions() {
+@@ -176,7 +179,15 @@
+   // Static leaves never store entries. Do not hash/probe them; legal moves,
+   // terminal detection and forced passes below still precede evaluation.
+   if(useTT&&depth>0) {
+-    SPAN(TT);stats.probes++;slot=index(b,p);const auto& e=table[slot];
++    SPAN(TT);stats.probes++;slot=index(b,p);if(table.size()>1) {
++      slot&=~size_t(1);
++      if(same(table[slot+1],b,p))slot++;
++      else if(!same(table[slot],b,p)&&table[slot].player) {
++        const auto& a=table[slot];const auto& z=table[slot+1];
++        if(!z.player||(z.generation!=generation&&a.generation==generation)||
++          ((z.generation==generation)==(a.generation==generation)&&z.depth<a.depth))slot++;
++      }
++    }const auto& e=table[slot];
+     if(e.player&&same(e,b,p)) {
+       stats.hits++;if(orderingHints)favored=e.move;
+       // Same-depth only, even when the old score was endgame-solved. This
+@@ -192,7 +203,16 @@
+   }
+   Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black,moves=legal(own,opp);
+   if(!moves) {
+-    if(!legal(opp,own))return terminal(b,p);
++    Bits otherMoves=legal(opp,own);
++    if(!otherMoves)return terminal(b,p);
++    if(depth<=0) {
++      // Account for the pass node exactly as the recursive reference does.
++      if((timed&&((stats.nodes&63)==0)&&Clock::now()>=deadline)||(stopNodes&&stats.nodes>=stopNodes))throw Timeout{};
++      stats.nodes++;stats.evaluations++;stats.horizonHits++;
++      auto f=featuresKnown(b,-p,otherMoves,0);int occupied=pop(b.black|b.white),phase=occupied<28?0:occupied<52?1:2;
++      double score=0;for(int j=0;j<7;j++)score+=frozen::weights[model][phase][j]*f[j];
++      return -(model==2?score-p*patterns(b,phase):score);
++    }
+     return -negamax(b,-p,depth,-beta,-alpha);
+   }
+   if(depth<=0){stats.evaluations++;stats.horizonHits++;return evaluate(b,p,model,moves);}
+@@ -203,7 +223,15 @@
+     if(alpha>=beta){stats.cutoffs++;if(i==0)stats.firstMoveCutoffs++;break;}
+   }
+   if(useTT) {
+-    SPAN(TT);auto& e=table[slot];
++    SPAN(TT);if(table.size()>1) {
++      slot=index(b,p)&~size_t(1);
++      if(same(table[slot+1],b,p))slot++;
++      else if(!same(table[slot],b,p)) {
++        const auto& a=table[slot];const auto& z=table[slot+1];
++        if(!z.player||(z.generation!=generation&&a.generation==generation)||
++          ((z.generation==generation)==(a.generation==generation)&&z.depth<a.depth))slot++;
++      }
++    }auto& e=table[slot];
+     // Prefer current-generation deep entries, but always replace the same
+     // identity/depth so a re-search can strengthen a bound to exact.
+     if(e.generation!=generation||same(e,b,p)||e.depth<=depth) {
