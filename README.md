@@ -239,3 +239,20 @@ Browser playing, all-move coaching and review currently retain JavaScript;
 WebAssembly acceleration is not enabled.
 
 Native search V2 measurements and the separately registered native P/B comparison: [engineering and results](docs/NATIVE_SEARCH_V2_RESULTS.md), [prospective protocol](docs/NATIVE_SEARCH_V2_PROTOCOL.md). Ordinary native timed play now searches to the natural empty-square limit; explicit fixed horizons remain available.
+
+## Local WebAssembly playing and coaching
+
+The shared C++ engine now runs locally in the browser. Start with `python3 launch.py`
+(or `./start.sh`), select **B**, **L** or **P** under **Evaluator**, and choose
+fixed depth or **80 ms / 300 ms** computer time. The coach and game review use the
+same selected model and verified full-window continuations. No installation or
+remote service is needed to play: the qualified Wasm artifacts are committed.
+
+Your existing saved/custom model remains the initial selection and retains the
+JavaScript training/export workflow. Explicit frozen-model selection is remembered
+separately. P is optional; no model has been promoted or overwritten. Backend and
+evaluator labels show what actually computed each result. See
+[browser behavior](docs/WEBASSEMBLY_INTEGRATION.md),
+[build/ABI instructions](docs/WEBASSEMBLY_BUILD.md) and
+[numerical qualification](docs/WEBASSEMBLY_QUALIFICATION.md).
+Historical browser/native paragraphs above describe their original release dates.

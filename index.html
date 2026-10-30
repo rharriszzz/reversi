@@ -42,6 +42,12 @@
         <div class="panel controls-panel">
           <div class="panel-header"><h2>Game controls</h2><span class="helper">Change levels at any time</span></div>
           <div class="control-grid">
+            <label>Evaluator
+              <select id="evaluator"><option value="custom" selected>Saved/custom weights · JavaScript</option><option value="B">B · Original frozen · WebAssembly</option><option value="L">L · Frozen linear · WebAssembly</option><option value="P">P · Frozen patterns · WebAssembly</option></select>
+            </label>
+            <label>Computer time
+              <select id="computer-time"><option value="0" selected>Fixed depth below</option><option value="80">80 ms per move</option><option value="300">300 ms per move</option></select>
+            </label>
             <label>Play as
               <select id="human-color"><option value="1">Black (first)</option><option value="-1">White (second)</option></select>
             </label>
@@ -77,6 +83,8 @@
           <div class="panel-header"><div><div class="section-kicker">THE COACH</div><h2>Every legal move, evaluated</h2></div><span class="hint-pill" id="depth-label">Depth 3</span></div>
           <p class="explain-caption" id="analysis-caption">Every move is searched to the same depth, from the side to move. Select a row to understand it; click the board to play.</p>
           <div class="table-scroll"><table class="move-table"><thead><tr><th>Rank</th><th>Move</th><th>Search score</th><th>Behind best</th></tr></thead><tbody id="move-rows"><tr><td colspan="4">Analyzing...</td></tr></tbody></table></div>
+          <p class="metrics" id="backend-status" role="status">Saved/custom weights · JavaScript</p>
+          <p class="metrics" id="play-metrics"></p>
           <p class="metrics" id="search-metrics">Evaluations are measured in heuristic points, not win probabilities.</p>
           <label>Compare selected move with <select id="compare-move" disabled aria-label="Comparison move"></select></label>
           <div class="interpretation" id="interpretation" aria-live="polite"><h3>What makes a move good?</h3><p>Consider mobility, corners, vulnerable corner-adjacent squares, and your opponent's replies—not just the number of discs gained immediately.</p></div>
@@ -87,12 +95,12 @@
           <p class="explain-caption">Mutate a few positional weights, then compare the challenger with the current model in paired games from the same openings, switching colors. Keep a challenger only if it passes the tournament threshold.</p>
           <div class="action-row trainer-actions">
             <button class="primary-btn" id="train">Train one generation</button>
-            <button class="secondary-btn" id="export-model">Export model</button>
+            <button class="secondary-btn" id="export-model">Export saved weights</button>
             <button class="quiet-btn" id="reset-model">Reset</button>
           </div>
           <div id="training-status" class="training-status" role="status" aria-live="polite">Starter weights loaded. No training performed.</div>
           <details>
-            <summary>Inspect evaluator weights</summary>
+            <summary>Inspect saved/custom weights</summary>
             <div class="weights-wrap" id="weights-table"></div>
           </details>
           <p class="caveat">A small tournament is a learning experiment, not proof of improved playing strength. Independent benchmarks are a priority for the next version.</p>

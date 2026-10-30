@@ -15,6 +15,20 @@ function loadModel() {
   return { weights: cloneWeights(DEFAULT_WEIGHTS), version: 0, attempts: 0 };
 }
 let model = loadModel();
+// Preserve the original saved model/storage format. Backend preferences are
+// separate; a first visit continues using the existing saved/custom evaluator.
+try {
+  const prefs=JSON.parse(localStorage.getItem('reversi-engine-preferences-v1'));
+  if(['custom','B','L','P'].includes(prefs?.evaluator))$('evaluator').value=prefs.evaluator;
+  if(['0','80','300'].includes(prefs?.timeMs))$('computer-time').value=prefs.timeMs;
+} catch (_) {}
+const selectedEvaluator=()=>$('evaluator').value||'custom';
+function engineOptions(){return {evaluator:selectedEvaluator(),timeMs:Number($('computer-time').value)||0};}
+function showBackend(message) {
+  const result=message.analysis??message.choice??message;
+  $('backend-status').textContent=`${result.model??selectedEvaluator()} · ${result.backend??'JavaScript'}${result.warning?' · '+result.warning:''}`;
+}
+
 function saveModel() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(model)); }
   catch (_) { $('training-status').textContent += ' (Browser storage unavailable; export to keep weights.)'; }
@@ -42,6 +56,7 @@ function restart(worker) {
   worker.terminate();
   const replacement = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
   replacement.onmessage = worker.onmessage;
+  replacement.onerror = worker.onerror;
   return replacement;
 }
 function cancelComputer() {
@@ -65,7 +80,7 @@ function currentView() {
 }
 
 function viewKey() {
-  return `${revision}/${reviewIndex === null ? 'live' : reviewIndex}/${$('analysis-depth').value}/${model.version}`;
+  return `${revision}/${reviewIndex === null ? 'live' : reviewIndex}/${$('analysis-depth').value}/${model.version}/${selectedEvaluator()}`;
 }
 function sideName(side) { return side === BLACK ? 'Black' : 'White'; }
 function scoreText(value) {
@@ -165,7 +180,7 @@ function renderMoveRows() {
     });
     tbody.append(tr);
   });
-  $('search-metrics').textContent = `${analysis.nodes.toLocaleString()} search nodes · ${analysis.elapsedMs.toLocaleString()} ms · ${analysis.exact ? 'Exact outcome (search reaches all finishes)' : 'Heuristic estimate; horizon limited'} · Equal depth for all moves.`;
+  $('search-metrics').textContent = `${analysis.model??selectedEvaluator()} · ${analysis.backend??"JavaScript"} · ${analysis.nodes.toLocaleString()} search nodes · ${analysis.elapsedMs.toLocaleString()} ms · ${analysis.exact ? 'Exact outcome (search reaches all finishes)' : 'Heuristic estimate; horizon limited'} · Equal depth for all moves.`;
 }
 
 function renderInterpretation(view) {
@@ -210,6 +225,11 @@ function renderInterpretation(view) {
     strong.textContent = comparative.map(x => `${x.name} ${signed(x.value)}`).join(' · ');
     p.append(strong); box.append(p);
   }
+  if(analysis.model==='P') {
+    const p=document.createElement('p');
+    p.textContent=`Immediate P pattern correction: selected ${signed(chosen.immediate.patternCorrection??0)}${isBest?'':`, comparison ${signed(best.immediate.patternCorrection??0)}`} points. This is static evidence, not a decomposition of the search result.`;
+    box.append(p);
+  }
   for (const row of isBest ? [chosen] : [chosen, best]) {
     const pv = document.createElement('p');
     pv.className = 'variation';
@@ -227,6 +247,7 @@ function renderInterpretation(view) {
   }
   const caveat = document.createElement('p');
   caveat.textContent = 'The feature figures describe the immediate resulting position; they are NOT an attribution of the multi-ply alpha–beta score. Opponent replies, mobility changes, and horizon effects can reverse their apparent importance.';
+  if(analysis.model==='P')caveat.textContent+=' P also includes learned corner/edge pattern corrections; the seven linear features alone do not account for its evaluation.';
   box.append(caveat);
 }
 
@@ -248,10 +269,10 @@ function renderWeights() {
     body.append(tr);
   }
   table.append(body); wrap.replaceChildren(table);
-  $('model-version').textContent = `Model ${model.version}`;
-  $('training-status').textContent = trainingMessage;
+  $('model-version').textContent = `Saved/custom model ${model.version}`;
+  $('training-status').textContent = trainingMessage + (selectedEvaluator()==='custom'?'':' Frozen evaluators stay unchanged; select Saved/custom weights to play with training results.');
   $('train').disabled = trainingBusy;
-  $('train').textContent = trainingBusy ? 'Training…' : 'Train one generation';
+  $('train').textContent = trainingBusy ? 'Training…' : 'Train saved/custom weights';
   $('reset-model').disabled = trainingBusy;
 }
 
@@ -301,7 +322,7 @@ function startAnalysis() {
     const id = nextJob++;
     const key = viewKey();
     pendingAnalysis = { id, key };
-    analyzer.postMessage({ type: 'analyze', id, board: Array.from(view.board), player: view.turn, depth: Number($('analysis-depth').value), weights: model.weights });
+    analyzer.postMessage({ type: 'analyze', id, board: Array.from(view.board), player: view.turn, depth: Number($('analysis-depth').value), weights: model.weights, ...engineOptions() });
   }
   render();
 }
@@ -311,7 +332,7 @@ function requestComputer() {
   if (pendingAi && pendingAi.revision === revision) { render(); return; }
   const id = nextJob++;
   pendingAi = { id, revision };
-  opponent.postMessage({ type: 'play', id, board: Array.from(game.board), player: game.turn, depth: Number($('computer-depth').value), weights: model.weights });
+  opponent.postMessage({ type: 'play', id, board: Array.from(game.board), player: game.turn, depth: Number($('computer-depth').value), weights: model.weights, ...engineOptions() });
   render();
 }
 
@@ -344,6 +365,7 @@ function newGame() {
   reviewJob = null;
   $('game-review').replaceChildren();
   revision++;
+  $('play-metrics').textContent='';
   reviewIndex = null;
   game.board = initialBoard();
   game.turn = BLACK;
@@ -379,8 +401,10 @@ analyzer.onmessage = (event) => {
   pendingAnalysis = null;
   if (message.type === 'error') {
     $('status').textContent = 'Analysis failed: ' + message.message;
+    $('backend-status').textContent=message.message;
     return;
   }
+  showBackend(message);
   analysis = message.analysis;
   selectedMove = analysis.results[0]?.move ?? null;
   render();
@@ -391,9 +415,12 @@ opponent.onmessage = (event) => {
   pendingAi = null;
   if (message.type === 'error') {
     game.message = 'Computer search failed: ' + message.message;
+    $('backend-status').textContent=message.message;
     render(); return;
   }
+  showBackend(message);
   const choice = message.choice;
+  if(choice)$('play-metrics').textContent=`Last computer search: ${choice.model??selectedEvaluator()} · ${choice.backend??'JavaScript'} · depth ${choice.depth} · ${choice.nodes?.toLocaleString()} nodes · ${choice.elapsedMs?.toFixed(1)} ms · ${choice.depth===0?'Unsearched fallback; no score':choice.exact?'Exact outcome':'Heuristic estimate'}`;
   if (choice) makeMove(choice.move, 'computer');
   else {
     game.message = 'Computer has no legal move.';
@@ -420,6 +447,16 @@ trainer.onmessage = (event) => {
 };
 let trainingJobId = null;
 
+function changeEngine() {
+  cancelComputer();cancelAnalysis();
+  if(reviewJob)reviewer=restart(reviewer);reviewJob=null;
+  $('game-review').replaceChildren();$('play-metrics').textContent='';
+  $('backend-status').textContent=`${selectedEvaluator()} · ${selectedEvaluator()==='custom'?'JavaScript':'Initializing WebAssembly…'}`;
+  try{localStorage.setItem('reversi-engine-preferences-v1',JSON.stringify({evaluator:selectedEvaluator(),timeMs:$('computer-time').value}));}catch(_){}
+  revision++;schedule();
+}
+$('evaluator').addEventListener('change',changeEngine);
+$('computer-time').addEventListener('change',changeEngine);
 $('new-game').addEventListener('click', newGame);
 $('human-color').addEventListener('change', newGame);
 $('undo').addEventListener('click', undoTurn);
@@ -456,10 +493,10 @@ $('reset-model').addEventListener('click', () => {
 $('review-game').addEventListener('click', () => {
   if (game.turn !== null || reviewJob !== null) return;
   reviewJob = nextJob++;
-  reviewModelVersion = model.version;
+  reviewModelVersion = `${selectedEvaluator()} / saved version ${model.version}`;
   $('game-review').textContent = `Reviewing your decisions at depth ${$('analysis-depth').value} with model ${model.version}…`;
   reviewer.postMessage({ type: 'review', id: reviewJob, history: game.history, human: game.human,
-    depth: Number($('analysis-depth').value), weights: model.weights });
+    depth: Number($('analysis-depth').value), weights: model.weights, ...engineOptions() });
   render();
 });
 let reviewModelVersion = null;
@@ -469,6 +506,7 @@ reviewer.onmessage = ({ data }) => {
   const box = $('game-review'); box.replaceChildren();
   if (data.type === 'error') box.textContent = `Review failed: ${data.message}`;
   else {
+    showBackend(data);
     const title = document.createElement('p');
     title.textContent = `Your decisions ranked by search-point loss using model ${reviewModelVersion}. Click to replay; heuristic losses depend on the stated depth.`;
     box.append(title);
@@ -492,3 +530,7 @@ $('export-model').addEventListener('click', () => {
 });
 
 newGame();
+
+for(const worker of [analyzer,opponent,reviewer,trainer])worker.onerror=event=>{
+  $('backend-status').textContent=`Worker failed: ${event.message}. Reload to retry, or select another evaluator.`;
+};

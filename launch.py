@@ -83,6 +83,8 @@ def main(argv=None):
     logger.addHandler(log_handler)
 
     class Handler(SimpleHTTPRequestHandler):
+        extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".wasm": "application/wasm", ".mjs": "text/javascript"}
+
         def __init__(self, *handler_args, **kwargs):
             super().__init__(*handler_args, directory=str(ROOT), **kwargs)
 

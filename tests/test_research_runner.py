@@ -23,7 +23,7 @@ class ResearchRunnerTests(unittest.TestCase):
     def test_smoke_freeze_statistics_and_idempotent_resume(self):
         with tempfile.TemporaryDirectory(prefix='reversi-smoke-') as folder:
             output = Path(folder)
-            result = self.run_node(output, '--mode', 'smoke', '--seconds', '30', '--workers', '2')
+            result = self.run_node(output, '--mode', 'smoke', '--seconds', '60', '--workers', '2')
             self.assertEqual(result.returncode, 0, result.stderr)
             state = json.loads((output / 'manifest.json').read_text())
             self.assertEqual(state['status'], 'complete')
@@ -75,11 +75,11 @@ class ResearchRunnerTests(unittest.TestCase):
 
     def test_detached_smoke_survives_launcher_exit(self):
         with tempfile.TemporaryDirectory(prefix='reversi detached ') as folder:
-            launch = subprocess.run([shutil.which('python3'), 'scripts/research-launch.py', '--mode', 'smoke', '--seconds', '30', '--workers', '1', '--output', folder],
+            launch = subprocess.run([shutil.which('python3'), 'scripts/research-launch.py', '--mode', 'smoke', '--seconds', '60', '--workers', '1', '--output', folder],
                                     cwd=ROOT, capture_output=True, text=True, timeout=20)
             self.assertEqual(launch.returncode, 0, launch.stderr)
             self.assertIn('independent session', launch.stdout)
-            end = time.monotonic() + 15
+            end = time.monotonic() + 30
             while time.monotonic() < end:
                 state = json.loads((Path(folder) / 'manifest.json').read_text())
                 if state['status'] != 'running':
@@ -100,7 +100,7 @@ class ResearchRunnerTests(unittest.TestCase):
             output = Path(folder)
             command = [NODE, 'scripts/research.mjs', '--mode', 'full', '--hours', '8', '--workers', '2', '--output', folder]
             with subprocess.Popen(command, cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True) as process:
-                end = time.monotonic() + 15
+                end = time.monotonic() + 30
                 while time.monotonic() < end:
                     manifest = output / 'manifest.json'
                     if manifest.exists() and json.loads(manifest.read_text()).get('stage') == 'data':
@@ -118,8 +118,9 @@ class ResearchRunnerTests(unittest.TestCase):
             self.assertIn('SIGTERM', state['stoppingReason'])
             self.assertFalse((output / 'run.lock').exists())
             # This is a cumulative allowance, including correctness on both
-            # starts. Leave room for the expanded native-adapter test suite.
-            resume = self.run_node(output, '--resume', '--seconds', '10', timeout=20)
+            # starts. Leave room for actual-Wasm numerical tests as well as native
+            # checks on both starts; this is a test allowance, not research.
+            resume = self.run_node(output, '--resume', '--seconds', '30', timeout=45)
             self.assertEqual(resume.returncode, 0, resume.stderr)
             state = json.loads((output / 'manifest.json').read_text())
             self.assertEqual(len(state['sessions']), 2)

@@ -177,3 +177,13 @@ python3 docs/data/native-search-public-verify-20261030.py
 See [the report](NATIVE_SEARCH_ENGINE.md), [protocol and repair](NATIVE_SEARCH_PROTOCOL.md)
 and complete compact evidence linked there. No historical model, corpus,
 confirmation result or production JavaScript search/evaluator changed.
+
+## WebAssembly integration, M4 macOS (2026-10-30)
+
+Actual Chromium 156.0.8078.4 passes `tests/wasm_browser_check.py` and the existing
+`tests/browser_check.py`: full visible B/P games, selected-model coach/review,
+80-ms P, undo/replay, rapid worker cancellation, cached reloads, failed loading,
+B fallback/P refusal and saved/custom training/export/reload. Actual Node-hosted
+Wasm numerical qualification is separately recorded in `WEBASSEMBLY_QUALIFICATION.md`.
+This does not establish Safari, Intel or current WSL2 acceptance. Historical
+platform results above remain unchanged.

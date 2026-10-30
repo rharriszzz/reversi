@@ -94,6 +94,10 @@ class LauncherTests(unittest.TestCase):
                     self.assertEqual(response.status, 200)
                     self.assertIn('legalMoves', rules)
                     self.assertIn('javascript', response.headers.get_content_type())
+                wasm = next((ROOT / 'src/wasm').glob('*.wasm'))
+                with urllib.request.urlopen(base + str(wasm.relative_to(ROOT)), timeout=5) as response:
+                    self.assertEqual(response.headers.get_content_type(), 'application/wasm')
+                    self.assertEqual(response.read(4), b'\x00asm')
             finally:
                 process.terminate()
                 try:

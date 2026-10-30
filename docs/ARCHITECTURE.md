@@ -128,3 +128,18 @@ its cutoff values are never presented as all-move coaching scores. Full coaching
 and verified continuations remain on the existing JavaScript worker path. The
 browser worker termination/job-id lifecycle is unchanged. See
 [NATIVE_SEARCH_ENGINE.md](NATIVE_SEARCH_ENGINE.md) for measurements and limits.
+
+## WebAssembly browser extension (2026-10-30)
+
+`native/engine.cpp` is now shared by native and browser builds. The explicit C ABI
+in `native/browser.cpp` and `src/wasm-engine.js` adapt complete computational
+operations; there is no leaf callback to JavaScript. `src/backend.js` selects
+frozen Wasm or saved/custom JavaScript evaluation inside the existing workers.
+Each worker owns its own lazy module/TT; terminating it cancels initialization or
+search and discards the whole memory lifetime. Workers serialize incoming jobs
+through initialization; the UI still rejects replies by ID/revision/view/model.
+Frozen B/L/P selection and time preferences use a separate storage key from the
+unchanged mutable model format. Initial defaults and training remain JS/custom.
+See `WEBASSEMBLY_INTEGRATION.md` and `WEBASSEMBLY_BUILD.md` for current runtime,
+full-window/PV semantics, memory bounds and visible fallback behavior. Earlier
+JS-only descriptions above retain their historical scope.
