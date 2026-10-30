@@ -8,10 +8,13 @@ import re
 import subprocess
 import sys
 import tempfile
+import os
 
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'scripts/wasm'))
+from browser import launch_browser
 
 
 def main():
@@ -25,7 +28,7 @@ def main():
         try:
             url = re.search(r'http://127\.0\.0\.1:\d+/', server.stdout.readline()).group()
             with sync_playwright() as p:
-                browser = p.chromium.launch()
+                browser = launch_browser(p)
                 page = browser.new_page(accept_downloads=True)
                 errors = []
                 page.on('pageerror', lambda error: errors.append(str(error)))
@@ -56,10 +59,14 @@ def main():
                 page.locator('#train').click()
                 expect(page.locator('#train')).to_be_enabled(timeout=120000)
                 expect(page.locator('#training-status')).to_contain_text('challenger', ignore_case=True)
+                if os.environ.get('REVERSI_WINDOWS_BROWSER')=='1':
+                    # CDP download paths belong to Windows, not the WSL driver.
+                    # Observe the exact exported Blob as well as its download.
+                    page.evaluate('()=>{const create=URL.createObjectURL.bind(URL);URL.createObjectURL=blob=>{window.exportedModelBlob=blob;return create(blob);};}')
                 with page.expect_download() as download:
                     page.locator('#export-model').click()
                 import json
-                exported = json.loads(Path(download.value.path()).read_text())
+                exported = json.loads(page.evaluate('()=>exportedModelBlob.text()') if os.environ.get('REVERSI_WINDOWS_BROWSER')=='1' else Path(download.value.path()).read_text())
                 assert exported['attempts'] == 1
                 page.reload()
                 expect(page.locator('#training-status')).to_contain_text('1 training attempts')

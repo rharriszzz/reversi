@@ -17,11 +17,13 @@ export function frozenHeader() {
     const header=`// Generated from verified frozen coefficients. Do not edit.\n#pragma once\nnamespace frozen {\ninline constexpr const char* identities[3]={"original-production","${models.L.checksum}","${models.P.checksum}"};\ninline constexpr double weights[3][3][7]=${JSON.stringify(weights).replaceAll('[','{').replaceAll(']','}')};\ninline constexpr int squares[16][8]={${GEOMETRIES.map(g=>`{${[...g.squares].join(',')}}`).join(',')}};\ninline constexpr int lengths[16]={${GEOMETRIES.map(g=>g.squares.length).join(',')}};\n${compiled.tables.map((t,i)=>`inline constexpr float table${i}[${t.length}]={${[...t].map(float).join(',')}};`).join('\n')}\n}\n`;
     return {header,models,weights};
 }
-export function build({directory=resolve(root,'.local-research/native'),profile=false,instrument=false,sanitize=false}={}) {
+export function build({directory=resolve(root,process.env.NATIVE_CPU==='native'?'.local-research/native-host':'.local-research/native'),profile=false,instrument=false,sanitize=false,cpu=process.env.NATIVE_CPU??'portable'}={}) {
   const previous=process.cwd();process.chdir(root);
   try {
     const {header,models}=frozenHeader();
-    const flags=['-O3','-std=c++17','-Wall','-Wextra','-Wpedantic','-ffp-contract=off','-fno-fast-math',...(profile||instrument?['-g','-fno-omit-frame-pointer']:[]),...(instrument?['-DNATIVE_PROFILE']:[]),...(sanitize?['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']:[])];
+    if(!['portable','native'].includes(cpu))throw Error('NATIVE_CPU must be portable or native');
+    const target=cpu==='native'?[process.arch==='arm64'?'-mcpu=native':'-march=native']:[];
+    const flags=['-O3','-std=c++17','-Wall','-Wextra','-Wpedantic','-ffp-contract=off','-fno-fast-math',...target,...(profile||instrument?['-g','-fno-omit-frame-pointer']:[]),...(instrument?['-DNATIVE_PROFILE']:[]),...(sanitize?['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']:[])];
     const compiler=process.env.CXX??'c++',version=spawnSync(compiler,['--version'],{encoding:'utf8'});
     if(version.status!==0)throw Error(`Compiler unavailable: ${compiler}`);
     const sources=['native/engine.hpp','native/engine.cpp','native/main.cpp','scripts/native/build.mjs','scripts/native/client.mjs','scripts/native/client.py'];
@@ -37,4 +39,4 @@ export function build({directory=resolve(root,'.local-research/native'),profile=
     writeFileSync(receipt,JSON.stringify(saved,null,2)+'\n');return saved;
   } finally {process.chdir(previous);}
 }
-if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(build({profile:process.argv.includes('--profile'),instrument:process.argv.includes('--instrument'),sanitize:process.argv.includes('--sanitize'),directory:resolve(root,process.argv.includes('--sanitize')?'.local-research/native-sanitize':process.argv.includes('--instrument')?'.local-research/native-instrument':process.argv.includes('--profile')?'.local-research/native-profile':'.local-research/native')}),null,2));
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(build({profile:process.argv.includes('--profile'),instrument:process.argv.includes('--instrument'),sanitize:process.argv.includes('--sanitize'),directory:resolve(root,process.argv.includes('--sanitize')?'.local-research/native-sanitize':process.argv.includes('--instrument')?'.local-research/native-instrument':process.argv.includes('--profile')?'.local-research/native-profile':process.env.NATIVE_CPU==='native'?'.local-research/native-host':'.local-research/native')}),null,2));

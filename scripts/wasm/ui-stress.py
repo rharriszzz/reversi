@@ -1,15 +1,16 @@
 """Visible-main-thread responsiveness and cancellation trace, all frame gaps."""
 from pathlib import Path
-import json,sys,re,subprocess,tempfile,time
+import json,sys,re,subprocess,tempfile,time,os
+from browser import launch_browser
 from playwright.sync_api import sync_playwright,expect
-ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'.local-research/wasm-20261030'
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/os.environ.get('REVERSI_WASM_OUTPUT','.local-research/wasm-20261030')
 def main():
  with tempfile.TemporaryDirectory() as temp:
   server=subprocess.Popen([sys.executable,str(ROOT/'launch.py'),'--no-browser','--port','0','--http-log',str(Path(temp)/'http.log')],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
   try:
    url=re.search(r'http://127\.0\.0\.1:\d+/',server.stdout.readline()).group()
    with sync_playwright() as pw:
-    browser=pw.chromium.launch(headless=False);page=browser.new_page();page.goto(url);page.locator('#evaluator').select_option('P');page.locator('#analysis-depth').select_option('2');expect(page.locator('#search-metrics')).to_contain_text('P · WebAssembly')
+    browser=launch_browser(pw,headless=False);page=browser.new_page();page.goto(url);page.locator('#evaluator').select_option('P');page.locator('#analysis-depth').select_option('2');expect(page.locator('#search-metrics')).to_contain_text('P · WebAssembly')
     page.evaluate('''()=>{window.uiFrames=[];window.uiLongTasks=[];let last=performance.now();window.uiRunning=true;
      function frame(now){uiFrames.push(now-last);last=now;if(uiRunning)requestAnimationFrame(frame);}requestAnimationFrame(frame);
      new PerformanceObserver(list=>uiLongTasks.push(...list.getEntries().map(e=>({start:e.startTime,duration:e.duration,name:e.name})))).observe({type:'longtask',buffered:false});}''')

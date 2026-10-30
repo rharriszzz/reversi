@@ -16,17 +16,19 @@ NODE = shutil.which('node')
 
 @unittest.skipUnless(NODE, 'Node 20+ needed for offline research')
 class ResearchRunnerTests(unittest.TestCase):
-    def run_node(self, output, *args, timeout=40):
+    def run_node(self, output, *args, timeout=90):
         return subprocess.run([NODE, 'scripts/research.mjs', '--output', str(output), *args],
                               cwd=ROOT, capture_output=True, text=True, timeout=timeout)
 
     def test_smoke_freeze_statistics_and_idempotent_resume(self):
         with tempfile.TemporaryDirectory(prefix='reversi-smoke-') as folder:
             output = Path(folder)
-            result = self.run_node(output, '--mode', 'smoke', '--seconds', '60', '--workers', '2')
+            # Startup includes the full actual-Wasm suite. Its time counts
+            # toward the smoke data-stage fraction; leave room on WSL2 GCC.
+            result = self.run_node(output, '--mode', 'smoke', '--seconds', '180', '--workers', '2')
             self.assertEqual(result.returncode, 0, result.stderr)
             state = json.loads((output / 'manifest.json').read_text())
-            self.assertEqual(state['status'], 'complete')
+            self.assertEqual(state['status'], 'complete', state.get('stoppingReason'))
             self.assertFalse(state['failures'])
             self.assertEqual(len(state['training']['history']), 17)
             self.assertGreater(state['progress']['accepted']['confirmation-quality'], 0)
@@ -75,11 +77,11 @@ class ResearchRunnerTests(unittest.TestCase):
 
     def test_detached_smoke_survives_launcher_exit(self):
         with tempfile.TemporaryDirectory(prefix='reversi detached ') as folder:
-            launch = subprocess.run([shutil.which('python3'), 'scripts/research-launch.py', '--mode', 'smoke', '--seconds', '60', '--workers', '1', '--output', folder],
+            launch = subprocess.run([shutil.which('python3'), 'scripts/research-launch.py', '--mode', 'smoke', '--seconds', '180', '--workers', '1', '--output', folder],
                                     cwd=ROOT, capture_output=True, text=True, timeout=20)
             self.assertEqual(launch.returncode, 0, launch.stderr)
             self.assertIn('independent session', launch.stdout)
-            end = time.monotonic() + 30
+            end = time.monotonic() + 90
             while time.monotonic() < end:
                 state = json.loads((Path(folder) / 'manifest.json').read_text())
                 if state['status'] != 'running':

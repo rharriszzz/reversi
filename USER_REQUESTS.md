@@ -5082,3 +5082,296 @@ At completion, tell me:
 Most importantly, **commit and push after Stage 0 and after each of the three milestones**, rather than saving everything for one final commit.
 
 The objective is to make our qualified, much stronger C++ Reversi engine available in an ordinary browser while preserving correct playing, accurate coaching and the ability to continue improving the shared engine later.
+
+---
+
+# Reversi — Windows PC Resource Audit, Native C++ and WebAssembly Benchmarks
+
+Work on my Windows 11 PC, using WSL2 Ubuntu, in:
+
+`/home/rharris/git/reversi`
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, and the latest relevant project documentation first.
+
+Review particularly:
+
+- `docs/NATIVE_SEARCH_V2_RESULTS.md`
+- `docs/WEBASSEMBLY_ENGINE_RESULTS.md`
+- `docs/WEBASSEMBLY_BUILD.md`
+- `docs/WEBASSEMBLY_QUALIFICATION.md`
+- The browser integration documentation
+- The existing benchmark, profiler, and acceptance-test scripts.
+
+## Goal
+
+Conduct one thorough, bounded round of Windows PC testing, benchmarking, profiling, and engineering qualification.
+
+Compare three implementations:
+
+1. Native C++ running under WSL2 Linux.
+2. The committed C++ WebAssembly engine running in an actual Windows Chrome or Edge browser.
+3. The original JavaScript search engine running in the same Windows browser.
+
+Test both frozen B and frozen P evaluators.
+
+Compare results with the existing M4 Mac benchmarks where methodology and positions permit.
+
+Do not start a new large playing-strength tournament, retrain evaluators, or alter frozen B/P coefficients.
+
+## Stage 0 — Resource and environment audit
+
+**This stage is mandatory before substantial computation.**
+
+My PC has:
+
+- Intel Core i7-14700F, 28 logical processors.
+- 15.7 GiB Windows physical RAM.
+- 7.6 GiB WSL2 memory, with 6.6 GiB previously available.
+- 2.0 GiB WSL2 swap, with about 88 MiB previously used.
+- 883 GiB available WSL2 storage.
+- 348 GiB free on Windows C:.
+- Windows available physical memory was only 1.5 GiB.
+- Chrome had 38 processes with combined working sets of approximately 6.4 GB, largely YouTube tabs.
+- Chrome Memory Saver is already set to Maximum, with no sites explicitly exempted.
+
+The user intends to close the ChatGPT tab after copying this prompt, but may keep the YouTube tabs open.
+
+### Initial checks
+
+Record:
+
+- Windows physical memory: installed, available, committed, and paging activity.
+- WSL2 memory availability, swap use, and swap activity.
+- CPU type, processor topology, load, and available performance counters.
+- Available storage.
+- Chrome, Edge, VS Code, Codex, WSL2, and other significant memory consumers.
+- Current process activity that could interfere with benchmarks.
+- Available native compiler, Node, Python, browser, and profiling tool versions.
+- Whether the Git checkout is clean and synchronized with the published repository.
+
+Distinguish process working sets from private committed memory. Do not assume summed working sets equal unique physical memory.
+
+### Memory safeguards
+
+Prefer at least 3 GiB available Windows physical memory before substantial browser benchmarking, and at least 3 GiB available inside WSL2 before substantial native testing.
+
+Also monitor paging, swap activity, and sustained memory pressure throughout.
+
+These are conservative operating targets rather than absolute hardware requirements. If conditions are below them, investigate the actual memory pressure and determine whether a smaller, serial test can safely proceed.
+
+Do not automatically terminate Chrome, YouTube tabs, Codex, WSL2, Explorer, or other user applications.
+
+Do not execute `wsl --shutdown`, modify `.wslconfig`, disable Windows services, change page-file settings, or alter Chrome user preferences without explicit authorization.
+
+If insufficient Windows memory prevents a reliable browser experiment, preserve completed work and report the specific blocker and suggested user action.
+
+Use an isolated temporary browser profile for automated tests rather than modifying my ordinary Chrome profile.
+
+## Stage 1 — Build and qualify native C++ under WSL2
+
+Fetch the latest repository state carefully. Preserve any unrelated local changes.
+
+Build the production C++ search engine using the available Linux compiler.
+
+Preserve the documented floating-point flags and model identities.
+
+Run the appropriate native correctness and sanitizer suites.
+
+Verify:
+
+- Legal moves and disc flipping.
+- Forced passes.
+- Terminal outcomes.
+- Static B/P evaluations.
+- Fixed-depth minimax.
+- Full-window all-move scoring.
+- Principal-variation correctness.
+- Transposition-table collisions and bounds.
+- Depths beyond 14.
+- Timed iterative deepening and cancellation.
+
+Compare numerical results with committed reference fixtures.
+
+Document compiler and binary identities.
+
+Do not silently relax correctness tolerances.
+
+## Stage 2 — Verify WebAssembly in an actual Windows browser
+
+Use the existing committed WebAssembly distribution first.
+
+Confirm that the same `.wasm` binary works on Windows without recompilation.
+
+Run it in actual Windows Chrome or Edge, preferably using a separate test profile.
+
+A browser running inside WSL2 Linux is not an equivalent substitute for the requested Windows browser test.
+
+Use Windows-side browser automation or a correctly configured remote debugging connection as appropriate.
+
+Verify that:
+
+- The module loads correctly.
+- B and P match native C++ numerically.
+- All legal root alternatives receive correct comparable scores.
+- Principal variations are legal and independently verified.
+- Playing and coaching select the correct evaluator.
+- Game review remains model-consistent.
+- Worker cancellation and stale-message rejection work.
+- Custom saved weights and training retain their documented JavaScript behavior.
+- Module initialization failures produce safe, accurate fallback behavior.
+
+Do not change the production Wasm compiler settings simply because a new platform is being tested.
+
+## Stage 3 — Matched performance benchmarks
+
+Benchmark native C++, Windows-browser WebAssembly, and Windows-browser JavaScript.
+
+Use the same disclosed positions and fixed horizons whenever possible.
+
+Include representative opening, middle, and endgame positions, forced passes, and exact solutions.
+
+Measure:
+
+- Static evaluations per second.
+- Complete search nodes per second.
+- Fixed-depth search time.
+- Node counts and evaluation counts.
+- Completed depth at 80 ms and 300 ms.
+- Exact-solution frequency.
+- Search startup and communication overhead.
+- Transposition-table probes, cutoffs, and replacements.
+- Deadline accuracy.
+- Memory and CPU usage.
+- Cold versus warm WebAssembly initialization.
+
+Run repeated, serial benchmark trials with alternating implementation order.
+
+Do not run profiling or other computationally intensive tests concurrently with timing benchmarks.
+
+Record background CPU and memory conditions during each trial.
+
+Compare results to the M4 Mac's published measurements, using matching workloads where available.
+
+Explain platform differences carefully. Native ARM64 Mac versus Intel WSL2 and Windows-browser Wasm are not identical operating environments.
+
+Do not interpret different search-tree sizes as pure CPU performance differences.
+
+## Stage 4 — Profiling
+
+Profile native C++ under WSL2 using available Linux tools.
+
+First determine whether useful hardware performance counters are accessible. WSL2 may restrict some profiling capabilities.
+
+Use sampling and targeted instrumentation if hardware counters are unavailable.
+
+Profile:
+
+- Search and alpha-beta control.
+- Transposition-table operations.
+- Move ordering.
+- Legal moves and flipping.
+- Seven-feature evaluation.
+- P corner/edge pattern processing.
+- Memory allocation and cache behavior where measurable.
+
+For WebAssembly, use actual Windows-browser CPU profiling and performance traces.
+
+Measure browser worker execution separately from module initialization and UI messaging where possible.
+
+Report sampling limitations. Do not invent cache-miss data or CPU measurements unavailable from the tools.
+
+Compare bottlenecks across native C++, Wasm, and where useful the earlier M4 results.
+
+Investigate obvious performance anomalies.
+
+Small correctness or platform compatibility fixes are authorized, followed by requalification.
+
+Do not begin a large search-algorithm redesign.
+
+## Stage 5 — Browser acceptance and stress testing
+
+Run at least 24 complete automated browser games, balanced across B and P, 80 ms and 300 ms, and both player colors.
+
+These are engineering tests, not statistical strength-confirmation games.
+
+Exercise:
+
+- Legal play through complete games.
+- Passes and unusual endings.
+- P coaching and move comparisons.
+- Verified principal variations.
+- Analysis and review of historical positions.
+- Undo and replay.
+- Repeated model changes.
+- Rapid cancellation and worker restart.
+- Custom saved weights and export/reload.
+- Repeated Wasm initialization and shutdown.
+- Memory stability.
+- Browser responsiveness while searches run.
+
+Use independent rules to replay complete games and verify outcomes.
+
+Monitor Windows and WSL2 resources continuously or at suitable intervals.
+
+Do not let test-browser resource usage expand without bounds.
+
+## Stage 6 — Analysis and recommendations
+
+Create:
+
+`docs/WINDOWS_PC_NATIVE_WASM_RESULTS.md`
+
+Include:
+
+1. Initial and final resource audit.
+2. Windows physical-memory findings and any pressure observed.
+3. WSL2 native-build and correctness results.
+4. Actual Windows browser qualification.
+5. All benchmark results for native C++, Wasm, and JavaScript.
+6. Comparison with the previous Mac benchmarks.
+7. Native and Wasm CPU profiles.
+8. Observed memory consumption.
+9. Windows browser acceptance results.
+10. Any portability problems, fixes, and remaining limitations.
+11. Ranked future optimization recommendations.
+
+I particularly want to know:
+
+- How fast is native C++ on this Intel PC compared with my M4 Mac?
+- How fast is WebAssembly on Windows compared with native C++?
+- Is WebAssembly still dramatically faster than JavaScript?
+- Are there meaningful differences between the Windows and Mac profiles?
+- Do the remaining bottlenecks justify further optimization?
+- Would a different transposition-table design, targeted endgame optimization, or search ordering change be worth investigating next?
+
+Retain numerical evidence, reproducible commands, profiles, and relevant source/build identities.
+
+Commit and push the final report, test changes, and compact evidence.
+
+Use a separate intermediate commit if significant platform qualification work is completed before benchmarking.
+
+Do not commit large raw traces, browser profiles, local executables, private data, or the full research corpus.
+
+## Operating constraints
+
+Keep the work bounded and serial where benchmarking requires it.
+
+Prefer a maximum of approximately two hours of active intensive measurement, excluding ordinary setup and correctness qualification.
+
+Protect my existing Chrome tabs, user profile, Codex sessions, and unrelated applications.
+
+Do not change user settings merely to improve benchmark numbers.
+
+If memory headroom is inadequate, report it explicitly rather than producing unreliable results.
+
+Resolve routine engineering issues autonomously.
+
+Do not initiate any additional large tournament or model-training work.
+
+At completion, report the exact commits pushed, the principal speed comparisons, resource observations, and recommendations for the next engineering step.
+
+**The main objective is a reliable, numerically qualified comparison of native C++ and browser WebAssembly on my Intel Windows PC, with profiling that tells us what to optimize next.**
+
+---
+
+You did a fetch from github, correct?

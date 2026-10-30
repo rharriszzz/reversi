@@ -10,6 +10,9 @@ self.onmessage=({data})=>{queue=queue.then(async()=>{
    const start=performance.now();engine=await WasmEngine.create();
    result={initializationMs:performance.now()-start,memoryBytes:engine.memoryBytes};
   }else if(op==='search')result=engine.search(p.board,p.player,{model,depth:timeMs?undefined:depth,timeMs:timeMs??0,hints:false});
+  else if(op==='inspect')result=engine.inspect(p.board,p.player,model);
+  else if(op==='analyze')result=engine.analyze(p.board,p.player,depth,model);
+  else if(op==='reinit'){engine.close();const start=performance.now();engine=await WasmEngine.create();result={initializationMs:performance.now()-start,memoryBytes:engine.memoryBytes};}
   else if(op==='javascript')result=findBestMove(p.board,p.player,timeMs?14:depth,undefined,{evaluate:evaluators[model],...(timeMs?{timeMs}:{})});
   else if(op==='static')result=engine.evalbench(p.board,p.player,model,n);
   else if(op==='js-static'){

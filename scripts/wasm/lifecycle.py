@@ -1,15 +1,16 @@
 """Cold worker/module costs, warmed boundary and actual browser CPU accounting."""
 from pathlib import Path
-import json,sys,re,subprocess,tempfile,time
+import json,sys,re,subprocess,tempfile,time,os
+from browser import launch_browser
 from playwright.sync_api import sync_playwright
-ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'.local-research/wasm-20261030'
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/os.environ.get('REVERSI_WASM_OUTPUT','.local-research/wasm-20261030')
 def main():
  with tempfile.TemporaryDirectory() as temp:
   server=subprocess.Popen([sys.executable,str(ROOT/'launch.py'),'--no-browser','--port','0','--http-log',str(Path(temp)/'http.log')],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
   try:
    url=re.search(r'http://127\.0\.0\.1:\d+/',server.stdout.readline()).group();fixtures=json.loads((OUT/'fixtures.json').read_text());rows=[]
    with sync_playwright() as pw:
-    browser=pw.chromium.launch();cdp=browser.new_browser_cdp_session()
+    browser=launch_browser(pw);cdp=browser.new_browser_cdp_session()
     for rep in range(5):
      context=browser.new_context();page=context.new_page();start=time.monotonic();page.goto(url+'tests/wasm_benchmark.html');page.wait_for_function('()=>typeof window.measure==="function"')
      result=page.evaluate('()=>measure("init")');result['navigationWorkerAndModuleMs']=(time.monotonic()-start)*1000;result['rep']=rep

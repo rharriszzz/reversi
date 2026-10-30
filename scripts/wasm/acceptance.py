@@ -1,8 +1,9 @@
 """48 complete visible UI games, independently replayed. Engineering only."""
 from pathlib import Path
-import json,sys,re,subprocess,tempfile,time,importlib.util,random,statistics
+import json,sys,re,subprocess,tempfile,time,importlib.util,random,statistics,os
+from browser import launch_browser,process_resources,check_resources
 from playwright.sync_api import sync_playwright,expect
-ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'.local-research/wasm-20261030'
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/os.environ.get('REVERSI_WASM_OUTPUT','.local-research/wasm-20261030')
 def module(name,path):
  spec=importlib.util.spec_from_file_location(name,ROOT/path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 children=module('independent','scripts/native/verify.py').children
@@ -41,13 +42,14 @@ def main():
   try:
    url=re.search(r'http://127\.0\.0\.1:\d+/',server.stdout.readline()).group()
    with sync_playwright() as pw,client.NativeEngine() as native:
-    browser=pw.chromium.launch(headless=False);context=browser.new_context(viewport={'width':1440,'height':1000});context.add_init_script(SPY)
+    browser=launch_browser(pw,headless=False);context=browser.new_context(viewport={'width':1440,'height':1000});context.add_init_script(SPY)
     page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.goto(url)
     page.locator('#analysis-depth').select_option('2');games=[];checks=0;start=time.monotonic()
     session=browser.new_browser_cdp_session();cpu_start=session.send('SystemInfo.getProcessInfo')
     memory=[];resources=[]
-    schedule=[(model,budget,color,i) for i in range(6) for budget in [80,300] for model in ['B','P'] for color in [1,-1]]
+    schedule=[(model,budget,color,i) for i in range(int(os.environ.get('REVERSI_ACCEPTANCE_REPS','6'))) for budget in [80,300] for model in ['B','P'] for color in [1,-1]]
     for game_index,(model,budget,color,rep) in enumerate(schedule):
+     check_resources()
      rng=random.Random(0x57415300+game_index)
      page.locator('#evaluator').select_option(model);page.locator('#computer-time').select_option(str(budget));page.locator('#human-color').select_option(str(color))
      page.evaluate('__accept.events=[];__accept.frames=[]')
@@ -99,9 +101,7 @@ def main():
      entry=dict(index=game_index,model=model,budgetMs=budget,human=color,seed=0x57415300+game_index,moves=moves,board=final,forcedPasses=passes,coachingChecks=coaching_checks,plays=plays,frames={'count':len(frames),'maxMs':max(frames,default=0),'p95Ms':sorted(frames)[int(len(frames)*.95)] if frames else 0},workers=telemetry)
      games.append(entry)
      if game_index in [0,11,23,35,47]:
-      info=session.send('SystemInfo.getProcessInfo');pids=[str(p['id']) for p in info['processInfo']]
-      ps=subprocess.run(['ps','-o','rss=','-p',','.join(pids)],capture_output=True,text=True)
-      resources.append({'game':game_index,'browserProcessRssKiB':sum(int(s) for s in ps.stdout.split()),'swap':subprocess.check_output(['sysctl','vm.swapusage'],text=True).strip()})
+      resources.append({'game':game_index,**process_resources(session)})
      (OUT/'acceptance-games.json').write_text(json.dumps({'browser':browser.version,'games':games,'elapsedSeconds':time.monotonic()-start,'checks':checks,'memoryBytes':sorted(set(memory)),'resources':resources}))
      print(json.dumps({'complete':game_index+1,'model':model,'budget':budget,'moves':len(moves),'passes':passes,'checks':checks,'elapsedSeconds':round(time.monotonic()-start,1)}),flush=True)
     cpu_end=session.send('SystemInfo.getProcessInfo');assert not errors,errors

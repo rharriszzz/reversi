@@ -237,7 +237,10 @@ Result Engine::search(Board b,int p,int depth,int selectedModel,double timeMs,ui
   Result result;std::array<int,64> list;int n=ordered(b,legal(p==1?b.black:b.white,p==1?b.white:b.black),-1,list);if(n)result.move=list[0];
   for(int current=timed?1:depth;current<=depth;current++) {
     nextGeneration();
-    try {result=root(b,p,current,result.move);}catch(const Timeout&){result.timedOut=true;break;}
+    // Keep the return slot separate from the last completed iteration. GCC 11
+    // can construct a trivial aggregate return directly in an assignment's
+    // destination; an exception then leaves that destination partly overwritten.
+    try {const auto completed=root(b,p,current,result.move);result=completed;}catch(const Timeout&){result.timedOut=true;break;}
     if(!timed||result.exact)break;
   }
   result.stats=stats;result.elapsedMs=std::chrono::duration<double,std::milli>(Clock::now()-start).count();

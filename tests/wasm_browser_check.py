@@ -5,8 +5,12 @@ import re
 import subprocess
 import sys
 import tempfile
+import os
 from playwright.sync_api import sync_playwright, expect
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'scripts/wasm'))
+from browser import launch_browser
+OUT=ROOT/os.environ.get('REVERSI_WASM_OUTPUT','.local-research/wasm-20261030')
 
 def main():
     with tempfile.TemporaryDirectory(prefix='reversi-wasm-') as temp:
@@ -14,7 +18,7 @@ def main():
         try:
             url = re.search(r'http://127\.0\.0\.1:\d+/', server.stdout.readline()).group()
             with sync_playwright() as p:
-                browser = p.chromium.launch()
+                browser = launch_browser(p)
                 page = browser.new_page(accept_downloads=True)
                 errors=[]
                 page.on('pageerror',lambda e: errors.append(str(e)))
@@ -91,8 +95,8 @@ def main():
                 mismatch.close()
                 assert not errors,errors
                 output={'passed':True,'browser':browser.version,'wasm':wasm,'checks':['B/L/P all-move coach','complete B/P games and model-consistent review','P timed play','undo/replay','rapid cancellation/model changes','reload/cache','B fallback','P fail closed','custom recovery','browser ABI mismatch/reload recovery']}
-                (ROOT/'.local-research/wasm-20261030/browser-integration.json').write_text(json.dumps(output,indent=2)+'\n')
-                page.screenshot(path=str(ROOT/'.local-research/wasm-20261030/integration.png'),full_page=True)
+                (OUT/'browser-integration.json').write_text(json.dumps(output,indent=2)+'\n')
+                page.screenshot(path=str(OUT/'integration.png'),full_page=True)
                 print(json.dumps(output))
                 browser.close()
         finally:
