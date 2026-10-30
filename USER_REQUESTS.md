@@ -3736,3 +3736,11 @@ Please run: ps -axo pid,command
 ---
 
 Please read docs/P_CONFIRMATION_STATUS.md and resume the existing experiment from its checkpoints.  Thanks!
+
+---
+
+What is happening now?
+
+---
+
+Can you check on the progress?

@@ -1,3 +1,15 @@
+# Frozen P confirmation: completed, independence claim blocked
+
+All **2,048 games** completed on 30 October 2026 at 04:03:22 UTC (12:03:22 a.m. Eastern). The final independent Python replay/statistical audit passed. No experimental or caffeinate process remains running. **Do not resume this completed run.**
+
+P scored **63.57% at 80 ms** and **61.72% at 300 ms**. All numerical superiority thresholds favor P, but a verified historical direct-target overlap and additional unresolved roles block the requested independent-confirmation claim. B remains production; no evaluator was promoted or retrained. See [the final report](P_CONFIRMATION_RESULTS.md) and [compact evidence](data/p-confirmation-results-20261029.json).
+
+The post-game audit's signed-zero assertion was corrected only in a separate verification wrapper; all frozen scientific source and played games remain unchanged. Outcome-blind provenance proof precedes statistical release. About 3.53 active scientific hours were charged, including preparation, interruption recovery, audits and a conservative one-minute final-check allowance, against the original eight-hour ceiling. Preserve the complete local run and all original exceptions.
+
+The resume/pause handoffs below are historical records, not current launch instructions.
+
+---
+
 # Frozen P confirmation: resumed from retained checkpoints
 
 Resumed **30 October 2026 at 00:39:38 UTC** (29 October, 8:39:38 p.m. Eastern) after unrestricted execution and approval policy `never` became effective. The original 12 receipts and 29-step game-13 prefix passed identity, checksum and independent legal-replay checks; the complete frozen source snapshot matched. All 143 JavaScript correctness tests passed before resumption. Fresh checks found 9.19 GiB available memory, zero current swap activity, 549.18 GiB available disk, and no competing confirmation/Edax process.
