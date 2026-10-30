@@ -3710,3 +3710,11 @@ I value a correct negative or inconclusive result more than an unsupported claim
 ---
 
 please give a "no earlier than" guess for when this step will complete
+
+---
+
+I have selected Full Access through `/permissions`, and I have already authorized this experiment, including bounded `caffeinate` commands, qualification, preparation, and execution.
+
+Please proceed autonomously without requesting additional conversational approval for ordinary commands covered by my instructions.
+
+If the Codex execution system continues presenting mandatory approval dialogs, determine whether the effective approval policy differs from Full Access and explain the cause. Do not restart or discard completed experimental work.
