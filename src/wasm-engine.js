@@ -31,6 +31,8 @@ export class WasmEngine {
   const start=performance.now();const ptr=this.module._rv_query(this.handle,op,...words,player,names.indexOf(model),depth,timeMs,nodeLimit,+tt,+hints);
   const r=JSON.parse(this.module.UTF8ToString(ptr));
   if(r.error)throw Object.assign(Error(r.error.message),{code:r.error.code});
+  const identities=[r.modelIdentity,r.summary?.modelIdentity,...(r.results??[]).map(row=>row.search?.modelIdentity)].filter(Boolean);
+  if(identities.some(identity=>identity!==manifest.models[model]))throw Error('Wasm response model identity mismatch');
   return {...r,interfaceMs:performance.now()-start,backend:'WebAssembly',model,modelIdentity:manifest.models[model],buildIdentity:manifest.fingerprint,memoryBytes:this.memoryBytes};
  }
  inspect(board,player,model='B'){return this.query(0,board,player,model);}

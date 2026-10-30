@@ -87,6 +87,10 @@ test('Wasm tiny TT collisions, full/narrow bounds, model/horizon changes and int
 
 test('Wasm lifetime, bounded linear memory and fail-closed ABI/model identity checks',async()=>{
  const e=await create(),b=initialBoard(),bytes=e.memoryBytes;
+ const decode=e.module.UTF8ToString;
+ e.module.UTF8ToString=()=>JSON.stringify({modelIdentity:manifest.models.B});
+ assert.throws(()=>e.search(b,1,{model:'P'}),/response model identity mismatch/);
+ e.module.UTF8ToString=decode;
  for(let i=0;i<80;i++){e.search(b,1,{depth:4,model:i%2?'P':'B'});e.analyze(b,1,3,'P');}
  assert.equal(e.memoryBytes,bytes);e.close();e.close();assert.throws(()=>e.inspect(b,1),/closed/);
  await assert.rejects(create({expected:{...manifest,abi:999}}),/version mismatch/);
@@ -94,3 +98,34 @@ test('Wasm lifetime, bounded linear memory and fail-closed ABI/model identity ch
 });
 
 after(()=>{mkdirSync('.local-research/wasm-build',{recursive:true});writeFileSync('.local-research/wasm-build/qualification.json',JSON.stringify({fingerprint:manifest.fingerprint,tolerance:1e-10,maxAbsError,comparisons,staticQueries:600},null,2));});
+
+test('actual Wasm long directional rays and edge masks match independent legal children',async()=>{
+ const e=await create();try {
+  const directions=[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]];
+  for(let q=0;q<64;q++)for(const [dr,dc] of directions)for(let n=1;n<=6;n++) {
+   const row=q>>3,col=q&7,endR=row+(n+1)*dr,endC=col+(n+1)*dc;
+   if(endR<0||endR>7||endC<0||endC>7)continue;
+   const b=Array(64).fill(0);for(let k=1;k<=n;k++)b[(row+k*dr)*8+col+k*dc]=-1;b[endR*8+endC]=1;
+   for(const p of [1,-1])assert.deepEqual(e.inspect(b,p,'P').children.map(c=>({move:c.move,board:decodeBoard(c)})),oracleChildren(b,p));
+  }
+ }finally{e.close();}
+});
+
+test('actual Wasm traverses independently solved 15/16-empty horizons and timed deepening exceeds fourteen',async()=>{
+ // Read the preserved independent oracle evidence; do not regenerate or edit it.
+ const reference=JSON.parse(readFileSync(new URL('../docs/data/native-v2-deep-qualification-20261030.json',import.meta.url)));
+ const e=await create(),utility=v=>v?Math.sign(v)*10000+v:0;
+ try {
+  for(const p of reference.rows) {
+   assert.ok(p.depth>14);
+   for(const model of ['B','L','P']) {
+    const r=e.search(p.board,p.player,{model,depth:p.depth});near(r.score,utility(p.independent.value));assert.equal(r.exact,true);
+    for(const row of p.independent.rows) {
+     const child=oracleChildren(p.board,p.player).find(c=>c.move===row.move);
+     const r=e.search(child.board,-p.player,{model,depth:p.depth-1});near(-r.score,utility(row.value));assert.equal(r.exact,true);
+    }
+   }
+   if(p.depth===15){const r=e.search(p.board,p.player,{model:'P',timeMs:3000});assert.ok(r.depth>14);assert.equal(r.exact,true);near(r.score,utility(p.independent.value));}
+  }
+ }finally{e.close();}
+});

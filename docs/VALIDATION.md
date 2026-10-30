@@ -187,3 +187,16 @@ B fallback/P refusal and saved/custom training/export/reload. Actual Node-hosted
 Wasm numerical qualification is separately recorded in `WEBASSEMBLY_QUALIFICATION.md`.
 This does not establish Safari, Intel or current WSL2 acceptance. Historical
 platform results above remain unchanged.
+
+Final browser qualification and numerical evidence are in
+[`WEBASSEMBLY_ENGINE_RESULTS.md`](WEBASSEMBLY_ENGINE_RESULTS.md). The final
+M4 run passes 169 Node tests, all 38 Python tests, 15 native sanitizer groups,
+actual-Wasm exhaustive/internal assertions and 48 visible complete games covering
+B/P, 80/300 ms and both colors. Independent public replay verifies all games,
+1,647 applied computer replies, 408 forced passes, 143 small exact search results,
+80 matched benchmark rows and source/distribution hashes. Additional actual Wasm
+checks cover all long directional rays and independently solved 15/16-empty roots.
+Safari automation was attempted and unavailable because Allow remote automation
+is disabled; that setting was left unchanged. No new Intel/WSL2/Windows coverage
+is inferred. The report discloses initialization, worker round trips, CPU profiles,
+frame gaps and bounded-memory behavior rather than equating Wasm with native.

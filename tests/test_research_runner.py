@@ -85,7 +85,13 @@ class ResearchRunnerTests(unittest.TestCase):
                 if state['status'] != 'running':
                     break
                 time.sleep(0.05)
-            self.assertEqual(state['status'], 'complete')
+            # Failure status is checkpointed before final reports/lock release.
+            # Preserve the underlying correctness failure in the assertion.
+            failure_log = (Path(folder) / 'correctness.log').read_text() if (Path(folder) / 'correctness.log').exists() else ''
+            end = time.monotonic() + 5
+            while (Path(folder) / 'run.lock').exists() and time.monotonic() < end:
+                time.sleep(0.05)
+            self.assertEqual(state['status'], 'complete', failure_log[-16000:])
             self.assertEqual(state['stage'], 'done')
             # Completion is checkpointed before the detached process finishes
             # its final reports and releases its writer lock. Wait for that
@@ -105,7 +111,9 @@ class ResearchRunnerTests(unittest.TestCase):
                     manifest = output / 'manifest.json'
                     if manifest.exists() and json.loads(manifest.read_text()).get('stage') == 'data':
                         break
-                    self.assertIsNone(process.poll())
+                    if process.poll() is not None:
+                        details = (output / 'correctness.log').read_text() if (output / 'correctness.log').exists() else ''
+                        self.fail(process.stderr.read() + details[-16000:])
                     time.sleep(0.02)
                 else:
                     process.terminate()
@@ -121,7 +129,7 @@ class ResearchRunnerTests(unittest.TestCase):
             # starts. Leave room for actual-Wasm numerical tests as well as native
             # checks on both starts; this is a test allowance, not research.
             resume = self.run_node(output, '--resume', '--seconds', '30', timeout=45)
-            self.assertEqual(resume.returncode, 0, resume.stderr)
+            self.assertEqual(resume.returncode, 0, resume.stderr + ((output / 'correctness.log').read_text()[-16000:] if (output / 'correctness.log').exists() else ''))
             state = json.loads((output / 'manifest.json').read_text())
             self.assertEqual(len(state['sessions']), 2)
             self.assertNotEqual(state['status'], 'failed')

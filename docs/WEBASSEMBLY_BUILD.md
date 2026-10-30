@@ -70,3 +70,7 @@ The standalone native assertion suite is also compiled to Wasm: all 174,960
 ordered pattern-sum checks, generation rollover, same-depth analysis/PV checks,
 node interruption and depth 64 execute there. These Node results establish Wasm
 semantics; browser integration/measurements are qualified separately.
+
+The generated distribution retains the pinned toolchain's Emscripten and LLVM
+runtime license texts in `src/wasm/LICENSE.emscripten.txt` and
+`src/wasm/LICENSE.llvm.txt`. Rebuilding leaves these tracked notices intact.

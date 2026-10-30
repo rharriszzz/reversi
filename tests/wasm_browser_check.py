@@ -77,8 +77,20 @@ def main():
                 failed.locator('#evaluator').select_option('custom')
                 expect(failed.locator('#search-metrics')).to_contain_text('custom · JavaScript')
                 context.close()
+                # A stale/mixed manifest must fail closed, then recover on reload.
+                mismatch=browser.new_context()
+                def wrong_abi(route):
+                    response=route.fetch()
+                    route.fulfill(response=response,body=response.text().replace('"abi": 1','"abi": 999',1))
+                mismatch.route('**/manifest.js',wrong_abi)
+                stale=mismatch.new_page();stale.goto(url);stale.locator('#evaluator').select_option('P')
+                expect(stale.locator('#backend-status')).to_contain_text('module version mismatch')
+                mismatch.unroute('**/manifest.js',wrong_abi)
+                stale.reload()
+                expect(stale.locator('#search-metrics')).to_contain_text('P · WebAssembly')
+                mismatch.close()
                 assert not errors,errors
-                output={'passed':True,'browser':browser.version,'wasm':wasm,'checks':['B/L/P all-move coach','complete B/P games and model-consistent review','P timed play','undo/replay','rapid cancellation/model changes','reload/cache','B fallback','P fail closed','custom recovery']}
+                output={'passed':True,'browser':browser.version,'wasm':wasm,'checks':['B/L/P all-move coach','complete B/P games and model-consistent review','P timed play','undo/replay','rapid cancellation/model changes','reload/cache','B fallback','P fail closed','custom recovery','browser ABI mismatch/reload recovery']}
                 (ROOT/'.local-research/wasm-20261030/browser-integration.json').write_text(json.dumps(output,indent=2)+'\n')
                 page.screenshot(path=str(ROOT/'.local-research/wasm-20261030/integration.png'),full_page=True)
                 print(json.dumps(output))

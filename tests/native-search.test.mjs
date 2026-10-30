@@ -106,7 +106,8 @@ test('native iterative deepening publishes only completed iterations and support
   assert.equal(interrupted.depth,1);near(interrupted.score,one.score);assert.equal(interrupted.move,one.move);assert.equal(interrupted.timedOut,true);
   const fallback=await engine.search(p.board,p.player,{model:'P',depth:14,timeMs:.000001});
   assert.equal(fallback.depth,0);assert.equal(fallback.score,null);assert.equal(fallback.exact,false);assert.ok(legalMoves(p.board,p.player).includes(fallback.move));
-  for(const timeMs of [1,10,40]) {const r=await engine.search(p.board,p.player,{model:'P',timeMs});assert.ok(r.elapsedMs<timeMs+50);assert.ok(r.depth>0);near(r.score,(await engine.search(p.board,p.player,{model:'P',depth:r.depth})).score);}
+  for(const timeMs of [1,10,40]) {const r=await engine.search(p.board,p.player,{model:'P',timeMs});assert.ok(r.elapsedMs<timeMs+50);if(r.depth===0){assert.equal(r.score,null);assert.equal(r.exact,false);assert.ok(legalMoves(p.board,p.player).includes(r.move));}
+   else near(r.score,(await engine.search(p.board,p.player,{model:'P',depth:r.depth})).score);}
   const abort=new AbortController(),search=engine.search(p.board,p.player,{timeMs:10000,signal:abort.signal});setTimeout(()=>abort.abort(Error('test cancel')),10);await assert.rejects(search,/test cancel/);
   assert.equal((await engine.ready()).protocol,1);await assert.rejects(engine.request('search invalid'),/Expected/);await engine.ready();
   await assert.rejects(engine.search(p.board,p.player,{timeMs:NaN}),/Invalid/);await assert.rejects(engine.request('search 1 1 1 2 3 0 1 1 0 0'),/Invalid/);

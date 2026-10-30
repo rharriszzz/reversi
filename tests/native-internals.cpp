@@ -6,6 +6,10 @@ namespace reversi { double patterns(Board,int); }
 using namespace reversi;
 namespace reversi {
 struct EngineQualification {
+  static void fullRollover() {
+    Engine e(1);rollover(e);e.nextGeneration();assert(e.generation==1);
+    for(const auto& slot:e.table)assert(slot.player==0&&slot.generation==0&&slot.black==0&&slot.white==0&&slot.flag==0);
+  }
   static void rollover(Engine& e) {
     e.generation=std::numeric_limits<uint32_t>::max();
     for(auto& slot:e.table)slot={0,0,999999,1,1,64,0,1,true};
@@ -13,6 +17,7 @@ struct EngineQualification {
 };
 }
 int main() {
+  EngineQualification::fullRollover();
   // Independently recompute every pattern in the original digit order, for
   // every occupancy of each geometry (including long rays/edge wraps).
   for(int j=0;j<16;j++) {

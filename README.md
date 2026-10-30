@@ -1,5 +1,12 @@
 # Reversi
 
+**Browser WebAssembly update:** select **B**, **L** or **P** to use the qualified
+shared C++ engine locally for playing, all-move coaching and review. Choose
+80 ms or 300 ms for timed play. Existing saved/custom weights remain the initial
+selection and retain JavaScript training/export. See the
+[complete browser results](docs/WEBASSEMBLY_ENGINE_RESULTS.md).
+
+
 **Native search backend complete:** the original C++17 bitboard engine supports
 exact frozen B/L/P and persistent Node/Python research play. In the corrected
 768-game engineering screen, native P scored **76.95% at 80 ms** and **70.51% at
@@ -121,7 +128,8 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 
 The JavaScript tests check rules, opening perft counts, endgames, search, seeded learning, and UI behavior. The Python tests check the HTTP launcher. Platform claims require tests on the actual platform; Linux tests alone cannot establish macOS or Windows-browser compatibility.
 
-The expanded tests include a separate sentinel-board rules implementation, exhaustive small endgames, same-depth minimax and continuation checks, symmetries, stale-worker regressions, and training/holdout separation. Real Chromium acceptance and Windows Chrome accessing WSL2 localhost have now passed; **Mac hardware remains untested**. See [platform details and optional browser commands](docs/VALIDATION.md).
+The expanded tests include a separate sentinel-board rules implementation, exhaustive small endgames, same-depth minimax and continuation checks, symmetries, stale-worker regressions, and training/holdout separation. Real Chromium acceptance and Windows Chrome accessing WSL2 localhost have now passed; **M4 macOS ARM64 Chromium acceptance now passes**; current Intel and WSL2
+qualification limits are described in the browser report. See [platform details and optional browser commands](docs/VALIDATION.md).
 
 Run the bounded, CPU-only evaluation experiment and search benchmark with Node:
 
@@ -235,8 +243,9 @@ complete searches and all leaf evaluations stay inside C++.
 
 See [the technical report](docs/NATIVE_SEARCH_ENGINE.md) and
 [the fixed engineering screen protocol](docs/NATIVE_SEARCH_PROTOCOL.md).
-Browser playing, all-move coaching and review currently retain JavaScript;
-WebAssembly acceleration is not enabled.
+Browser playing, all-move coaching and review now support selectable frozen
+B/L/P WebAssembly; saved/custom weights retain JavaScript. See the
+[browser integration](docs/WEBASSEMBLY_INTEGRATION.md).
 
 Native search V2 measurements and the separately registered native P/B comparison: [engineering and results](docs/NATIVE_SEARCH_V2_RESULTS.md), [prospective protocol](docs/NATIVE_SEARCH_V2_PROTOCOL.md). Ordinary native timed play now searches to the natural empty-square limit; explicit fixed horizons remain available.
 

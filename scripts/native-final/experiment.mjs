@@ -48,7 +48,8 @@ for(const tag of ['baseline','tt','mobility','both']) {
  for(const f of ['engine.hpp','main.cpp'])writeFileSync(resolve(dir,f),execFileSync('git',['show',`2492932:native/${f}`]));
  writeFileSync(resolve(dir,'frozen.hpp'),readFileSync(resolve(receipt.executable,'../frozen.hpp')));
  const executable=resolve(dir,'reversi-native');execFileSync('c++',[...receipt.flags,'-I',dir,resolve(dir,'engine.cpp'),resolve(dir,'main.cpp'),'-o',executable]);
- receipts[tag]={...receipt,executable,executableSha256:sha(readFileSync(executable)),sourceSha256:sha(source)};
+ const sourceHashes=Object.fromEntries(['engine.cpp','engine.hpp','main.cpp'].map(f=>[`native/${f}`,sha(readFileSync(resolve(dir,f)))]));
+ receipts[tag]={...receipt,sourceHashes,executable,executableSha256:sha(readFileSync(executable)),sourceSha256:sha(source),fingerprint:sha(JSON.stringify({sourceHashes,flags:receipt.flags,compiler:receipt.compiler,header:receipt.modelHeaderSha256}))};
  engines[tag]=new NativeEngine({receipt:receipts[tag]});await engines[tag].ready();
  if(tag!=='baseline')writeFileSync(`scripts/native-final/variants/${tag}.patch`,spawnSync('diff',['-u','--label','a/native/engine.cpp','--label','b/native/engine.cpp',resolve(out,'experiment-baseline/engine.cpp'),resolve(dir,'engine.cpp')],{encoding:'utf8'}).stdout);
 }

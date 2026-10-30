@@ -1,0 +1,679 @@
+{
+  "checkpointCommits": [
+    "f4443cc0fbc21cb0e16ae0c47e0a3780fb459300",
+    "d6397c58c0bf1ec920315cb802e4360c072d9cce",
+    "7527c2af7e4b95bca5f8e95440b77df8c8a3cd59"
+  ],
+  "sourceHashes": {
+    "native/engine.cpp": "c238818d6c6ab485ea64eb142e7a614058ea02b8e6afc1e744fd0904be364f6d",
+    "native/engine.hpp": "18876922c9a3bd940284ff3d86fe54441d562c06c064c621ea75f684b25530b4",
+    "native/browser.cpp": "910ac97758fc2bb9634c8440fdcd89e82e74c14ff82b0e4de32ceb1f691f45f2",
+    "src/app.js": "27a5b23456d774989d9424b5d7aa2851ed855db199be006fef8cafc6b085582d",
+    "src/worker.js": "87681d8fc7107cf54ae51ad3ed0b2b54d8037bc14120aaca5644baf5b0a02e25",
+    "src/backend.js": "f9dc2429b560d53f16c2a094a67209c5f2ad6e522b2c4f49c80f7c8a61378691",
+    "src/wasm-engine.js": "e4472796a86c5c79b813691163fc40eac8f18177833c57e6214394268140ec58",
+    "src/coaching.js": "a9ea04197c27bdae9e64607e734ad22182f543baf574389cdfc6b6e5b36e0817",
+    "src/review.js": "b1ec0f661d23d4fc341960551ad1d7491087036a5390a21e8d752d6030d12b25",
+    "index.html": "144f88651538fc10f81a915bd46195d96ba4ff6583a43485189a611ec9bccac7",
+    "style.css": "9206490b944448124fc13d8e75453a4622e164ebcdead198af4879730d201ae1",
+    "launch.py": "1fb25553e5b6068e5dfb91c7a7bc9f330d4d709206534c4cd2f696fd7354a3be",
+    "tests/wasm-engine.test.mjs": "e1847b2e106cd8134ec22ad59d84bbb453d2d7884372a99626cd7232aa817394",
+    "tests/wasm_browser_check.py": "369d03c0af27127f1e895b1363936966d3fa7607d67d4effec5700e7ae39a372",
+    "scripts/wasm/acceptance.py": "cd77adc05fdee84f27eca789aa3e536ef455cfb03a5121b1c4ce3373a27199ce",
+    "scripts/wasm/benchmark.py": "897e6a3cd2dd47a6f63c6ef4937966d2fdae3d6bdaed0cc85987405d08499b44",
+    "scripts/wasm/fixtures.mjs": "9abf7585277a470306546800c59a0cdb77875bdeb2aa148d08ee03deabd8ada8"
+  },
+  "performance": [
+    {
+      "model": "B",
+      "backend": "native",
+      "medianBatchMs": 8.493124,
+      "batchRangeMs": [
+        8.287166,
+        8.583832000000001
+      ],
+      "nodes": 148636,
+      "millionNodesPerSecond": 17.500745308793324,
+      "medianStaticNs": 18.742915
+    },
+    {
+      "model": "B",
+      "backend": "wasm",
+      "medianBatchMs": 9.8,
+      "batchRangeMs": [
+        9.7,
+        10.299999999999999
+      ],
+      "nodes": 148636,
+      "millionNodesPerSecond": 15.166938775510204,
+      "medianStaticNs": 25.0
+    },
+    {
+      "model": "B",
+      "backend": "javascript",
+      "medianBatchMs": 413.80000001192093,
+      "batchRangeMs": [
+        408.69999998807907,
+        424.10000002384186
+      ],
+      "nodes": 148004,
+      "millionNodesPerSecond": 0.35767037215016007,
+      "medianStaticNs": 1111.9999999552965
+    },
+    {
+      "model": "P",
+      "backend": "native",
+      "medianBatchMs": 10.416418,
+      "batchRangeMs": [
+        10.251833,
+        11.022167999999999
+      ],
+      "nodes": 169532,
+      "millionNodesPerSecond": 16.27546052779372,
+      "medianStaticNs": 25.884999999999998
+    },
+    {
+      "model": "P",
+      "backend": "wasm",
+      "medianBatchMs": 12.6,
+      "batchRangeMs": [
+        12.3,
+        13.0
+      ],
+      "nodes": 169532,
+      "millionNodesPerSecond": 13.454920634920637,
+      "medianStaticNs": 32.99999999999999
+    },
+    {
+      "model": "P",
+      "backend": "javascript",
+      "medianBatchMs": 550.9999999850988,
+      "batchRangeMs": [
+        550.2000000327826,
+        557.5999999940395
+      ],
+      "nodes": 168301,
+      "millionNodesPerSecond": 0.30544646098829675,
+      "medianStaticNs": 1246.0000000149012
+    }
+  ],
+  "acceptance": {
+    "browser": "156.0.8078.4",
+    "games": 48,
+    "checks": 348,
+    "elapsedSeconds": 283.63061050001124,
+    "memoryBytes": [
+      33554432
+    ],
+    "resources": [
+      {
+        "game": 0,
+        "browserProcessRssKiB": 1230528,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 11,
+        "browserProcessRssKiB": 1268768,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 23,
+        "browserProcessRssKiB": 1276176,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 35,
+        "browserProcessRssKiB": 1272560,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 47,
+        "browserProcessRssKiB": 1288640,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      }
+    ],
+    "cpuStart": {
+      "processInfo": [
+        {
+          "type": "browser",
+          "id": 77983,
+          "cpuTime": 0.453933
+        },
+        {
+          "type": "renderer",
+          "id": 77997,
+          "cpuTime": 0.043271
+        },
+        {
+          "type": "renderer",
+          "id": 77998,
+          "cpuTime": 0.184034
+        },
+        {
+          "type": "renderer",
+          "id": 77995,
+          "cpuTime": 0.175349
+        },
+        {
+          "type": "GPU",
+          "id": 77991,
+          "cpuTime": 0.258485
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "id": 77992,
+          "cpuTime": 0.080802
+        },
+        {
+          "type": "storage.mojom.StorageService",
+          "id": 77993,
+          "cpuTime": 0.031452
+        }
+      ]
+    },
+    "cpuEnd": {
+      "processInfo": [
+        {
+          "type": "browser",
+          "id": 77983,
+          "cpuTime": 4.486736
+        },
+        {
+          "type": "renderer",
+          "id": 77997,
+          "cpuTime": 0.04703
+        },
+        {
+          "type": "renderer",
+          "id": 77998,
+          "cpuTime": 244.621935
+        },
+        {
+          "type": "renderer",
+          "id": 77995,
+          "cpuTime": 0.21199
+        },
+        {
+          "type": "GPU",
+          "id": 77991,
+          "cpuTime": 10.526883
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "id": 77992,
+          "cpuTime": 0.178196
+        },
+        {
+          "type": "storage.mojom.StorageService",
+          "id": 77993,
+          "cpuTime": 0.03977
+        }
+      ]
+    },
+    "errors": [],
+    "conditions": [
+      {
+        "model": "B",
+        "budgetMs": 80,
+        "games": 12,
+        "searches": 408,
+        "meanDepth": 9.514705882352942,
+        "maxDepth": 17,
+        "depthZero": 0,
+        "exact": 117,
+        "maxCoreOverrunMs": 0.29999999999999716,
+        "maxWorkerRoundTripOverrunMs": 25.299999997019768,
+        "nodes": 364603975,
+        "elapsedMs": 23872.2,
+        "initializationMsRange": [
+          2.9000000059604645,
+          4
+        ]
+      },
+      {
+        "model": "B",
+        "budgetMs": 300,
+        "games": 12,
+        "searches": 409,
+        "meanDepth": 10.354523227383863,
+        "maxDepth": 20,
+        "depthZero": 0,
+        "exact": 133,
+        "maxCoreOverrunMs": 0.10000000000002274,
+        "maxWorkerRoundTripOverrunMs": 23.19999998807907,
+        "nodes": 1367013571,
+        "elapsedMs": 85336.2,
+        "initializationMsRange": [
+          3,
+          3.4000000059604645
+        ]
+      },
+      {
+        "model": "P",
+        "budgetMs": 80,
+        "games": 12,
+        "searches": 421,
+        "meanDepth": 9.648456057007126,
+        "maxDepth": 19,
+        "depthZero": 0,
+        "exact": 123,
+        "maxCoreOverrunMs": 0.20000000000000284,
+        "maxWorkerRoundTripOverrunMs": 22.100000008940697,
+        "nodes": 344988209,
+        "elapsedMs": 24355.300000000003,
+        "initializationMsRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "model": "P",
+        "budgetMs": 300,
+        "games": 12,
+        "searches": 409,
+        "meanDepth": 10.097799511002444,
+        "maxDepth": 20,
+        "depthZero": 0,
+        "exact": 128,
+        "maxCoreOverrunMs": 0.10000000000002274,
+        "maxWorkerRoundTripOverrunMs": 23.30000001192093,
+        "nodes": 1240175510,
+        "elapsedMs": 85768.49999999999,
+        "initializationMsRange": [
+          2.9000000059604645,
+          3.4000000059604645
+        ]
+      }
+    ],
+    "forcedPasses": 408,
+    "terminalWithEmpties": 8,
+    "maxFrameGapMs": 18.80000000000291,
+    "maxGameP95FrameGapMs": 18.69999999999709
+  },
+  "lifecycle": {
+    "browser": "156.0.8078.4",
+    "rows": [
+      {
+        "initializationMs": 12.099999994039536,
+        "memoryBytes": 33554432,
+        "navigationWorkerAndModuleMs": 74.42291699408088,
+        "rep": 0,
+        "pythonBrowserWorkerInspectRoundTripMs": [
+          3.869833002681844,
+          2.518541004974395,
+          5.902999997488223,
+          2.2374170075636357,
+          4.740042000776157,
+          1.366500000585802,
+          0.8808339916868135,
+          1.2606250093085691,
+          1.1207919887965545,
+          1.0826250072568655,
+          2.1127920044818893,
+          0.9394169901497662,
+          0.912667004740797,
+          0.7295409886864945,
+          2.096959011396393,
+          1.2622920039575547,
+          1.0089999996125698,
+          1.400000008288771,
+          0.6549999961862341,
+          0.7271249924087897,
+          1.022374999593012,
+          0.7443749927915633,
+          0.643749997834675,
+          0.665084007778205,
+          0.7246250024763867,
+          0.8896249928511679,
+          0.5719170003430918,
+          0.7857499876990914,
+          0.589415998547338,
+          0.552541998331435
+        ]
+      },
+      {
+        "initializationMs": 8.100000008940697,
+        "memoryBytes": 33554432,
+        "navigationWorkerAndModuleMs": 26.541624989476986,
+        "rep": 1,
+        "pythonBrowserWorkerInspectRoundTripMs": [
+          2.21704100840725,
+          0.864916990394704,
+          0.8641250024084002,
+          0.8110829949146137,
+          0.8450000023003668,
+          0.7778750004945323,
+          0.7398330053547397,
+          0.7267919863807037,
+          0.7227080059237778,
+          0.7097079942468554,
+          0.9267910063499585,
+          0.6625000096391886,
+          0.713958012056537,
+          0.6943749904166907,
+          0.8958749967860058,
+          0.6409580091712996,
+          0.6227910052984953,
+          0.8742919890210032,
+          0.6009580101817846,
+          0.5636249989038333,
+          0.810957993962802,
+          0.626958004431799,
+          0.6312499899649993,
+          0.6047079950803891,
+          0.5999589920975268,
+          0.7782500033499673,
+          0.5867919971933588,
+          0.7762079912936315,
+          0.5566670006373897,
+          0.5440410022856668
+        ]
+      },
+      {
+        "initializationMs": 7.0999999940395355,
+        "memoryBytes": 33554432,
+        "navigationWorkerAndModuleMs": 24.81895800156053,
+        "rep": 2,
+        "pythonBrowserWorkerInspectRoundTripMs": [
+          2.250541001558304,
+          0.7493330049328506,
+          1.0697079997044057,
+          0.6391249917214736,
+          0.6232499872567132,
+          0.7358750008279458,
+          0.7162499969126657,
+          0.617874989984557,
+          0.6967090012039989,
+          0.6287919968599454,
+          0.8029169985093176,
+          0.5657500005327165,
+          0.6862080044811592,
+          0.6259170040721074,
+          0.7735420076642185,
+          0.5675419961335137,
+          0.561625012778677,
+          0.8535419910913333,
+          0.5625000048894435,
+          0.5322079960023984,
+          0.7616670045536011,
+          0.6058340077288449,
+          0.6311250035651028,
+          0.6390829948941246,
+          0.56412500271108,
+          0.8265830110758543,
+          0.5784160020994022,
+          0.7577919895993546,
+          0.5739170010201633,
+          0.5641669995384291
+        ]
+      },
+      {
+        "initializationMs": 6.899999991059303,
+        "memoryBytes": 33554432,
+        "navigationWorkerAndModuleMs": 27.590833997237496,
+        "rep": 3,
+        "pythonBrowserWorkerInspectRoundTripMs": [
+          2.1275000035529956,
+          0.8625420014141127,
+          0.8071250049397349,
+          0.6323330017039552,
+          0.6278750079218298,
+          0.5995419924147427,
+          0.618792008026503,
+          0.5554999952437356,
+          0.6086249923100695,
+          0.6558339955518022,
+          0.7480419881176203,
+          0.5534590018214658,
+          0.6398340046871454,
+          0.5254580028122291,
+          0.7286659965757281,
+          0.5703339993488044,
+          0.5100840062368661,
+          2.413624999462627,
+          0.6629999988945201,
+          0.5945000011706725,
+          0.7675829983782023,
+          0.519416993483901,
+          0.5912089982302859,
+          0.5984169984003529,
+          0.578249993850477,
+          0.7319590076804161,
+          0.5117499968037009,
+          0.6476249982370064,
+          0.5144159949850291,
+          0.4828749952139333
+        ]
+      },
+      {
+        "initializationMs": 8.700000002980232,
+        "memoryBytes": 33554432,
+        "navigationWorkerAndModuleMs": 32.25499999825843,
+        "rep": 4,
+        "pythonBrowserWorkerInspectRoundTripMs": [
+          2.3935829958645627,
+          0.8471249893773347,
+          0.9832920040935278,
+          0.7917920011095703,
+          0.7776670099701732,
+          0.7317090057767928,
+          0.7625830039614812,
+          0.6622500077355653,
+          0.648665998596698,
+          0.7826660003047436,
+          0.9145410003839061,
+          0.6221250077942386,
+          0.7447499956469983,
+          0.7840839971322566,
+          1.1498749954625964,
+          0.7800419989507645,
+          0.6106250075390562,
+          0.979500007815659,
+          0.9102080075535923,
+          1.1081660049967468,
+          1.1118750117020682,
+          0.7813329866621643,
+          0.6096670113038272,
+          0.7170830067479983,
+          0.6252500024857,
+          0.8532079955330119,
+          0.6890419899718836,
+          0.7726250041741878,
+          0.5569999921135604,
+          0.6197500042617321
+        ]
+      }
+    ],
+    "profileWork": {
+      "searches": 274,
+      "nodes": 37477172,
+      "elapsedMs": 2507.6000000089407
+    },
+    "wallSeconds": 2.5089335829979973,
+    "aggregateBrowserProcessCpuSeconds": 2.5227,
+    "cpuScope": "All existing browser processes, including worker/transport; not per-search thread CPU"
+  },
+  "safari": {
+    "available": false,
+    "reply": {
+      "value": {
+        "error": "session not created",
+        "message": "Could not create a session: You must enable 'Allow remote automation' in the Developer section of Safari Settings to control Safari via WebDriver.",
+        "stacktrace": ""
+      }
+    }
+  },
+  "uiStress": {
+    "browser": "156.0.8078.4",
+    "cancellations": 20,
+    "frameCount": 86,
+    "maxAllFrameGapMs": 71.46199999999999,
+    "p95AllFrameGapMs": 16.799999999999955,
+    "mainLongTasks": [],
+    "clickWallMs": [
+      46.51479200401809,
+      29.124416992999613,
+      37.86900000704918,
+      23.914083998533897,
+      38.736082991817966,
+      23.595165999722667,
+      22.876707997056656,
+      22.83287499449216,
+      24.938375005149283,
+      38.766666999435984,
+      24.433333004708402,
+      39.136292005423456,
+      22.947875011595897,
+      22.724291993654333,
+      23.02708401111886,
+      23.74383300775662,
+      23.491249987273477,
+      23.614958001417108,
+      23.73933300259523,
+      23.971458998857997
+    ],
+    "longestMainTraceEvents": []
+  },
+  "initialAcceptance": {
+    "browser": "156.0.8078.4",
+    "games": 48,
+    "checks": 348,
+    "elapsedSeconds": 284.3832161669998,
+    "memoryBytes": [
+      33554432
+    ],
+    "resources": [
+      {
+        "game": 0,
+        "browserProcessRssKiB": 1231056,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 11,
+        "browserProcessRssKiB": 1262032,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 23,
+        "browserProcessRssKiB": 1276480,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 35,
+        "browserProcessRssKiB": 1274224,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      },
+      {
+        "game": 47,
+        "browserProcessRssKiB": 1278416,
+        "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)"
+      }
+    ],
+    "cpuStart": {
+      "processInfo": [
+        {
+          "type": "browser",
+          "id": 74084,
+          "cpuTime": 0.444133
+        },
+        {
+          "type": "renderer",
+          "id": 74100,
+          "cpuTime": 0.045255
+        },
+        {
+          "type": "renderer",
+          "id": 74101,
+          "cpuTime": 0.143636
+        },
+        {
+          "type": "renderer",
+          "id": 74098,
+          "cpuTime": 0.168868
+        },
+        {
+          "type": "GPU",
+          "id": 74093,
+          "cpuTime": 0.166301
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "id": 74094,
+          "cpuTime": 0.08281
+        },
+        {
+          "type": "storage.mojom.StorageService",
+          "id": 74095,
+          "cpuTime": 0.039821
+        }
+      ]
+    },
+    "cpuEnd": {
+      "processInfo": [
+        {
+          "type": "browser",
+          "id": 74084,
+          "cpuTime": 4.530731
+        },
+        {
+          "type": "renderer",
+          "id": 74100,
+          "cpuTime": 0.12392
+        },
+        {
+          "type": "renderer",
+          "id": 74101,
+          "cpuTime": 244.514231
+        },
+        {
+          "type": "renderer",
+          "id": 74098,
+          "cpuTime": 0.20499
+        },
+        {
+          "type": "GPU",
+          "id": 74093,
+          "cpuTime": 10.670441
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "id": 74094,
+          "cpuTime": 0.184549
+        },
+        {
+          "type": "storage.mojom.StorageService",
+          "id": 74095,
+          "cpuTime": 0.047617
+        }
+      ]
+    },
+    "errors": []
+  },
+  "finalQualification": {
+    "fingerprint": "5dab45b8a8edfae11a0c9b3821f296a3ee6d06ed5f52c9394cef4e95d9cb1cef",
+    "tolerance": 1e-10,
+    "maxAbsError": 0,
+    "comparisons": 2302,
+    "staticQueries": 600
+  },
+  "tests": {
+    "node": 169,
+    "python": 38,
+    "nativeSanitizerGroups": 15,
+    "actualWasmGroups": 7,
+    "standaloneWasm": "passed"
+  },
+  "wasmBuild": {
+    "fingerprint": "5dab45b8a8edfae11a0c9b3821f296a3ee6d06ed5f52c9394cef4e95d9cb1cef",
+    "artifacts": {
+      "engine-5dab45b8a8edfae1.mjs": "e409f9192eee8b9cab234732bc8085992b986a97e501c70d714ac8896eaaa228",
+      "engine-5dab45b8a8edfae1.wasm": "233fda1b1df7b85dd95202673ce92614d8aff5b52e30d08e7a482ebdbe9fdcd3"
+    },
+    "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    }
+  }
+}
