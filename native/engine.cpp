@@ -243,6 +243,40 @@ Result Engine::search(Board b,int p,int depth,int selectedModel,double timeMs,ui
   result.stats=stats;result.elapsedMs=std::chrono::duration<double,std::milli>(Clock::now()-start).count();
   result.cpuMs=1000.*(std::clock()-cpu)/CLOCKS_PER_SEC;result.tableBytes=tableBytes();result.generation=generation;return result;
 }
+Analysis Engine::analyze(Board b,int p,int depth,int selectedModel) {
+  if((b.black&b.white)||(p!=1&&p!=-1)||depth<1||depth>64||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid analysis parameters");
+  const auto start=Clock::now();model=selectedModel;stats={};timed=false;stopNodes=0;nextGeneration();
+  Analysis out;std::array<int,64> list;int n=ordered(b,legal(p==1?b.black:b.white,p==1?b.white:b.black),-1,list);
+  bool allExact=true;
+  for(int i=0;i<n;i++) {
+    MoveAnalysis row;row.result.move=list[i];row.result.depth=depth;row.result.hasScore=true;
+    auto current=play(b,p,list[i]);int turn=-p,remaining=depth-1;auto horizon=stats.horizonHits;
+    // Every alternative has an independent full window at the common horizon.
+    row.result.score=-negamax(current,turn,remaining,-INF,INF);
+    row.result.exact=depth>=64-pop(b.black|b.white)||stats.horizonHits==horizon;
+    allExact=allExact&&row.result.exact;row.pv.push_back(list[i]);
+    while(true) {
+      Bits moves=legal(turn==1?current.black:current.white,turn==1?current.white:current.black);
+      if(!moves) {
+        if(!legal(turn==1?current.white:current.black,turn==1?current.black:current.white))break;
+        row.pv.push_back(-1);turn=-turn;continue;
+      }
+      if(remaining<=0)break;
+      const double target=negamax(current,turn,remaining,-INF,INF);
+      std::array<int,64> choices;int count=ordered(current,moves,-1,choices),chosen=-1;
+      for(int j=0;j<count;j++)if(-negamax(play(current,turn,choices[j]),-turn,remaining-1,-INF,INF)==target){chosen=choices[j];break;}
+      if(chosen<0)throw std::runtime_error("Could not verify continuation");
+      row.pv.push_back(chosen);current=play(current,turn,chosen);turn=-turn;remaining--;
+    }
+    out.moves.push_back(std::move(row));
+  }
+  if(!n) {auto h=stats.horizonHits;out.summary.score=negamax(b,p,depth,-INF,INF);allExact=stats.horizonHits==h;}
+  std::sort(out.moves.begin(),out.moves.end(),[](const MoveAnalysis& a,const MoveAnalysis& z){return a.result.score!=z.result.score?a.result.score>z.result.score:a.result.move<z.result.move;});
+  if(n){out.summary.score=out.moves[0].result.score;out.summary.move=out.moves[0].result.move;}
+  out.summary.hasScore=true;out.summary.depth=depth;out.summary.exact=allExact;
+  out.summary.stats=stats;out.summary.tableBytes=tableBytes();out.summary.generation=generation;
+  out.summary.elapsedMs=std::chrono::duration<double,std::milli>(Clock::now()-start).count();return out;
+}
 std::vector<double> Engine::windows(Board b,int p,int depth,int selectedModel,const std::vector<std::array<double,2>>& ranges) {
   if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>64||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid window parameters");
   stats={};timed=false;stopNodes=0;model=selectedModel;nextGeneration();std::vector<double> values;

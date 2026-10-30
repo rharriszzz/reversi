@@ -10,13 +10,17 @@ import { compile, GEOMETRIES } from '../next-residual/model.mjs';
 import { DEFAULT_WEIGHTS, FEATURE_NAMES } from '../../src/features.js';
 export const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 export const sha=b=>createHash('sha256').update(b).digest('hex');
-export function build({directory=resolve(root,'.local-research/native'),profile=false,instrument=false,sanitize=false}={}) {
-  const previous=process.cwd();process.chdir(root);
-  try {
+export function frozenHeader() {
     const models=frozenModels(),compiled=compile(models.P),keys=Object.keys(FEATURE_NAMES);
     const weights=['B','L','P'].map(m=>['opening','middle','endgame'].map(p=>keys.map(k=>(m==='B'?DEFAULT_WEIGHTS:models[m==='P'?'L':m].weights)[p][k])));
     const float=v=>Object.is(v,-0)?'-0.0f':`${v.toExponential(9)}f`;
     const header=`// Generated from verified frozen coefficients. Do not edit.\n#pragma once\nnamespace frozen {\ninline constexpr const char* identities[3]={"original-production","${models.L.checksum}","${models.P.checksum}"};\ninline constexpr double weights[3][3][7]=${JSON.stringify(weights).replaceAll('[','{').replaceAll(']','}')};\ninline constexpr int squares[16][8]={${GEOMETRIES.map(g=>`{${[...g.squares].join(',')}}`).join(',')}};\ninline constexpr int lengths[16]={${GEOMETRIES.map(g=>g.squares.length).join(',')}};\n${compiled.tables.map((t,i)=>`inline constexpr float table${i}[${t.length}]={${[...t].map(float).join(',')}};`).join('\n')}\n}\n`;
+    return {header,models,weights};
+}
+export function build({directory=resolve(root,'.local-research/native'),profile=false,instrument=false,sanitize=false}={}) {
+  const previous=process.cwd();process.chdir(root);
+  try {
+    const {header,models}=frozenHeader();
     const flags=['-O3','-std=c++17','-Wall','-Wextra','-Wpedantic','-ffp-contract=off','-fno-fast-math',...(profile||instrument?['-g','-fno-omit-frame-pointer']:[]),...(instrument?['-DNATIVE_PROFILE']:[]),...(sanitize?['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']:[])];
     const compiler=process.env.CXX??'c++',version=spawnSync(compiler,['--version'],{encoding:'utf8'});
     if(version.status!==0)throw Error(`Compiler unavailable: ${compiler}`);

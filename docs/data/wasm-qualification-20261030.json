@@ -1,0 +1,185 @@
+{
+  "checkpoint": 2,
+  "manifest": {
+    "abi": 1,
+    "fingerprint": "5dab45b8a8edfae11a0c9b3821f296a3ee6d06ed5f52c9394cef4e95d9cb1cef",
+    "version": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 4.0.22 (0f3d2e62bccf8e14497ff19e05a1202c51eb0c65)\nCopyright (C) 2025 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "flags": [
+      "-O3",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-ffp-contract=off",
+      "-fno-fast-math",
+      "-fexceptions",
+      "-sDISABLE_EXCEPTION_CATCHING=0",
+      "-sMODULARIZE=1",
+      "-sEXPORT_ES6=1",
+      "-sENVIRONMENT=web,worker,node",
+      "-sFILESYSTEM=0",
+      "-sINITIAL_MEMORY=33554432",
+      "-sMAXIMUM_MEMORY=134217728",
+      "-sALLOW_MEMORY_GROWTH=1",
+      "-sSTACK_SIZE=1048576",
+      "-sEXPORTED_FUNCTIONS=[\"_rv_abi\",\"_rv_build_id\",\"_rv_identity\",\"_rv_create\",\"_rv_destroy\",\"_rv_query\"]",
+      "-sEXPORTED_RUNTIME_METHODS=[\"UTF8ToString\",\"HEAPU8\"]",
+      "--profiling-funcs"
+    ],
+    "sourceHashes": {
+      "native/engine.hpp": "18876922c9a3bd940284ff3d86fe54441d562c06c064c621ea75f684b25530b4",
+      "native/engine.cpp": "c238818d6c6ab485ea64eb142e7a614058ea02b8e6afc1e744fd0904be364f6d",
+      "native/browser.cpp": "910ac97758fc2bb9634c8440fdcd89e82e74c14ff82b0e4de32ceb1f691f45f2",
+      "scripts/native/build.mjs": "0316f8d34f89d99c47e6d86a4293c96e57eedaae90e5331982c5ff32cf6575ab",
+      "scripts/wasm/build.mjs": "de46704f24e2f978dd64400ea6205ace5bc2ff127dc25db7caf7e408eac6a7d1"
+    },
+    "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "weights": [
+      [
+        [
+          55,
+          12,
+          115,
+          90,
+          35,
+          20,
+          -20
+        ],
+        [
+          45,
+          8,
+          120,
+          80,
+          30,
+          12,
+          -8
+        ],
+        [
+          12,
+          0,
+          120,
+          65,
+          15,
+          0,
+          75
+        ]
+      ],
+      [
+        [
+          59.09753691256973,
+          91.34720285098494,
+          187.91829628243306,
+          169.85578256129526,
+          135,
+          93.56476412118515,
+          -4.189283649267802
+        ],
+        [
+          66.12832180947615,
+          0.32488486998655386,
+          132.82474406872038,
+          62.15075451097778,
+          130,
+          58.081998234865814,
+          -2.306338829879442
+        ],
+        [
+          41.35143485784013,
+          -27.080052636476786,
+          60.66097392280929,
+          18.84195927075409,
+          49.20062104257586,
+          27.731348245480355,
+          53.30345513982961
+        ]
+      ],
+      [
+        [
+          59.09753691256973,
+          91.34720285098494,
+          187.91829628243306,
+          169.85578256129526,
+          135,
+          93.56476412118515,
+          -4.189283649267802
+        ],
+        [
+          66.12832180947615,
+          0.32488486998655386,
+          132.82474406872038,
+          62.15075451097778,
+          130,
+          58.081998234865814,
+          -2.306338829879442
+        ],
+        [
+          41.35143485784013,
+          -27.080052636476786,
+          60.66097392280929,
+          18.84195927075409,
+          49.20062104257586,
+          27.731348245480355,
+          53.30345513982961
+        ]
+      ]
+    ],
+    "module": "engine-5dab45b8a8edfae1.mjs",
+    "artifacts": {
+      "engine-5dab45b8a8edfae1.mjs": "e409f9192eee8b9cab234732bc8085992b986a97e501c70d714ac8896eaaa228",
+      "engine-5dab45b8a8edfae1.wasm": "233fda1b1df7b85dd95202673ce92614d8aff5b52e30d08e7a482ebdbe9fdcd3"
+    }
+  },
+  "native": {
+    "version": 1,
+    "fingerprint": "0cdc0cc60b487b82e41d2daeb42e0413f30e8ad0bb9a64b77eadf15d7a705f62",
+    "sourceHashes": {
+      "native/engine.hpp": "18876922c9a3bd940284ff3d86fe54441d562c06c064c621ea75f684b25530b4",
+      "native/engine.cpp": "c238818d6c6ab485ea64eb142e7a614058ea02b8e6afc1e744fd0904be364f6d",
+      "native/main.cpp": "0d7b9978c2e20668334a965f0b384277cb77383f5dc4d4045d475a20a31a8edd",
+      "scripts/native/build.mjs": "0316f8d34f89d99c47e6d86a4293c96e57eedaae90e5331982c5ff32cf6575ab",
+      "scripts/native/client.mjs": "7533a332307c9afe8daf26bbd02f4c4f9e1017e0f678816ca34a99f3f6b8952e",
+      "scripts/native/client.py": "c09d504e11b8eed3baeb82af0974d15474e28b82888d0f7267537506b88adab9"
+    },
+    "flags": [
+      "-O3",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-ffp-contract=off",
+      "-fno-fast-math"
+    ],
+    "compiler": "Apple clang version 21.0.0 (clang-2100.4.1.1)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "executable": "/Users/rharris/git/reversi/.local-research/native/reversi-native",
+    "executableSha256": "e500420872cd3bf3d04a7f6012ef3214c9921eb566248d8aad440b6faa424b8f",
+    "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "createdAt": "2026-10-30T20:46:12.521Z"
+  },
+  "qualification": {
+    "fingerprint": "5dab45b8a8edfae11a0c9b3821f296a3ee6d06ed5f52c9394cef4e95d9cb1cef",
+    "tolerance": 1e-10,
+    "maxAbsError": 0,
+    "comparisons": 2250,
+    "staticQueries": 600
+  },
+  "tests": {
+    "actualWasmGroups": 5,
+    "nativeSanitizerGroups": 15,
+    "fullSuite": 165,
+    "standaloneActualWasm": "passed; exhaustive patterns, rollover, all-move/PV and interrupted depth assertions",
+    "reproducibleBinaryRebuild": true
+  },
+  "problems": [
+    "Initial smoke required explicitly exporting HEAPU8 for memory accounting",
+    "PV oracle originally required each alternative to be globally optimal; corrected to verify its own backed-up score and subsequent optimal replies"
+  ]
+}

@@ -25,6 +25,8 @@ struct Result {
   int move=-1,depth=0; double score=0,elapsedMs=0,cpuMs=0; bool hasScore=false,exact=false,timedOut=false;
   Counters stats; size_t tableBytes=0; uint64_t generation=0;
 };
+struct MoveAnalysis { Result result; std::vector<int> pv; };
+struct Analysis { Result summary; std::vector<MoveAnalysis> moves; };
 // Full bitboard identity prevents even deliberately colliding indices from reuse.
 struct Entry {
   Bits black=0,white=0; double score=0;
@@ -54,6 +56,7 @@ public:
   size_t tableBytes() const {return table.size()*sizeof(Entry);}
   void configure(bool tt=true,bool hints=true) {useTT=tt;orderingHints=hints;}
   Result search(Board b,int player,int depth,int selectedModel,double timeMs=0,uint64_t nodeLimit=0);
+  Analysis analyze(Board b,int player,int depth,int selectedModel);
   // Qualification interface: fresh generation followed by arbitrary windows at
   // one declared depth. Not a playing API and never carries values across depth.
   std::vector<double> windows(Board b,int player,int depth,int selectedModel,const std::vector<std::array<double,2>>& ranges);

@@ -47,6 +47,24 @@ int main() {
   assert(actual.generation==1&&actual.score==expected.score);
   auto leaf=e.search(b,1,1,2);assert(leaf.stats.probes==0);
   auto stop=e.search(b,1,20,2,0,1);assert(!stop.hasScore&&stop.timedOut);
+  for(int model=0;model<3;model++)for(int depth=1;depth<=4;depth++) {
+    const auto analysis=e.analyze(b,1,depth,model);
+    assert(analysis.moves.size()==4);
+    for(const auto& row:analysis.moves) {
+      const auto child=play(b,1,row.result.move);
+      const auto exact=reference.windows(child,-1,depth-1,model,{{-1e9,1e9}})[0];
+      assert(row.result.score==-exact);
+      Board current=b;int turn=1,remaining=depth;bool root=true;
+      for(int q:row.pv) {
+        const Bits moves=legal(turn==1?current.black:current.white,turn==1?current.white:current.black);
+        if(q<0){assert(!moves);assert(legal(turn==1?current.white:current.black,turn==1?current.black:current.white));turn=-turn;continue;}
+        assert(remaining>0&&(moves&(Bits(1)<<q)));
+        double value=reference.windows(current,turn,remaining,model,{{-1e9,1e9}})[0];
+        current=play(current,turn,q);turn=-turn;remaining--;
+        if(!root)assert(value==-reference.windows(current,turn,remaining,model,{{-1e9,1e9}})[0]);root=false;
+      }
+    }
+  }
   Board terminal{0xffffffffffffULL,0};
   auto deep=e.search(terminal,1,64,0);assert(deep.depth==64&&deep.exact&&deep.score==10048);
 }

@@ -10,7 +10,9 @@
     "native:build": "node scripts/native/build.mjs",
     "native:test": "node --test tests/native-search.test.mjs",
     "native:play": "node scripts/native/play.mjs",
-    "native:benchmark": "node scripts/native/benchmark.mjs"
+    "native:benchmark": "node scripts/native/benchmark.mjs",
+    "wasm:build": "node scripts/wasm/build.mjs",
+    "wasm:test": "node --test tests/wasm-engine.test.mjs"
   },
   "engines": {
     "node": ">=20"
