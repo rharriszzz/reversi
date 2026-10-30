@@ -1,6 +1,7 @@
 """Numerical checks in an actual Windows worker, independent rules for all PVs."""
 import importlib.util
 import json
+import os
 import random
 import re
 import subprocess
@@ -9,7 +10,7 @@ import tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from browser import WindowsBrowser
-ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'.local-research/windows-pc-20261030'
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/os.environ.get('REVERSI_PC_OUTPUT','.local-research/windows-pc-20261030')
 
 def module(name,path):
     spec=importlib.util.spec_from_file_location(name,ROOT/path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
@@ -60,7 +61,7 @@ def main():
                 cycles=[]
                 for _ in range(20):cycles.append(measure('reinit'))
                 assert set(r['memoryBytes'] for r in cycles)=={33554432}
-                result={'passed':True,'browser':browser.version,'platform':page.evaluate('navigator.platform'),'checks':checks,'maxAbsError':max_error,'tolerance':1e-10,'staticQueries':static,'rootAlternatives':alternatives,'pvPlacements':pv_steps,'deepAlternativeChecks':deep_checks,'deepReferences':deep['rows'],'initialization':init,'reinitializations':cycles}
+                result={'passed':True,'channel':os.environ.get('REVERSI_WINDOWS_CHANNEL','chrome'),'browser':browser.version,'userAgent':page.evaluate('navigator.userAgent'),'platform':page.evaluate('navigator.platform'),'checks':checks,'maxAbsError':max_error,'tolerance':1e-10,'staticQueries':static,'rootAlternatives':alternatives,'pvPlacements':pv_steps,'deepAlternativeChecks':deep_checks,'deepReferences':deep['rows'],'initialization':init,'reinitializations':cycles}
                 (OUT/'windows-numerical.json').write_text(json.dumps(result));print(json.dumps({k:v for k,v in result.items() if k not in ['deepReferences','reinitializations']}),flush=True)
         finally:server.terminate();server.communicate(timeout=5)
 if __name__=='__main__':main()

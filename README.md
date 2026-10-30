@@ -1,5 +1,11 @@
 # Reversi
 
+**Final PC qualification:** Ubuntu **26.04.1**, Python **3.14.4**, GCC **15.2**,
+and actual Windows **Chrome + Edge** pass. Portable remains the native default;
+host and POPCNT-only results, profiles and ranked next experiments are in the
+[PC-to-Mac handoff](docs/PC_TO_MAC_HANDOFF.md). The original Wasm is unchanged.
+No additional PC campaign is scheduled.
+
 **Current Python policy:** Python **3.13+** is required for all active workflows;
 the Ubuntu 26.04 PC uses Python **3.14.4**. See
 [environment setup and interpreter selection](docs/PYTHON_ENVIRONMENT.md) for

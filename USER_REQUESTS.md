@@ -5792,3 +5792,7 @@ I have seen this error several times, can you make it go away: python -m unittes
 ---
 
 I see. sorry
+
+---
+
+I am hoping for testing, benchmarking, profiling, and speculations on how to improve based on the profiling results.  You have alread much of this.

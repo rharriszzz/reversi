@@ -1,5 +1,11 @@
 # Windows PC native C++ and browser Wasm qualification
 
+**Post-upgrade follow-up:** [Ubuntu 26.04 / Python 3.14 / GCC 15 and the Mac
+handoff](PC_TO_MAC_HANDOFF.md) now qualify both actual Windows Chrome and Edge,
+compare portable/host/POPCNT builds, and revisit the search profiles. The
+measurements below remain the original GCC 11 study; they are not overwritten
+or relabeled as GCC 15 results.
+
 Actual Windows Chrome runs the committed Wasm binary correctly. On the directly
 matched eight-root panel it is **51.8× faster than JavaScript B and 49.9× faster
 than JavaScript P**, while taking **1.38× / 1.48× native elapsed time**. The M4

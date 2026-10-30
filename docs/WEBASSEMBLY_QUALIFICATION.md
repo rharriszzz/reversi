@@ -1,5 +1,11 @@
 # WebAssembly module checkpoint
 
+The [final PC qualification](PC_TO_MAC_HANDOFF.md) additionally executes this
+unchanged artifact in actual Windows Chrome and Edge, with zero error in 524
+comparisons each. It explains the later native source correction and the tests
+required for a future shared-source rebuild. The standalone checkpoint below
+retains its original build/source identity.
+
 The standalone module passes qualification before UI integration. One shared
 C++ engine serves native and Wasm. The native search/evaluation algorithms are
 unchanged; a shared all-move/PV operation and a small C transport were added.

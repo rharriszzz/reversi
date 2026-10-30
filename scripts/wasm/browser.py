@@ -7,7 +7,7 @@ from pathlib import Path
 
 def check_resources():
     if os.environ.get('REVERSI_WINDOWS_BROWSER')!='1':return
-    file=Path(__file__).resolve().parents[2]/'.local-research/windows-pc-20261030/resources-latest.json'
+    file=Path(__file__).resolve().parents[2]/os.environ.get('REVERSI_PC_OUTPUT','.local-research/windows-pc-20261030')/'resources-latest.json'
     if not file.exists():raise RuntimeError('Start scripts/windows-pc/resources.py before Windows measurements')
     import time
     if time.time()-file.stat().st_mtime>45:raise RuntimeError('Resource monitor is stale')

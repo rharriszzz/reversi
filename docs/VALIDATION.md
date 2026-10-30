@@ -4,6 +4,13 @@ Current active Python requirement is **3.13+**; Ubuntu 26.04 qualification uses
 Python 3.14.4. See [Python setup](PYTHON_ENVIRONMENT.md). The dated tables below
 retain historical results and do not establish current Mac qualification.
 
+Latest [PC-to-Mac handoff](PC_TO_MAC_HANDOFF.md): Ubuntu 26.04.1 / Python 3.14.4 /
+GCC 15.2 pass the complete suites, sanitizers and broad native qualification.
+Actual Windows Chrome 156.0.8078.48 and Edge 156.0.4314.42 pass numerical and
+application acceptance with disposable profiles; Edge also passes custom export
+and finite memory/restart checks. Native Windows Python and current Mac Python
+3.13+ execution remain separately unqualified in this PC step.
+
 Verified 2026-10-26 local time (2026-10-27 UTC). See [INITIAL_CODEX_REVIEW.md](INITIAL_CODEX_REVIEW.md) for measurements, defects, and limitations.
 
 | Environment | Launcher/HTTP | Browser | Status |

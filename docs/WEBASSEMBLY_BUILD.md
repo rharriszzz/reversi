@@ -1,5 +1,14 @@
 # Reproducible WebAssembly engine
 
+Active tooling now requires **Python 3.13+**; see
+[interpreter selection](PYTHON_ENVIRONMENT.md). SDK setup and both build scripts
+pass the project-selected `EMSDK_PYTHON`, avoiding a silently selected SDK Python.
+The [final PC handoff](PC_TO_MAC_HANDOFF.md) verifies the original distribution
+in actual Windows Chrome and Edge without rebuilding it. Its manifest retains
+the original source identity, before the shared GCC exception-return correction.
+Current-source SDK compilation/Python 3.14 compatibility must be checked on the
+Mac; no such rebuild is claimed on this PC.
+
 Running the application needs only Python 3 and a modern browser. Committed
 `src/wasm/` resources contain the compiler output and frozen B/L/P coefficients;
 no SDK, Node installation or remote computing service is required to play.

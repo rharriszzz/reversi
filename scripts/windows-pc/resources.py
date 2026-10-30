@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'.local-research/windows-pc-20261030'
+OUT=ROOT/os.environ.get('REVERSI_PC_OUTPUT','.local-research/windows-pc-20261030')
 
 def linux():
     m={k:int(v.split()[0])*1024 for k,v in (line.split(':',1) for line in Path('/proc/meminfo').read_text().splitlines())}
