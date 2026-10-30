@@ -3474,3 +3474,239 @@ Continue the frozen B/L/P playing-strength experiment using the original scienti
 ---
 
 Can you please do a test to verify that you can do a "git push" successfully?
+
+---
+
+# Reversi — Independent Confirmation of the Frozen P Evaluator
+
+Work in `~/git/reversi` on the M4 iMac.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, and especially:
+
+- `docs/FROZEN_PLAYER_SCREEN_RESULTS.md`
+- `docs/FROZEN_PLAYER_SCREEN_PROTOCOL.md`
+- `docs/ASTRA_LEARNING_STRATEGY_REVIEW.md`
+- `docs/MAC_PC_BENCHMARK.md`
+- `docs/FROZEN_PLAYER_HISTORY_TRANSFER.md`
+
+Review the relevant frozen-player implementation, game-playing code, statistical analysis, provenance auditing, and checkpoint infrastructure.
+
+## Objective
+
+I authorize **one new, independent, substantially larger P-versus-B playing-strength confirmation experiment**.
+
+Our previous frozen-player screen found:
+
+- P versus B at 80 ms: 56.25% over 64 opening pairs.
+- P versus B at 300 ms: 67.19% over 32 opening pairs.
+- L performed worse than B overall.
+- P was approximately 10% more expensive to evaluate than L but nevertheless scored better than B in both time controls.
+
+The earlier 80 ms primary result did not pass its multiplicity-adjusted significance threshold. The 300 ms result was encouraging but exploratory.
+
+I want considerably stronger evidence before considering P for production use.
+
+**Do not retrain P. Do not modify B or P. Do not optimize parameters using the earlier tournament results.**
+
+## 1. Frozen experimental players
+
+Use exactly the same production B and frozen P as in the previous game screen.
+
+Verify P's published checksum and complete model identity.
+
+Preserve original search behavior, terminal utility, phase boundaries, move ordering, transposition tables, passes, iterative deepening and time limits.
+
+Do not introduce a new search optimization, even if it appears beneficial. That is a different experiment.
+
+L is not a participant in this confirmation.
+
+## 2. Independent opening sample
+
+Before any scored outcomes, reserve **768 new independent opening families** using the same scientifically documented B1/12% and B4/2% opening-generation mixture and 12/13-occupied starting positions.
+
+Use the following predetermined allocation:
+
+- All 768 families: P versus B at 80 ms, both colors.
+- A predetermined subset of 256 of those families: P versus B at 300 ms, both colors.
+
+Total: 2,048 scored games.
+
+Balance opening policy, occupied parity, actual turn and color assignment. Predeclare the 256-family dual-budget subset before any outcomes.
+
+Using the same 256 families at both budgets permits paired analysis of time-control differences. Account for that dependence in any joint analysis.
+
+Do not reuse any game-opening family, direct training target, or prohibited assessment state from historical experiments, including the completed exploratory screen.
+
+Use the prospective provenance and independence policy from the last experiment, with complete role metadata and honest source-family clustering.
+
+The transferred Windows historical archive is available read-only at:
+
+`~/git/reversi/.local-research/pc-import-20261029/`
+
+Reuse the already verified historical index and provenance infrastructure where possible. Avoid rebuilding the complete 21 GB historical analysis unnecessarily.
+
+Freeze all source identities, opening families, condition orders, model checksums, scientific code, statistical methods and stopping rules before collecting scored results.
+
+No favorable or unfavorable outcome may cause an opening to be replaced.
+
+## 3. Primary hypotheses and statistical contract
+
+The central question is:
+
+**Does frozen P earn more than 50% of available game points against B at equal elapsed search time?**
+
+Predeclare the 80 ms comparison as the primary confirmation test, with 300 ms as a required separate durability assessment for any proposed promotion.
+
+Use the complete color-swapped opening-family pair as the independent statistical unit.
+
+For each time control:
+
+- Report the mean paired game-point score and all W/D/L outcomes.
+- Calculate a prespecified one-sided test of mean score above 50%, with a 97.5% one-sided confidence bound.
+- Calculate paired bootstrap sensitivity intervals with tested resampling.
+- Report a bounded-score Hoeffding lower bound, including its assumptions.
+- Report observed variance, uncertainty, disc margins and effect size.
+
+Control simultaneous claims about both budgets conservatively. Do not use a favorable 300 ms result to rescue a failed primary 80 ms test.
+
+Distinguish conventional paired-inference conclusions from conclusions supported by conservative distribution-free bounds.
+
+For a strong two-budget confirmation claim, require both time controls to have prespecified positive statistical evidence. If the methods disagree, present the disagreement transparently.
+
+Neither a favorable sample mean nor a single post-hoc interval is sufficient for automatic production promotion.
+
+Use the predetermined sample sizes even if interim results look decisive. Do not perform unregistered early significance testing.
+
+## 4. Actual playing conditions
+
+Use the original production playing engine, not a simplified benchmark search.
+
+Run scored games serially, without competing Edax labeling, model-fitting or other compute-intensive research workers.
+
+Use the same elapsed-time budget for both players.
+
+Preserve:
+
+- Both colors for every opening.
+- Consistent warmup.
+- Ordinary iterative deepening and deadline handling.
+- Complete move and board histories.
+- Correct terminal outcomes.
+- Search-depth, node and evaluation telemetry.
+- Per-move elapsed time and deadline overruns.
+
+Do not introduce expensive per-leaf instrumentation into scored games.
+
+Independently replay and verify every completed game.
+
+Report any anomalies, failures, incomplete iterations or timing violations without suppressing them.
+
+## 5. Power and feasibility
+
+Before beginning the scored confirmation, run a bounded engineering qualification using disclosed historical positions.
+
+Use the measured game costs from the previous M4 experiment to forecast the entire new workload.
+
+Include:
+
+- All 2,048 games.
+- Source admission and exclusions.
+- Game startup, checkpoints and legal replay.
+- Statistical analysis and independent audit.
+- Resource variability and long-tail game costs.
+
+I authorize **up to eight active hours of local scientific computation after engineering qualification**.
+
+The eight hours are a ceiling, not a target.
+
+Require at least 35% runtime contingency and a separate 20-minute final reporting reserve.
+
+If the complete prespecified experiment cannot be executed safely within this allowance, stop before opening scored outcomes and report the feasibility problem. Do not silently reduce the samples.
+
+There is no need to use all eight hours if the experiment finishes earlier.
+
+## 6. Resource management
+
+Use fresh M4 memory, CPU, swap and available-disk checks.
+
+The Mac previously sustained six independent Edax workers successfully. However, the timed games must run without competing scientific workers.
+
+Preserve enough memory for the operating system and interactive responsiveness.
+
+Use atomic checkpoints for completed games and in-progress game states. Validate resumed states and inputs before continuing.
+
+Retain all completed work after interruption.
+
+Do not modify unrelated applications, saved OS settings, original experimental checkpoints or production defaults.
+
+Keep the new experiment separate from earlier research, with a reasonable local disk budget of 75 GiB for new artifacts.
+
+Use a temporary bounded `caffeinate` assertion when needed.
+
+## 7. Independent auditing
+
+Audit the experiment using a separate verification path.
+
+Check:
+
+- Exact frozen B and P identities.
+- Complete source and sample reservation before outcomes.
+- Historical provenance and forbidden direct-state reuse.
+- Correct color reversals and opening-family grouping.
+- Search and terminal rules.
+- Every played game and score.
+- Statistical calculations, confidence bounds and random resampling.
+- Complete task receipts and immutable source snapshots.
+- Correct recovery from interruption.
+
+Preserve every exception and its resolution. Do not change scientific inputs after scores have been examined.
+
+Any serious independence or correctness failure must be disclosed and must block an unsupported confirmation claim.
+
+## 8. Results and interpretation
+
+Create:
+
+`docs/P_CONFIRMATION_RESULTS.md`
+
+Publish compact machine-readable evidence and appropriate figures.
+
+Report:
+
+1. P's game-point score at 80 ms and 300 ms.
+2. Complete W/D/L outcomes and disc margins.
+3. The strongest statistically supported superiority claims.
+4. Whether P's apparent advantage reproduces on genuinely fresh openings.
+5. The difference between 80 and 300 ms on the matched 256-family subset, including uncertainty.
+6. Completed search depths, nodes and evaluation costs.
+7. Whether any systematic weakness appears in particular opening families or phases.
+8. Whether the evidence justifies a later production promotion review.
+9. Limitations involving the opening distribution and B as the sole opponent.
+
+Do not interpret moves or individual game positions as independent statistical samples.
+
+Commit and push the protocol, results, compact evidence, figures and reproducible audits.
+
+Keep historical raw corpora and large local checkpoints outside Git.
+
+## 9. Final decision
+
+At completion, recommend one of:
+
+- **P is credibly stronger than B at both time controls**, justifying an independent production-promotion review.
+- **P is promising but not convincingly confirmed**, identifying what evidence remains missing.
+- **P did not reproduce its exploratory advantage**, and further evaluator work should reconsider the learning objective or search strategy.
+
+Do not promote P automatically.
+
+Do not begin training another evaluator.
+
+Do not start a larger follow-up tournament without separate authorization.
+
+The scientific objective is to determine whether our existing compact corner/edge pattern evaluator is genuinely stronger than B at equal elapsed search time.
+
+I value a correct negative or inconclusive result more than an unsupported claim of improvement.
+
+---
+
+please give a "no earlier than" guess for when this step will complete

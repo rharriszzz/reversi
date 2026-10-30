@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import {OUT,read,checked,sealed,sha} from './common.mjs';
+import {PROTOCOL,hash} from './protocol.mjs';
+import {inference,mean,moments,quantile} from './statistics.mjs';
+const output=process.argv[2]??OUT,start=performance.now(),provenance=checked(`${output}/provenance-audit.json`),launch=checked(`${output}/launch.json`),reservation=checked(`${output}/reservation.json`);
+assert.equal(provenance.games,2048);assert.equal(provenance.launch,launch.checksum);assert.equal(provenance.scoreSummariesOpened,false);
+const games=reservation.schedule.map((condition,i)=>{const r=checked(`${output}/games/game-${i}.json`);assert.equal(sha(`${output}/games/game-${i}.json`),provenance.receiptInventory[i][1]);const g=r.result;assert.equal(hash(g),r.resultHash);assert.equal(g.margin,g.board.reduce((s,v)=>s+v,0));assert.equal(g.points,(1+((Math.sign(g.margin)*condition.color)||0))/2);return {...condition,...g,wallMs:r.wallMs,receiptSha:provenance.receiptInventory[i][1]};});
+const pairRows=[];for(const timeMs of [80,300])for(const root of reservation.roots.filter(r=>timeMs===80||r.dual)){
+ const gs=games.filter(g=>g.family===root.family&&g.timeMs===timeMs);assert.equal(gs.length,2);assert.deepEqual(new Set(gs.map(g=>g.color)),new Set([-1,1]));pairRows.push({family:root.family,timeMs,score:mean(gs.map(g=>g.points)),meanDiscMargin:mean(gs.map(g=>g.margin*g.color)),policy:root.policy,occupied:root.occupied,turn:root.player,cell:root.cell});
+}
+const stats=inference(pairRows),outcomes={},telemetry=[],subgroups=[];
+function movesummary(ms){const depthHistogram={};for(const m of ms)depthHistogram[m.depth]=(depthHistogram[m.depth]??0)+1;const time=ms.map(m=>m.measuredMs),overruns=ms.map(m=>m.overrunMs);
+ return {moves:ms.length,meanDepth:mean(ms.map(m=>m.depth)),medianDepth:quantile(ms.map(m=>m.depth),.5),depthHistogram,nodes:ms.reduce((s,m)=>s+m.nodes,0),evaluations:ms.reduce((s,m)=>s+m.evaluations,0),totalMs:time.reduce((s,v)=>s+v,0),meanMs:mean(time),p95Ms:quantile(time,.95),maxMs:Math.max(...time),over1ms:overruns.filter(t=>t>1).length,over5ms:overruns.filter(t=>t>5).length,maxOverrunMs:Math.max(...overruns),incompleteIterations:ms.filter(m=>m.timedOut).length,fallbacks:ms.filter(m=>m.depth===0).length,exact:ms.filter(m=>m.exact).length};
+}
+for(const b of [80,300]){
+ const gs=games.filter(g=>g.timeMs===b),margins=pairRows.filter(r=>r.timeMs===b).map(r=>r.meanDiscMargin);outcomes[b]={games:gs.length,wins:gs.filter(g=>g.points===1).length,draws:gs.filter(g=>g.points===.5).length,losses:gs.filter(g=>g.points===0).length,discMargins:moments(margins),searchMs:gs.reduce((s,g)=>s+g.moveTimeMs,0),gameWallMs:gs.reduce((s,g)=>s+g.wallMs,0)};
+ for(const evaluator of ['B','P'])for(const phase of ['opening','middle','endgame']){const ms=gs.flatMap(g=>g.moves.filter(m=>m.move!==null&&(m.player===g.color?'P':'B')===evaluator)).filter(m=>(m.occupied<28?'opening':m.occupied<52?'middle':'endgame')===phase);telemetry.push({timeMs:b,evaluator,phase,...movesummary(ms)});}
+ for(const key of ['policy','occupied','turn','cell'])for(const value of new Set(pairRows.map(r=>r[key]))){const xs=pairRows.filter(r=>r.timeMs===b&&r[key]===value);subgroups.push({timeMs:b,key,value,n:xs.length,score:mean(xs.map(r=>r.score)),meanDiscMargin:mean(xs.map(r=>r.meanDiscMargin)),descriptive:true});}
+}
+const serious=!provenance.independentClaim,decision=serious?'P is promising but not convincingly confirmed':stats.conventional&&stats.bootstrapSupport?'P is credibly stronger than B at both time controls':stats.scores[80].mean<=.5&&stats.scores[300].mean<=.5?'P did not reproduce its exploratory advantage':'P is promising but not convincingly confirmed';
+const compactGames=games.map(g=>({family:g.family,timeMs:g.timeMs,color:g.color,points:g.points,margin:g.margin,moves:g.moves.map(m=>[m.player,m.move]),board:g.board,receiptSha:g.receiptSha,wallMs:g.wallMs,telemetry:movesummary(g.moves.filter(m=>m.move!==null))}));
+const report={format:'p-confirmation-results-v1',at:new Date().toISOString(),launch:launch.checksum,reservation:reservation.checksum,models:PROTOCOL.models,statistics:stats,outcomes,pairRows,telemetry,subgroups,integrity:{provenance:provenance.checksum,independentClaim:provenance.independentClaim,prohibitedOrUnknownKeys:provenance.violations.length,overlapOccurrences:provenance.overlaps.length,terminalOverlapOccurrences:provenance.overlaps.filter(o=>o.terminal).length,nonterminalCrossFamilyConvergences:provenance.playedCrossFamilyConvergences.filter(o=>!o.terminal).length},decision,production:'B',games:compactGames,analysisMs:performance.now()-start};
+sealed(`${output}/summary.json`,report);console.log(JSON.stringify({decision,independentClaim:provenance.independentClaim,scores:stats.scores,outcomes,bounded:stats.bounded}));
