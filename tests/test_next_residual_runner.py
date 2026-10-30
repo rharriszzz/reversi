@@ -1,5 +1,7 @@
 """Protect completed inputs and the fixed authorization before any subprocess."""
 import importlib.util
+import contextlib
+import io
 import json
 from pathlib import Path
 import sys
@@ -18,9 +20,12 @@ class NextResidualLaunchTests(unittest.TestCase):
     def cli(self,*args):
         with patch.object(launch,'ROOT',self.root),patch.object(sys,'argv',['launch.py','--output',str(self.output),*args]):return launch.main()
     def test_completed_training_namespace_is_rejected_before_preflight(self):
-        with patch.object(launch,'resources') as resource:
-            with self.assertRaises(SystemExit):self.cli('--old',str(self.output))
+        errors=io.StringIO()
+        with patch.object(launch,'resources') as resource, contextlib.redirect_stderr(errors):
+            with self.assertRaises(SystemExit) as stopped:self.cli('--old',str(self.output))
+            self.assertEqual(stopped.exception.code,2)
             resource.assert_not_called()
+        self.assertIn('Never write into the completed training experiment',errors.getvalue())
         self.assertFalse(self.output.exists())
     def test_no_resource_blocker_launches_a_process(self):
         with patch.object(launch,'resources',return_value={'blockers':['memory reserve']}),patch.object(launch.subprocess,'Popen') as process:
@@ -30,6 +35,9 @@ class NextResidualLaunchTests(unittest.TestCase):
         with patch.object(launch,'resources',return_value={'blockers':[],'workers':1}),patch.object(launch.subprocess,'Popen') as process:
             self.assertEqual(self.cli('--resume'),0);process.assert_not_called()
     def test_eight_hour_authorization_cannot_be_reset_from_cli(self):
-        with patch.object(launch,'resources') as resource:
-            with self.assertRaises(SystemExit):self.cli('--hours','16')
+        errors=io.StringIO()
+        with patch.object(launch,'resources') as resource, contextlib.redirect_stderr(errors):
+            with self.assertRaises(SystemExit) as stopped:self.cli('--hours','16')
+            self.assertEqual(stopped.exception.code,2)
             resource.assert_not_called()
+        self.assertIn('unrecognized arguments: --hours 16',errors.getvalue())

@@ -22,6 +22,11 @@ import launch  # noqa: E402
 
 
 class LauncherTests(unittest.TestCase):
+    def test_unsupported_python_is_rejected_before_serving(self):
+        with patch.object(launch.sys, 'version_info', (3, 12, 9)):
+            with self.assertRaisesRegex(SystemExit, 'Python 3.13'):
+                launch.main(['--no-browser'])
+
     def test_platform_browser_commands(self):
         with patch.object(launch, 'is_wsl', return_value=False), patch.object(launch.sys, 'platform', 'darwin'), patch.object(launch.subprocess, 'run') as run:
             run.return_value.returncode = 0

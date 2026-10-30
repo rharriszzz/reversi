@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -14,7 +15,7 @@ class FrozenMergeTests(unittest.TestCase):
             (root/'base.bin').write_bytes(b''.join(keys[:80]))
             (chunks/'0.bin').write_bytes(b''.join(keys[40:]))
             (chunks/'1.bin').write_bytes(b''.join(keys[::2]))
-            result = subprocess.run(['python3',str(script),str(root/'merged.bin'),str(root/'base.bin'),str(chunks)], capture_output=True,text=True)
+            result = subprocess.run([sys.executable,str(script),str(root/'merged.bin'),str(root/'base.bin'),str(chunks)], capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertEqual((root/'merged.bin').read_bytes(),b''.join(keys))
             self.assertIn('"keys": 101',result.stdout)

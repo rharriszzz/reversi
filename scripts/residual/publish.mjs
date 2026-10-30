@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {python} from '../python.mjs';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -38,7 +39,7 @@ const compact={version:1,date:new Date().toISOString(),directory:output,protocol
         children:p.children.map(c=>({move:c.move,occupied:c.occupied,phase:c.phase,terminal:c.terminal,base:c.base}))})),
       preferenceExamples:e.preferences.pairs.slice(0,3)}))}:null};
 atomic(`${root}/docs/data/residual-frontier-v1-20261028.json`,compact);
-const plotted=spawnSync('python3',[fileURLToPath(new URL('./plots.py',import.meta.url)),output,root],{encoding:'utf8'});
+const plotted=spawnSync(python,[fileURLToPath(new URL('./plots.py',import.meta.url)),output,root],{encoding:'utf8'});
 if(plotted.status!==0)throw Error(`Publication plots failed: ${plotted.stderr}`);
 const training=checked.preferences.training??{sources:0,parents:0,pairs:0},dev=checked.preferences.development??{sources:0},forecast=state.forecast;
 const correctionRows=pilot?.learned.corrections.map(r=>`| ${r.phase} | ${r.feature} | ${r.original} | ${n(r.correction)} | ${n(r.new)} |`).join('\n')??'';

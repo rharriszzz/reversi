@@ -9,6 +9,10 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+
+if sys.version_info < (3, 13):
+    raise SystemExit("Reversi requires Python 3.13 or newer")
+os.environ["REVERSI_PYTHON"] = sys.executable
 import time
 
 ROOT = Path(__file__).resolve().parents[2]

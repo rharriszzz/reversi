@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {python} from '../python.mjs';
 import { existsSync,mkdirSync,appendFileSync,readFileSync,readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,7 +53,7 @@ const setPool=n=>{workers=n;pool=new Pool(n,output,runIdentity,{check:()=>check(
 async function resources(force=false,{timed=false}={}) {
   if(!force&&performance.now()-resourceAt<60000)return;
   global.gc?.();
-  const r=spawnSync('python3',[`${repository}/scripts/next-residual/launch.py`,'--output',output,'--resources-only'],{encoding:'utf8',timeout:40000});
+  const r=spawnSync(python,[`${repository}/scripts/next-residual/launch.py`,'--output',output,'--resources-only'],{encoding:'utf8',timeout:40000});
   if(r.status!==0)throw new Pause(`Resource preflight failed: ${r.stderr}`);
   const value=JSON.parse(r.stdout);resourceAt=performance.now();appendFileSync(`${output}/resource-history.jsonl`,JSON.stringify({...value,actualPool:pool?.slots.length??0,configuredWorkers:state.configuredWorkers})+'\n');
   state.resources=value;if(value.blockers.length)throw new Pause(value.blockers.join('; '));

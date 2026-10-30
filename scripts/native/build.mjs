@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Reconstruct frozen identities first; never train or read a private model.
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, renameSync, rmSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -17,12 +17,17 @@ export function frozenHeader() {
     const header=`// Generated from verified frozen coefficients. Do not edit.\n#pragma once\nnamespace frozen {\ninline constexpr const char* identities[3]={"original-production","${models.L.checksum}","${models.P.checksum}"};\ninline constexpr double weights[3][3][7]=${JSON.stringify(weights).replaceAll('[','{').replaceAll(']','}')};\ninline constexpr int squares[16][8]={${GEOMETRIES.map(g=>`{${[...g.squares].join(',')}}`).join(',')}};\ninline constexpr int lengths[16]={${GEOMETRIES.map(g=>g.squares.length).join(',')}};\n${compiled.tables.map((t,i)=>`inline constexpr float table${i}[${t.length}]={${[...t].map(float).join(',')}};`).join('\n')}\n}\n`;
     return {header,models,weights};
 }
-export function build({directory=resolve(root,process.env.NATIVE_CPU==='native'?'.local-research/native-host':'.local-research/native'),profile=false,instrument=false,sanitize=false,cpu=process.env.NATIVE_CPU??'portable'}={}) {
+export function nativeDirectory(cpu=process.env.NATIVE_CPU??'portable') {
+  if(!['portable','native','popcnt'].includes(cpu))throw Error('NATIVE_CPU must be portable, native or popcnt');
+  if(cpu==='popcnt'&&!['x64','ia32'].includes(process.arch))throw Error('NATIVE_CPU=popcnt requires x86');
+  return cpu==='native'?'.local-research/native-host':cpu==='popcnt'?'.local-research/native-popcnt':'.local-research/native';
+}
+export function build({cpu=process.env.NATIVE_CPU??'portable',directory=resolve(root,nativeDirectory(cpu)),profile=false,instrument=false,sanitize=false}={}) {
   const previous=process.cwd();process.chdir(root);
   try {
     const {header,models}=frozenHeader();
-    if(!['portable','native'].includes(cpu))throw Error('NATIVE_CPU must be portable or native');
-    const target=cpu==='native'?[process.arch==='arm64'?'-mcpu=native':'-march=native']:[];
+    nativeDirectory(cpu);
+    const target=cpu==='native'?[process.arch==='arm64'?'-mcpu=native':'-march=native']:cpu==='popcnt'?['-mpopcnt']:[];
     const flags=['-O3','-std=c++17','-Wall','-Wextra','-Wpedantic','-ffp-contract=off','-fno-fast-math',...target,...(profile||instrument?['-g','-fno-omit-frame-pointer']:[]),...(instrument?['-DNATIVE_PROFILE']:[]),...(sanitize?['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']:[])];
     const compiler=process.env.CXX??'c++',version=spawnSync(compiler,['--version'],{encoding:'utf8'});
     if(version.status!==0)throw Error(`Compiler unavailable: ${compiler}`);
@@ -32,11 +37,17 @@ export function build({directory=resolve(root,process.env.NATIVE_CPU==='native'?
     mkdirSync(directory,{recursive:true});const executable=resolve(directory,process.platform==='win32'?'reversi-native.exe':'reversi-native');
     const receipt=resolve(directory,'build.json');
     if(existsSync(executable)&&existsSync(receipt)) {const saved=JSON.parse(readFileSync(receipt));if(saved.fingerprint===fingerprint&&saved.executableSha256===sha(readFileSync(executable)))return saved;}
-    writeFileSync(resolve(directory,'frozen.hpp'),header);
-    const run=spawnSync(compiler,[...flags,'-I',directory,'native/engine.cpp','native/main.cpp','-o',executable],{encoding:'utf8',cwd:root});
-    if(run.status!==0)throw Error(run.stderr||run.error);
+    // Concurrent fresh-checkout test processes may request the same build.
+    // Publish complete identical files, never truncate a live executable/header.
+    const temporary=path=>`${path}.tmp-${process.pid}`;
+    const headerPath=resolve(directory,'frozen.hpp');
+    writeFileSync(temporary(headerPath),header);renameSync(temporary(headerPath),headerPath);
+    const pending=temporary(executable);
+    const run=spawnSync(compiler,[...flags,'-I',directory,'native/engine.cpp','native/main.cpp','-o',pending],{encoding:'utf8',cwd:root});
+    if(run.status!==0){rmSync(pending,{force:true});throw Error(run.stderr||run.error);}
+    renameSync(pending,executable);
     const saved={version:1,fingerprint,sourceHashes,flags,compiler:version.stdout.trim(),executable,executableSha256:sha(readFileSync(executable)),modelHeaderSha256:sha(header),models:{B:'original-production',L:models.L.checksum,P:models.P.checksum},createdAt:new Date().toISOString()};
-    writeFileSync(receipt,JSON.stringify(saved,null,2)+'\n');return saved;
+    writeFileSync(temporary(receipt),JSON.stringify(saved,null,2)+'\n');renameSync(temporary(receipt),receipt);return saved;
   } finally {process.chdir(previous);}
 }
-if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(build({profile:process.argv.includes('--profile'),instrument:process.argv.includes('--instrument'),sanitize:process.argv.includes('--sanitize'),directory:resolve(root,process.argv.includes('--sanitize')?'.local-research/native-sanitize':process.argv.includes('--instrument')?'.local-research/native-instrument':process.argv.includes('--profile')?'.local-research/native-profile':process.env.NATIVE_CPU==='native'?'.local-research/native-host':'.local-research/native')}),null,2));
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(build({profile:process.argv.includes('--profile'),instrument:process.argv.includes('--instrument'),sanitize:process.argv.includes('--sanitize'),directory:resolve(root,process.argv.includes('--sanitize')?'.local-research/native-sanitize':process.argv.includes('--instrument')?'.local-research/native-instrument':process.argv.includes('--profile')?'.local-research/native-profile':nativeDirectory())}),null,2));

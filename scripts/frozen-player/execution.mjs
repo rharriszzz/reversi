@@ -1,3 +1,4 @@
+import {python} from '../python.mjs';
 import {readFileSync,readdirSync,openSync,readSync,closeSync} from 'node:fs';
 import {resolve,relative} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -9,7 +10,7 @@ export function sha(path){const fd=openSync(path,'r'),digest=createHash('sha256'
 export function inventory(){const rows=[];function visit(dir){for(const e of readdirSync(dir,{withFileTypes:true})){
  const p=resolve(dir,e.name);if(e.isDirectory())visit(p);else if(/\.(mjs|js|json|patch|h|c|py)$/.test(p))rows.push([relative(process.cwd(),p),sha(p)]);
 }}visit('src');visit('scripts');for(const p of ['tests/oracle.mjs','tests/fixtures/edax-bound.json','tests/fixtures/edax-bound-leaf.json','docs/data/next-residual-coefficients-20261029.json','docs/data/next-residual-results-20261029.json'])rows.push([p,sha(p)]);return rows.sort();}
-export const resource=()=>JSON.parse(execFileSync('python3',['scripts/frozen-player/resources.py'],{encoding:'utf8'}));
+export const resource=()=>JSON.parse(execFileSync(python,['scripts/frozen-player/resources.py'],{encoding:'utf8'}));
 export const terminal=board=>!legalMoves(board,1).length&&!legalMoves(board,-1).length;
 export function admissionKeys(tr,frontiers=[]){
  const source=new Set(),direct=new Set(),add=(board,set)=>{if(!terminal(board))for(const k of keysFor(board))set.add(k);};

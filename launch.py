@@ -60,6 +60,8 @@ def open_browser(url):
 
 
 def main(argv=None):
+    if sys.version_info < (3, 13):
+        raise SystemExit('Reversi requires Python 3.13 or newer; select REVERSI_PYTHON or activate a supported environment.')
     parser = ArgumentParser(description='Launch the Reversi learning app on localhost')
     parser.add_argument('--no-browser', action='store_true',
                         help='Print the URL without opening a browser')

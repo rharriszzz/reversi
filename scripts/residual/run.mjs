@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {python} from '../python.mjs';
 import { existsSync, mkdirSync, appendFileSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -70,7 +71,7 @@ function setPool(count=workers){pool=new Pool(count,output,runIdentity,{check:()
 setPool();
 async function resources(force=false,allowIncrease=false) {
   if(!force&&performance.now()-resourceAt<60000)return;
-  const result=spawnSync('python3',[fileURLToPath(new URL('./launch.py',import.meta.url)),'--output',output,'--resources-only'],{encoding:'utf8',timeout:40000});
+  const result=spawnSync(python,[fileURLToPath(new URL('./launch.py',import.meta.url)),'--output',output,'--resources-only'],{encoding:'utf8',timeout:40000});
   if(result.status!==0)throw new Pause(`Resource preflight unavailable: ${result.stderr}`);
   const r=JSON.parse(result.stdout);appendFileSync(`${output}/resource-history.jsonl`,JSON.stringify(r)+'\n');resourceAt=performance.now();
   state.resources={limitingAvailableGiB:r.limitingAvailableGiB,workers:r.workers,effectiveWorkers:workers,swapPagesInOutPerSecond:r.swapPagesInOutPerSecond,windowsCpuPercent:r.windows?.cpuPercent};

@@ -5375,3 +5375,420 @@ At completion, report the exact commits pushed, the principal speed comparisons,
 ---
 
 You did a fetch from github, correct?
+
+---
+
+# Reversi — Final PC Step: Ubuntu 26.04, Python 3.14, GCC 15, Browser Qualification, and Mac Handoff
+
+Work locally on my Windows 11 PC using WSL2 Ubuntu.
+
+Repository:
+
+`/home/rharris/git/reversi`
+
+Use GPT-6.1-Sol, High reasoning.
+
+Read `AGENTS.md`, `USER_REQUESTS.md`, and the relevant project documentation before making changes.
+
+In particular, review:
+
+- `docs/WINDOWS_PC_NATIVE_WASM_RESULTS.md`
+- `docs/WEBASSEMBLY_ENGINE_RESULTS.md`
+- `docs/WEBASSEMBLY_BUILD.md`
+- `docs/WEBASSEMBLY_QUALIFICATION.md`
+- The existing native build scripts.
+- The Windows browser automation and profiling scripts.
+- The existing Python environments and test infrastructure.
+
+The previous PC study was completed and pushed:
+
+- `a00ba4c` — Native and Windows browser qualification.
+- `1e339d4` — PC benchmarks, profiling, and acceptance results.
+
+The current remote `main` branch should contain those commits.
+
+## Important new information
+
+I have successfully upgraded my existing WSL2 Ubuntu distribution from 22.04 to:
+
+- **Ubuntu 26.04.1 LTS (Resolute)**
+- **Python 3.14.4**
+- **GCC 15.2.0**
+
+I want this to be my final PC development step before returning to the M4 Mac.
+
+My goal is to qualify this newer environment, ensure modern Python is used throughout the active project, evaluate GCC 15 performance, finish Windows browser qualification, and prepare a clean Mac handoff.
+
+Do not start a new model-training experiment, large tournament, or open-ended optimization campaign.
+
+# Stage 1 — Inspect the upgraded environment
+
+Begin with a read-only resource and environment audit.
+
+Record:
+
+- Ubuntu distribution and kernel versions.
+- WSL2 configuration and Windows interoperability.
+- Available Linux and Windows physical memory.
+- Swap usage and actual paging activity.
+- Available disk space.
+- CPU type, topology and current load.
+- Significant background processes.
+- Python interpreter versions and locations.
+- GCC, G++, Clang, Node, npm, Codex and other relevant tool versions.
+- Existing Python virtual environments.
+- Installed Windows Chrome and Edge versions.
+- Git checkout and working-tree state.
+
+The PC has an Intel i7-14700F with 28 logical processors and approximately 16 GiB physical RAM.
+
+Before the Ubuntu upgrade, Windows available memory was approximately 4 GiB, and WSL2 had ample free memory.
+
+Prefer at least 3 GiB available on Windows and 3 GiB available inside WSL2 before substantial tests. Check actual paging and sustained memory pressure rather than treating these thresholds as absolute hardware requirements.
+
+Do not close my ordinary Chrome tabs or other applications.
+
+Do not change Windows power settings, firewall rules, page-file settings, WSL memory limits, or system services.
+
+The upgrade is complete. Do not run another distribution upgrade or make broad system changes.
+
+# Stage 2 — Standardize the active project on modern Python
+
+My requirement is:
+
+**Every active Reversi development, research, testing, benchmarking, and browser-automation workflow must use Python 3.13 or newer.**
+
+The PC now has Python 3.14.4, which is satisfactory.
+
+Use Python 3.14 on this machine unless a demonstrated compatibility problem requires a user-scoped Python 3.13 environment.
+
+Do not downgrade or replace the Ubuntu system interpreter.
+
+## Python environment audit
+
+Identify existing virtual environments that still reference Python 3.10.
+
+Recreate the active development and browser-testing environments using Python 3.14 where supported.
+
+Check compatibility of required dependencies, including Playwright, WebSocket libraries, plotting tools, and any other Python packages used by active research workflows.
+
+Preserve reproducibility by recording package versions.
+
+Inspect active Python scripts, launchers, subprocess calls, shell wrappers, and test commands for implicit interpreter selection.
+
+Where an active Python process launches another Python process, prefer `sys.executable` or an explicit project-selected interpreter rather than silently falling back to an older interpreter.
+
+Do not unnecessarily modify historical research artifacts or scripts that are preserved solely for provenance.
+
+Avoid making broad changes to shell startup files.
+
+## Project version policy
+
+Declare a minimum supported Python version of **3.13** in suitable project metadata.
+
+Use project-level interpreter selection where useful.
+
+Do not unnecessarily pin the entire repository to exactly Python 3.14, because I also want to use the repository on macOS.
+
+The intended policy is:
+
+- Python 3.13 or newer is supported.
+- Python 3.14 is the actual interpreter being qualified on the PC.
+- The Mac will be separately qualified when I return to it.
+
+Use `uv` if it provides a practical improvement in managing development environments, but do not undertake a package-management redesign merely to introduce it.
+
+Update the documentation so I know how to select the correct Python interpreter in WSL2, Codex and VS Code.
+
+Also review the native Windows launcher and document its interpreter requirements.
+
+## Python testing
+
+Run the complete Python unit-test suite under Python 3.14.
+
+Run relevant native and WebAssembly qualification tools that depend on Python.
+
+Verify interpreter selection for subprocesses.
+
+Record `sys.version`, `sys.executable`, environment identity and dependency versions.
+
+Investigate and fix Python 3.14 compatibility problems in active code.
+
+Avoid weakening or skipping tests just to obtain a pass.
+
+If a third-party dependency cannot support Python 3.14, document it and use an isolated Python 3.13 environment for that particular workflow.
+
+# Stage 3 — Qualify native C++ under GCC 15
+
+GCC has changed substantially since the previous PC study, which used GCC 11.4.
+
+Rebuild the native C++ engine with GCC 15.2.
+
+Preserve the frozen B, L and P evaluators and the existing floating-point restrictions.
+
+Run:
+
+- Native regression tests.
+- Sanitizer tests.
+- Legal-move and flip verification.
+- Static numerical evaluation comparisons.
+- Fixed-depth minimax qualification.
+- Full-window all-move analysis.
+- Principal-variation checks.
+- Forced passes and exact terminal outcomes.
+- Depths beyond 14.
+- Timed iterative deepening and interrupted-search recovery.
+- Transposition-table bounds, collisions and generation handling.
+
+Specifically verify the GCC exception-return workaround discovered in the previous PC study. It must remain correct with GCC 15.
+
+Do not revert it merely because an earlier compiler appeared to behave differently.
+
+## Compiler comparisons
+
+Benchmark three native configurations where practical:
+
+1. Portable x86-64 GCC 15 build.
+2. GCC 15 with `-march=native`.
+3. GCC 15 with `-mpopcnt` alone, if supported and straightforward to test.
+
+The third configuration should help distinguish the hardware population-count benefit from additional CPU-specific compiler optimizations.
+
+Use the same fixed positions and search depths as the previous PC benchmarks.
+
+Measure complete-search elapsed time, CPU time, nodes per second, static evaluations per second, and node/evaluation counts.
+
+Record generated instruction-set requirements and compiler flags.
+
+Confirm that hardware POPCNT is used in the relevant builds and that unnecessary software population-count helper calls have been eliminated where expected.
+
+Compare these GCC 15 measurements with the previously published GCC 11 results.
+
+If old executable artifacts remain available and qualified, consider a short matched GCC 11 versus GCC 15 comparison under the current environment. Otherwise use the historical results with an explicit warning about environmental differences.
+
+Do not attribute every change to GCC version alone: CPU scheduling, warmup, virtualization, and background load can affect measured time.
+
+Use multiple repeated serial measurements and alternating build order.
+
+Do not run CPU profiling concurrently with timing measurements.
+
+**Retain portable compilation as the default unless there is a compelling reason to change it.**
+
+Keep `-march=native` available as an explicit optional local-performance build.
+
+# Stage 4 — Check WebAssembly and source/build consistency
+
+The Windows PC previously qualified the committed WebAssembly module in actual Windows Chrome.
+
+Confirm that the same committed Wasm artifact still loads and runs under Ubuntu 26.04's WSL2 hosting environment.
+
+The browser must actually be running on Windows, not merely inside Linux.
+
+Perform a representative numerical qualification for B and P.
+
+Check:
+
+- Module initialization and identities.
+- Static evaluation agreement.
+- Fixed-depth search scores.
+- Full-window coaching results.
+- Verified principal variations.
+- Forced passes.
+- Exact endgames.
+- Timed searches.
+- Cancellation and restart.
+- Browser error handling.
+
+## Important source provenance question
+
+The earlier PC study identified and corrected a native GCC exception-return issue after the WebAssembly module was compiled.
+
+That means the current shared C++ source and committed Wasm artifact may have different source fingerprints.
+
+Investigate and document:
+
+1. Whether the correction is relevant to the WebAssembly target.
+2. Whether the existing Wasm module remains numerically and behaviorally qualified.
+3. Whether a future Wasm rebuild should incorporate the newer shared source.
+4. What tests should accompany that rebuild.
+
+Prefer leaving the existing qualified Wasm distribution unchanged during this bounded PC step unless a real correctness or integration defect requires rebuilding it.
+
+If rebuilding is necessary, preserve reproducible build identities and fully requalify the result.
+
+# Stage 5 — Complete Microsoft Edge acceptance
+
+The previous PC study qualified actual Windows Chrome but did not execute Edge.
+
+Use the installed Windows Microsoft Edge browser with a disposable test profile.
+
+Reuse the existing Windows browser-automation infrastructure.
+
+Verify:
+
+- Loading the committed Wasm module.
+- Correct B/P model identities.
+- Numerical agreement on representative positions.
+- Full-window P coaching.
+- Verified move continuations.
+- A complete P game.
+- Model selection.
+- Historical review.
+- Worker cancellation and restart.
+- Custom-weight compatibility.
+- Fallback and module-error behavior.
+- Memory stability.
+
+Perform a small Edge-versus-Chrome performance sanity check on identical positions.
+
+Do not repeat the entire earlier browser benchmark campaign.
+
+If Edge automation cannot be configured without modifying user security settings, document the blocker rather than circumventing it.
+
+Do not change my normal browser profile or saved preferences.
+
+# Stage 6 — Short post-upgrade profiling and recommendations
+
+Perform a bounded profiling comparison under GCC 15.
+
+The goal is to determine whether the new compiler changes the observed native-search bottlenecks.
+
+Profile representative:
+
+- Opening positions.
+- Middle-game positions.
+- Exact endgames.
+
+Focus on:
+
+- Alpha-beta search and transposition-table operations.
+- Legal move generation.
+- Flipping.
+- Move ordering.
+- Seven-feature evaluation.
+- Pattern extraction and lookup.
+- Population-count operations.
+
+Check whether Linux profiling facilities remain usable after the Ubuntu upgrade.
+
+The previous WSL2 environment had restricted hardware performance counters. Ubuntu 26.04 and the WSL kernel may change tool availability, but don't assume that hardware events are now accessible.
+
+Use suitable software sampling when hardware counters are unavailable.
+
+Avoid making unsupported claims about cache misses, memory bandwidth or CPU frequency.
+
+Compare the resulting profiles with the previous PC and Mac reports.
+
+Do not introduce major new search algorithms.
+
+Small platform-specific build or correctness fixes are acceptable, with regression testing.
+
+Do not implement final-empty specialization, a new packed TT, or principal variation search in this step. Those are candidates for later work on the Mac.
+
+# Stage 7 — Prepare the PC-to-Mac handoff
+
+Create:
+
+`docs/PC_TO_MAC_HANDOFF.md`
+
+It should include:
+
+1. Ubuntu 26.04 qualification results.
+2. Python 3.14 interpreter and environment information.
+3. Python 3.13+ project compatibility policy.
+4. Python test and dependency status.
+5. GCC 15 portable, host-target and optional POPCNT-only results.
+6. Comparison with previous GCC 11 benchmarks.
+7. Any changes in native search profiles.
+8. WebAssembly numerical and Windows Chrome acceptance status.
+9. Microsoft Edge results.
+10. Windows/WSL2 resource observations.
+11. Exact build and source identities.
+12. Mac setup and qualification recommendations.
+13. Ranked next engineering opportunities.
+
+For the Mac, explain how to establish Python 3.13+ without unnecessarily replacing its system interpreter.
+
+Also specify how to rebuild and verify the native and WebAssembly engine from the current shared C++ source.
+
+Identify the tests that should be repeated on the Mac, especially those affected by interpreter versions and the GCC compatibility correction.
+
+Recommend whether the next shared-engine optimization should be targeted final-empty move generation, a compact TT, move ordering, or something else, using evidence from both platforms.
+
+Do not turn this into a new optimization campaign.
+
+# Commit and push requirements
+
+Use two publication checkpoints.
+
+## Checkpoint 1
+
+After Python modernization, the Ubuntu environment checks, and native correctness qualification:
+
+- Commit code and documentation changes.
+- Include relevant correctness evidence.
+- Push to `origin main`.
+- Verify the remote commit.
+
+## Checkpoint 2
+
+After GCC 15 benchmarking, Edge qualification, profiling, and the Mac handoff:
+
+- Publish the compact benchmark and test evidence.
+- Update the technical report.
+- Commit and push.
+- Verify the remote commit.
+
+Preserve all historical scientific results and previous benchmark data.
+
+Do not commit virtual environments, downloaded compiler packages, raw large traces, executable caches, private data, or large research corpora.
+
+Document actual source/build/interpreter identities.
+
+# Time and resource limits
+
+This is a final bounded PC step.
+
+Use a maximum of 90 minutes of active intensive benchmarking and profiling. Ordinary setup and correctness testing are separate.
+
+Do not run lengthy playing tournaments.
+
+Use serial benchmarks and profiling.
+
+Maintain adequate Windows and WSL2 memory headroom and check swap/paging throughout.
+
+Do not alter unrelated applications, user browser profiles, Windows settings, or WSL resource configuration.
+
+If an issue cannot be resolved safely within this scope, document it rather than beginning an unrelated investigation.
+
+# Final report to me
+
+At completion, answer:
+
+1. Is Ubuntu 26.04 working correctly for Reversi?
+2. Are all active Python workflows using Python 3.13 or newer?
+3. Did the Python 3.14 tests pass?
+4. Is GCC 15 faster than the previous GCC 11 build on matched work?
+5. How much do `-march=native` and `-mpopcnt` help?
+6. Is the native C++ engine still numerically correct?
+7. Does the original Wasm artifact still work in Windows Chrome?
+8. Does it now work in Microsoft Edge?
+9. Did the profiling reveal new bottlenecks?
+10. Are there any remaining PC problems worth resolving before returning to the Mac?
+11. What are the next recommended Mac engineering tasks?
+
+Report both commit hashes and verify that the changes have been pushed.
+
+**Do not automatically start another PC development round. After this step I plan to return to the M4 Mac.**
+
+---
+
+I don't care about matched compiler comparison.
+
+---
+
+I have seen this error several times, can you make it go away: python -m unittest: error: unrecognized arguments: --hours 16
+
+---
+
+I see. sorry

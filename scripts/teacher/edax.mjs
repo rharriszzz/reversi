@@ -1,3 +1,4 @@
+import {python} from '../python.mjs';
 // Separate executable teacher. No Edax source or weights are linked/imported.
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
@@ -36,7 +37,7 @@ async function queryRaw(pin,states,depth,{timeoutMs=60000,transcript,measureNati
  const args=['-eval-file',pin.evalFile,'-n','1','-h',String(pin.hashBits),'-depth',String(depth),'-selectivity','5','-verbose','1','-noise','0','-width','200','-alpha','-64','-beta','64','-solve',input];
  const start=performance.now();
  try{return await new Promise((ok,bad)=>{const metrics=join(dir,'usage.json');
-  const child=measureNative?spawn('python3',[fileURLToPath(new URL('./native-resource.py',import.meta.url)),metrics,pin.binary,...args],{cwd:dir,detached:true,env:{...process.env,REVERSI_NATIVE_TIMEOUT_MS:String(timeoutMs)},stdio:['ignore','pipe','pipe']}):spawn(pin.binary,args,{cwd:dir,stdio:['ignore','pipe','pipe']});
+  const child=measureNative?spawn(python,[fileURLToPath(new URL('./native-resource.py',import.meta.url)),metrics,pin.binary,...args],{cwd:dir,detached:true,env:{...process.env,REVERSI_NATIVE_TIMEOUT_MS:String(timeoutMs)},stdio:['ignore','pipe','pipe']}):spawn(pin.binary,args,{cwd:dir,stdio:['ignore','pipe','pipe']});
   const kill=()=>{try{if(measureNative)process.kill(-child.pid,'SIGKILL');else child.kill('SIGKILL');}catch(e){if(e.code!=='ESRCH')throw e;}};let stdout='',stderr='',expired=false;
   const timer=setTimeout(()=>{expired=true;kill();},timeoutMs);
   child.stdout.on('data',s=>{stdout+=s;if(stdout.length>8e6)kill();});child.stderr.on('data',s=>{stderr+=s;});child.on('error',e=>{clearTimeout(timer);bad(e);});

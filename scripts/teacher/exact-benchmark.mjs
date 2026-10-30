@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {python} from '../python.mjs';
 // Bounded engineering benchmark, never a teacher-qualification launcher.
 import {readFileSync,existsSync,mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -36,7 +37,7 @@ export async function main(){
  const unlock=writerLock(`${output}/writer.lock`),progress=new Progress(output),profiler=new Profiler(),start=performance.now();const priorElapsed=existsSync(`${output}/budget.json`)?read(`${output}/budget.json`).elapsedMs+(existsSync(`${output}/tasks/inputs.json`)?30000:600000):0;let lastResources=0;const results=[];
  atomic(`${output}/budget.json`,{elapsedMs:priorElapsed});
  const check=()=>{if(priorElapsed+performance.now()-start>protocol.capMs-protocol.reportReserveMs)throw Error('Engineering cap; reporting reserve');};
- function resources(){if(lastResources&&performance.now()-lastResources<60000)return;const p=spawnSync('python3',['scripts/teacher/qualification-launch.py','--output',output,'--resources-only'],{encoding:'utf8',timeout:35000});if(p.status!==0)throw Error(p.stderr);const r=JSON.parse(p.stdout);if(r.blockers.length)throw Error(r.blockers.join('; '));if(r.limitingAvailableGiB<2.1)throw Error('Engineering single-worker headroom');lastResources=performance.now();}
+ function resources(){if(lastResources&&performance.now()-lastResources<60000)return;const p=spawnSync(python,['scripts/teacher/qualification-launch.py','--output',output,'--resources-only'],{encoding:'utf8',timeout:35000});if(p.status!==0)throw Error(p.stderr);const r=JSON.parse(p.stdout);if(r.blockers.length)throw Error(r.blockers.join('; '));if(r.limitingAvailableGiB<2.1)throw Error('Engineering single-worker headroom');lastResources=performance.now();}
  async function durable(name,input,fn){return receipt(`${output}/tasks/${name}.json`,input,runIdentity,async()=>{check();const value=await fn();atomic(`${output}/budget.json`,{elapsedMs:priorElapsed+performance.now()-start});return value;});}
  function isolated(state,kind,options={},operation=''){
   check();resources();progress.update({task:`${state.id} ${kind}`,note:`one bounded worker process; ${operation} options=${JSON.stringify(options)}; combined conventions, ten-second cap`});progress.emit('query-start');

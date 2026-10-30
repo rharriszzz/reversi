@@ -1,5 +1,9 @@
 # Validation status and acceptance checks
 
+Current active Python requirement is **3.13+**; Ubuntu 26.04 qualification uses
+Python 3.14.4. See [Python setup](PYTHON_ENVIRONMENT.md). The dated tables below
+retain historical results and do not establish current Mac qualification.
+
 Verified 2026-10-26 local time (2026-10-27 UTC). See [INITIAL_CODEX_REVIEW.md](INITIAL_CODEX_REVIEW.md) for measurements, defects, and limitations.
 
 | Environment | Launcher/HTTP | Browser | Status |

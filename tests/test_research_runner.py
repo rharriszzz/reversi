@@ -6,6 +6,7 @@ import shutil
 import signal
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -77,7 +78,7 @@ class ResearchRunnerTests(unittest.TestCase):
 
     def test_detached_smoke_survives_launcher_exit(self):
         with tempfile.TemporaryDirectory(prefix='reversi detached ') as folder:
-            launch = subprocess.run([shutil.which('python3'), 'scripts/research-launch.py', '--mode', 'smoke', '--seconds', '180', '--workers', '1', '--output', folder],
+            launch = subprocess.run([sys.executable, 'scripts/research-launch.py', '--mode', 'smoke', '--seconds', '180', '--workers', '1', '--output', folder],
                                     cwd=ROOT, capture_output=True, text=True, timeout=20)
             self.assertEqual(launch.returncode, 0, launch.stderr)
             self.assertIn('independent session', launch.stdout)

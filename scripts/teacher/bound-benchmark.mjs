@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {python} from '../python.mjs';
 // Development-only, fixed-target adapter engineering. Never opens V4 assessment.
 import {existsSync,mkdirSync,readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -21,7 +22,7 @@ export async function main(){
  const unlock=writerLock(`${output}/writer.lock`),progress=new QualificationProgress(output),start=performance.now(),base=prior?.elapsedMs??0,state={status:'running',source,original,repaired,protocol,runIdentity,elapsedMs:base,completed:prior?.completed??0};let nativeCpu=0,maxRss=0,lastResource=0;
  const checkpoint=()=>{state.elapsedMs=base+performance.now()-start;atomic(`${output}/manifest.json`,state);progress.update({checkpoint:new Date().toISOString(),nativeCpuSeconds:nativeCpu,nativeMaxRssMiB:maxRss/2**20});};
  const check=()=>{if(base+performance.now()-start>protocol.capMs-60000)throw Error('Engineering cap protects reporting minute');};
- function resources(){if(lastResource&&performance.now()-lastResource<60000)return;const p=spawnSync('python3',[`${root}/scripts/teacher/qualification-launch.py`,'--output',output,'--resources-only'],{encoding:'utf8',timeout:35000});if(p.status)throw Error(p.stderr);const r=JSON.parse(p.stdout);if(r.blockers.length||r.limitingAvailableGiB<2.1)throw Error('Interrupted; engineering resource reserve');lastResource=performance.now();progress.update({hostCpu:`${(100*Math.max(r.cpuBusy??0,(r.windows?.cpuPercent??0)/100)).toFixed(1)}%`});}
+ function resources(){if(lastResource&&performance.now()-lastResource<60000)return;const p=spawnSync(python,[`${root}/scripts/teacher/qualification-launch.py`,'--output',output,'--resources-only'],{encoding:'utf8',timeout:35000});if(p.status)throw Error(p.stderr);const r=JSON.parse(p.stdout);if(r.blockers.length||r.limitingAvailableGiB<2.1)throw Error('Interrupted; engineering resource reserve');lastResource=performance.now();progress.update({hostCpu:`${(100*Math.max(r.cpuBusy??0,(r.windows?.cpuPercent??0)/100)).toFixed(1)}%`});}
  const task=(name,input,fn)=>receipt(`${output}/tasks/${name}.json`,input,runIdentity,async()=>{check();const value=await fn();state.completed++;checkpoint();return value;});
  async function label(s,depth,variant){
   return task(`${s.id}-d${depth}-${variant}`,{s,depth,variant},async()=>{resources();check();progress.update({task:`${s.id} ${variant} D${depth}`});const path=`${output}/raw/${s.id}-d${depth}-${variant}.json`,t=performance.now();let r;

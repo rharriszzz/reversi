@@ -1,5 +1,12 @@
 # Reversi
 
+**Current Python policy:** Python **3.13+** is required for all active workflows;
+the Ubuntu 26.04 PC uses Python **3.14.4**. See
+[environment setup and interpreter selection](docs/PYTHON_ENVIRONMENT.md) for
+WSL2, macOS, Codex, VS Code and native Windows. Activate `.venv` before using
+the direct Python commands below; historical reports retain their original
+versions. `start.sh` automatically selects the project environment when present.
+
 The [Windows PC native/Wasm qualification](docs/WINDOWS_PC_NATIVE_WASM_RESULTS.md)
 tests the unchanged Wasm binary in actual Windows Chrome, fixes GCC interrupted
 search publication, and compares WSL2 C++, Windows Wasm and original JavaScript

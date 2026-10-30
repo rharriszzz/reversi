@@ -13,6 +13,10 @@ import shutil
 import statistics
 import subprocess
 import sys
+
+if sys.version_info < (3, 13):
+    raise SystemExit("Reversi requires Python 3.13 or newer")
+os.environ["REVERSI_PYTHON"] = sys.executable
 import threading
 import time
 from setup import setup

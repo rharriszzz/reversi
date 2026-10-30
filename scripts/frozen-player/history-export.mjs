@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {python} from '../python.mjs';
 // Read-only historical extraction. Unknown roles remain conservatively restricted.
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,appendFileSync,existsSync,mkdirSync,statSync,truncateSync,readdirSync,unlinkSync} from 'node:fs';
@@ -136,7 +137,7 @@ const localInputs=['scripts/machine-benchmark/positions.json','docs/data/next-re
 for(const [i,p] of localInputs.entries())visit(read(p),files.length+i,p,{role:'disclosed-engineering',source:p});
 flush();flushKeys();
 const {execFileSync}=await import('node:child_process');
-const combined=JSON.parse(execFileSync('python3',['scripts/frozen-player/merge-index.py',`${output}/membership.bin`,`${archive}/${baseDir}/historical-index.bin`,`${output}/key-chunks`],{encoding:'utf8',maxBuffer:1000000}));
+const combined=JSON.parse(execFileSync(python,['scripts/frozen-player/merge-index.py',`${output}/membership.bin`,`${archive}/${baseDir}/historical-index.bin`,`${output}/key-chunks`],{encoding:'utf8',maxBuffer:1000000}));
 const index=KeyIndex.load(`${output}/membership.bin`);
 const training=read(`${archive}/${old}/reservations.json`).roles;
 const groups=role=>training[role].map(r=>read(`${archive}/${old}/preferences/${r.id}.json`).group);

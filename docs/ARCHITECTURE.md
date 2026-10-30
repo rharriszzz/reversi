@@ -1,5 +1,11 @@
 # Architecture and design rationale
 
+Active Python launch, research and test tooling requires Python 3.13+ as declared
+in `pyproject.toml`. `scripts/python.mjs` selects and checks Node's Python
+subprocess interpreter; Python research launchers propagate `sys.executable`.
+Optional browser/plot packages live in `.venv`; application startup remains
+standard-library-only. See [Python environment policy](PYTHON_ENVIRONMENT.md).
+
 ## Purpose
 
 A **game**, a **move analyzer**, and a **teaching/learning experiment** in one local web application. A key design constraint is interpretability: expose all legal move scores and actual variations, rather than asking the user to trust an opaque score or generic advice. The repo builds its own Reversi implementation rather than delegating play to a black-box engine.

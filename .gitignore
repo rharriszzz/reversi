@@ -8,3 +8,4 @@ logs/
 *.zip
 reversi-coach-model-*.json
 .local-research/
+.venv/
