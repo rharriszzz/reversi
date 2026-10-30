@@ -1,0 +1,43 @@
+--- a/engine.cpp
++++ b/engine.cpp
+@@ -136,7 +136,9 @@
+   stats.nodes++;
+   double oldAlpha=alpha,oldBeta=beta;uint64_t horizon=stats.horizonHits;
+   int favored=-1;size_t slot=0;
+-  if(useTT) {
++  // Static leaves never store entries. Do not hash/probe them; legal moves,
++  // terminal detection and forced passes below still precede evaluation.
++  if(useTT&&depth>0) {
+     SPAN(TT);stats.probes++;slot=index(b,p);const auto& e=table[slot];
+     if(e.player&&same(e,b,p)) {
+       stats.hits++;if(orderingHints)favored=e.move;
+@@ -170,7 +172,7 @@
+     if(e.generation!=generation||same(e,b,p)||e.depth<=depth) {
+       if(e.player&&!same(e,b,p))stats.replacements++;
+       uint8_t flag=best<=oldAlpha?3:best>=oldBeta?2:1;
+-      e={b.black,b.white,best,generation,int8_t(p),int8_t(depth),int8_t(bestMove),flag,stats.horizonHits==horizon};
++      e={b.black,b.white,best,generation,int8_t(p),uint8_t(depth),int8_t(bestMove),flag,stats.horizonHits==horizon};
+     }
+   }
+   return best;
+@@ -188,7 +190,10 @@
+   r.hasScore=true;r.depth=depth;r.exact=64-pop(b.black|b.white)<=depth||stats.horizonHits==horizon;return r;
+ }
+ Result Engine::search(Board b,int p,int depth,int selectedModel,double timeMs,uint64_t nodeLimit) {
+-  if((b.black&b.white)||std::abs(p)!=1||depth<1||depth>14||selectedModel<0||selectedModel>2||!std::isfinite(timeMs)||timeMs<0)throw std::runtime_error("Invalid search parameters");
++  if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>64||(!depth&&timeMs<=0)||selectedModel<0||selectedModel>2||!std::isfinite(timeMs)||timeMs<0)throw std::runtime_error("Invalid search parameters");
++  // Zero requests ordinary uncapped timed play. A positive depth is an explicit
++  // diagnostic horizon (also usable with a deadline or a node budget).
++  if(!depth)depth=std::max(1,64-pop(b.black|b.white));
+   auto start=Clock::now();auto cpu=std::clock();model=selectedModel;stats={};timed=timeMs>0;stopNodes=nodeLimit;
+   deadline=start+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double,std::milli>(timeMs));
+   Result result;std::array<int,64> list;int n=ordered(b,legal(p==1?b.black:b.white,p==1?b.white:b.black),-1,list);if(n)result.move=list[0];
+@@ -201,7 +206,7 @@
+   result.cpuMs=1000.*(std::clock()-cpu)/CLOCKS_PER_SEC;result.tableBytes=tableBytes();result.generation=generation;return result;
+ }
+ std::vector<double> Engine::windows(Board b,int p,int depth,int selectedModel,const std::vector<std::array<double,2>>& ranges) {
+-  if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>14||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid window parameters");
++  if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>64||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid window parameters");
+   stats={};timed=false;stopNodes=0;model=selectedModel;nextGeneration();std::vector<double> values;
+   for(auto w:ranges){if(!std::isfinite(w[0])||!std::isfinite(w[1])||w[0]>=w[1])throw std::runtime_error("Invalid window");values.push_back(negamax(b,p,depth,w[0],w[1]));}
+   return values;

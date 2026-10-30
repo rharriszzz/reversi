@@ -72,16 +72,53 @@ std::array<double,7> features(Board b,int p,Bits ownMoves) {
     double(pop(own&CORNERS)-pop(opp&CORNERS))/4,double(oppX-ownX)/4,double(oppC-ownC)/8,
     norm(pop(opp&nearEmpty),pop(own&nearEmpty),2),norm(pop(own),pop(opp))};
 }
-template<int J,size_t... K> inline int patternCode(Board b,std::index_sequence<K...>) {
-  constexpr int power[8]={1,3,9,27,81,243,729,2187};
-  constexpr int base=frozen::lengths[J]==6?364:3280;
-  // Constants in each specialization remove geometry loads, variable shifts,
-  // per-square branches and the power recurrence. Original ternary code.
-  return base+(0+...+(int((b.black>>frozen::squares[J][K])&1)*power[K]))
-    -(0+...+(int((b.white>>frozen::squares[J][K])&1)*power[K]));
+// Small geometry-only integer tables. These encode occupancy contributions;
+// frozen Float32 evaluation cells and their ordered double sum are untouched.
+template<int J> constexpr auto makePatternContributions() {
+  constexpr bool corner=J<8;
+  std::array<uint16_t,corner?512:256> table{};
+  int row=7,col=7;
+  for(int k=0;k<frozen::lengths[J];k++) {
+    row=std::min(row,frozen::squares[J][k]/8);
+    col=std::min(col,frozen::squares[J][k]%8);
+  }
+  for(size_t mask=0;mask<table.size();mask++) {
+    int power=1;
+    for(int k=0;k<frozen::lengths[J];k++) {
+      int q=frozen::squares[J][k];
+      int bit=corner?(q/8-row)*3+q%8-col:
+        (frozen::squares[J][0]/8==frozen::squares[J][1]/8?q%8:q/8);
+      if(mask&(size_t(1)<<bit))table[mask]+=power;
+      power*=3;
+    }
+  }
+  return table;
+}
+template<int J> inline constexpr auto patternContributions=makePatternContributions<J>();
+template<int J> inline int patternMask(Bits bits) {
+  constexpr auto origin=[](){
+    int row=7,col=7;
+    for(int k=0;k<frozen::lengths[J];k++) {
+      row=std::min(row,frozen::squares[J][k]/8);
+      col=std::min(col,frozen::squares[J][k]%8);
+    }
+    return row*8+col;
+  }();
+  if constexpr(J<8) {
+    bits>>=origin;
+    return int((bits&7)|((bits>>5)&56)|((bits>>10)&448));
+  } else if constexpr(frozen::squares[J][0]/8==frozen::squares[J][1]/8) {
+    return int((bits>>(origin/8*8))&255);
+  } else {
+    // Gather a file into one byte. Masking before multiplication prevents
+    // neighboring-file carries; unsigned overflow is intentional.
+    return int((((bits>>(origin%8))&A)*0x0102040810204080ULL)>>56);
+  }
 }
 template<int J> inline double patternValue(Board b,int phase) {
-  int code=patternCode<J>(b,std::make_index_sequence<frozen::lengths[J]>{});
+  constexpr int base=J<8?364:3280;
+  int code=base+patternContributions<J>[patternMask<J>(b.black)]
+    -patternContributions<J>[patternMask<J>(b.white)];
   if constexpr(J<8)return frozen::table0[phase*729+code];
   else return frozen::table1[phase*6561+code];
 }
@@ -136,7 +173,9 @@ double Engine::negamax(Board b,int p,int depth,double alpha,double beta) {
   stats.nodes++;
   double oldAlpha=alpha,oldBeta=beta;uint64_t horizon=stats.horizonHits;
   int favored=-1;size_t slot=0;
-  if(useTT) {
+  // Static leaves never store entries. Do not hash/probe them; legal moves,
+  // terminal detection and forced passes below still precede evaluation.
+  if(useTT&&depth>0) {
     SPAN(TT);stats.probes++;slot=index(b,p);const auto& e=table[slot];
     if(e.player&&same(e,b,p)) {
       stats.hits++;if(orderingHints)favored=e.move;
@@ -161,17 +200,18 @@ double Engine::negamax(Board b,int p,int depth,double alpha,double beta) {
   for(int i=0;i<n;i++) {
     int q=list[i];double value=-negamax(play(b,p,q),-p,depth-1,-beta,-alpha);
     if(value>best){best=value;bestMove=q;}alpha=std::max(alpha,best);
-    if(alpha>=beta){stats.cutoffs++;break;}
+    if(alpha>=beta){stats.cutoffs++;if(i==0)stats.firstMoveCutoffs++;break;}
   }
   if(useTT) {
     SPAN(TT);auto& e=table[slot];
     // Prefer current-generation deep entries, but always replace the same
     // identity/depth so a re-search can strengthen a bound to exact.
     if(e.generation!=generation||same(e,b,p)||e.depth<=depth) {
+      stats.stores++;
       if(e.player&&!same(e,b,p))stats.replacements++;
       uint8_t flag=best<=oldAlpha?3:best>=oldBeta?2:1;
-      e={b.black,b.white,best,generation,int8_t(p),int8_t(depth),int8_t(bestMove),flag,stats.horizonHits==horizon};
-    }
+      e={b.black,b.white,best,generation,int8_t(p),uint8_t(depth),int8_t(bestMove),flag,stats.horizonHits==horizon};
+    }else stats.rejectedStores++;
   }
   return best;
 }
@@ -188,7 +228,10 @@ Result Engine::root(Board b,int p,int depth,int favored) {
   r.hasScore=true;r.depth=depth;r.exact=64-pop(b.black|b.white)<=depth||stats.horizonHits==horizon;return r;
 }
 Result Engine::search(Board b,int p,int depth,int selectedModel,double timeMs,uint64_t nodeLimit) {
-  if((b.black&b.white)||std::abs(p)!=1||depth<1||depth>14||selectedModel<0||selectedModel>2||!std::isfinite(timeMs)||timeMs<0)throw std::runtime_error("Invalid search parameters");
+  if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>64||(!depth&&timeMs<=0)||selectedModel<0||selectedModel>2||!std::isfinite(timeMs)||timeMs<0)throw std::runtime_error("Invalid search parameters");
+  // Zero requests ordinary uncapped timed play. A positive depth is an explicit
+  // diagnostic horizon (also usable with a deadline or a node budget).
+  if(!depth)depth=std::max(1,64-pop(b.black|b.white));
   auto start=Clock::now();auto cpu=std::clock();model=selectedModel;stats={};timed=timeMs>0;stopNodes=nodeLimit;
   deadline=start+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double,std::milli>(timeMs));
   Result result;std::array<int,64> list;int n=ordered(b,legal(p==1?b.black:b.white,p==1?b.white:b.black),-1,list);if(n)result.move=list[0];
@@ -201,7 +244,7 @@ Result Engine::search(Board b,int p,int depth,int selectedModel,double timeMs,ui
   result.cpuMs=1000.*(std::clock()-cpu)/CLOCKS_PER_SEC;result.tableBytes=tableBytes();result.generation=generation;return result;
 }
 std::vector<double> Engine::windows(Board b,int p,int depth,int selectedModel,const std::vector<std::array<double,2>>& ranges) {
-  if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>14||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid window parameters");
+  if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>64||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid window parameters");
   stats={};timed=false;stopNodes=0;model=selectedModel;nextGeneration();std::vector<double> values;
   for(auto w:ranges){if(!std::isfinite(w[0])||!std::isfinite(w[1])||w[0]>=w[1])throw std::runtime_error("Invalid window");values.push_back(negamax(b,p,depth,w[0],w[1]));}
   return values;

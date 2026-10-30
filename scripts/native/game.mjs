@@ -7,11 +7,11 @@ import { compile } from '../next-residual/model.mjs';
 import { hash } from '../next-residual/protocol.mjs';
 import { oracleChildren } from '../../tests/oracle.mjs';
 const models=frozenModels(),evaluators=Object.fromEntries(Object.entries(models).map(([k,v])=>[k,compile(v).evaluate]));
-export async function choose(engine,board,player,{backend='native',model='P',depth=14,timeMs,signal}={}) {
+export async function choose(engine,board,player,{backend='native',model='P',depth,timeMs,signal}={}) {
   if(backend==='native')return engine.search(board,player,{model,depth,timeMs,signal});
   if(backend!=='javascript'||!evaluators[model])throw Error('Invalid player backend/model');
   if(signal?.aborted)throw signal.reason??Error('Cancelled');
-  return {...findBestMove(board,player,depth,undefined,{timeMs,evaluate:evaluators[model]}),backend:'javascript',modelIdentity:engine.receipt.models[model]};
+  return {...findBestMove(board,player,depth??14,undefined,{timeMs,evaluate:evaluators[model]}),backend:'javascript',modelIdentity:engine.receipt.models[model]};
 }
 export function replay(opening,moves,{complete=false}={}) {
   let board=[...opening.board],player=opening.player,passes=0;
@@ -23,7 +23,7 @@ export function replay(opening,moves,{complete=false}={}) {
   if(complete)assert.equal(passes,2);
   return {board,player,passes};
 }
-export async function playGame(engine,opening,{nativeColor=1,timeMs=80,model='P',depth=14,resume=null,checkpoint=()=>{},check=()=>{}}={}) {
+export async function playGame(engine,opening,{nativeColor=1,timeMs=80,model='P',depth,resume=null,checkpoint=()=>{},check=()=>{}}={}) {
   if(![1,-1].includes(nativeColor)||!Number.isFinite(timeMs)||timeMs<=0)throw Error('Invalid game condition');
   const identity=hash({opening,model,modelIdentity:engine.receipt.models[model],build:engine.receipt.fingerprint,nativeColor,timeMs,depth});
   if(resume) {const {checksum,...body}=resume;assert.equal(hash(body),checksum);assert.equal(resume.identity,identity);const state=replay(opening,resume.moves);for(const k of ['board','player','passes'])assert.deepEqual(state[k],resume[k]);}

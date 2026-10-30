@@ -41,10 +41,11 @@ class NativeEngine:
         row['interfaceMs'] = (time.monotonic() - start) * 1000
         return row
 
-    def search(self, board, player, *, model='P', depth=14, time_ms=None):
+    def search(self, board, player, *, model='P', depth=None, time_ms=None):
         if len(board) != 64 or any(v not in (-1, 0, 1) for v in board) or player not in (-1, 1):
             raise ValueError('Invalid board/player')
-        if model not in ('B', 'L', 'P') or not isinstance(depth, int) or not 1 <= depth <= 14:
+        depth = (14 if time_ms is None else 0) if depth is None else depth
+        if model not in ('B', 'L', 'P') or not isinstance(depth, int) or not 0 <= depth <= 64 or (depth == 0 and time_ms is None):
             raise ValueError('Invalid model/depth')
         import math
         if time_ms is not None and (not math.isfinite(time_ms) or time_ms <= 0):

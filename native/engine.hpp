@@ -19,6 +19,7 @@ double evaluate(Board b,int player,int model,Bits ownMoves);
 const char* modelIdentity(int model);
 struct Counters {
   uint64_t nodes=0,evaluations=0,probes=0,hits=0,boundHits=0,collisions=0,replacements=0,cutoffs=0,ttCutoffs=0,horizonHits=0;
+  uint64_t stores=0,rejectedStores=0,firstMoveCutoffs=0;
 };
 struct Result {
   int move=-1,depth=0; double score=0,elapsedMs=0,cpuMs=0; bool hasScore=false,exact=false,timedOut=false;
@@ -27,7 +28,7 @@ struct Result {
 // Full bitboard identity prevents even deliberately colliding indices from reuse.
 struct Entry {
   Bits black=0,white=0; double score=0;
-  uint32_t generation=0; int8_t player=0,depth=0,move=-1; uint8_t flag=0; bool solved=false;
+  uint32_t generation=0; int8_t player=0; uint8_t depth=0; int8_t move=-1; uint8_t flag=0; bool solved=false;
 };
 struct Profile {
   enum Part { Legal, Flips, Features, Patterns, TT, Ordering, Count };
@@ -35,6 +36,7 @@ struct Profile {
 };
 extern Profile profile;
 class Engine {
+  friend struct EngineQualification; // standalone regression, no playing API
   std::vector<Entry> table;
   uint32_t generation=0;
   int model=0; bool useTT=true, orderingHints=true;

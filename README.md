@@ -237,3 +237,5 @@ See [the technical report](docs/NATIVE_SEARCH_ENGINE.md) and
 [the fixed engineering screen protocol](docs/NATIVE_SEARCH_PROTOCOL.md).
 Browser playing, all-move coaching and review currently retain JavaScript;
 WebAssembly acceleration is not enabled.
+
+Native search V2 measurements and the separately registered native P/B comparison: [engineering and results](docs/NATIVE_SEARCH_V2_RESULTS.md), [prospective protocol](docs/NATIVE_SEARCH_V2_PROTOCOL.md). Ordinary native timed play now searches to the natural empty-square limit; explicit fixed horizons remain available.

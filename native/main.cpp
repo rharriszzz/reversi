@@ -15,7 +15,7 @@ Bits bits(const std::string& s) {
 }
 std::string hex(Bits b) {std::ostringstream s;s<<std::hex<<b;return s.str();}
 void counters(const Counters& c) {
-  std::cout<<",\"nodes\":"<<c.nodes<<",\"evaluations\":"<<c.evaluations<<",\"ttProbes\":"<<c.probes<<",\"ttHits\":"<<c.hits<<",\"ttBoundHits\":"<<c.boundHits<<",\"ttCollisions\":"<<c.collisions<<",\"ttReplacements\":"<<c.replacements<<",\"cutoffs\":"<<c.cutoffs<<",\"ttCutoffs\":"<<c.ttCutoffs;
+  std::cout<<",\"nodes\":"<<c.nodes<<",\"evaluations\":"<<c.evaluations<<",\"ttProbes\":"<<c.probes<<",\"ttHits\":"<<c.hits<<",\"ttBoundHits\":"<<c.boundHits<<",\"ttCollisions\":"<<c.collisions<<",\"ttReplacements\":"<<c.replacements<<",\"cutoffs\":"<<c.cutoffs<<",\"ttCutoffs\":"<<c.ttCutoffs<<",\"ttStores\":"<<c.stores<<",\"ttRejectedStores\":"<<c.rejectedStores<<",\"firstMoveCutoffs\":"<<c.firstMoveCutoffs;
 }
 void result(const Result& r,int model) {
   std::cout<<",\"move\":";if(r.move<0)std::cout<<"null";else std::cout<<r.move;

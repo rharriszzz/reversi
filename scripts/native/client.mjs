@@ -39,8 +39,9 @@ export class NativeEngine {
   }
   async ready() {const r=await this.request('hello');if(JSON.stringify(r.models)!==JSON.stringify(Object.values(this.receipt.models)))throw Error('Native model identity mismatch');return r;}
   inspect(board,player,model='P',options) {return this.request(`inspect ${boardArgs(board,player,model)}`,options);}
-  async search(board,player,{model='P',depth=14,timeMs,tt=true,hints=true,nodeLimit=0,signal}={}) {
-    if(!Number.isInteger(depth)||depth<1||depth>14||timeMs!==undefined&&(!Number.isFinite(timeMs)||timeMs<=0)||!Number.isSafeInteger(nodeLimit)||nodeLimit<0)throw Error('Invalid search options');
+  async search(board,player,{model='P',depth,timeMs,tt=true,hints=true,nodeLimit=0,signal}={}) {
+    depth??=timeMs===undefined?14:0;
+    if(!Number.isInteger(depth)||depth<0||depth>64||(!depth&&timeMs===undefined)||timeMs!==undefined&&(!Number.isFinite(timeMs)||timeMs<=0)||!Number.isSafeInteger(nodeLimit)||nodeLimit<0)throw Error('Invalid search options');
     // Fresh wall time must match the receiver system clock. timeOrigin+now
     // is anchored at process startup and can drift from NTP-adjusted realtime.
     // Date.now floors to a millisecond, conservatively costing at most 1 ms.

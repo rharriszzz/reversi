@@ -4216,3 +4216,379 @@ Commit and push the implementation, benchmarks, profiles or compact profiling su
 ---
 
 is it done?  if not, please continue
+
+---
+
+# Reversi — Improve Native Search, Profile It, Then Compare Native P Against Native B
+
+Work in `~/git/reversi` on my M4 iMac.
+
+Read `AGENTS.md` and `USER_REQUESTS.md` first.
+
+Review:
+
+- `docs/NATIVE_SEARCH_ENGINE.md`
+- `docs/NATIVE_SEARCH_PROTOCOL.md`
+- `docs/P_CONFIRMATION_RESULTS.md`
+- `docs/FROZEN_PLAYER_SCREEN_RESULTS.md`
+- `docs/PERFORMANCE_PROFILING.md`
+- `native/engine.cpp` and `native/engine.hpp`
+- `scripts/native/` and the relevant JavaScript search/evaluator references.
+
+## Overall objective
+
+I authorize one coordinated project containing:
+
+1. Several practical engineering improvements to the C++ Reversi engine.
+2. Systematic profiling and benchmarking, including correcting obvious performance problems before proceeding.
+3. A substantial, independently registered **native P versus native B** playing-strength experiment.
+
+My priority is improving the playing engine, not attributing each performance gain to a specific implementation detail.
+
+Keep production B and all frozen B/L/P coefficients unchanged. Keep previous experiment artifacts immutable.
+
+The existing C++ engine has demonstrated a roughly 42–43× increase in actual-game nodes per second relative to JavaScript P, but native P has not yet been tested against native B.
+
+This experiment should resolve that question.
+
+# Stage 1 — Engineering improvements
+
+Implement the following changes before beginning the final tournament.
+
+## A. Eliminate the arbitrary timed-search depth ceiling
+
+The native engine currently limits iterative deepening to 14 placements.
+
+Remove that artificial ceiling from ordinary time-controlled play.
+
+Instead, use the natural game-tree limit: the number of unoccupied squares.
+
+Iterative deepening should continue until:
+
+- The elapsed-time deadline interrupts an iteration, in which case the last completed search result is returned.
+- The position is solved exactly.
+- The natural maximum number of additional placements is reached.
+
+Preserve forced-pass semantics. Passes do not consume placement depth.
+
+Keep explicit fixed-depth searches for testing, coaching, diagnostics and reproducible research. They must retain precisely specified horizons.
+
+Extend internal depth storage and validation where necessary. Check recursion, terminal handling, transposition-table entries, deadlines and cancellation.
+
+Do not introduce arbitrary new search limits in place of the old depth-14 restriction.
+
+An optional explicit diagnostic node budget is acceptable. Fixed-depth and node-budget modes should remain independently usable.
+
+## B. Eliminate unnecessary transposition-table operations at depth zero
+
+The previous profile found substantial transposition-table work at static-evaluation leaves even though these leaves do not store useful entries.
+
+Optimize this path by avoiding unnecessary hashing and table probes.
+
+Preserve terminal and forced-pass correctness, horizon accounting, exactness reporting and all relevant bounds.
+
+Measure the performance improvement using complete searches.
+
+## C. Improve pattern evaluation
+
+P's corner/edge pattern processing remains an important native CPU bottleneck.
+
+Investigate and implement a modest optimization, such as:
+
+- More efficient ternary encoding of pattern occupancy.
+- Small precomputed byte/region lookup tables.
+- Reduced repeated bit extraction.
+- Efficient grouped pattern gathering.
+
+Choose the best practical approach using profiling and complete-search benchmarks.
+
+Do not change the mathematical evaluator, coefficient tables, normalization, Float32 values, symmetry handling or summation semantics.
+
+Incremental pattern maintenance is acceptable only if its overall search benefit is convincing and its complexity remains manageable.
+
+## D. Improve move generation and flipping
+
+Investigate a moderate optimization of the current bitboard legal-move and disc-flipping operations.
+
+Prefer simple, reliable bitwise improvements over elaborate new search algorithms.
+
+Measure any improvement across opening, middle and endgame positions.
+
+Pay particular attention to edge masks, passes, late-game positions and unusual directional flip configurations.
+
+Implement the improvement if it provides meaningful complete-search gains.
+
+## E. Avoid unnecessary architectural expansion
+
+Do not introduce neural networks, GPU search, a new evaluation architecture, or a replacement external engine.
+
+Keep the current native client protocol unless profiling identifies a real integration bottleneck.
+
+Keep the JavaScript reference engine and existing browser application working.
+
+The goal of this stage is a moderately improved, fully qualified C++ engine.
+
+# Stage 2 — Profiling, benchmarking and engineering corrections
+
+After implementing the improvements, perform systematic profiling and repeated benchmarks.
+
+Use suitable macOS native profiling facilities, including sampling and Instruments where practical.
+
+## A. Establish complete-search performance
+
+Benchmark B and P on fixed disclosed positions covering opening, middle, endgame, forced passes and exact solving.
+
+Measure:
+
+- Static evaluations per second.
+- Complete search nodes per second.
+- Fixed-depth search time.
+- Nodes and evaluations needed to complete a fixed depth.
+- Completed depth at 80 and 300 milliseconds.
+- Transposition-table probes, hits, bound cutoffs and replacement behavior.
+- Alpha-beta cutoff behavior.
+- Time spent in move generation, flipping, evaluation and pattern extraction.
+- Native process communication overhead.
+- CPU time, memory usage and deadline accuracy.
+
+Include an explicit comparison against the previous native-engine build.
+
+Also identify how frequently the old depth-14 restriction would have stopped a search prematurely and how much additional depth the new engine achieves.
+
+## B. Profile the performance bottlenecks
+
+Produce quantitative CPU profiles for representative opening, middle and endgame workloads.
+
+Separate:
+
+- Legal moves and flips.
+- Linear strategic features.
+- Learned pattern evaluation.
+- Alpha-beta control.
+- Transposition-table operations.
+- Move ordering.
+- Native-client communication.
+
+Use optimized production builds for final throughput measurements and separate profiling/instrumented builds for bottleneck analysis.
+
+Avoid drawing conclusions from profiling instrumentation that substantially changes runtime behavior.
+
+## C. Fix obvious problems before the tournament
+
+If benchmarks reveal unexpected slowdowns, excessive hashing, inefficient table lookups, avoidable allocations, poor TT behavior or other clear problems, investigate and correct them.
+
+You may make additional moderate engineering improvements if profiling supports them.
+
+However, avoid a large open-ended optimization campaign.
+
+After every significant change, repeat the relevant correctness tests and benchmarks.
+
+Retain a reproducible performance history showing what improved and what did not.
+
+## D. Final correctness qualification
+
+Before freezing the engine, require comprehensive cross-language and independent-rule verification.
+
+Test:
+
+- Exact frozen B/L/P model identities.
+- All legal moves and board transformations.
+- Static evaluation equality.
+- Fixed-depth minimax correctness.
+- Searches beyond the old depth-14 ceiling.
+- Exact terminal outcomes.
+- Forced passes and double-pass termination.
+- TT collisions, bounds, horizon handling and generation behavior.
+- Interrupted iterative-deepening searches.
+- Deadline accuracy and timeouts.
+- Persistent process communication and cancellation.
+- Repeated searches with changing models and different horizons.
+- Crash/restart behavior and durable checkpoints.
+
+Test with sanitizers where appropriate.
+
+Any optimization that cannot be qualified should be repaired or reverted.
+
+At the end of this stage, freeze the C++ engine, build identity, TT configuration, evaluation coefficients and tournament-relevant settings.
+
+**No further optimization is permitted after scored game outcomes are opened.**
+
+# Stage 3 — Native P versus native B playing-strength experiment
+
+This is the principal scientific question.
+
+Both players must use the **same final C++ search engine**, with identical search algorithms and configurations.
+
+The only intended difference is their frozen evaluation function:
+
+- B: original seven-feature handcrafted evaluator.
+- P: frozen learned seven-feature correction plus corner/edge patterns.
+
+Do not retrain, retune or alter either evaluator.
+
+## A. Tournament design
+
+I propose:
+
+| Time per move | Opening families | Games |
+|---|---:|---:|
+| 80 ms | 768 | 1,536 |
+| 300 ms | 256 | 512 |
+| Total | 768 distinct families | **2,048** |
+
+Each opening family is played twice at its assigned budget, with colors reversed.
+
+Choose the 256-family 300-ms subset from the 768-family pool using a fixed rule before any outcomes are observed. Those families also receive the 80-ms comparison.
+
+Use the same verified source-family conventions as the preceding research, balancing opening generation policies, actual turn and color.
+
+Reserve fresh opening families with a separate seed namespace and a prospective provenance policy. Exclude historical direct training/assessment roots and declared opening ancestry.
+
+Distinguish source-family independence from incidental late-game transpositions, terminal convergence and unrelated historical internal-tree states.
+
+The previous strict historical-provenance audit identified overlaps, so explicitly define and audit the new claim before play. Never use retrospective exclusions to improve the results. Record all role-attributed overlaps and any independence limitation.
+
+Do not reuse the previous confirmation games as fresh evidence.
+
+Freeze all openings, schedules, settings, statistical tests and stopping rules before the first scored result.
+
+## B. Fair playing conditions
+
+Run games serially without competing benchmark, fitting or profiling workers.
+
+Give both engines equal elapsed search budgets.
+
+Ensure the same native code and the same TT capacity, model-selection logic, timekeeping and thread policy.
+
+Use separate or equivalently isolated persistent search state for each competitor, so one player's transposition-table history cannot advantage or disadvantage the other.
+
+Apply symmetric warmup and alternate color and first-condition order.
+
+The engine must use the improved uncapped iterative-deepening behavior.
+
+Record every game, final board, score, search depth, move time, node count, evaluation count, TT statistics and deadline overrun.
+
+Independently replay and validate every completed game.
+
+Do not alter the sample sizes after observing results.
+
+## C. Statistical analysis
+
+Use the complete color-swapped opening pair as the primary statistical observation.
+
+For each budget, report:
+
+- Wins, draws, losses.
+- Mean P game-point score.
+- Mean disc margin.
+- Paired confidence intervals.
+- Whole-family bootstrap intervals and sensitivity.
+- A conservative bounded-score lower confidence bound.
+- Observed paired variance and uncertainty.
+- Search-depth and nodes-per-second comparisons.
+
+The primary hypothesis is P scoring above 50% against B at 80 ms.
+
+Treat 300 ms as a separately registered durability comparison. Control simultaneous superiority claims across the two budgets with the predefined statistical method.
+
+On the common 256 opening families, estimate the paired difference between P's 80-ms and 300-ms scores, including uncertainty.
+
+Do not pool shared families as independent observations.
+
+Do not perform repeated uncorrected significance testing or stop early because a favorable result appears.
+
+## D. Additional strategic diagnostics
+
+I want to understand whether P's learned positional knowledge still helps when B gets the same fast native search.
+
+Analyze:
+
+- Differences in completed search depth.
+- Differences in search nodes and evaluation speed.
+- Opening versus middle versus late-game behavior.
+- How frequently either evaluator reaches an exact solution.
+- Whether P's extra positional knowledge overcomes its greater evaluation cost.
+- Whether the strength advantage increases, decreases or disappears with deeper searches.
+
+Distinguish descriptive evidence from statistically established effects.
+
+If performance varies sharply by phase or opening class, report it without changing the experimental sample.
+
+# Computation, resources and autonomy
+
+Use the M4 iMac.
+
+I authorize up to **eight active hours of local scientific computation after engineering qualification**, including profiling, benchmarking and the tournament.
+
+Eight hours is a ceiling, not a target.
+
+Before the scored tournament, calculate a conservative complete-work forecast using actual M4 timings of the new uncapped engine.
+
+Include all 2,048 games, possible remaining placements, checkpoint overhead, replay, audits and reporting.
+
+Retain at least 35% runtime contingency and a separate 20-minute reporting reserve.
+
+If the registered full sample cannot fit, do not quietly reduce it. Report the blocker before opening scored outcomes.
+
+Keep memory usage safe and avoid sustained swapping.
+
+Use the existing bounded `caffeinate` mechanism as appropriate.
+
+Keep the experiment checkpointable and resumable, with durable per-game and per-move records.
+
+Preserve previously completed scientific data.
+
+Resolve routine engineering issues autonomously, but do not alter frozen scientific conditions after outcomes have been collected.
+
+# Deliverables
+
+Create:
+
+`docs/NATIVE_SEARCH_V2_RESULTS.md`
+
+Include:
+
+1. Complete description of the native engineering changes.
+2. Correctness and regression-test results.
+3. Before/after CPU profiles.
+4. Complete benchmarks before and after optimization.
+5. Timed-search depth improvements.
+6. The verified effect of removing the depth ceiling.
+7. Full native P-versus-native B playing results.
+8. Confidence intervals and statistical interpretation.
+9. Remaining scientific-independence limitations.
+10. Runtime, resource use and checkpoint audit.
+11. Ranked future performance-improvement suggestions.
+
+For each remaining bottleneck, estimate the potential gain, implementation complexity and correctness risk. Distinguish measured improvements from speculative ones.
+
+Publish compact numerical evidence, appropriate plots, source/build identities and reproducible verification commands.
+
+Commit and push the implementation, tests and final report.
+
+Do not commit large private research corpora or local native binaries.
+
+Do not alter the original experimental results or promote P automatically.
+
+# Final conclusions
+
+I especially want answers to:
+
+1. How much faster is the improved native engine?
+2. How much more deeply can it search without the old depth-14 ceiling?
+3. Which performance optimizations contributed useful improvements?
+4. Does native P beat native B when both use the same optimized C++ search?
+5. How does the answer depend on thinking time?
+6. What are the next most promising performance improvements?
+
+If P wins convincingly, recommend the evidence needed for a separate production-promotion decision.
+
+If B wins, investigate whether P's positional advantage is outweighed by evaluation cost or whether deeper search changes the strategic relationship.
+
+If the results are inconclusive, report that without extending the tournament automatically.
+
+**The goal is the strongest practical Reversi engine we can build, supported by correct search, measured performance, and actual playing results.**
+
+---
+
+One more request: Can uou please add commit push the results after the profiling benchmarking fixing stage?
