@@ -1,3 +1,22 @@
+# Frozen P confirmation: resumed from retained checkpoints
+
+Resumed **30 October 2026 at 00:39:38 UTC** (29 October, 8:39:38 p.m. Eastern) after unrestricted execution and approval policy `never` became effective. The original 12 receipts and 29-step game-13 prefix passed identity, checksum and independent legal-replay checks; the complete frozen source snapshot matched. All 143 JavaScript correctness tests passed before resumption. Fresh checks found 9.19 GiB available memory, zero current swap activity, 549.18 GiB available disk, and no competing confirmation/Edax process.
+
+The existing run continues with the same 768 families, 256-family subset, models, source identity, schedule, statistical contract and eight-hour total allowance. No preparation or reservation was repeated. A conservative five-second charge covers the bounded resume verification/tests; charged time at launch was 352,007.333501 ms. The original pause receipt below remains unchanged. The runner validated the retained prefix and completed games 13 and 14 without regenerating the first 12.
+
+The command is detached with standard input disconnected and output redirected to a local log, so closing the Codex interface does not terminate it. Launch PID was **33643** (completion coordinator), temporary caffeinate PID **33644**, and serial game runner PID **33645**. These PIDs describe this launch and may no longer exist after completion.
+
+Check progress without opening game outcomes:
+
+```bash
+python3 -c 'import json; s=json.load(open(".local-research/p-independent-confirmation-v1-20261029/state.json")); print({k:s.get(k) for k in ("status","stage","counts","updated","activeMs")})'
+tail -n 5 .local-research/p-independent-confirmation-v1-20261029/completion-stage-0.log
+```
+
+The existing completion coordinator runs provenance auditing, paired statistical analysis, separate Python verification, and report/figure publication after the full schedule. Exceptions remain in `completion-stage-*.log` and `resume-driver-20261030.log`. Do not launch a duplicate or rerun preparation. Local resume/resource receipts retain the launch identity and bounded resource checks. Final interpretation and Git publication require review of the completed audit/report; no interim significance tests are run.
+
+---
+
 # Frozen P confirmation: safe user-requested pause
 
 30 October 2026, 00:26:42 UTC (29 October, 8:26:42 p.m. Eastern). This is an execution status, not a scientific result. The user requested a safe pause to correct the active Codex execution permissions before leaving the computer.

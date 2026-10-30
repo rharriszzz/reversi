@@ -3728,3 +3728,11 @@ Please reach a safe checkpoint, preserving all completed reservations, source id
 Report whether any preparation or scientific subprocess will remain running after I exit the Codex interface. Do not terminate detached jobs unnecessarily.
 
 I will then resume this same Codex conversation with explicit unrestricted execution and no approval prompts. Do not restart the experiment or regenerate completed work.
+
+---
+
+Please run: ps -axo pid,command
+
+---
+
+Please read docs/P_CONFIRMATION_STATUS.md and resume the existing experiment from its checkpoints.  Thanks!
