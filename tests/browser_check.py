@@ -63,10 +63,20 @@ def main():
                     # CDP download paths belong to Windows, not the WSL driver.
                     # Observe the exact exported Blob as well as its download.
                     page.evaluate('()=>{const create=URL.createObjectURL.bind(URL);URL.createObjectURL=blob=>{window.exportedModelBlob=blob;return create(blob);};}')
+                    context_id=page.context.new_cdp_session(page).send('Target.getTargetInfo')['targetInfo']['browserContextId']
+                    export_folder=browser.reversi_windows_profile+'\\exports'
+                    browser.new_browser_cdp_session().send('Browser.setDownloadBehavior',{'behavior':'allow','downloadPath':export_folder,'browserContextId':context_id,'eventsEnabled':True})
                 with page.expect_download() as download:
                     page.locator('#export-model').click()
                 import json
                 exported = json.loads(page.evaluate('()=>exportedModelBlob.text()') if os.environ.get('REVERSI_WINDOWS_BROWSER')=='1' else Path(download.value.path()).read_text())
+                if os.environ.get('REVERSI_WINDOWS_BROWSER')=='1':
+                    folder=Path(subprocess.check_output(['wslpath','-u',export_folder],text=True).strip())
+                    saved=folder/download.value.suggested_filename
+                    for _ in range(200):
+                        if saved.exists():break
+                        page.wait_for_timeout(50)
+                    assert json.loads(saved.read_text())==exported, 'Windows exported file differs from the Blob'
                 assert exported['attempts'] == 1
                 page.reload()
                 expect(page.locator('#training-status')).to_contain_text('1 training attempts')

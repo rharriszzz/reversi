@@ -13,6 +13,15 @@ self.onmessage=({data})=>{queue=queue.then(async()=>{
   else if(op==='inspect')result=engine.inspect(p.board,p.player,model);
   else if(op==='analyze')result=engine.analyze(p.board,p.player,depth,model);
   else if(op==='reinit'){engine.close();const start=performance.now();engine=await WasmEngine.create();result={initializationMs:performance.now()-start,memoryBytes:engine.memoryBytes};}
+  else if(op==='batch'){
+   const start=performance.now();let coreMs=0,nodes=0,evaluations=0;const values=[];
+   for(let rep=0;rep<data.repeats;rep++)for(const p of data.positions){
+    const depth=p.occupied<28?7:p.occupied<52?6:Math.max(1,Math.min(9,64-p.occupied));
+    const r=data.backend==='wasm'?engine.search(p.board,p.player,{model,depth,hints:false}):findBestMove(p.board,p.player,depth,undefined,{evaluate:evaluators[model]});
+    coreMs+=r.elapsedMs;nodes+=r.nodes;evaluations+=r.evaluations;if(!rep)values.push(r.score);
+   }
+   result={coreMs,wallMs:performance.now()-start,nodes,evaluations,values};
+  }
   else if(op==='javascript')result=findBestMove(p.board,p.player,timeMs?14:depth,undefined,{evaluate:evaluators[model],...(timeMs?{timeMs}:{})});
   else if(op==='static')result=engine.evalbench(p.board,p.player,model,n);
   else if(op==='js-static'){

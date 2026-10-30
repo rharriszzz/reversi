@@ -4,6 +4,21 @@ Running the application needs only Python 3 and a modern browser. Committed
 `src/wasm/` resources contain the compiler output and frozen B/L/P coefficients;
 no SDK, Node installation or remote computing service is required to play.
 
+The [Windows PC qualification](WINDOWS_PC_NATIVE_WASM_RESULTS.md) runs these
+exact committed artifacts in Windows Chrome without rebuilding them. The native
+GCC exception-return workaround added afterward has a later source hash; the
+committed Wasm manifest continues to identify its original pinned build. Both
+paths pass numerical/timeout qualification. No Wasm compiler setting changed.
+
+For optional local native CPU targeting, use
+`NATIVE_CPU=native node scripts/native/build.mjs`. This writes a separate
+`.local-research/native-host` receipt/binary with `-march=native` on x86 or
+`-mcpu=native` on ARM64, while retaining floating-point flags. The default native
+build remains portable. Node native clients honor the same environment choice;
+Python clients can receive the host build receipt explicitly. Host binaries must
+not be assumed portable to another CPU. The Intel option is measured in the PC
+report; this round does not newly qualify that option on Mac hardware.
+
 Developer build on macOS ARM64/Intel or WSL2 bash/zsh:
 
 ```bash

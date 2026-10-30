@@ -25,6 +25,7 @@ def launch_browser(pw,**options):
     spec=importlib.util.spec_from_file_location('windows_browser',Path(__file__).resolve().parents[1]/'windows-pc/browser.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     owner=module.WindowsBrowser(pw);browser=owner.__enter__()
+    browser.reversi_windows_profile=owner.identity['profile']
     import atexit
     atexit.register(owner.__exit__)
     browser.close=lambda:owner.__exit__()

@@ -1,5 +1,11 @@
 # Reversi
 
+The [Windows PC native/Wasm qualification](docs/WINDOWS_PC_NATIVE_WASM_RESULTS.md)
+tests the unchanged Wasm binary in actual Windows Chrome, fixes GCC interrupted
+search publication, and compares WSL2 C++, Windows Wasm and original JavaScript
+against the published M4 panel. All 24 engineering acceptance games pass;
+Wasm is roughly 50× faster than browser JavaScript on this PC.
+
 **Browser WebAssembly update:** select **B**, **L** or **P** to use the qualified
 shared C++ engine locally for playing, all-move coaching and review. Choose
 80 ms or 300 ms for timed play. Existing saved/custom weights remain the initial
