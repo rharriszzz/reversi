@@ -22,3 +22,5 @@ d=s['statistics']['difference'];lo,hi=d['interval95']
 axes[1].errorbar(0,100*d['mean'],yerr=[[100*(d['mean']-lo)],[100*(hi-d['mean'])]],fmt='o',capsize=5,color='#225b99')
 axes[1].axhline(0,color='gray',ls='--');axes[1].set(xticks=[0],xticklabels=['Same 256 families'],ylabel='300 minus 80 ms (percentage points)',title='Matched budget contrast (descriptive)')
 fig.savefig(ROOT/'docs/p-confirmation-20261029.svg');fig.savefig(OUT/'p-confirmation-qa-final.png',dpi=160);plt.close(fig)
+svg=ROOT/'docs/p-confirmation-20261029.svg'
+svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
