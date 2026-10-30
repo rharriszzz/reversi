@@ -4211,3 +4211,8 @@ At completion, explain:
 Commit and push the implementation, benchmarks, profiles or compact profiling summaries, statistical evidence, and technical report.
 
 **My priority is to make the strongest practical Reversi engine we can, using profiling to identify the most valuable optimizations and actual games to verify that faster search translates into stronger play.**
+
+
+---
+
+is it done?  if not, please continue

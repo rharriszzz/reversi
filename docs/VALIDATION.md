@@ -137,3 +137,43 @@ git diff --check
 Current verification: 129 JavaScript tests and 30 Python tests passed. Actual Windows Chrome/156.0.8078.48 loaded the WSL2 localhost application, rendered four analyzed moves, verified a continuation and a playing-worker reply; the real PowerShell default-browser launch route also succeeded. Full interactive acceptance was not repeated. macOS Apple Silicon and Intel hardware remained unavailable; no new Mac execution is claimed.
 
 Numerical integrity passed, including all 41,519 preserved files of the preceding completed experiment. The new experiment's strict PV-independence qualification failed for four sources, and its positional gates failed. Those scientific limitations are retained in [NEXT_RESIDUAL_RESULTS.md](NEXT_RESIDUAL_RESULTS.md); a passing correctness/audit suite does not turn them into independent confirmation or stronger play.
+
+## Native search backend — 30 October 2026, M4 iMac
+
+The corrected release passes 154 JavaScript tests and the native 11-group suite
+with the search core under ASan/UBSan. All 38 Python framework tests pass; two
+old test fixtures normalize macOS `/var` and `/private/var` paths with resolve().
+Broad qualification covers 2,007 positions, 12,042 B/L/P static queries, 96
+production full-window searches and twelve independent eight-empty endings,
+with zero observed numerical difference. Every 21,870 Float32 table cell and
+all 63 double weights also compare bit-identically with the JavaScript export.
+A separate published check verifies every stored fixed-depth native optimal
+choice against the production JavaScript search.
+
+All 768 corrected games independently replay under JavaScript mailbox and Python
+rules. Python reproduces family-level confidence bounds, positive Student tails,
+exact seeded bootstrap draws, matched-budget covariance and all 35,666 public
+per-move metric rows/phase aggregates. Native P scored 76.95% / 70.51%. The first
+768-game run is retained separately after a diagnosed request-clock drift; it is
+not pooled with the corrected engineering sample. The corrected transport clock
+passes a stale-startup-anchor regression and long-run actual-time checks.
+
+Actual native Apple Silicon execution, CMake build, HTTP serving and real
+headless Chromium 156.0.8078.4 acceptance pass. The browser test covers colors,
+coaching comparison, keyboard, undo/replay, rapid changes, training, export/reload,
+a complete game and mistake review. Intel macOS cross-compiles, but its executable
+cannot run on this machine without Rosetta. No Intel hardware, current WSL2/native
+Windows backend, actual Mac default-browser open or Wasm execution is claimed.
+Browser search remains JavaScript.
+
+```bash
+npm test
+NATIVE_SANITIZE=1 npm run native:test
+python3 -m unittest discover -s tests -p 'test_*.py'
+node docs/data/native-search-move-check-20261030.mjs
+python3 docs/data/native-search-public-verify-20261030.py
+```
+
+See [the report](NATIVE_SEARCH_ENGINE.md), [protocol and repair](NATIVE_SEARCH_PROTOCOL.md)
+and complete compact evidence linked there. No historical model, corpus,
+confirmation result or production JavaScript search/evaluator changed.

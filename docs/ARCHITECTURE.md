@@ -61,7 +61,7 @@ The follow-up result-preserving implementation is `src/fast-features.js`. It pre
 - Verified continuations are optimal at their stated horizon; tied replies can differ and heuristic leaves can be misleading.
 - Browser weight mutation uses training-only acceptance. Independent holdout evidence is required before claiming stronger play.
 - Models export to JSON; an import/validation UI is not yet implemented.
-- Actual WSL2-to-Windows Chrome and Chromium tests pass. macOS hardware and native Windows Python launch remain unverified; see `VALIDATION.md`.
+- Historical WSL2-to-Windows Chrome checks passed. Current Apple Silicon native research and real Chromium acceptance pass; native Intel, current WSL2/native Windows backend execution and actual Mac default-browser launch remain unverified. See `VALIDATION.md`.
 
 ## B-preserving residual research
 

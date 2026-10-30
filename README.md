@@ -1,5 +1,12 @@
 # Reversi
 
+**Native search backend complete:** the original C++17 bitboard engine supports
+exact frozen B/L/P and persistent Node/Python research play. In the corrected
+768-game engineering screen, native P scored **76.95% at 80 ms** and **70.51% at
+300 ms** against the same P using JavaScript. All games and paired statistics
+passed independent audits. See [the technical report](docs/NATIVE_SEARCH_ENGINE.md).
+Browser play/coaching still use JavaScript, and B remains the browser default.
+
 **Frozen P confirmation completed:** all 2,048 games finished. P scored **63.57% at 80 ms** and **61.72% at 300 ms**; paired, bootstrap and Hoeffding numerical criteria favor P at both controls. A played two-empty board reused an actual older historical training target, and further historical roles remain unresolved, so the requested independent-confirmation claim is blocked. B remains production. Read [the complete results](docs/P_CONFIRMATION_RESULTS.md). Do not resume this completed run, regenerate its sample, retrain, promote P, or launch another tournament automatically. Preserve all new games/reservations as historical evidence for any future authorized work. Earlier status paragraphs below retain historical handoffs.
 
 The [M4 iMac / Windows WSL2 research benchmark](docs/MAC_PC_BENCHMARK.md) uses disclosed fixed positions, checks the patched teacher and numerical equivalence, and measures complete labeling, search, solving and fitting tasks. It requires no private research corpus; native M4 and PC results now show about 14–22% faster single-worker tasks on the Mac, with larger independent-task throughput under the measured memory limits.
