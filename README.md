@@ -1,5 +1,11 @@
 # Reversi
 
+**M4 modernization, Stage 1:** Python **3.14.10**, Node **24.22.1**, project npm
+**12.2.1**, Apple Clang 21 and current-source Emscripten 4.0.22 builds pass
+native/Wasm qualification and actual Mac Chrome checks. See the ongoing
+[Mac optimization report](docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md).
+Python 3.13 remains the minimum; frozen B/L/P remain unchanged.
+
 **Final PC qualification:** Ubuntu **26.04.1**, Python **3.14.4**, GCC **15.2**,
 and actual Windows **Chrome + Edge** pass. Portable remains the native default;
 host and POPCNT-only results, profiles and ranked next experiments are in the

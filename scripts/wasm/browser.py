@@ -18,7 +18,10 @@ def check_resources():
         raise RuntimeError('Windows memory pressure with active page output; stop measurements')
 
 def launch_browser(pw,**options):
-    if os.environ.get('REVERSI_WINDOWS_BROWSER')!='1':return pw.chromium.launch(**options)
+    if os.environ.get('REVERSI_WINDOWS_BROWSER')!='1':
+        if os.environ.get('REVERSI_BROWSER_CHANNEL'):
+            options.setdefault('channel',os.environ['REVERSI_BROWSER_CHANNEL'])
+        return pw.chromium.launch(**options)
     sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'windows-pc'))
     # This module is also named browser; load the Windows helper explicitly.
     import importlib.util

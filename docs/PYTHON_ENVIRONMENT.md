@@ -102,3 +102,49 @@ symlinks. Explicitly run that installed interpreter with `-m venv .venv`, activa
 and install the recorded developer requirements. Both ARM64 and Intel need
 separate native package/interpreter checks; do not copy the PC venv. Python 3.13
 is supported by policy but this step's actual test evidence is Python 3.14 only.
+
+
+## Qualified M4 environment (2026-10-30)
+
+This Mac uses **Python 3.14.10**, ARM64, in repository `.venv`; the minimum
+supported version remains **3.13**. Existing MacPorts 2.12.7 offered Python
+3.14.10, but `/opt/local` requires an unavailable administrator password.
+A single user-scoped Astral standalone CPython installation was used instead;
+Apple's Python, MacPorts selections and shell startup files were untouched.
+The bootstrap uv 0.13.6 is local developer tooling, not an application dependency.
+See [uv's managed-Python documentation](https://docs.astral.sh/uv/guides/install-python/).
+
+```bash
+# Existing installation on this Mac:
+source .venv/bin/activate
+python -c 'import sys; print(sys.executable, sys.version, sys.base_prefix)'
+python -m pip check
+python -m unittest discover -s tests -p 'test_*.py'
+npm test
+# Fresh installation, if uv is already available:
+uv python install 3.14 --install-dir "$HOME/.local/share/reversi-python" --no-bin
+"$HOME/.local/share/reversi-python/cpython-3.14.10-macos-aarch64-none/bin/python3.14" -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev-mac-20261030.txt
+```
+
+Node 24.22.1 remains MacPorts-managed. npm 12.2.1 is user-scoped at
+`~/.local/share/reversi-node-tools/node_modules/npm`, with `.venv/bin/npm` and
+`.venv/bin/npx` links so activation selects it ahead of MacPorts npm 11.21.0.
+Recreate those optional development links with:
+
+```bash
+npm install --prefix "$HOME/.local/share/reversi-node-tools" npm@12.2.1
+ln -s "$HOME/.local/share/reversi-node-tools/node_modules/npm/bin/npm-cli.js" .venv/bin/npm
+ln -s "$HOME/.local/share/reversi-node-tools/node_modules/npm/bin/npx-cli.js" .venv/bin/npx
+source .venv/bin/activate
+npm --version
+```
+
+All PC dependency versions install unchanged on Python 3.14.10, including
+Playwright 1.64.1, NumPy 2.5.4, Matplotlib 3.11.2 and WebSockets 15.0.1.
+Old `.local-research` Python 3.13 environments remain historical, not active.
+Node selects `.venv` without activation; direct Python and npm commands should
+use activation or explicit `.venv/bin` paths. Pinned Emscripten 4.0.22 compilation
+and its child Python tools execute with the same selected `EMSDK_PYTHON`.
+Set `REVERSI_BROWSER_CHANNEL=chrome` for the installed Mac Chrome in existing
+browser harnesses; omission retains Playwright Chromium.

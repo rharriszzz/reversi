@@ -22,8 +22,26 @@ export function nativeDirectory(cpu=process.env.NATIVE_CPU??'portable') {
   if(cpu==='popcnt'&&!['x64','ia32'].includes(process.arch))throw Error('NATIVE_CPU=popcnt requires x86');
   return cpu==='native'?'.local-research/native-host':cpu==='popcnt'?'.local-research/native-popcnt':'.local-research/native';
 }
+function acquireBuildLock(directory) {
+  const lock=resolve(directory,'.build-lock'),start=Date.now();
+  for(;;) {
+    try {mkdirSync(lock);writeFileSync(resolve(lock,'pid'),String(process.pid));return ()=>rmSync(lock,{recursive:true,force:true});}
+    catch(error) {
+      if(error.code!=='EEXIST')throw error;
+      // Reclaim only a lock whose recorded owner has definitely exited.
+      try {
+        const pid=Number(readFileSync(resolve(lock,'pid'),'utf8'));
+        if(Number.isInteger(pid)&&pid>0) {
+          try {process.kill(pid,0);}catch(e){if(e.code==='ESRCH'){rmSync(lock,{recursive:true,force:true});continue;}}
+        }
+      }catch(e){if(e.code!=='ENOENT')throw e;}
+      if(Date.now()-start>120000)throw Error(`Native build lock timed out: ${lock}`);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,25);
+    }
+  }
+}
 export function build({cpu=process.env.NATIVE_CPU??'portable',directory=resolve(root,nativeDirectory(cpu)),profile=false,instrument=false,sanitize=false}={}) {
-  const previous=process.cwd();process.chdir(root);
+  const previous=process.cwd();process.chdir(root);let unlock;
   try {
     const {header,models}=frozenHeader();
     nativeDirectory(cpu);
@@ -34,11 +52,13 @@ export function build({cpu=process.env.NATIVE_CPU??'portable',directory=resolve(
     const sources=['native/engine.hpp','native/engine.cpp','native/main.cpp','scripts/native/build.mjs','scripts/native/client.mjs','scripts/native/client.py'];
     const sourceHashes=Object.fromEntries(sources.filter(p=>existsSync(p)).map(p=>[p,sha(readFileSync(p))]));
     const fingerprint=sha(JSON.stringify({header:sha(header),sourceHashes,flags,compiler:version.stdout}));
-    mkdirSync(directory,{recursive:true});const executable=resolve(directory,process.platform==='win32'?'reversi-native.exe':'reversi-native');
+    mkdirSync(directory,{recursive:true});unlock=acquireBuildLock(directory);
+    const executable=resolve(directory,process.platform==='win32'?'reversi-native.exe':'reversi-native');
     const receipt=resolve(directory,'build.json');
     if(existsSync(executable)&&existsSync(receipt)) {const saved=JSON.parse(readFileSync(receipt));if(saved.fingerprint===fingerprint&&saved.executableSha256===sha(readFileSync(executable)))return saved;}
     // Concurrent fresh-checkout test processes may request the same build.
-    // Publish complete identical files, never truncate a live executable/header.
+    // Serialize publication as well: Mach-O output/signatures need not be byte
+    // identical when linked through different temporary output names.
     const temporary=path=>`${path}.tmp-${process.pid}`;
     const headerPath=resolve(directory,'frozen.hpp');
     writeFileSync(temporary(headerPath),header);renameSync(temporary(headerPath),headerPath);
@@ -48,6 +68,6 @@ export function build({cpu=process.env.NATIVE_CPU??'portable',directory=resolve(
     renameSync(pending,executable);
     const saved={version:1,fingerprint,sourceHashes,flags,compiler:version.stdout.trim(),executable,executableSha256:sha(readFileSync(executable)),modelHeaderSha256:sha(header),models:{B:'original-production',L:models.L.checksum,P:models.P.checksum},createdAt:new Date().toISOString()};
     writeFileSync(temporary(receipt),JSON.stringify(saved,null,2)+'\n');renameSync(temporary(receipt),receipt);return saved;
-  } finally {process.chdir(previous);}
+  } finally {unlock?.();process.chdir(previous);}
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(build({profile:process.argv.includes('--profile'),instrument:process.argv.includes('--instrument'),sanitize:process.argv.includes('--sanitize'),directory:resolve(root,process.argv.includes('--sanitize')?'.local-research/native-sanitize':process.argv.includes('--instrument')?'.local-research/native-instrument':process.argv.includes('--profile')?'.local-research/native-profile':nativeDirectory())}),null,2));

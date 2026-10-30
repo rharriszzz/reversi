@@ -1,5 +1,12 @@
 # Reproducible WebAssembly engine
 
+**M4 current-source rebuild:** Python 3.14.10 and Emscripten 4.0.22 now compile
+the shared completed-iteration correction. Two clean builds match byte for byte
+and pass native/Wasm numerical, standalone-internals and installed Mac Chrome
+qualification. See the [Mac report](MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md) and
+[preserved old/new identities](data/mac-stage1-qualification-20261030.json).
+The PC paragraphs below describe its earlier unchanged-artifact qualification.
+
 Active tooling now requires **Python 3.13+**; see
 [interpreter selection](PYTHON_ENVIRONMENT.md). SDK setup and both build scripts
 pass the project-selected `EMSDK_PYTHON`, avoiding a silently selected SDK Python.

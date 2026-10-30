@@ -5796,3 +5796,666 @@ I see. sorry
 ---
 
 I am hoping for testing, benchmarking, profiling, and speculations on how to improve based on the profiling results.  You have alread much of this.
+
+---
+
+# Reversi — M4 Mac Modernization, Search Optimization, Profiling, Benchmarking, and Comprehensive Qualification
+
+Work on my M4 iMac in:
+
+`~/git/reversi`
+
+Use GPT-6.1-Sol with High reasoning.
+
+This is the next substantial Reversi engineering round, following the completed Windows PC work.
+
+Read `AGENTS.md` and `USER_REQUESTS.md` first.
+
+Then carefully review:
+
+- `docs/PC_TO_MAC_HANDOFF.md`
+- `docs/UBUNTU_2604_QUALIFICATION.md`
+- `docs/PYTHON_ENVIRONMENT.md`
+- `docs/WINDOWS_PC_NATIVE_WASM_RESULTS.md`
+- `docs/WEBASSEMBLY_ENGINE_RESULTS.md`
+- `docs/NATIVE_SEARCH_V2_RESULTS.md`
+- `docs/NATIVE_FINAL_OPTIMIZATIONS.md`
+- `docs/WEBASSEMBLY_BUILD.md`
+- The relevant native, Wasm, browser, benchmark and profiling source code.
+
+The latest PC work was published in:
+
+- `0ee7857` — Ubuntu 26.04, Python 3.14, GCC 15 qualification.
+- `7dfb056` — GCC 15 benchmarks, Edge qualification, profiling and Mac handoff.
+
+Fetch the latest commits carefully, preserve any unrelated local changes, and confirm the repository state.
+
+## Overall objective
+
+I want to bring the Mac development environment up to date, try several promising search optimizations, measure their effects, profile the resulting implementation, make further evidence-based improvements if appropriate, and then perform a substantially more comprehensive qualification and performance test.
+
+I want the Mac to remain my principal development and research machine.
+
+I am interested in actual playing-search performance, not just microbenchmark improvements.
+
+Maintain one common C++ search/evaluation implementation for native and WebAssembly.
+
+Preserve the frozen B, L and P evaluators and their identities.
+
+Do not start a new evaluator-learning campaign or a large independent P-versus-B strength-confirmation tournament.
+
+Proceed autonomously through the stages below, committing and pushing at the specified checkpoints.
+
+# Stage 1 — Mac environment modernization
+
+## A. Resource and system audit
+
+Before changing anything or starting intensive computation, inspect:
+
+- Exact Mac model, chip and CPU topology.
+- Performance and efficiency cores.
+- Physical memory and available memory.
+- Memory pressure and swap usage.
+- Available disk space.
+- Background CPU-intensive processes.
+- Installed Python versions.
+- Apple Clang, Xcode and command-line tools.
+- GCC if installed.
+- Node, npm and Codex CLI.
+- Emscripten and LLVM.
+- Chrome/Chromium and Safari versions.
+- Playwright and browser automation dependencies.
+- MacPorts, Homebrew or other existing package managers.
+- Existing Python virtual environments.
+
+Record the current state.
+
+My M4 iMac has 24 GiB RAM. Use the hardware responsibly.
+
+Prefer at least 4 GiB genuinely available memory before intensive testing and avoid sustained swapping.
+
+Do not change unrelated system settings, disable services, close applications without permission, or install multiple redundant toolchains.
+
+## B. Python 3.14
+
+I want to use **Python 3.14.x on the Mac, preferably 3.14.4 or a newer stable 3.14.x patch release**.
+
+Keep the repository's minimum supported Python version at **3.13**.
+
+I do not want the Mac to remain on an older Python merely because an older interpreter was already installed.
+
+Check available packages and choose a suitable user-managed Python 3.14 installation, preferably using an already established package manager such as MacPorts or Homebrew.
+
+Do not overwrite Apple's system Python.
+
+Establish the project `.venv` using Python 3.14.
+
+Install and verify the active development/test dependencies.
+
+Inspect the existing Python environment and reconcile it with the PC's requirements and interpreter-selection policy.
+
+All active Python workflows must select Python 3.13 or newer, with this Mac using 3.14.
+
+Verify the actual interpreter used by:
+
+- Unit tests.
+- Browser automation.
+- Native benchmark harnesses.
+- Profiling and publishing scripts.
+- Python subprocesses.
+- Node-launched Python processes.
+- Emscripten's Python-dependent tools.
+
+Do not merely check `python3 --version` and assume every subprocess uses the same interpreter.
+
+Record `sys.executable`, `sys.version`, environment paths and dependency versions.
+
+Preserve historical research scripts and results.
+
+## C. Toolchain version parity with the PC
+
+The upgraded PC has:
+
+- Python 3.14.4.
+- GCC 15.2.
+- Node 24.16.0.
+- npm 12.0.2.
+- Codex CLI 0.166.0.
+- Playwright 1.64.1.
+- WebSockets 15.0.1.
+- NumPy 2.5.4.
+- Matplotlib 3.11.2.
+
+It also qualified the existing Emscripten 4.0.22 WebAssembly artifacts.
+
+**I want the Mac's development tools to be at least as current and capable as the PC's wherever that comparison is meaningful.**
+
+Specifically:
+
+- Prefer Python 3.14.4 or newer stable 3.14.x.
+- Use Node >=24.16.0.
+- Use npm >=12.0.2 where compatible.
+- Use Codex CLI >=0.166.0.
+- Use developer Python dependencies at least as current as the PC's when compatible.
+- Keep or install the pinned Emscripten 4.0.22 build toolchain.
+- Use current supported browser/test versions.
+
+For different compiler families, compare features and qualification rather than version numbers. Apple Clang 21 and GCC 15 are not numerically comparable.
+
+Do not install GCC merely to match the PC's GCC version if Apple Clang already provides a suitable, qualified native compiler.
+
+Likewise, do not undertake a major macOS upgrade just to satisfy a numerical version comparison.
+
+Check compatibility, not just novelty.
+
+Document any tool for which the best compatible Mac version is older than the PC counterpart.
+
+## D. Rebuild and qualify current shared source
+
+The PC handoff identified an important build-provenance issue:
+
+The shared C++ source contains a completed-iteration exception-return correction made after the existing Wasm artifact was compiled.
+
+The old Wasm artifact remains qualified, but its source fingerprint differs from the latest shared engine source.
+
+Rebuild the Wasm module on the Mac using current source, the pinned Emscripten toolchain, and the modern Python environment.
+
+Preserve previous artifact identities and ensure deterministic generation.
+
+Rebuild the native Apple Silicon engine using current shared source.
+
+Verify:
+
+- B/L/P static numerical equality.
+- Full-window root move scores.
+- Verified principal variations.
+- Exact terminal and forced-pass behavior.
+- Deep horizons and uncapped timed search.
+- Interrupted iteration and null-score fallback.
+- TT collisions, generations and bound semantics.
+- Model and ABI identities.
+- Browser initialization and cancellation.
+
+Run two clean Wasm builds to check reproducibility.
+
+Do not publish a new Wasm artifact until it passes qualification.
+
+## Checkpoint 1 — Commit and push
+
+After the environment and current-source qualification:
+
+- Commit appropriate configuration/documentation updates.
+- Commit a qualified new Wasm distribution if rebuilt.
+- Preserve required provenance and numerical evidence.
+- Push to `origin main`.
+- Verify the remote commit.
+
+Do not commit virtual environments, SDK installations, local executables, caches or unrelated machine files.
+
+# Stage 2 — Try promising native C++ optimizations
+
+I want you to try optimizations previously identified by profiling, using the current shared native engine.
+
+Before making changes, establish a small, matched baseline benchmark against the qualified current implementation.
+
+This baseline should use disclosed opening, middle and exact-endgame positions.
+
+Preserve a reproducible reference build so we can compare the optimized code with the original.
+
+## Optimization A — Specialized final-empty move generation and flipping
+
+This is the first priority.
+
+Both Mac and PC profiling found that legal-move generation, flipping and search control consume substantial time during exact endgame solving.
+
+Investigate specialized handling for positions with one or a few empty squares.
+
+Start with the last one and two empty squares. Extend to a few additional empties only if the implementation is simple and benchmarks suggest worthwhile gains.
+
+Potential approaches include:
+
+- Avoiding unnecessary general-purpose legal-move propagation in tiny endgames.
+- Faster final-square legality detection.
+- Specialized flip calculations.
+- Reduced repeated terminal and pass work.
+- Appropriate early termination when the remaining game is completely determined.
+
+Preserve the existing rules and terminal scoring exactly.
+
+Do not award unplayed empty squares to a player.
+
+Preserve pass semantics.
+
+Validate independently against complete exact-game references, including every legal alternative where practical.
+
+Measure complete-search performance across multiple endgame roots, not just the specialized function.
+
+If the optimization produces a convincing overall benefit, retain it.
+
+If it does not, revert it and document the experiment.
+
+## Optimization B — Compact transposition-table representation
+
+Try a genuinely compact or better-aligned TT design.
+
+The previous two-way 80-byte bucket experiment was slower and must not simply be repeated.
+
+Investigate whether a more efficient representation can improve locality or reduce unnecessary memory traffic.
+
+Requirements:
+
+- Full position identity or an independently justified collision-safe equivalent.
+- Correct side-to-move identity.
+- Correct depth and generation semantics.
+- Exact bound handling.
+- Proper solved metadata.
+- Safe replacement and rollover.
+- No invalid reuse across different models or horizons.
+- Equivalent actual allocated memory budgets.
+- No unbounded allocations.
+
+Consider direct-mapped compact entries before introducing more elaborate associative replacement.
+
+Compare elapsed complete-search time, node counts, useful cutoffs, replacement rates and memory usage.
+
+More TT hits alone do not demonstrate an improvement.
+
+Retain only a measurable and reproducible benefit.
+
+If a genuinely compact representation proves difficult or risky, document the analysis and move on rather than turning this into an open-ended rewrite.
+
+## Optional small improvement — Move ordering
+
+If the first two experiments reveal a simple opportunity, consider a cheap move-ordering refinement.
+
+However, do not introduce principal variation search, aspiration windows or elaborate selective pruning at this stage.
+
+Measure the reduction in nodes as well as the cost of calculating the ordering.
+
+Preserve comparable coaching scores and exact minimax semantics.
+
+Again, retain only an actual complete-search improvement.
+
+## Optimization qualification
+
+For every candidate:
+
+1. Establish a before/after comparison.
+2. Verify legal rules and numerical correctness.
+3. Run fixed-depth and exact-endgame tests.
+4. Verify TT and root-analysis semantics.
+5. Measure complete-search elapsed time.
+6. Retain or revert explicitly.
+
+Keep a record of unsuccessful variants rather than hiding them.
+
+Do not modify frozen evaluator coefficients.
+
+Do not claim that a reduction in microbenchmark time necessarily produces stronger play.
+
+# Stage 3 — Initial comprehensive benchmarking
+
+After the first optimization experiments, benchmark the resulting implementation.
+
+Use the M4 Mac as the principal measurement machine.
+
+Compare:
+
+1. The previously qualified native C++ baseline.
+2. The new native C++ candidate.
+3. The rebuilt WebAssembly implementation.
+4. The existing JavaScript reference where useful.
+
+Use both B and P.
+
+Include opening, middle, endgame, forced-pass and exact-solving positions.
+
+Run serial, rotated repeated measurements with warmup.
+
+Measure:
+
+- Complete search nodes per second.
+- Fixed-depth search time.
+- Static evaluation time.
+- Number of nodes required at the same horizon.
+- Completed search depth at 80 ms and 300 ms.
+- Exact-solution frequency.
+- Alpha-beta cutoffs.
+- TT probes, useful bound cutoffs, replacements and collisions.
+- Memory and allocation behavior where measurable.
+- Core elapsed time and CPU time.
+- Native/Wasm interface overhead.
+- Browser worker initialization and response-delivery times.
+- Deadline accuracy.
+
+Also compare the measured Mac results with the published PC results, taking account of different CPU architectures and compiler targets.
+
+Do not run other computational experiments concurrently with timed benchmarks.
+
+Publish complete benchmark conditions and source/build identities.
+
+# Stage 4 — Profiling and diagnosis
+
+After benchmarking, perform detailed profiling on the current optimized implementation.
+
+Use suitable macOS profiling tools such as `sample` and Instruments.
+
+Profile the native C++ code and actual Wasm workers in Chromium.
+
+Keep instrumentation separate from production timing builds.
+
+Cover:
+
+- Opening.
+- Middle game.
+- Exact endgames.
+- Representative all-move coaching workloads.
+
+Attribute CPU work to:
+
+- Negamax and alpha-beta control.
+- TT operations and hashing.
+- Move ordering.
+- Legal moves.
+- Flipping.
+- Seven-feature evaluation.
+- P's pattern evaluation.
+- Memory allocation and data movement.
+- JavaScript/Wasm boundary operations.
+- Worker/UI communication.
+
+Where compiler inlining prevents reliable separation, acknowledge that limitation.
+
+Do not invent cache-miss data, allocation rates or CPU frequencies that the tools cannot measure.
+
+## Decide whether additional optimization is justified
+
+Use profiling to answer:
+
+**Is there an obvious, technically manageable optimization that should now be implemented?**
+
+If yes:
+
+- Identify the specific code path.
+- Estimate the plausible improvement using the measured runtime fraction.
+- Implement one or at most two small additional changes.
+- Requalify correctness.
+- Measure their actual effect.
+- Retain only meaningful gains.
+
+If no:
+
+- Do not invent work just to continue optimizing.
+- Record the remaining bottlenecks.
+- Distinguish measured evidence from speculation.
+- Rank future ideas by possible benefit, complexity and correctness risk.
+
+I would rather have a defensible finding that no further easy improvement exists than an elaborate unmeasured optimization.
+
+## Repeated measurements after any new changes
+
+**If Stage 4 introduces any performance-relevant changes, repeat both benchmarking and profiling.**
+
+Use the same disclosed conditions as the initial campaign.
+
+Compare pre-profile-change and post-profile-change implementations.
+
+Report the total cumulative improvement from the initial qualified native baseline.
+
+Rebuild and requalify WebAssembly whenever shared C++ code changes.
+
+Do not leave native and Wasm using unintentionally different search implementations.
+
+## Checkpoint 2 — Commit and push
+
+Publish:
+
+- Retained optimizations.
+- Rejected experiments and evidence.
+- Initial benchmarks.
+- CPU profiles.
+- Additional corrections.
+- Repeated benchmarks and profiles where applicable.
+- Updated shared native/Wasm artifacts and qualification.
+- Current source/build fingerprints.
+
+Commit and push before beginning the final substantial acceptance campaign.
+
+The implementation and performance settings must be frozen for the final tests.
+
+# Stage 5 — More substantial correctness and performance testing
+
+This stage should be significantly more comprehensive than a smoke test.
+
+I want confidence that the optimized engine is fast, correct, robust, and useful in the actual browser application.
+
+## A. Native C++ correctness
+
+Run complete native regression and sanitizer suites.
+
+Include:
+
+- Independent rules and flips.
+- Every legal alternative in selected endgames.
+- Forced passes.
+- Terminal positions with unused squares.
+- Raw-margin and win/loss utility.
+- Fixed-depth minimax and TT-bound correctness.
+- Depths beyond 14.
+- Interrupted iterative deepening.
+- Null-score fallback.
+- Model changes.
+- Generation rollover.
+- TT collision/replacement stress.
+- Long-running repeated searches.
+- Cancellation/restart behavior.
+- Full-window all-move and PV verification.
+
+Include separate tests targeted to any retained optimization.
+
+Use independent reference implementations for important correctness checks.
+
+## B. WebAssembly numerical and functional qualification
+
+Run the corresponding tests against the actual compiled Wasm module.
+
+Compare B, L and P outputs with native C++ and independent references.
+
+Check the new source/build identity.
+
+Exercise repeated worker initialization, cancellation and restart.
+
+Verify bounded Wasm memory.
+
+Do not silently accept numerical discrepancies.
+
+## C. Browser acceptance
+
+Run a more substantial automated browser campaign.
+
+I propose at least **96 complete browser games**, balanced across:
+
+- B and P.
+- 80 ms and 300 ms.
+- Both player colors.
+- Several deterministic starting conditions and independent test seeds.
+
+Include representative custom-weight play and training/review smoke tests separately.
+
+Independently replay every complete game.
+
+Exercise:
+
+- Full-window coaching.
+- Alternative move comparison.
+- Verified continuations.
+- Historical position analysis and review.
+- Undo/replay.
+- Model selection and model-version handling.
+- Custom-weight persistence and JSON export.
+- Rapid cancellations.
+- Worker recreation.
+- Browser reload.
+- Error recovery.
+- Complete exact endings.
+- Memory stability over repeated games.
+
+These are engineering acceptance games, not another independent P/B playing-strength tournament.
+
+Test actual Chromium/Chrome on the Mac.
+
+Test Safari where practical and permitted by existing settings, but do not change security or browser automation preferences merely to make a test run.
+
+## D. End-to-end native versus Wasm playing performance
+
+In addition to ordinary fixed-position benchmarks, I want performance measured during real games.
+
+Use balanced, reproducible game conditions.
+
+For the same evaluator, compare native C++ and Wasm using equal time per move.
+
+For example, use **128 color-swapped games per time budget** at 80 and 300 ms, for 256 total matched backend-comparison games, primarily with frozen P.
+
+Freeze the openings, seeds, executable/build identities and schedule before play.
+
+This is an engineering comparison of the two execution backends, not a fresh general claim about P's strength.
+
+Record:
+
+- Wins, draws and losses.
+- Completed search depths.
+- Nodes per second.
+- Nodes per move.
+- Search CPU and wall time.
+- Deadline behavior.
+- Exact solving.
+- TT metrics.
+- End-to-end game runtime.
+
+Use opening families as the statistical unit for paired outcome comparisons.
+
+Report uncertainty if interpreting results as a backend playing-strength difference.
+
+Do not select samples or tune settings based on interim outcomes.
+
+Keep outcome summaries unopened until the predeclared sample and audit finish.
+
+## E. Longer stability and performance tests
+
+Run bounded stress tests for:
+
+- Repeated native searches.
+- Repeated Wasm search requests.
+- Browser worker restarts.
+- Memory allocation stability.
+- TT generation rollover.
+- Timed search interruption.
+- Exact endgame computation.
+- No stale UI responses.
+- No significant memory leaks.
+
+Monitor resource use throughout.
+
+Do not confuse browser process RSS with unique allocated memory.
+
+Do not modify Mac power or thermal settings to improve benchmark scores.
+
+# Stage 6 — Final analysis
+
+Create:
+
+`docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md`
+
+This should be a comprehensive technical report.
+
+Include:
+
+1. Updated Mac environment and tool versions.
+2. Python 3.14 qualification.
+3. Parity with PC development tools.
+4. Current-source native and Wasm build qualification.
+5. All initial optimization experiments.
+6. Retained and rejected changes.
+7. Initial benchmark results.
+8. CPU profiles.
+9. Any profile-driven additional changes.
+10. Repeated benchmark/profile results.
+11. Cumulative native and Wasm improvements.
+12. Comparison with the PC.
+13. Complete correctness results.
+14. Browser acceptance and game results.
+15. End-to-end native-versus-Wasm performance.
+16. Resource use and memory stability.
+17. Remaining limitations.
+18. Ranked recommendations for future improvements.
+
+Include useful plots, tables, complete compact evidence, exact source/build identities and reproducible verification commands.
+
+Separate measurements from estimates and scientific hypotheses.
+
+Preserve the previously published P-versus-B and P confirmation results, including their provenance limitations.
+
+Do not automatically promote P, retrain any evaluator, or launch another strength-confirmation study.
+
+## Checkpoint 3 — Final commit and push
+
+Commit and push the final report, acceptance results, performance analysis and reproducibility evidence.
+
+Verify the remote branch and report the exact commit SHA.
+
+Do not commit large raw profiling traces, browser caches, virtual environments, executable archives or private research data.
+
+# Work limits and autonomy
+
+Use the M4 iMac.
+
+I authorize **up to four active hours of intensive benchmarking, profiling and game-based performance measurement**, excluding ordinary setup, compilation and correctness qualification.
+
+Four hours is a ceiling, not a target.
+
+Before major runs, forecast their complete cost using actual measured timings.
+
+Include contingency, independent replay, statistical analysis and at least 20 minutes of reporting reserve within the active measurement allowance.
+
+If the planned sample will not fit, resolve feasibility before starting scored games. Do not silently reduce or change the sample after outcomes are visible.
+
+Do not run competing scientific workloads during benchmarks or scored games.
+
+Check CPU, memory, swap, disk space and process activity at the beginning of each major stage.
+
+Avoid sustained memory pressure and swapping.
+
+You may independently handle ordinary package installation, code corrections, profiling, benchmarking and testing within this authorization.
+
+Do not change unrelated Mac settings or interrupt the user's other applications.
+
+Keep concise progress logs and durable checkpoints.
+
+Commit and push after Stage 1, after Stage 4, and after the complete final evaluation.
+
+If a major intermediate engineering change warrants an additional commit, make one.
+
+# Final questions I want answered
+
+1. Is the Mac now using Python 3.14.4 or newer stable 3.14.x?
+2. Are the principal tools at least as current and capable as those on the upgraded PC?
+3. Is the current-source native/Wasm implementation fully qualified?
+4. Did specialized final-empty move generation help?
+5. Did a compact TT help?
+6. What additional performance problems did profiling reveal?
+7. Were there further worthwhile optimizations?
+8. How much faster is the final engine than the previous Mac version?
+9. How does Mac WebAssembly performance compare with native C++ and JavaScript?
+10. How do the new Mac results compare with the updated PC results?
+11. Did the larger correctness and browser testing reveal any problems?
+12. What should we optimize next?
+
+Do not assume that every optimization will succeed.
+
+**The objective is to improve the shared Reversi engine where evidence supports it, establish a modern Mac development environment, and finish with substantially stronger correctness and performance evidence.**
+
+If profiling suggests no convincing additional optimization, record the ideas and stop modifying the engine. Correctness and measured whole-search performance take priority over cleverness.
+
+---
+
+oh, should I ask macports to upgrade stuff?
