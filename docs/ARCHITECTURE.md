@@ -104,3 +104,27 @@ The prepared long-pattern six-hour template is inactive. A real future long-patt
 Source-normalized sparse logistic fitting uses deterministic bounded projected L-BFGS for the patterns, independently checked original-unit gradients and per-source support. Full-window continuation witnesses and production iterative deepening receive evaluator callbacks; production search semantics stay unchanged. Joint reservations, compact historical exclusion indices, task/model/source checksums, per-move game checkpoints and independent occupancy sampling keep scientific inputs separate from resource scheduling. A narrow archived execution certificate corrects the resident-worker memory reserve without changing numerical inputs or receipts.
 
 The complete 256-source/128-root experiment stopped before games. The published [results](NEXT_RESIDUAL_RESULTS.md) retain both failed gates and the failed historical-PV independence qualification. The post-outcome loss decomposition is diagnostic only: no terminal-containing preference, source, model or gate was changed to rescue the result. No learned model is installed in browser play.
+
+## Optional native complete-search backend (October 2026)
+
+`native/engine.cpp` adds an original C++17 two-bitboard implementation of the
+same seven features and frozen B/L/P evaluators. `scripts/native/build.mjs`
+reconstructs and verifies the committed L/P identities, exports the exact
+Float32 tables into a generated header under ignored local storage, and builds
+with contraction/fast-math disabled. No model fitting or browser default changes.
+
+`NativeEngine` (`scripts/native/client.mjs`) owns a persistent process with a
+versioned request protocol, whole-search deadlines, bounded TT allocation,
+model/build identities, error replies and process cancellation/restart. Its
+Python standard-library counterpart uses the same protocol. `choose` and
+`playGame` supply a real research playing pipeline with native or original
+JavaScript search, independent replay and durable game-prefix recovery.
+
+Native negamax uses placement depth, forced passes, original terminal utility,
+same-depth full-identity TT bounds, iterative deepening and only completed
+iterations. Prior search/iteration entries may guide ordering; score bounds are
+valid only in the current generation/horizon. Root play returns one best move;
+its cutoff values are never presented as all-move coaching scores. Full coaching
+and verified continuations remain on the existing JavaScript worker path. The
+browser worker termination/job-id lifecycle is unchanged. See
+[NATIVE_SEARCH_ENGINE.md](NATIVE_SEARCH_ENGINE.md) for measurements and limits.

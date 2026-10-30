@@ -133,7 +133,7 @@ class StrongRunnerTests(unittest.TestCase):
 
     def test_snapshot_and_detached_launcher_uses_frozen_inputs(self):
         with tempfile.TemporaryDirectory(prefix='reversi frozen ') as folder:
-            output = Path(folder)
+            output = Path(folder).resolve()
             resources = {'workers': 1, 'limitingAvailableGiB': 2, 'blockers': []}
             args = ['strong-launch', '--output', folder, '--smoke', '--seconds', '60']
             with patch.object(launcher, 'preflight', return_value=resources), patch('sys.argv', args):

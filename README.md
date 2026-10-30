@@ -204,3 +204,29 @@ node scripts/research.mjs --mode smoke --seconds 30 --workers 2 --output .local-
 ```
 
 The budget is a total active wall-clock cap, including resumed sessions; fitting can stop early on development stagnation. Worker count is capped at four; timed tournaments run with other research workers stopped. Data/models/logs stay Git-ignored. No candidate is installed automatically. See [the protocol](docs/LOCAL_RESEARCH_PLAN.md) and [verified smoke evidence](docs/LOCAL_RESEARCH_SMOKE.md), including platform and execution-host limitations. Do not edit source during a run: source/input changes stop it and prevent incompatible resumption.
+
+## Optional native research player
+
+The C++17 bitboard backend performs complete B/L/P searches in a persistent
+process. The JavaScript engine remains the reference and browser fallback;
+Python + browser play still needs no build or npm install.
+
+```bash
+npm run native:build
+npm run native:test
+# Complete native-P versus JavaScript-P engineering game, 80 ms per move:
+npm run native:play -- 80 P 2026103001
+node scripts/native/qualify.mjs
+```
+
+Build requires a C++17 compiler (`c++`, or set `CXX`) and Node 20+ for verified
+frozen-model export. Existing JavaScript research can import `NativeEngine` from
+`scripts/native/client.mjs` or `choose`/`playGame` from `scripts/native/game.mjs`.
+Python 3 can import `scripts/native/client.py` and use the already-built engine
+without Node at runtime. One persistent client per serial research worker;
+complete searches and all leaf evaluations stay inside C++.
+
+See [the technical report](docs/NATIVE_SEARCH_ENGINE.md) and
+[the fixed engineering screen protocol](docs/NATIVE_SEARCH_PROTOCOL.md).
+Browser playing, all-move coaching and review currently retain JavaScript;
+WebAssembly acceleration is not enabled.

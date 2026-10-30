@@ -14,7 +14,7 @@ spec.loader.exec_module(launch)
 class NextResidualLaunchTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
-        self.root=Path(self.tmp.name);self.local=self.root/'.local-research';self.local.mkdir();self.output=self.local/'new'
+        self.root=Path(self.tmp.name).resolve();self.local=self.root/'.local-research';self.local.mkdir();self.output=self.local/'new'
     def cli(self,*args):
         with patch.object(launch,'ROOT',self.root),patch.object(sys,'argv',['launch.py','--output',str(self.output),*args]):return launch.main()
     def test_completed_training_namespace_is_rejected_before_preflight(self):

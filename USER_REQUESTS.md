@@ -3744,3 +3744,470 @@ What is happening now?
 ---
 
 Can you check on the progress?
+
+
+---
+
+# Reversi — Implement a Fast Native C++ Search Engine
+
+Work in `~/git/reversi` on my M4 iMac.
+
+Read `AGENTS.md` and `USER_REQUESTS.md` first.
+
+Review the existing Reversi implementation, particularly:
+
+- `src/search.js`
+- `src/fast-features.js`
+- `src/features.js`
+- `src/rules.js`
+- `scripts/next/kernel.cpp`
+- `scripts/next/native-benchmark.mjs`
+- `scripts/next-residual/model.mjs`
+- `scripts/frozen-player/models.mjs`
+- `docs/LANGUAGE_COMPARISON.md`
+- `docs/PERFORMANCE_PROFILING.md`
+- `docs/FROZEN_PLAYER_SCREEN_RESULTS.md`
+- `docs/P_CONFIRMATION_RESULTS.md`
+
+Also inspect the actual browser/coaching application and its playing-worker interfaces.
+
+## Objective
+
+**Replace the performance-critical Reversi search and evaluation machinery with a substantially faster C++ implementation, while moderately improving its algorithms and data structures.**
+
+I am not particularly interested in attributing performance improvements separately to the programming language and the data structures.
+
+I want the best practical result from combining both.
+
+The earlier isolated C++ prototype measured approximately 2.75–2.95× faster complete searches on certain fixed-depth workloads. That is encouraging, but it was not our current production P search.
+
+Treat 2–3× as a useful performance target, not an assumed or guaranteed result.
+
+Our ultimate goal is greater playing strength at the same elapsed search time.
+
+## 1. Build a real native engine, not another isolated prototype
+
+Implement a production-quality C++ search core capable of using:
+
+- Original evaluator B.
+- Frozen learned evaluator L.
+- Frozen learned evaluator P.
+
+P is especially important because it recently scored 63.57% against B at 80 ms and 61.72% at 300 ms in the large confirmation tournament.
+
+Preserve the exact coefficients, pattern tables, normalization, and phase definitions of P. Do not refit or change any learned evaluator.
+
+Keep the existing JavaScript implementation as a trusted reference and fallback.
+
+The new C++ implementation should be capable of serving actual research searches, timed games, and eventually the interactive coaching application.
+
+Do not stop after reporting benchmark results for a disconnected C++ executable.
+
+## 2. Use efficient board and search representations
+
+I authorize moderate algorithmic and data-structure improvements.
+
+Prioritize:
+
+**Bitboards**
+
+Represent the two players' discs with two 64-bit integers.
+
+Use efficient bitwise operations for legal moves, flipping discs, occupancy, edge/corner masks and population counts.
+
+Avoid allocating and copying 64-element board arrays at every search node.
+
+**Transposition table**
+
+Replace JavaScript string-based position keys and Map entries with a compact native transposition table.
+
+Use efficient indexing and appropriate replacement policies.
+
+Store the necessary depth, bounds, best move, generation and exactness metadata.
+
+Prevent unsafe hash-collision reuse, and preserve correct alpha-beta bound semantics.
+
+**Move generation and ordering**
+
+Use efficient bitboard legal-move generation and flipping.
+
+Preserve the existing useful corner, X-square and C-square ordering principles.
+
+Consider modest improvements such as transposition-table move priority and inexpensive history or killer heuristics, if justified.
+
+Do not introduce elaborate search algorithms before the basic optimized engine is correct.
+
+**Memory and allocation**
+
+Avoid per-node heap allocation wherever practical.
+
+Use compact, reusable search state and buffers.
+
+Keep transposition-table memory configurable and reasonable for the M4 iMac's 24 GB of RAM.
+
+**Search**
+
+Implement efficient negamax with alpha-beta pruning, iterative deepening and correct deadline handling.
+
+Preserve forced-pass semantics, exact terminal utility, and the distinction between completed and interrupted iterations.
+
+Correctness is more important than matching JavaScript's internal tree traversal order.
+
+## 3. Implement P's evaluation efficiently
+
+P includes:
+
+- Seven normalized strategic features.
+- Three sets of learned phase-specific linear weights.
+- Six-square corner patterns.
+- Eight-square edge patterns.
+- Eight symmetry transformations per pattern family.
+- Frozen learned coefficient tables.
+
+Use optimized C++ representations for this complete evaluation.
+
+Retain the exact distinction between the seven-feature baseline B and P's learned linear-plus-pattern evaluation.
+
+Reuse mobility and other already-computed search information where beneficial.
+
+Investigate computing frontier discs, potential mobility and pattern indices more efficiently.
+
+Incremental pattern updates are permitted if they offer a worthwhile improvement without excessive complexity.
+
+Preserve numerical behavior to an explicitly documented tolerance. In particular, respect the original Float32 pattern-table values, evaluation order, phase boundaries and terminal scoring.
+
+Do not silently substitute a different mathematical evaluator, quantize coefficients, change normalization or clip scores.
+
+## 4. Correctness requirements
+
+The JavaScript engine remains the reference implementation.
+
+Develop comprehensive cross-language tests covering:
+
+- Initial and random legal positions.
+- Opening, middle and endgame positions.
+- Legal-move sets.
+- Disc flipping and resulting boards.
+- Forced passes.
+- Game termination.
+- Raw terminal margin and win/loss utility.
+- Exact B, L and P model identities.
+- Static evaluation agreement.
+- Full-window search scores.
+- Alpha-beta bounds and transposition-table correctness.
+- Symmetry and color transformations.
+- Iterative deepening and timeouts.
+- Independent endgame solutions.
+
+Use existing independently tested rule and exact-solver infrastructure wherever possible.
+
+For fixed-depth searches, require equivalent minimax scores and legal optimal choices, allowing only explicitly justified floating-point tolerances or tie differences.
+
+When search ordering changes, matching node counts are not required. Matching correct values and search behavior remain essential.
+
+Include regression tests designed specifically to detect incorrect transposition-table bounds, hash collisions, pass handling and deadline behavior.
+
+## 5. Integrate the native engine
+
+I want this work to improve the actual Reversi program, not just an offline benchmark.
+
+Investigate the existing application and research interfaces.
+
+For native macOS and Windows research execution, provide an efficient interface from the existing JavaScript/Python orchestration to the C++ engine.
+
+A persistent native process, native addon, or comparable interface is acceptable. Choose based on performance, simplicity and reliability.
+
+Avoid starting a new process for every board or crossing the language boundary for every leaf.
+
+The C++ engine should perform complete searches internally.
+
+Preserve cancellation, time budgets, error reporting, model identity and repeatable research receipts.
+
+For the browser-based coaching application, investigate compiling the C++ engine to WebAssembly using Emscripten.
+
+If practical, integrate WebAssembly so the playing and coaching interface can use the new engine while retaining JavaScript for the user interface.
+
+If WebAssembly integration is materially more involved, finish and validate the native integration first, then document the precise remaining browser work. Do not claim that the browser is accelerated until it actually uses the new engine.
+
+Preserve the existing working browser implementation throughout.
+
+## 6. Benchmark the complete implementation
+
+Use the M4 iMac as the primary benchmarking machine.
+
+Use fixed, disclosed positions across opening, middle and endgame.
+
+Benchmark B and P separately.
+
+Measure:
+
+- Complete static evaluations per second.
+- Complete search nodes per second.
+- Fixed-depth search elapsed time.
+- Completed depth at 80 ms.
+- Completed depth at 300 ms.
+- Total nodes and evaluations per timed move.
+- Memory usage and transposition-table effectiveness.
+- Native interface and model-loading overhead.
+- Full game throughput where relevant.
+
+Use repeated measurements and report variability.
+
+Compare against the existing JavaScript production implementation under matched conditions.
+
+Do not infer the new engine's speed from the earlier C++ prototype.
+
+For timed search, distinguish a speed improvement from changed pruning, move ordering and search-tree shape.
+
+A substantial improvement in completed search depth is especially valuable.
+
+Evaluate whether the implementation actually permits more useful search within the original time budget.
+
+## 7. Check whether faster search produces stronger play
+
+After correctness and performance qualification, perform one bounded exploratory comparison:
+
+- Frozen P using the new C++ search.
+- The same frozen P using the original JavaScript search.
+- Equal elapsed time.
+- Color-swapped opening pairs.
+- Disclosed engineering or otherwise appropriately reserved new openings.
+- 80 ms and 300 ms per move.
+
+Do not retune P's weights or change scientific data to favor the native implementation.
+
+Do not reuse scored outcomes from the previous P-versus-B confirmation as a new independent strength test.
+
+Use enough paired games to detect an obvious regression or substantial improvement, but do not automatically launch another 2,000-game tournament.
+
+Treat the initial games as engineering/strength screening, not a definitive production-promotion result.
+
+Report the sample size, uncertainty, search depths and actual outcomes.
+
+## 8. Resource management and autonomy
+
+You may use the Mac's native compiler, CMake, Ninja, Emscripten and other appropriate development dependencies.
+
+I am comfortable installing useful development packages.
+
+Use fresh CPU, RAM, swap and disk checks before expensive computation.
+
+Keep the computer responsive.
+
+Maintain useful checkpoints, progress logs and bounded computation.
+
+I authorize up to **four active hours of local benchmarking and exploratory playing tests after engineering qualification**, provided the run is feasible and retains appropriate safety and reporting reserves.
+
+Implementation and ordinary compilation/testing are separate from that measurement allowance.
+
+Do not spend computation merely to exhaust the allowance.
+
+Use the existing scientific logging and audit conventions when appropriate.
+
+Resolve ordinary engineering problems autonomously without repeatedly asking for permission.
+
+Do not change unrelated OS settings or destroy existing research artifacts.
+
+## 9. Preserve the existing scientific results
+
+Do not modify:
+
+- Frozen B, L or P coefficients.
+- Historical research corpora.
+- The completed 2,048-game confirmation.
+- Original research protocols and results.
+- Production search semantics without explicit implementation justification.
+
+If you improve internal search algorithms, preserve the intended minimax mathematical behavior and clearly document any externally observable differences.
+
+Keep previous independent evidence immutable.
+
+Any new benchmark or tournament must have its own inputs, results and provenance.
+
+## 10. Deliverables
+
+Create a clear technical report:
+
+`docs/NATIVE_SEARCH_ENGINE.md`
+
+Include:
+
+1. Architecture and implementation.
+2. Algorithms and data structures.
+3. Native evaluation of B, L and P.
+4. Complete numerical correctness evidence.
+5. Performance comparisons with JavaScript.
+6. Completed search-depth improvements.
+7. Actual interface/integration status.
+8. Browser/Wasm status.
+9. Memory, CPU and resource measurements.
+10. Exploratory playing results, if run.
+11. Remaining performance bottlenecks.
+12. Recommended next optimizations, ranked by likely value.
+
+Include reproducible commands and tests.
+
+Commit and push the implementation, tests, benchmark evidence and report.
+
+Avoid committing large native binaries, private research corpora or temporary checkpoints.
+
+## 11. Priorities and stopping criteria
+
+Prioritize work in this order:
+
+1. A correct native bitboard engine.
+2. Efficient native B/L/P evaluation.
+3. Improved transposition tables and move ordering.
+4. Complete native integration with the research/playing pipeline.
+5. Matched performance and playing-strength tests.
+6. Browser/WebAssembly integration, if feasible within this effort.
+
+Do not claim success merely because a synthetic evaluator benchmark is faster.
+
+I want a tangible, usable improvement to the engine's actual search capability.
+
+If an optimization causes correctness failures, revert or repair that optimization before proceeding.
+
+If the native implementation fails to improve meaningful search throughput, investigate the measured bottlenecks rather than adding complexity blindly.
+
+**The ultimate objective is a stronger Reversi player that searches more effectively within a fixed amount of time, while retaining the learned positional knowledge we have already obtained.**  # Supplement — Profiling, Optimization, and More Extensive Game Testing
+
+This supplements my preceding request, "Reversi — Implement a Fast Native C++ Search Engine."
+
+All previous correctness, compatibility, and preservation requirements remain in effect.
+
+## 1. Make profiling an important part of development
+
+I want detailed CPU profiling of the new C++ implementation, not merely overall benchmarks.
+
+Use suitable native macOS tools, such as Instruments, `xctrace`, sampling profilers, or appropriate low-overhead instrumentation. Choose tools that work reliably on my M4 iMac.
+
+Profile representative opening, middle-game, and endgame searches.
+
+Measure where execution time is actually spent, including:
+
+- Legal move generation and disc flipping.
+- Alpha-beta search and recursive overhead.
+- Transposition-table lookup, replacement, and hashing.
+- Move ordering and pruning.
+- The seven strategic evaluation features.
+- Corner and edge pattern lookups.
+- Memory allocation, copying, and cache behavior.
+- JavaScript/native communication overhead.
+- Model loading and initialization.
+
+Distinguish CPU time, elapsed time, and search-node counts.
+
+Collect enough samples to identify meaningful bottlenecks. Do not rely on isolated microbenchmarks alone.
+
+Where practical, measure transposition-table hit rates, alpha-beta cutoffs, effective branching factors, cache utilization, and the number of evaluations performed per node.
+
+## 2. Use profiling to guide optimization
+
+After the initial correct C++ implementation works, analyze its profile.
+
+Identify the most promising optimizations and implement a moderate number of them.
+
+Prefer improvements that are likely to produce substantial gains without introducing excessive complexity.
+
+Candidates include better bitboard operations, transposition-table design, efficient move ordering, reused feature calculations, incremental pattern indexing, and reduced allocations.
+
+Do not optimize based solely on intuition.
+
+Measure performance again after meaningful changes. Preserve correctness and compare the complete search engine against the JavaScript reference.
+
+Keep an optimized production build separate from profiling builds. Profiling instrumentation must not distort final performance measurements.
+
+I want to know which important bottlenecks were eliminated and which remain.
+
+## 3. Play a substantial number of games
+
+Increase the exploratory playing-strength comparison to:
+
+| Comparison | Opening pairs | Games |
+|---|---:|---:|
+| Native C++ P versus JavaScript P, 80 ms | 256 | 512 |
+| Native C++ P versus JavaScript P, 300 ms | 128 | 256 |
+| **Total** | **384** | **768** |
+
+Use both colors for every opening.
+
+Select the 128 families used at 300 ms as a predetermined subset of the 256 families used at 80 ms. This permits a matched comparison of how the performance advantage changes with thinking time.
+
+Both players must use the same frozen P evaluator, identical game rules, and equal elapsed search budgets. The only intended difference is the search implementation and its associated data structures and algorithms.
+
+Freeze the finalized native implementation, benchmark settings, opening families, game order, and statistical procedures before starting scored games.
+
+Do not continue optimizing the engine during this tournament.
+
+Do not tune algorithms or parameters based on interim game outcomes.
+
+## 4. Measure more than wins and losses
+
+For every tournament condition, report:
+
+- Total wins, draws, and losses.
+- Mean game-point score with paired-opening confidence intervals.
+- Average disc margin.
+- Average and median completed search depth.
+- Nodes and static evaluations per move.
+- Search nodes per second.
+- Actual move time and deadline overruns.
+- Transposition-table effectiveness where practical.
+- Differences by opening, middle, and endgame phases.
+
+Use complete color-swapped opening families as the statistical units. Account for shared families between time controls.
+
+The games should show whether the native engine actually plays more strongly, not merely whether it is faster in synthetic benchmarks.
+
+A faster implementation may change which moves are selected because it completes additional search depths. That is precisely the improvement I want to measure.
+
+Do not require equal node counts or identical moves in the timed comparisons.
+
+## 5. Preserve the computation allowance
+
+Keep the previously authorized **four-hour active measurement allowance after engineering qualification**, including benchmarks, profiling measurements, and exploratory games.
+
+Before scored play, use measured native and JavaScript game costs to establish whether the complete 768-game schedule fits, with at least 35% contingency and a separate reporting reserve.
+
+If it cannot fit, stop before opening scored results and report the feasibility issue. Do not silently reduce the sample.
+
+If needed, implementation and correctness engineering may proceed separately from this measurement allowance, as previously authorized.
+
+Keep all games serial and free of competing benchmark or profiling processes.
+
+## 6. End with specific performance recommendations
+
+In `docs/NATIVE_SEARCH_ENGINE.md`, add a substantial section titled:
+
+**Remaining Performance Bottlenecks and Recommended Improvements**
+
+For each important remaining bottleneck, report:
+
+1. The measured fraction of runtime it consumes.
+2. Why the current implementation is expensive.
+3. A proposed technical improvement.
+4. The expected magnitude of improvement, clearly distinguishing measured evidence from estimates.
+5. Implementation complexity and correctness risks.
+6. Whether the optimization is likely to increase completed search depth or playing strength.
+
+Rank the recommendations by expected benefit relative to engineering effort.
+
+Also distinguish improvements to the native search engine from improvements to its JavaScript/browser integration.
+
+Do not implement every conceivable optimization. I want a fast, reliable engine now and an evidence-based list of worthwhile improvements for later.
+
+## 7. Final comparison
+
+At completion, explain:
+
+- How much faster the new native C++ engine is than JavaScript.
+- Whether the speed improvement is consistently realized in complete alpha-beta searches.
+- How much additional completed search depth it provides at 80 and 300 ms.
+- Whether it actually wins more games with the same frozen P evaluator.
+- Which parts of the implementation consume the most time.
+- What further speedups are realistically achievable.
+
+Commit and push the implementation, benchmarks, profiles or compact profiling summaries, statistical evidence, and technical report.
+
+**My priority is to make the strongest practical Reversi engine we can, using profiling to identify the most valuable optimizations and actual games to verify that faster search translates into stronger play.**
