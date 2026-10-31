@@ -8551,3 +8551,198 @@ Answer these explicitly:
 ---
 
 at some point in the middle of this work, please add commit push your plan, or a status update of some kind.
+
+---
+
+# Reversi — Final PC CPU Dispatch Optimization Round
+
+Work on my Windows 11 PC under WSL2 in `rharriszzz/reversi`. Use GPT-6.1-Sol with High reasoning.
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first. Then read:
+
+- `docs/RUNTIME_CPU_DISPATCH_DESIGN.md`
+- `docs/RUNTIME_CPU_DISPATCH_RESULTS.md`
+- `docs/RUNTIME_CPU_DISPATCH_STATUS.md`
+- `scripts/runtime-cpu/README.md`
+- The corresponding assembly and benchmark evidence.
+
+## Objective
+
+The first CPU-dispatch experiment succeeded. This round is a narrowly focused investigation of easy additional performance gains from compiler tuning and code generation.
+
+Do not start another general search optimization campaign.
+
+The qualified baseline is commit:
+
+`a77712eb89e3a822d77048694227f39be5d62337`
+
+on `perf/runtime-cpu-dispatch`.
+
+A new experimental branch is already available:
+
+`perf/runtime-cpu-branchless-probe`
+
+at commit:
+
+`a3165e01a6f4e240a7f4c2e77774bd5dc8f8a7bd`
+
+It differs from the qualified baseline only in the branchless selection expressions in `native/engine-impl.inc`.
+
+Preserve unrelated work and local modifications. Do not merge anything into `main`.
+
+## 1. Verify and qualify the new branchless implementation
+
+Inspect the change in `flipsIn<D>()`.
+
+The conditional return expressions were replaced by unsigned masks that are zero or all ones.
+
+A preliminary GCC 14.2 experiment on another machine found that this transformation removed the conditional branches from a standalone flip kernel.
+
+That experiment was not run on this PC and is not performance acceptance.
+
+Rebuild with GCC 15.2 on the i7-14700F. Run independent mailbox flip correctness tests, relevant native search and exact endgame tests, and sanitizer qualification.
+
+Inspect the generated linked-executable assembly using `objdump` and `nm`.
+
+Determine whether the four branches really disappear on this PC, and whether instruction count, code size, register usage or other code-generation characteristics improve.
+
+Do not conclude that fewer instructions necessarily means faster execution.
+
+## 2. Try targeted compiler tuning
+
+The current enhanced translation unit uses:
+
+`-march=x86-64 -mtune=generic -mpopcnt -mbmi -mbmi2 -mlzcnt`
+
+Test changing the enhanced translation unit to:
+
+`-march=x86-64 -mtune=alderlake -mpopcnt -mbmi -mbmi2 -mlzcnt`
+
+Preserve all existing strict floating-point options.
+
+The `-mtune` option should change instruction scheduling and code generation without enabling new instruction-set requirements.
+
+Keep the dispatcher, portable backend, driver and CPU detection code baseline-compatible. The enhanced backend's existing runtime feature requirements must remain sufficient.
+
+If practical, examine GCC 15.2's optimization settings (`-Q --help=optimizers` and `--help=target`) for one additional clearly promising, low-risk option. Do not undertake an indiscriminate compiler-flag search.
+
+Do not enable `-Ofast`, `-ffast-math`, or full `-march=native` in the portable deliverable.
+
+## 3. Compare four configurations
+
+Create isolated, reproducible builds of:
+
+A. Qualified dispatch implementation, original compiler tuning.
+
+B. Branchless-flip source change only, original compiler tuning.
+
+C. Original source with Alder Lake tuning applied only to the enhanced implementation.
+
+D. Branchless-flip change and Alder Lake tuning combined.
+
+Keep the original full-program `-march=native` results as an upper-reference comparison. Rebuild that reference only when necessary for a valid matched comparison.
+
+Use the same search algorithms, positions and model identities across candidates.
+
+Every executable must have a build receipt containing source hashes, compiler flags, binary SHA-256, ISA requirements and test results.
+
+## 4. Examine the actual generated code
+
+Generate and retain full assembly listings for the linked executables.
+
+Inspect especially:
+
+- `flips()`, including the conditional branches.
+- `legal()`.
+- `pop()` and POPCNT lowering.
+- `negamax()`.
+- `lastEmpties()`.
+- Seven-feature evaluation and P pattern extraction.
+- Calls between recursive search functions.
+- Stack traffic, register allocation and function code size.
+
+Confirm the expected POPCNT, BMI1, BMI2 and LZCNT instructions.
+
+Check for unanticipated AVX, AVX2, FMA or other instruction-set dependencies.
+
+Explain which differences arise from instruction-set availability and which arise from compiler tuning, instruction selection, inlining, vectorization or code layout.
+
+In the original measurements, full `-march=native` removed all four flip branches and used AVX2 elsewhere. The enhanced backend did neither.
+
+Investigate this distinction without assuming those differences explain the complete performance gap.
+
+Check that the unused backend has not contaminated the hot recursive call graph.
+
+Avoid elaborate alignment or linker experiments unless the evidence suggests an actual problem.
+
+## 5. Benchmark complete searches
+
+Use the existing qualified benchmark infrastructure, position corpus and independently verified references.
+
+Prioritize:
+
+1. Exact12 endgames, all B/L/P models.
+2. Mixed48, all B/L/P models.
+3. Opening, middle-game and coaching panels.
+4. Supporting legal-phase and exact-tail flip microbenchmarks.
+
+The qualified dispatch backend is approximately 11–13% slower than the full native build on exact12, but much closer on ordinary search.
+
+Try to recover some of the remaining exact-endgame performance without sacrificing the ordinary-search gains.
+
+Perform warmups and rotating/reversed repeated trials. Record elapsed wall time, CPU time, nodes, evaluations, TT counters, score signatures, variability and confidence intervals.
+
+Keep demanding runs serial and use a fresh immutable measurement directory.
+
+Before benchmarking, inspect available memory, swap, CPU load and competing processes. If Chrome or another application is creating significant noise, report it rather than changing system settings.
+
+Aim to keep active performance benchmarking within 45 minutes. Do not consume the full original 90-minute budget unless a well-supported experiment requires it.
+
+Keep all existing correctness and portability requirements.
+
+## 6. Acceptance decisions
+
+Compare the four configurations, including any portable fallback effects.
+
+Adopt a change only if it:
+
+- Passes independent correctness and sanitizer testing.
+- Preserves exact results, PVs, counters and interruption behavior.
+- Preserves CPU dispatch safety and portable fallback.
+- Provides a reproducible complete-search benefit, rather than just a microbenchmark improvement.
+- Does not introduce a significant regression elsewhere.
+- Adds little maintenance complexity.
+
+If the branchless change helps only the enhanced backend but damages fallback performance, consider a small compile-time specialization rather than burdening both implementations.
+
+Do not introduce a third runtime backend simply for this experiment.
+
+If the gains are inconclusive or insignificant, retain the previously qualified implementation.
+
+## 7. Reporting and publication
+
+Create:
+
+`docs/RUNTIME_CPU_DISPATCH_FOLLOWUP.md`
+
+Include the full comparison table, compiler flags, relevant assembly findings, performance intervals, correctness results, observed resource use, accepted and rejected changes, and remaining limitations.
+
+Explicitly answer:
+
+1. Did the branchless transformation eliminate the four flip branches?
+2. Did it improve actual complete searches?
+3. Did `-mtune=alderlake` help independently?
+4. Is combining the changes better than either alone?
+5. How much of the exact-endgame native performance gap remains?
+6. Are both backends still correctly isolated and CPU-safe?
+7. Were there any portable-fallback regressions?
+8. What is the best implementation to carry forward?
+9. Is further PC compiler optimization likely to be worthwhile, or should the next step be M4 qualification?
+
+Preserve the original experimental data and historical reports unchanged.
+
+Commit and push the qualified follow-up on its experimental branch. Verify the remote SHA and report the exact commit.
+
+Do not promote to `main` until the required Mac and WebAssembly qualification is completed.
+
+**Guiding principle:** Keep the successful two-backend architecture, make small experimentally justified improvements, and stop when the remaining gains are too small or uncertain to justify further complexity.
