@@ -1,5 +1,11 @@
 # M4 Mac native/Wasm modernization and optimization qualification
 
+**Safari follow-up:** after the user enabled automation, actual Safari 27.2
+passed [823 numerical comparisons, 16 balanced application games and a separate
+complete custom-weight game/review](SAFARI_QUALIFICATION.md). The engine and
+Wasm artifact are unchanged. The original campaign below retains its earlier
+blocked Safari observation as historical evidence.
+
 Current shared native/Wasm source is qualified on the M4 and actual Chrome.
 The final-empty change improves complete exact solving by about 26% native /
 33% Wasm; the compact TT experiment is rejected. All 352 final games pass
@@ -33,7 +39,7 @@ No applications, services, power, security or browser preferences were changed.
 | Emscripten | qualified 4.0.22 artifacts | **4.0.22**, existing user SDK, LLVM 22 |
 | Native compiler | GCC 15.2 | Apple Clang 21; features/numerics qualified independently |
 | Actual browser | Chrome 156.0.8078.48 | Chrome **156.0.8078.74** |
-| Safari | not applicable | 27.2, automation qualification pending |
+| Safari | not applicable | 27.2, [follow-up qualification passed](SAFARI_QUALIFICATION.md) |
 
 MacPorts 2.12.7 offers Python 3.14.10, but installation requires an unavailable
 administrator password. A single user-managed Astral standalone CPython was
@@ -683,7 +689,7 @@ promoted or substituted.
 | --- | --- |
 | Python 3.14.4 or newer stable 3.14.x? | **Yes: project CPython 3.14.10**, actually used by tests, browsers, Node-selected Python, SDK tooling and reports. Minimum remains 3.13. |
 | Principal tools at least as current/capable as PC? | **Yes for selected project tools**: Node 24.22.1, npm 12.2.1, Codex 0.166.0, matching/newer dependencies, qualified Apple Clang and pinned Emscripten. Global legacy installations are retained. |
-| Current-source native/Wasm qualified? | **Yes on M4 / actual Chrome**, including complete post-freeze suites and 352 replayed games. Safari/Intel/Windows final-source execution remain separate limits. |
+| Current-source native/Wasm qualified? | **Yes on M4 / actual Chrome**, including complete post-freeze suites and 352 replayed games. [Actual Safari 27.2 subsequently passed](SAFARI_QUALIFICATION.md) with the unchanged engine. Intel/Windows final-source execution remain separate limits. |
 | Specialized final-empty generation helpful? | **Yes:** exact-root elapsed falls about 26% native and 33% Wasm; rules and margins remain exact. |
 | Compact TT helpful? | **No:** this equal-10-MiB, 25%-more-entry design has no reproducible elapsed benefit and is rejected. |
 | What did profiling reveal? | Rules/control dominate; final exact work is chiefly flipping. Inlined TT/ordering cannot be cleanly isolated by self symbols; coaching exposes additional adapter/JS work. |
@@ -691,7 +697,7 @@ promoted or substituted.
 | Faster than previous Mac version? | Matched native exact **1.35–1.36×**, mixed **1.05–1.07×**; shorter opening-heavy work is essentially unchanged, and the deeper legacy subset is modestly slower. No universal speedup claim. |
 | Mac Wasm versus native/JS? | Fixed Wasm is **41–43× faster than JS**, takes **15–21% more time than native**; real-game native NPS is about **33–34% higher**, but paired outcomes show no convincing strength difference. |
 | Versus upgraded PC? | M4 steady native is about **1.53× B / 1.67× P** PC portable GCC 15, with architecture/OS/compiler/scheduling confounds. Browser aggregation/display differences limit a precise cross-platform ranking. |
-| Problems from larger testing? | No numerical/game correctness discrepancy. The real Mac build-publication race was fixed. Safari automation remains blocked, cancellation has an occasional frame tail, and small module-probe RSS retention is unresolved. |
+| Problems from larger testing? | No numerical/game correctness discrepancy. The real Mac build-publication race was fixed. The original Safari automation blocker was resolved by user-enabled automation and a [passing follow-up](SAFARI_QUALIFICATION.md). Cancellation has an occasional frame tail, and small module-probe RSS retention is unresolved. |
 | Optimize next? | A bounded final-square flip experiment, then inexpensive ordering or shallow coaching batching if measurements justify them; lower priority for another TT rewrite or evaluator micro-optimization. |
 
 ## Final evidence, reproduction and publication

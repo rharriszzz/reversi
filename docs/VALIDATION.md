@@ -233,3 +233,9 @@ only for engineering comparison. No evaluator is trained or promoted. Safari
 is attempted only under existing automation settings. Other platforms require
 separate execution; MacIntel browser user-agent text is not evidence of Intel
 hardware qualification.
+
+After user-enabled Safari automation, the [Safari follow-up](SAFARI_QUALIFICATION.md)
+qualifies actual installed Safari 27.2 using Apple's WebDriver (not a WebKit
+substitute). Run `python scripts/mac/safari-qualification.py` and
+`python scripts/mac/safari-custom.py` after activating `.venv`. Public replay
+and source/artifact checks need only `python scripts/mac/verify-safari.py`.

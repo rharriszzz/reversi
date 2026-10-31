@@ -7,7 +7,9 @@ the disclosed exact batch by about **26% native / 33% Wasm**; the compact TT
 experiment was slower and rejected. See the [Mac report](docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md).
 All **96 browser acceptance games and 256 native/Wasm backend games** pass
 independent replay. Native searches faster, but paired game outcomes show no
-convincing backend strength difference. Safari automation remains unqualified.
+convincing backend strength difference. Actual **Safari 27.2** also passes
+[numerical and browser qualification](docs/SAFARI_QUALIFICATION.md), including
+16 balanced frozen-model games and a separate complete custom-weight game.
 Python 3.13 remains the minimum; frozen B/L/P remain unchanged.
 
 **Final PC qualification:** Ubuntu **26.04.1**, Python **3.14.4**, GCC **15.2**,

@@ -6459,3 +6459,15 @@ If profiling suggests no convincing additional optimization, record the ideas an
 ---
 
 oh, should I ask macports to upgrade stuff?
+
+---
+
+How do I enable Safari automation?
+
+---
+
+It is dune.  Please do the qualification
+
+---
+
+Please add commit push at the end
