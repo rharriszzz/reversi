@@ -9350,3 +9350,280 @@ Answer:
 The overarching principle is simple:
 
 **Keep the machine learning in the research laboratory. Use its results to build a stronger Reversi opponent and a better Reversi teacher.**
+
+---
+
+# Reversi Phase A — Independent P-versus-B Confirmation on the M4 Mac
+
+Work on my **Apple M4 iMac with 24 GB RAM**, in the `rharriszzz/reversi` repository.
+
+Use GPT-6.1-Sol with High reasoning.
+
+**All benchmarking, calibration, evaluation, and tournament games in this round must run on the Mac.** The Windows PC may be used only as a source of historical research files if necessary.
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first.
+
+Then carefully read:
+
+- `docs/PHASE_A_EVALUATOR_STRENGTH_REVIEW.md`
+- `docs/P_CONFIRMATION_PROTOCOL.md`
+- `docs/P_CONFIRMATION_RESULTS.md`
+- `docs/FROZEN_PLAYER_SCREEN_RESULTS.md`
+- `docs/RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md`
+- The historical-target audits and related provenance evidence.
+
+## 1. Objective
+
+Determine whether frozen evaluator **P** is genuinely stronger than frozen evaluator **B** in equal-time Reversi games, using a new independently qualified sample.
+
+Previous results favored P:
+
+- 63.57% at 80 ms.
+- 61.72% at 300 ms.
+
+The statistical tests passed, but the broader historical independence gate failed.
+
+The subsequent investigation established that one actual historical training-target overlap involved an older, different linear-margin evaluator, not demonstrated training of P or its nested L model. However, the strict independence requirement still failed, and other historical identities remain conservatively restricted or unresolved.
+
+We must preserve that finding, not reinterpret or erase it.
+
+**Do not train, modify, retune, or replace B or P.**
+
+Do not change the game rules, search algorithm, coefficients, transposition-table semantics or time controls.
+
+Keep B as the default opponent in the player interface.
+
+## 2. Safely update and qualify the Mac environment
+
+Inspect the current Mac checkout, worktrees, local changes and remote `main`.
+
+The last verified production `main` SHA was:
+
+`a560896ef54a3c4cec19974ed8cbc2064e177e4b`
+
+Fetch and verify the actual latest remote state before proceeding.
+
+Preserve all existing local modifications, research archives and completed experiments. Use a dedicated research branch or worktree rather than disturbing other work.
+
+The previously qualified Mac environment included:
+
+- Apple M4, 24 GB RAM.
+- Apple Clang 21.
+- Python 3.14.10.
+- Node 24.
+- macOS ARM64.
+
+Verify actual current versions and reuse existing working toolchains.
+
+**Do not use `NATIVE_CPU=dispatch` on the Mac.** That configuration is specifically for Linux x86-64 GCC.
+
+Use the already qualified ordinary Apple Silicon native engine, compiled with Apple Clang and the established strict floating-point settings.
+
+Build, identify and qualify the exact native executable that will run the tournament.
+
+Verify B/P coefficients, model checksums, move generation, search scores, pass handling, exact endings, and relevant native regression tests.
+
+Do not rebuild the production WebAssembly distribution. This experiment concerns native playing strength, not browser packaging.
+
+## 3. Complete the historical provenance preflight
+
+This is a strict prerequisite. Do not play scored games until it passes.
+
+The previous Phase A review identified historical records unavailable on the PC, including Mac-origin research inventories.
+
+On this Mac, inspect the existing research directories, especially the historical PC import and independent P-confirmation archives, including the documented `pc-import-20261029` and `p-independent-confirmation-v1-20261029` runs.
+
+Check the actual files, rather than assuming they exist.
+
+Identify:
+
+1. Original P and L training/development records.
+2. Historical direct training targets from earlier evaluator campaigns.
+3. Previously used assessment and confirmation positions.
+4. Reserved but unused positions.
+5. Played game trajectories.
+6. Teacher and engineering observations.
+7. Conservatively restricted and unresolved historical identities.
+
+Reconcile the 63 previously unresolved/restricted identities using actual receipts, role records and source hashes wherever possible.
+
+If essential PC-origin archives are missing, determine whether they can be copied safely from the PC. Use an existing authorized SSH/rsync connection if available; do not assume that access is configured.
+
+Verify transferred data using hashes and preserve the originals unchanged.
+
+Reconstruct an independently auditable historical exclusion inventory.
+
+Use the existing canonical D4 symmetry, color and turn handling, carefully distinguishing actual model-training targets from other observations.
+
+Preserve the strict prohibition on all known nonterminal historical direct targets and assessment states, including those from unrelated experiments.
+
+Do not weaken the previous independence contract or retroactively declare the original tournament independent.
+
+If the complete historical coverage needed by the protocol cannot be certified, **stop before scored games** and report precisely what is missing.
+
+## 4. Freeze the new tournament protocol
+
+If the provenance preflight passes, implement the bounded protocol proposed in:
+
+`docs/PHASE_A_EVALUATOR_STRENGTH_REVIEW.md`
+
+Use:
+
+- **256 new independent opening families.**
+- Both colors for each family.
+- **512 total games.**
+- **80 ms per move.**
+- Frozen B and P models.
+- The qualified Apple Silicon native engine.
+- The existing 16 balanced opening strata.
+
+Retain the previously specified B1/12% and B4/2% source-policy mixture, 12/13-occupied starts, and policy/parity/turn/color balance.
+
+Before scored games, freeze and record:
+
+- Literal opening positions and source trajectories.
+- Random seed namespace and selection procedure.
+- Model and executable hashes.
+- Historical exclusion inventory identity.
+- Accepted/rejected source records.
+- Complete game and color-order schedule.
+- Time control and search configuration.
+- Statistical acceptance criteria.
+- Resource and interruption policy.
+
+Use new independent openings, excluding historical and mutually duplicated roots or relevant ancestry under the declared canonicalization rules.
+
+Reserve replacement candidates prospectively for failures identified before scored outcomes, if required by the existing admission protocol.
+
+Do not create extra independent observations by counting symmetry variants or individual games separately.
+
+Once scored games begin, do not replace, discard or extend families in response to outcomes.
+
+## 5. Mac performance and time-budget calibration
+
+Use a proposed **two-hour active-work ceiling** for this experiment, including provenance preparation, qualification, game execution, audits and reporting.
+
+Before launching scored games, measure or inspect reliable Mac-specific historical throughput.
+
+The previous independent P-confirmation campaign on the Mac completed 2,048 games in approximately 3.5 active hours, including its audits. This is useful planning evidence, but does not establish the cost of the new protocol or its provenance preflight.
+
+Recalibrate the workload using the current native executable and disclosed calibration positions that are outside the new confirmation sample.
+
+Require:
+
+`1.35 × conservative complete forecast + 15 minutes <= 120 minutes`
+
+The forecast must cover all remaining work, not only move searches.
+
+If the complete registered 512-game study cannot fit, stop before scored games. Do not quietly reduce the sample size or extend the time budget.
+
+Check Mac CPU activity, memory pressure, swap, available disk and competing processes.
+
+Keep timed tournament games serial. Do not run compilation, training, profiling or other benchmarks concurrently.
+
+Do not change processor affinity, power settings or system security configuration.
+
+Use restartable checkpoints containing complete color-swapped opening pairs and preserve all immutable evidence.
+
+A time-cap interruption creates incomplete evidence, not a valid partial confirmation.
+
+## 6. Independent verification before result disclosure
+
+After completing the registered games, but before calculating or inspecting aggregate results:
+
+- Independently replay all games.
+- Verify moves, flips, forced passes and terminal outcomes.
+- Verify the actual B/P model identities and native executable used.
+- Confirm search depth and time-control behavior.
+- Verify that each opening family has both color assignments.
+- Recheck the complete played trajectories against the historical exclusion inventory.
+- Audit the actual sample against the preregistered source and mutual-exclusion rules.
+- Validate checkpoint and receipt consistency.
+
+Use an independent implementation or verification path where practical, rather than trusting the tournament program's own result summary.
+
+Preserve the distinction between source admission, subsequent played-path convergence, and prohibited historical-target encounters.
+
+Under the proposed strict protocol, a prohibited or unresolved historical encounter blocks a clean confirmation for the whole registered sample.
+
+Do not remove an affected family, replay it with another opening, or claim a clean subset as the original confirmation.
+
+If provenance fails, report the entire observed result separately from the scientific confirmation decision.
+
+## 7. Statistical evaluation
+
+Use one primary endpoint:
+
+**Mean P points across 256 independent color-swapped opening families.**
+
+Game points are 1 for a win, 0.5 for a draw and 0 for a loss. Each complete opening pair is one statistical observation.
+
+Use the prospectively specified one-sided alpha of 0.05.
+
+Require the conservative Hoeffding lower bound to exceed 50%:
+
+`mean - sqrt(log(20) / (2 × 256)) > 0.5`
+
+This requires an observed P score above approximately **57.65%**.
+
+Also calculate:
+
+- The predeclared approximate Student 95% lower bound.
+- A stratified 10,000-resample whole-family bootstrap sensitivity interval.
+- W/D/L, mean disc margins and completed search-depth distributions.
+- Search nodes, evaluations, elapsed time and time-budget overruns.
+
+Report disagreements among statistical methods rather than selecting whichever result looks most favorable.
+
+Do not pool the results with previous tournaments or treat different hardware experiments as identical performance measurements.
+
+This is an **80-ms Mac-native confirmation only**.
+
+It cannot by itself establish superiority at 300 ms or an absolute Reversi playing-strength rating.
+
+## 8. Reporting and publication
+
+Create:
+
+`docs/PHASE_A_MAC_CONFIRMATION_RESULTS.md`
+
+Document:
+
+- Actual Mac system and compiler configuration.
+- Native executable and model hashes.
+- Historical archive inventory and any coverage gaps.
+- Complete predeclared experiment specification.
+- Source-admission and played-path provenance results.
+- All registered games and outcome statistics.
+- Paired confidence bounds and sensitivity analysis.
+- Runtime, CPU, memory, swap and disk use.
+- Comparison with the previous P-versus-B results.
+- Any interruption, failure or unresolved uncertainty.
+- Whether each scientific acceptance gate passed.
+
+Preserve all original historical reports, evidence and run directories.
+
+Commit and push qualified scripts, documentation and compact auditable evidence on a **dedicated research branch**.
+
+Do not alter the production `main` engine, browser UI, frozen models or distributed Wasm artifacts.
+
+Do not commit large game traces, full historical archives, compiler binaries, SDKs, virtual environments or raw profiles.
+
+## 9. Final answers
+
+Answer explicitly:
+
+1. Were the necessary historical archives available on the Mac?
+2. Did the complete provenance preflight pass?
+3. Was the qualified native Apple Silicon executable used throughout?
+4. Did all 512 games complete within the approved budget?
+5. Did the new sample pass the strict independence audit?
+6. What was P's observed score against B?
+7. Did P pass the registered statistical criteria?
+8. How closely did the result reproduce the earlier 63.57% at 80 ms?
+9. Is there sufficient evidence to recommend a new 300-ms confirmation?
+10. What scientific or engineering limitations remain?
+
+Keep B as the production default until a separate promotion decision is authorized.
+
+**Guiding principle:** Establish scientifically defensible evidence that P is stronger than B, using the Mac as the evaluation computer. Preserve the historical independence criteria, and never confuse a favorable tournament result with successful provenance qualification.

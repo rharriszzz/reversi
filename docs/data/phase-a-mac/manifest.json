@@ -1,0 +1,118 @@
+{
+  "format": "phase-a-mac-stopped-preflight-v1",
+  "at": "2026-10-31T22:30:49.760762+00:00",
+  "base": "a560896ef54a3c4cec19974ed8cbc2064e177e4b",
+  "branch": "research/phase-a-mac-confirmation-20261031",
+  "firstToolClockUTC": "2026-10-31T22:20:22+00:00",
+  "scoredGames": 0,
+  "registeredFamilies": 0,
+  "completeProvenanceGate": false,
+  "completeForecastGate": false,
+  "strengthEstimate": null,
+  "statisticalAcceptance": null,
+  "productionDefault": "B",
+  "historicalDecisionUnchanged": true,
+  "userRequestPrefixSha256": "df5eca0d68d043ad830280a1ead51034ba91cf8783507d33edb0a138eca4aba1",
+  "artifacts": {
+    "qualification.json": "0e2d9595dcf7346d8db2ea11ec09dfa3059f11e88adcf77a2fb5f42f33840d57",
+    "preflight.json": "af45b3aeba29f9c3ed76d36a25a521ec1f3362dbe647600aa04c5c69fef3b4e1"
+  },
+  "sourceHashes": {
+    "scripts/phase-a-mac/preflight.py": "b1b73d9c2cf1f9451d188c8c4b8ca7d580b612a8b56763d14a6123fe66b20818",
+    "scripts/phase-a-mac/qualify.mjs": "976770ee10f700e0ed15add82cedd1f85482f2bfa3e847bdd767ddae4c2ada1c",
+    "tests/test_phase_a_mac.py": "286635efcccced444e7dfc84e6391761e2a7b04c3b2c9169588188690cc5868b",
+    "scripts/native/verify.py": "28f099d030566822921e7010f5135007a731c0794858a7bf3f111da23fcf600c"
+  },
+  "resources": {
+    "rawLocalReceiptSha256": "ea5359bc34fd01e76d0f519dd977b218701a0d151c9bb2abbf204aa7c222568d",
+    "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)\n",
+    "pressure": "The system has 25769803776 (1572864 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%\n",
+    "disk": "Filesystem   1024-blocks       Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5  1948455240 1338515068 584066420    70% 7597404 5840664200    0%   /System/Volumes/Data\n",
+    "cpu": [
+      "Processes: 1017 total, 4 running, 1013 sleeping, 4032 threads ",
+      "2026/10/31 18:30:49",
+      "Load Avg: 2.09, 2.28, 2.07 ",
+      "CPU usage: 20.56% user, 9.81% sys, 69.62% idle ",
+      "SharedLibs: 1341M resident, 136M data, 109M linkedit.",
+      "MemRegions: 294962 total, 4562M resident, 314M private, 2214M shared.",
+      "PhysMem: 21G used (3074M wired, 3518M compressor), 2030M unused.",
+      "VM: 476T vsize, 57G framework vsize, 12(0) swapins, 24(0) swapouts.",
+      "Networks: packets: 23140605/30G in, 4620606/1128M out.",
+      "Disks: 40146491/811G read, 30313716/540G written."
+    ]
+  },
+  "excludedCollections": [
+    {
+      "file": "qualification.log",
+      "reason": "Initial diagnostic asserted portable; ordinary ARM64 correctly says single-target; stopped before timed root collection."
+    },
+    {
+      "file": "qualification-v3.json",
+      "sha256": "ca0637673c0af023f9ac9e9251042e19f2c751398c115208166b025b3ef868aa",
+      "reason": "Overlapped regression tests; timing excluded. Retained isolated collection published."
+    },
+    {
+      "file": "final-python.log",
+      "sha256": "1cd7ce074462a0e19b6b08fce601edf83838fde3dd37130f3cca07107e945bef",
+      "reason": "Source/protocol guard refused restart after a new audit test was added during suite; rerun against frozen inputs required."
+    }
+  ],
+  "verification": [
+    {
+      "log": "native-qualification.log",
+      "logSha256": "0df9a5fd9b2a47b6783b9cec9549e716d9575f626d6c372375b887f87dea7d93",
+      "command": "CXX=clang++ NATIVE_CPU=portable REVERSI_PYTHON=/Users/rharris/git/reversi/.venv/bin/python node --test --test-concurrency=1 tests/native-search.test.mjs tests/native-v2.test.mjs tests/mac-endgame.test.mjs tests/native-build.test.mjs",
+      "exitStatus": 0,
+      "tests": 17,
+      "passed": 17,
+      "skipped": 0
+    },
+    {
+      "log": "native-sanitize.log",
+      "logSha256": "4bdd73930c7da94074bb1f563b1a714c1dcc470fe101d3c3db199fc363c5a5de",
+      "command": "CXX=clang++ NATIVE_CPU=portable NATIVE_SANITIZE=1 REVERSI_PYTHON=/Users/rharris/git/reversi/.venv/bin/python node --test --test-concurrency=1 tests/native-search.test.mjs tests/native-v2.test.mjs tests/mac-endgame.test.mjs",
+      "exitStatus": 0,
+      "tests": 16,
+      "passed": 16,
+      "skipped": 0
+    },
+    {
+      "log": "final-node.log",
+      "logSha256": "ce0d13ca7d8ce48635face7ec4c228c1e1e5cc95f0f28e0e269fc52d9f23c535",
+      "command": "CXX=clang++ NATIVE_CPU=portable REVERSI_PYTHON=/Users/rharris/git/reversi/.venv/bin/python node --test --test-concurrency=1 tests/*.test.mjs",
+      "exitStatus": 0,
+      "tests": 187,
+      "passed": 186,
+      "skipped": 1
+    },
+    {
+      "log": "final-python-fixed.log",
+      "logSha256": "5a15b027a0be583aa3c6500c4bfd533d80a8284cb00a95acb9db705e6b2687dd",
+      "command": "TMPDIR=/private/tmp REVERSI_PYTHON=/Users/rharris/git/reversi/.venv/bin/python /Users/rharris/git/reversi/.venv/bin/python -m unittest discover -v -s tests -p 'test_*.py'",
+      "exitStatus": 0,
+      "tests": 51,
+      "passed": 51,
+      "skipped": 0
+    }
+  ],
+  "publicArtifactAndSourceHashAuditPassed": true,
+  "productionSourceAndWasmUnchanged": true,
+  "finalCheckedAt": "2026-10-31T22:33:12.130529+00:00",
+  "elapsedWallSpanThroughFinalChecksSeconds": 770.130529,
+  "elapsedSpanIsConservativeActiveWorkUpperBound": true,
+  "ignoredRunBytes": 23654195,
+  "nativeBuildsAndOtherTestArtifactDiskKiB": 30084,
+  "preservationChecks": {
+    "originalUserLedgerPrefixUnchanged": true,
+    "originalWorktreesClean": true,
+    "originalMainSha": "e955e992708b7138b5c0f704451e17e3dee4484a",
+    "remoteMainSha": "a560896ef54a3c4cec19974ed8cbc2064e177e4b",
+    "noArchiveTransferPerformed": true,
+    "sshDestinationFound": false
+  },
+  "publicationCommands": [
+    "git commit -m 'Record blocked Phase A Mac confirmation preflight'",
+    "git push -u origin research/phase-a-mac-confirmation-20261031",
+    "git ls-remote origin refs/heads/research/phase-a-mac-confirmation-20261031 refs/heads/main"
+  ]
+}
