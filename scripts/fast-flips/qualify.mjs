@@ -11,6 +11,12 @@ import {compile} from '../next-residual/model.mjs';
 const out=resolve(process.env.REVERSI_FLIP_RUN??'.local-research/fast-flips-m4-20261031');
 const tags=(process.env.FLIP_TAGS??'original,doubling,ray-table,late-ray').split(',');
 const evaluators=Object.fromEntries(Object.entries(frozenModels()).map(([m,v])=>[m,compile(v).evaluate]));
+const scoreCache=new Map();
+function score(board,player,depth,evaluator) {
+  const key=`${board.join(',')}/${player}/${depth}/${Object.values(evaluators).indexOf(evaluator)}`;
+  if(!scoreCache.has(key))scoreCache.set(key,oracleScore(board,player,depth,evaluator));
+  return scoreCache.get(key);
+}
 const rng=seededRandom(0x464c5154),boards=[];
 for(let q=0;q<64;q++)for(const empty of [1,2,3]) {
   const b=Array.from({length:64},()=>rng()<.5?1:-1);b[q]=0;
@@ -36,7 +42,7 @@ try {
       assert.equal(r.evaluation,evaluators[model](board,player));children+=r.children.length;inspection.push(r);
     }
     for(const depth of [1,2,64]) {
-      const expected=oracleScore(board,player,depth,evaluators[model]);let first;
+      const expected=score(board,player,depth,evaluators[model]);let first;
       for(const e of engines) {
         const r=await e.search(board,player,{model,depth,hints:false});assert.equal(r.score||0,expected||0);
         if(first)assert.deepEqual(signature(r),first);else first=signature(r);rootQueries++;
@@ -45,7 +51,7 @@ try {
   }
   // Heuristic model/horizon and full-window all-move/PV comparisons, plus passes.
   for(const p of [...positions.slice(0,10),...positions.slice(34,36),...positions.slice(-3)])for(const model of ['B','L','P']) {
-    const depth=3;const expected=oracleScore(p.board,p.player,depth,evaluators[model]);let first;
+    const depth=3;const expected=score(p.board,p.player,depth,evaluators[model]);let first;
     for(const e of engines) {
       const r=await e.request(`analyze ${boardArgs(p.board,p.player,model)} ${depth}`);
       assert.equal(r.score||0,expected||0);coachingRows+=r.moves.length;
@@ -53,18 +59,18 @@ try {
       for(const row of r.moves) {
         let board=p.board,turn=p.player,remaining=depth,isRoot=true;
         const child=oracleChildren(board,turn).find(c=>c.move===row.move);
-        assert.equal(row.score||0,-oracleScore(child.board,-turn,depth-1,evaluators[model])||0);
+        assert.equal(row.score||0,-score(child.board,-turn,depth-1,evaluators[model])||0);
         for(const q of row.pv) {
           if(q<0){assert.equal(oracleChildren(board,turn).length,0);assert.ok(oracleChildren(board,-turn).length);turn=-turn;continue;}
           const next=oracleChildren(board,turn).find(c=>c.move===q);assert.ok(next);assert.ok(remaining>0);
-          if(!isRoot)assert.equal(oracleScore(board,turn,remaining,evaluators[model])||0,-oracleScore(next.board,-turn,remaining-1,evaluators[model])||0);
+          if(!isRoot)assert.equal(score(board,turn,remaining,evaluators[model])||0,-score(next.board,-turn,remaining-1,evaluators[model])||0);
           board=next.board;turn=-turn;remaining--;isRoot=false;pvSteps++;
         }
       }
       // Deterministic node-stop is a rigorous completed-horizon test, independent of clock speed.
       for(const nodeLimit of [1,300,3000]) {
         const r=await e.search(p.board,p.player,{model,depth:12,timeMs:30000,nodeLimit,hints:false});
-        if(r.score!==null)assert.equal(r.score||0,oracleScore(p.board,p.player,r.depth,evaluators[model])||0);
+        if(r.score!==null)assert.equal(r.score||0,score(p.board,p.player,r.depth,evaluators[model])||0);
         else assert.equal(r.depth,0);timedPublications++;
       }
     }

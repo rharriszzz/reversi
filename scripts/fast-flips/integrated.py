@@ -5,6 +5,7 @@ block atomically, checks full result/counter identity for fixed work.
 """
 import hashlib,json,math,os,statistics,subprocess,sys,time
 from pathlib import Path
+from run import snapshot
 OUT=Path(os.environ.get('REVERSI_FLIP_RUN','.local-research/fast-flips-m4-20261031')).resolve()
 TAGS=os.environ.get('FLIP_TAGS','original,doubling,ray-table').split(',')
 def bits(board,v):return format(sum(1<<q for q,x in enumerate(board) if x==v),'x')
@@ -30,6 +31,7 @@ def main():
     (OUT/'workloads.json').write_text(json.dumps(workloads,indent=2)+'\n')
     rows=[];start=time.monotonic();reps=int(os.environ.get('FLIP_REPS','9'))
     for rep in range(reps):
+        with (OUT/'integrated-resources.jsonl').open('a') as log:log.write(json.dumps({'stage':'fixed','rep':rep,**snapshot()})+'\n')
         order=TAGS[rep%len(TAGS):]+TAGS[:rep%len(TAGS)]
         if rep%2:order.reverse()
         for w in workloads[rep%len(workloads):]+workloads[:rep%len(workloads)]:
@@ -41,6 +43,7 @@ def main():
         print(f'fixed rep {rep+1}/{reps}',file=sys.stderr,flush=True)
     timed=[]
     for rep in range(3):
+        with (OUT/'integrated-resources.jsonl').open('a') as log:log.write(json.dumps({'stage':'timed','rep':rep,**snapshot()})+'\n')
         order=TAGS if rep%2==0 else TAGS[::-1]
         for model in ['B','L','P']:
             roots=[positions[i] for i in [0,2,4,5,7,9]];file=OUT/('timed-'+model+'.txt');file.write_text(''.join(line(p,0,model) for p in roots))

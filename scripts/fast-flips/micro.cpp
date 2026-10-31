@@ -8,7 +8,6 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <random>
 #include <stdexcept>
 #include <vector>
 using Bits=uint64_t;
@@ -116,8 +115,15 @@ int main(int argc,char** argv) {
     exhaustive();generate();
     // Optional diagnostic dump: real production exact-tree flip calls, not timings.
     if(argc>1){std::ifstream file(argv[1]);Case c{};while(file>>std::hex>>c.own>>c.opp>>std::dec>>c.q){verify(c);corpus[7].push_back(c);}}
-    std::mt19937 rng(0x464c4950);for(auto& group:corpus)std::shuffle(group.begin(),group.end(),rng);
-    std::cout<<"{\"checkedCases\":"<<checked<<",\"rows\":["<<std::setprecision(12);bool comma=false;
+    // Explicit Fisher-Yates makes the case order identical in libc++/libstdc++.
+    for(auto& group:corpus)for(size_t i=group.size();i>1;i--)std::swap(group[i-1],group[random64()%i]);
+    std::cout<<"{\"checkedCases\":"<<checked<<",\"corpus\":[";
+    for(int group=0;group<8;group++) {
+      uint64_t hash=14695981039346656037ULL;
+      for(const auto& c:corpus[group])for(uint64_t v:{c.own,c.opp,uint64_t(c.q)})hash=(hash^v)*1099511628211ULL;
+      std::cout<<(group?",":"")<<"{\"class\":\""<<classes[group]<<"\",\"cases\":"<<corpus[group].size()<<",\"orderedChecksum\":\""<<hash<<"\"}";
+    }
+    std::cout<<"],\"rows\":["<<std::setprecision(12);bool comma=false;
     const bool onlyCheck=argc>1&&std::string(argv[1])=="--check";
     const int target=std::getenv("FLIP_MICRO_CALLS")?std::stoi(std::getenv("FLIP_MICRO_CALLS")):20000000;
     if(!onlyCheck)for(int rep=0;rep<7;rep++)for(int group=0;group<8;group++)if(!corpus[group].empty())for(int at=0;at<5;at++) {

@@ -7,7 +7,7 @@ for tag in os.environ.get('FLIP_TAGS','original,doubling,ray-table,late-ray').sp
     d=OUT/tag
     subprocess.run([os.environ.get('CXX','c++'),*flags,'-I',str(d),str(d/'engine.cpp'),'tests/native-internals.cpp','-o',str(d/'internals-sanitize')],check=True)
     subprocess.run([str(d/'internals-sanitize')],check=True,timeout=60)
-    if tag=='ray-table':
+    if tag in ['ray-table','selected']:
         subprocess.run([os.environ.get('CXX','c++'),*flags,'-I',str(d),str(d/'engine.cpp'),'scripts/fast-flips/kernels.cpp','scripts/fast-flips/micro.cpp','-o',str(d/'micro-sanitize')],check=True)
         result=json.loads(subprocess.check_output([str(d/'micro-sanitize'),'--check'],text=True,timeout=60))
     else:result=None

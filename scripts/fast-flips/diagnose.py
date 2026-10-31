@@ -2,8 +2,9 @@
 import json,os,subprocess
 from pathlib import Path
 OUT=Path(os.environ.get('REVERSI_FLIP_RUN','.local-research/fast-flips-m4-20261031')).resolve()
-b=json.loads((OUT/'builds.json').read_text());directory=OUT/'diagnostic';directory.mkdir(exist_ok=True)
-source=(OUT/'original/engine.cpp').read_text()
+b=json.loads((OUT/'builds.json').read_text());tag=os.environ.get('FLIP_DIAGNOSTIC_TAG','original');suffix='' if tag=='original' else '-'+tag
+directory=OUT/('diagnostic'+suffix);directory.mkdir(exist_ok=True)
+source=(OUT/tag/'engine.cpp').read_text()
 source='#include <fstream>\n#include <iostream>\n'+source
 source=source.replace('Bits flips(Bits own,Bits opp,int q) {', '''
 uint64_t flipCounts[65]{},helperCounts[65]{};
@@ -30,7 +31,7 @@ std::cout<<"{\\"score\\":"<<r.score<<",\\"nodes\\":"<<r.stats.nodes<<",\\"byEmpt
 for(int i=0;i<65;i++)std::cout<<(i?",":"")<<"["<<i<<","<<flipCounts[i]<<","<<helperCounts[i]<<"]";
 std::cout<<"]}\\n";}
 ''')
-cmd=[os.environ.get('CXX','c++'),*b['flags'],'-I',str(OUT/'original'),str(directory/'engine.cpp'),str(directory/'driver.cpp'),'-o',str(directory/'diagnostic')]
+cmd=[os.environ.get('CXX','c++'),*b['flags'],'-I',str(OUT/tag),str(directory/'engine.cpp'),str(directory/'driver.cpp'),'-o',str(directory/'diagnostic')]
 subprocess.run(cmd,check=True)
-result=subprocess.check_output([str(directory/'diagnostic'),str(OUT/'search-cases.txt')],text=True)
-(OUT/'diagnostic.json').write_text(result);print(result)
+result=subprocess.check_output([str(directory/'diagnostic'),str(OUT/('search-cases'+suffix+'.txt'))],text=True)
+(OUT/('diagnostic'+suffix+'.json')).write_text(result);print(result)

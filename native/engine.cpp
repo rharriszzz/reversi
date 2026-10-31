@@ -43,14 +43,31 @@ Bits legal(Bits own,Bits opp) {
   SPAN(Legal);
   return (movesIn<0>(own,opp)|movesIn<1>(own,opp)|movesIn<2>(own,opp)|movesIn<3>(own,opp)|movesIn<4>(own,opp)|movesIn<5>(own,opp)|movesIn<6>(own,opp)|movesIn<7>(own,opp))&~(own|opp);
 }
-template<int D> inline Bits flipsIn(Bits move,Bits own,Bits opp) {
-  Bits ray=shift<D>(move),run=0;
-  while(ray&opp){run|=ray;ray=shift<D>(ray);}
-  return ray&own?run:0;
+// Geometry only: one 64-byte row per move, eight rays, 4096 bytes in total.
+// The first non-opponent square stops each ray. Capture only when that square
+// belongs to us; an empty square or the board edge never brackets a capture.
+constexpr auto makeFlipRays() {
+  std::array<std::array<Bits,8>,64> rays{};
+  constexpr int dr[8]={0,0,1,-1,1,1,-1,-1},dc[8]={1,-1,0,0,1,-1,1,-1};
+  for(int q=0;q<64;q++)for(int d=0;d<8;d++)
+    for(int r=q/8+dr[d],c=q%8+dc[d];r>=0&&r<8&&c>=0&&c<8;r+=dr[d],c+=dc[d])rays[q][d]|=Bits(1)<<(8*r+c);
+  return rays;
+}
+constexpr auto flipRays=makeFlipRays();
+template<int D> inline Bits flipsIn(Bits own,Bits opp,int q) {
+  const Bits ray=flipRays[q][D],stops=ray&~opp;
+  if(!stops)return 0; // also guards clz(0), which is undefined
+  if constexpr(D==0||D==2||D==4||D==5) {
+    const Bits stop=stops&-stops;
+    return (stop&own)?ray&(stop-1):0;
+  } else {
+    const Bits stop=Bits(1)<<(63-__builtin_clzll(stops));
+    return (stop&own)?ray&~(stop|(stop-1)):0;
+  }
 }
 Bits flips(Bits own,Bits opp,int q) {
-  SPAN(Flips);Bits m=Bits(1)<<q;
-  return flipsIn<0>(m,own,opp)|flipsIn<1>(m,own,opp)|flipsIn<2>(m,own,opp)|flipsIn<3>(m,own,opp)|flipsIn<4>(m,own,opp)|flipsIn<5>(m,own,opp)|flipsIn<6>(m,own,opp)|flipsIn<7>(m,own,opp);
+  SPAN(Flips);
+  return flipsIn<0>(own,opp,q)|flipsIn<1>(own,opp,q)|flipsIn<2>(own,opp,q)|flipsIn<3>(own,opp,q)|flipsIn<4>(own,opp,q)|flipsIn<5>(own,opp,q)|flipsIn<6>(own,opp,q)|flipsIn<7>(own,opp,q);
 }
 Board play(Board b,int player,int q) {
   Bits f=flips(player==1?b.black:b.white,player==1?b.white:b.black,q),m=Bits(1)<<q;
