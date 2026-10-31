@@ -63,12 +63,14 @@ template<int D> inline Bits flipsIn(Bits own,Bits opp,int q) {
   if constexpr(D==0||D==2||D==4||D==5) {
     // With no stop, the isolated bit is zero and cannot belong to us.
     const Bits stop=stops&-stops;
-    return (stop&own)?ray&(stop-1):0;
+    const Bits mask=Bits(0)-Bits((stop&own)!=0);
+    return (ray&(stop-1))&mask;
   } else {
     // The low sentinel defines clz even on an empty ray. Requiring the chosen
     // bit in stops prevents that sentinel from ever becoming a false bracket.
     const Bits stop=Bits(1)<<(63-__builtin_clzll(stops|1));
-    return (stop&own&stops)?ray&~(stop|(stop-1)):0;
+    const Bits mask=Bits(0)-Bits((stop&own&stops)!=0);
+    return (ray&~(stop|(stop-1)))&mask;
   }
 }
 Bits flips(Bits own,Bits opp,int q) {
