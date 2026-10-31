@@ -10,7 +10,7 @@ sample percentages as performance results.
 
 **Current production:** the portable 4 KiB ray/sentinel flip kernel is retained
 in shared native/Wasm source. See [production acceptance and packaged build
-identities](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md). Fixed-depth scores, trees and
+identities](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md). Fixed-depth scores, trees and
 search/TT counters are unchanged. Reduced elapsed time can permit deeper timed
 searches, but establishes no new playing-strength result.
 
@@ -145,11 +145,20 @@ trace; exact short-call sequences may benefit. Branchless bodies can still be
 reconstructed and have callers, but their stall costs often call for counter
 evidence rather than more control-flow detail.
 
-## Experimental runtime CPU dispatch on the PC
+## Runtime CPU dispatch and cross-platform acceptance
 
-The separate `perf/runtime-cpu-dispatch` branch measures 7.6–10.2% less mixed-panel
-time with whole-search POPCNT/BMI1/BMI2/LZCNT specialization and an automatic
-baseline fallback. Exact gains are smaller and the mixed-L fallback has a small
-borderline slowdown. See [all variants, uncertainty and limits](RUNTIME_CPU_DISPATCH_RESULTS.md).
-This is not merged to main, does not change frozen models or distributed Wasm,
-and still needs M4 source/refactor qualification before promotion.
+The selected unsigned-mask source retains the two-backend Linux x86-64 GCC
+architecture and original generic tuning. In the final PC comparison it saves
+13.26% / 15.51% / 14.28% on exact12 B/L/P and 5.64% / 8.46% / 4.52% on mixed48
+versus the preceding dispatch implementation. The fallback also improves; the
+additional Alder Lake tuning was rejected. These are PC measurements, not M4 gains.
+See [the complete PC follow-up](RUNTIME_CPU_DISPATCH_FOLLOWUP.md).
+
+On M4, seven matched pairs against preceding production show effectively
+unchanged complete-search performance: exact12 about +0.2%, mixed48 +0.5–0.8%,
+with all 18 native panel intervals including zero. No meaningful regression is
+established. Actual Chrome/Safari Wasm comparisons are also small/noisy; Chrome
+middle-P has a disclosed +2.0% [+0.6, +3.5] panel-specific slowdown. There is no
+claim of a general browser speedup. All fixed results/counters remain identical.
+See [Mac acceptance](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md) for the full intervals,
+CPU times, reproducible rebuilt production distribution and actual UI acceptance.

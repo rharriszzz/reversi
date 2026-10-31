@@ -8746,3 +8746,275 @@ Commit and push the qualified follow-up on its experimental branch. Verify the r
 Do not promote to `main` until the required Mac and WebAssembly qualification is completed.
 
 **Guiding principle:** Keep the successful two-backend architecture, make small experimentally justified improvements, and stop when the remaining gains are too small or uncertain to justify further complexity.
+
+---
+
+# Reversi — M4 Qualification, WebAssembly Rebuild, and Production Integration
+
+Work on my **Apple M4 iMac**, in the `rharriszzz/reversi` repository.
+
+Use GPT-6.1-Sol with High reasoning.
+
+The PC optimization campaign is complete. Do not repeat it.
+
+## 1. Starting point and goals
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first, followed by:
+
+- `README.md`
+- `docs/RUNTIME_CPU_DISPATCH_DESIGN.md`
+- `docs/RUNTIME_CPU_DISPATCH_RESULTS.md`
+- `docs/RUNTIME_CPU_DISPATCH_FOLLOWUP.md`
+- `docs/WEBASSEMBLY_BUILD.md`
+- `docs/FAST_FLIPS_PRODUCTION_ACCEPTANCE.md`
+
+The qualified PC branch is:
+
+`perf/runtime-cpu-branchless-probe`
+
+Final PC commit:
+
+`911ce40096a869a684b21496f2c3060cd316fada`
+
+The current production `main` was last observed at:
+
+`6b480ed1bc6ddcdde2fdb37872c0ca8d0a804425`
+
+Fetch and verify actual remote state before proceeding. Inspect unexpected newer commits. Preserve all existing local modifications, branches, worktrees and research files.
+
+The PC selected the branchless unsigned-mask implementation with the original generic compiler tuning.
+
+Its complete-search improvements over the preceding dispatch implementation were:
+
+- Exact12: 13.26% B, 15.51% L, 14.28% P.
+- Mixed48: 5.64% B, 8.46% L, 4.52% P.
+
+It also improved the portable x86 fallback. Alder Lake tuning was investigated and rejected as an additional change.
+
+The PC tests passed. Both compiled x86 backends remain isolated and use one shared engine state and transposition table.
+
+**Our next objective is to qualify the selected code on the M4, rebuild and verify the actual WebAssembly distribution, and promote the change only if all acceptance gates pass.**
+
+Do not start another compiler optimization campaign, evaluator experiment or training run.
+
+## 2. Verify the Mac environment
+
+Inspect:
+
+- Mac hardware, macOS and available RAM.
+- Apple Clang and Xcode versions.
+- Project Python interpreter and virtual environment.
+- Node and npm versions.
+- Existing Emscripten 4.0.22 installation.
+- Repository status, branches and current commits.
+- Available disk space, memory pressure, swap and competing computations.
+
+The previous M4 environment used Apple Clang 21, Python 3.14.10, Node 24 and Emscripten 4.0.22.
+
+Prefer existing qualified toolchains. Do not install new versions or change system settings unless genuinely necessary.
+
+The M4 has 24 GB RAM. Do not increase memory allocation without evidence that it is needed.
+
+Keep demanding tests and performance measurements serial.
+
+Use a separate integration worktree or another safe arrangement that preserves unrelated work.
+
+## 3. Qualify the selected implementation as ordinary macOS C++
+
+The source organization is now:
+
+- `native/engine.cpp`
+- `native/engine-impl.inc`
+- `native/engine-tables.hpp`
+- `native/engine-enhanced.cpp`
+
+The last file is specifically for the GCC x86-64 enhanced backend. It must **not** be compiled into the ordinary M4 native or WebAssembly builds.
+
+The ordinary `engine.cpp` path includes the shared implementation and is intended for macOS ARM64, macOS Intel and Emscripten.
+
+Confirm that no x86-specific compiler flag, intrinsic or runtime feature detector enters the Mac compilation.
+
+Build and test the native M4 engine using the ordinary portable path. Compare it against the previously qualified production engine, using matching frozen model identities and test positions.
+
+Run the full relevant rules, native search, exact endgame, transposition table, coaching and sanitizer suites.
+
+Preserve:
+
+- Exact B/L/P model identities and coefficients.
+- Legal move and flipping behavior.
+- Alpha-beta scores and deterministic tie-breaking.
+- Full-window all-move coaching.
+- Principal variations.
+- Pass and terminal semantics.
+- One- and two-empty exact solving.
+- TT generations, collisions, replacement and counters.
+- Cancellation and last-completed-iteration publication.
+- Strict floating-point semantics.
+
+Repeat searches on the same engine object, including changes of evaluator and depth.
+
+Use independent mailbox and exact-endgame references, not merely old engine output.
+
+Any numerical or deterministic-counter discrepancy must be investigated before continuing.
+
+## 4. Check M4 performance
+
+The branchless source change improved the PC, but that does not establish that it helps Apple Silicon.
+
+Compare the previous production source against the selected new source under identical Apple Clang settings.
+
+Use the established fixed-position corpus, including:
+
+- Twelve exact endgame roots.
+- Mixed48.
+- Opening and middle-game roots.
+- All-move coaching.
+- B, L and P evaluators.
+
+Perform matched, alternating trials with warmups and record elapsed time, CPU time, node counts, evaluation counts and variability.
+
+The objective is to detect meaningful regressions and understand any improvement, not to optimize specifically for the M4.
+
+If the branchless source is substantially slower on M4, investigate the generated ARM64 assembly and determine why.
+
+A small, clean compile-time adjustment is acceptable if it preserves one maintained algorithm and passes all tests. Do not proliferate backends or introduce a complicated abstraction.
+
+If a significant regression remains unresolved, stop before production promotion and report it.
+
+Keep active Mac performance measurements within approximately 30 minutes.
+
+## 5. Rebuild WebAssembly using the qualified SDK
+
+Use the existing pinned Emscripten 4.0.22 and selected project Python.
+
+First preserve the current committed production manifest, JavaScript module and Wasm binary in a fresh ignored directory.
+
+Build the new Wasm distribution twice, preserving the first output and comparing both outputs byte-for-byte.
+
+Verify:
+
+1. Reproducibility of the manifest, JavaScript and Wasm binary.
+2. New source provenance, including both shared implementation files.
+3. Unchanged ABI and exported interfaces.
+4. Unchanged B/L/P identities and coefficients.
+5. Correct module and fingerprint references.
+6. No reference to temporary or experimental build paths.
+7. No x86 enhanced backend dependency.
+8. No unnecessary change to Wasm memory configuration or compiler options.
+
+The old manifest describes the old source correctly. Do not rewrite historical evidence or weaken a source-hash verifier just to make it pass.
+
+If an old production verifier intentionally expects the previous source, preserve that historical check and provide an independently auditable new-source verification procedure.
+
+Run the complete actual-Wasm numerical suite, including independent rules, endgames, coaching, PVs, TT behavior and interruption tests.
+
+Compare the actual newly built Wasm against the ordinary new native engine and the old production reference.
+
+## 6. Qualify actual Mac browsers
+
+Test the newly generated, packaged WebAssembly in actual **Chrome and Safari** on the M4.
+
+Use existing browser acceptance infrastructure wherever practical, with disposable profiles or sessions.
+
+Verify:
+
+- Correct B/L/P selection and identities.
+- Best-move and all-move coaching.
+- Full-window scores and verified continuations.
+- Fixed-depth and 80/300-ms computer replies.
+- Forced passes and terminal endings.
+- A complete game and review/replay.
+- Undo and restart.
+- Rapid evaluator or depth changes.
+- Worker cancellation and restart.
+- Reload and persistence.
+- Module fingerprint, actual fetched Wasm hash and manifest identity.
+- Worker and memory cleanup.
+- Error and ABI-mismatch recovery.
+
+Also verify the actual default-browser launch through `./start.sh` and clean server shutdown.
+
+The previous Safari tests required an unlocked desktop for genuine WebDriver interactions. Do not mistake a locked screen for an engine failure or bypass meaningful UI checks with synthetic DOM clicks.
+
+Use the actual newly compiled distribution, not the old committed Wasm.
+
+Do a short matched browser performance comparison between old and new Wasm, especially exact endgames and mixed positions. Preserve timings and avoid claiming a speedup from a noisy comparison.
+
+## 7. Preserve Windows and Intel Mac compatibility
+
+The optimized x86 dispatch is already qualified on the PC. Do not rebuild that campaign here.
+
+The Mac build must preserve the shared portable path.
+
+Retain clear documentation that the current runtime x86 dispatch configuration is qualified for Linux x86-64 GCC, while ordinary C++ and WebAssembly builds remain cross-platform.
+
+Where practical, perform an Intel Mac cross-compilation or source compatibility check without running unsupported binaries.
+
+Do not claim actual Intel Mac execution unless such hardware was tested.
+
+Preserve the current Windows/WSL2 build selection and do not make enhanced x86 instructions mandatory for general native execution.
+
+## 8. Production integration
+
+Only after all Mac native, WebAssembly, reproducibility and actual-browser acceptance gates pass:
+
+Create a dedicated integration branch from the qualified history, preserving the PC branch and its commits.
+
+Prepare the complete production change, including:
+
+- Selected shared C++ implementation.
+- Runtime CPU-dispatch architecture and build support.
+- Newly generated production Wasm module and manifest.
+- Tests and build scripts.
+- Compact acceptance evidence.
+- Updated architecture, build and performance documentation.
+
+Do not include rejected Alder Lake tuning or unrelated optimization experiments.
+
+Do not commit binaries from local native builds, SDK files, virtual environments, profiles or large research traces. The generated distributed Wasm artifacts are intentionally tracked and should be committed.
+
+Run the full tests and provenance audit again against the actual integration candidate.
+
+If every gate passes and `main` can be safely fast-forwarded, promote the qualified integration and push `main`. Verify the exact remote SHA.
+
+If the merge is not fast-forwardable, the working tree is unexpectedly modified, or any substantive acceptance gate fails, do not force a merge. Leave the qualified work on its integration branch and report the blocker.
+
+## 9. Documentation and final report
+
+Create:
+
+`docs/RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md`
+
+Document:
+
+- Actual Mac hardware and toolchain.
+- Initial and final repository SHAs.
+- Ordinary native compilation and sanitizer results.
+- B/L/P correctness and complete-search comparisons.
+- M4 performance effects and uncertainty.
+- Rebuilt Wasm hashes, source provenance and reproducibility.
+- Actual Chrome and Safari acceptance.
+- Memory/resource observations.
+- Intel Mac compatibility limits.
+- Any rejected Mac-specific change.
+- Production integration decision.
+- Final commit and remote verification.
+
+Update existing documentation rather than creating contradictory descriptions of which engine and Wasm artifacts are in production.
+
+Answer explicitly:
+
+1. Does the selected branchless implementation compile and execute correctly on the M4?
+2. Is it faster, slower or effectively equivalent to previous production on M4?
+3. Do independent exact solutions and deterministic B/L/P results agree?
+4. Are the new Wasm builds reproducible?
+5. Are native and Wasm results identical within established numerical requirements?
+6. Do actual Chrome and Safari acceptance tests pass?
+7. Are the packaged artifacts and source identities correct?
+8. Is the Linux x86 dispatch preserved without introducing Mac dependencies?
+9. Was production promotion completed? If not, what blocks it?
+10. What short Windows PC follow-up remains necessary after promotion?
+
+If production promotion succeeds, recommend a **short PC acceptance follow-up** to verify the newly packaged Wasm in Edge and Chrome and confirm the optimized native dispatcher still works with the promoted source. Do not repeat the complete PC performance campaign.
+
+**Guiding principle:** The optimization research is finished. The remaining work is cross-platform correctness, reproducible packaging, actual application acceptance and safe production promotion.

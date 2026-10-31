@@ -1,5 +1,9 @@
 # Faster disc flipping — production acceptance
 
+Current-source qualification and rebuilt distribution are recorded in
+[M4 production acceptance](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md). The report
+below preserves its original experiment/publication scope and artifact identities.
+
 **All production acceptance gates pass.** The exact qualified source and rebuilt
 distribution are promoted through `integrate/fast-flips-production`, preserving
 the experiment's complete history. This report records the new production

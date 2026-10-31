@@ -1,5 +1,9 @@
 # Runtime dispatch checkpoint
 
+Current-source qualification and rebuilt distribution are recorded in
+[M4 production acceptance](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md). The report
+below preserves its original experiment/publication scope and artifact identities.
+
 **Completed follow-up:** see [the final PC results](RUNTIME_CPU_DISPATCH_RESULTS.md).
 The text below preserves the mid-work checkpoint published at `1028930`.
 

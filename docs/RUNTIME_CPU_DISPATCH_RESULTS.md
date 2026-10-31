@@ -1,5 +1,9 @@
 # Runtime CPU dispatch — PC results
 
+Current-source qualification and rebuilt distribution are recorded in
+[M4 production acceptance](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md). The report
+below preserves its original experiment/publication scope and artifact identities.
+
 **Retain the two-backend experiment, pending Mac qualification before promotion.**
 Stage 1 passed and was committed/pushed on main at
 `6b480ed1bc6ddcdde2fdb37872c0ca8d0a804425`. Stage 2 is isolated on

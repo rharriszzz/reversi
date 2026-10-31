@@ -79,7 +79,9 @@ The shared C++ engine supports exact frozen B/L/P evaluation, bitboards,
 alpha-beta search, a collision-safe transposition table, iterative deepening,
 forced passes, exact final-empty handling and faster disc flipping. A portable
 4 KiB table stores the eight board rays for each square; endpoint tests find
-bracketed opponents without directional loops. Fixed-depth scores, search trees,
+bracketed opponents without directional loops. Unsigned validity masks retain
+one shared algorithm across native and WebAssembly targets. Fixed-depth scores,
+search trees,
 move ordering and frozen models are preserved. Browser play, coaching and review
 use its committed Wasm distribution for frozen models; ordinary play still needs
 only Python and a browser. Custom weights retain the original JavaScript path.
@@ -97,6 +99,12 @@ terminal results are labeled separately. You can compare any two legal moves,
 replay positions, undo, review a complete game and export custom weights.
 
 Established engineering results:
+
+- [Runtime dispatch and M4 production acceptance](docs/RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md):
+  the PC-selected unsigned-mask source is qualified on M4 and rebuilt reproducibly
+  with Emscripten 4.0.22. M4 complete-search performance is effectively equivalent
+  to the preceding production engine; the PC improvements remain separate results.
+  Actual Chrome and Safari pass the newly packaged distribution.
 
 - [Faster flipping production acceptance](docs/FAST_FLIPS_PRODUCTION_ACCEPTANCE.md):
   the shared native engine and rebuilt packaged Wasm retain the qualified kernel.
@@ -133,14 +141,15 @@ npm run native:test
 npm run native:play -- 80 P 2026103001
 ```
 
-Experimental Linux x86-64 GCC whole-search CPU dispatch is available on
-`perf/runtime-cpu-dispatch` with `NATIVE_CPU=dispatch`. It detects POPCNT,
-BMI1/BMI2 and LZCNT once and selects an entire compiled search backend.
-`REVERSI_CPU_BACKEND=portable` forces its fallback for testing. Run `hello`
-through the native protocol to inspect `cpuBackend` and `cpuFeatures`.
-See [design](docs/RUNTIME_CPU_DISPATCH_DESIGN.md) and
-[PC results](docs/RUNTIME_CPU_DISPATCH_RESULTS.md). Production browser assets
-retain their existing Mac-built identity; this experiment is not merged to main.
+Optional Linux x86-64 GCC whole-search CPU dispatch uses `NATIVE_CPU=dispatch`.
+It detects POPCNT, BMI1/BMI2 and LZCNT once and selects an entire compiled search
+backend. `REVERSI_CPU_BACKEND=portable` forces its fallback for testing. Run
+`hello` through the native protocol to inspect `cpuBackend` and `cpuFeatures`.
+The ordinary default remains portable. macOS ARM64/Intel and WebAssembly compile
+only `engine.cpp`, using the shared implementation; the enhanced x86 translation
+unit is excluded. See [design](docs/RUNTIME_CPU_DISPATCH_DESIGN.md),
+[PC selection](docs/RUNTIME_CPU_DISPATCH_FOLLOWUP.md) and
+[Mac acceptance/current artifact identities](docs/RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md).
 
 `CXX` selects another compiler. Research clients can use
 [`scripts/native/client.mjs`](scripts/native/client.mjs) or

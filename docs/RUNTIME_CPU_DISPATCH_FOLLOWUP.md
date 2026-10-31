@@ -1,5 +1,9 @@
 # Final PC CPU dispatch compiler follow-up
 
+Current-source qualification and rebuilt distribution are recorded in
+[M4 production acceptance](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md). The report
+below preserves its original experiment/publication scope and artifact identities.
+
 **Retain B: the unsigned-mask source from `a3165e0`, with original generic tuning.**
 Do not retain the Alder Lake tuning change. The branch remains
 `perf/runtime-cpu-branchless-probe`; nothing is merged into main.

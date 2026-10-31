@@ -1,5 +1,9 @@
 # Runtime CPU dispatch design
 
+Current-source qualification and rebuilt distribution are recorded in
+[M4 production acceptance](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md). The report
+below preserves its original experiment/publication scope and artifact identities.
+
 Experimental branch: `perf/runtime-cpu-dispatch`, based on qualified production
 main `6b480ed`. Native dispatch is opt-in at build time:
 

@@ -1,13 +1,15 @@
 # Reproducible WebAssembly engine
 
-**Current production fast-flip build:** Python 3.14.10 and the existing
-Emscripten 4.0.22 compile the exact cross-platform-qualified shared source.
-Two `npm run wasm:build` runs produce byte-identical manifests and artifacts.
-Build identity: `eb25fd26b0e29d8e3ba5d2b0eb865c7658790b7791d8076cf4515235c369549b`.
-See [production acceptance](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md) for source,
-old/new artifact hashes, numerical checks and actual Chrome/Safari acceptance.
-ABI 1, exported interfaces, flags, model identities and coefficients are unchanged.
-The earlier Mac/PC rebuild paragraphs below describe historical versions.
+**Current production:** the PC-selected unsigned-mask/shared-implementation source
+is qualified on M4 using Python 3.14.10 and the existing Emscripten 4.0.22.
+Two builds produce byte-identical manifests and artifacts. Build identity:
+`934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223`.
+See [Mac integration acceptance](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md) for
+source/artifact hashes, independent native/Wasm checks, actual Chrome/Safari
+acceptance and the short Windows follow-up. ABI 1, exports, flags, memory
+configuration, B/L/P identities and coefficients are unchanged.
+The preceding fast-flip distribution `eb25fd26…` and earlier rebuild paragraphs
+below retain their historical identities and evidence.
 
 Active tooling now requires **Python 3.13+**; see
 [interpreter selection](PYTHON_ENVIRONMENT.md). SDK setup and both build scripts
@@ -76,8 +78,13 @@ A test-only zero setting allocates one entry. There is no per-node allocation.
 implementation and shared `engine-tables.hpp` for ordinary native and Wasm
 builds. The build provenance now hashes both included files. The separate x86
 enhanced translation unit is excluded from Emscripten. The current committed
-Mac-built distribution still accurately names its pre-refactor source; this PC
-experiment does not rebuild it. `native/main.cpp` provides only native process I/O.
+distribution hashes that selected source, including both shared include files.
+The previous distribution accurately describes its earlier source and remains
+recoverable from `6b480ed`; its historical verifier is unchanged. Use
+`node scripts/runtime-cpu-mac/verify-production.mjs` for the current distribution.
+This separately pins the selected PC source and verifies the complete fingerprint,
+frozen coefficients, old/new exports and unchanged build options.
+`native/main.cpp` provides only native process I/O.
 `native/browser.cpp` provides only a C-compatible request boundary with owned
 handles, structured JSON errors, split 32-bit bitboard halves, model identities,
 inspect/search/all-move queries, diagnostics and release. No search/evaluation

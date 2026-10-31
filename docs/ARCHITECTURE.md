@@ -188,9 +188,9 @@ script and loads the existing production Wasm module. The game worker and Wasm
 artifacts are unchanged. See [measurement methods](PROFILING_METHODS_AND_VIEWS.md)
 and [the collection workflow](../scripts/profiling/README.md).
 
-## Experimental native CPU dispatch
+## Optional native CPU dispatch
 
-On `perf/runtime-cpu-dispatch`, `engine.cpp` supplies the portable entry/selection
+`engine.cpp` supplies the portable entry/selection
 boundary and includes the one `engine-impl.inc` implementation. A separate
 `engine-enhanced.cpp` compiles that same source with four explicit x86 extensions.
 Private member specializations and separate helper namespaces bind the entire
@@ -199,3 +199,11 @@ set of counters/deadline/model state. Immutable geometry and frozen data are
 shared at link time. Construction caches an eligible backend; public search,
 analysis and window operations branch once. No browser/runtime play dependency
 or frozen model changes. See [the design](RUNTIME_CPU_DISPATCH_DESIGN.md).
+
+The production source includes the PC-selected unsigned validity masks. The
+optional dispatcher is qualified for Linux x86-64 GCC; macOS ARM64/Intel and
+Emscripten compile only the ordinary `engine.cpp` translation unit. No x86
+intrinsic or CPU detector enters Mac/Wasm compilation. Frozen coefficients,
+strict floating-point options, one Engine/TT state and all search semantics
+are retained. The rebuilt distribution hashes `engine-impl.inc` and
+`engine-tables.hpp` explicitly. See [M4 qualification and production packaging](RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md).
