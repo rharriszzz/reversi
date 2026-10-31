@@ -17,7 +17,7 @@ compile([resolve(dir,'engine.o'),resolve(out,'driver.o'),'-o',resolve(dir,'fixed
 compile(['-I',dir,resolve(dir,'engine.o'),resolve(out,'kernels.o'),'scripts/fast-flips/micro.cpp','-o',resolve(out,`micro-${tag}`)]);
 const executable=resolve(dir,'engine'),commit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const sourceHashes=Object.fromEntries(['engine.cpp','engine.hpp','main.cpp'].map(f=>[f,sha(readFileSync(resolve(dir,f)))]));
-const receipt={...manifest.builds['ray-table'],algorithm:'selected-ray-table',commit,sourceHashes,executable,executableSha256:sha(readFileSync(executable))};
+const receipt={...manifest.builds['ray-table'],algorithm:'selected-ray-table',commit,sourceHashes,executable,executableSha256:sha(readFileSync(executable)),fixedWorkExecutableSha256:sha(readFileSync(resolve(dir,'fixed-work'))),driverObjectSha256:sha(readFileSync(resolve(out,'driver.o')))};
 receipt.fingerprint=sha(JSON.stringify({commit,sourceHashes,flags,compiler:manifest.compiler}));
 manifest.builds[tag]=receipt;
 manifest.finalMicro={executableSha256:sha(readFileSync(resolve(out,`micro-${tag}`))),sourceSha256:sha(readFileSync('scripts/fast-flips/micro.cpp')),kernelSourceSha256:sha(readFileSync('scripts/fast-flips/candidates.hpp')),sourceCommit:commit,orderedShuffle:'explicit xorshift64 Fisher-Yates, seed 0x464c49504d340001'};

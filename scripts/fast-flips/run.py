@@ -1,5 +1,5 @@
 """Serial measurement boundary, resource check, durable 90-minute ledger."""
-import importlib.util,json,os,platform,shutil,subprocess,sys,time
+import hashlib,importlib.util,json,os,platform,shutil,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 OUT=(ROOT/os.environ.get('REVERSI_FLIP_RUN','.local-research/fast-flips-m4-20261031')).resolve()
@@ -16,13 +16,15 @@ def main():
         name=sys.argv[1];path=OUT/(name+'.json');assert not path.exists(),f'Preserve {path}'
         ledger=OUT/'budget.json';budget=json.loads(ledger.read_text()) if ledger.exists() else {'activeSeconds':0,'runs':[]}
         assert budget['activeSeconds']<5100,'90-minute measurement cap'
-        before=snapshot();start=time.monotonic()
+        before=snapshot();binaries={str(p.relative_to(OUT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.glob('*/fixed-work')};start=time.monotonic()
         try:
             with path.open('w') as output, (OUT/(name+'.stderr')).open('w') as error:
                 result=subprocess.run(sys.argv[2:],stdout=output,stderr=error,timeout=max(1,5300-budget['activeSeconds']))
         finally:
             elapsed=time.monotonic()-start;after=snapshot();budget['activeSeconds']+=elapsed
-            budget['runs'].append({'name':name,'command':sys.argv[2:],'seconds':elapsed,'before':before,'after':after})
+            afterBinaries={str(p.relative_to(OUT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.glob('*/fixed-work')}
+            budget['runs'].append({'name':name,'command':sys.argv[2:],'seconds':elapsed,'before':before,'after':after,'fixedWorkBinarySha256':binaries,'binariesUnchanged':afterBinaries==binaries})
             ledger.write_text(json.dumps(budget,indent=2)+'\n')
+            assert afterBinaries==binaries,'Measured executables changed during run'
         result.check_returncode();print(json.dumps({'name':name,'seconds':elapsed,'activeSeconds':budget['activeSeconds']}))
 if __name__=='__main__':main()

@@ -9,12 +9,12 @@ export const flags=['-O3','-std=c++17','-Wall','-Wextra','-Wpedantic','-ffp-cont
 const cxx=process.env.CXX??'c++';
 const compile=args=>execFileSync(cxx,[...flags,...args],{stdio:'inherit'});
 mkdirSync(out,{recursive:true});
-if(existsSync(resolve(out,'micro.json'))||existsSync(resolve(out,'integrated.json')))throw Error('Preserve measured builds: choose a fresh REVERSI_FLIP_RUN');
+if(['micro.json','integrated.json','integrated-final.json','budget.json'].some(f=>existsSync(resolve(out,f))))throw Error('Preserve measured builds: choose a fresh REVERSI_FLIP_RUN');
 const header=frozenHeader().header;
 const original=execFileSync('git',['show',`${baseline}:native/engine.cpp`],{encoding:'utf8'});
 const workload=JSON.parse(readFileSync('docs/data/mac-optimization-experiments-20261030.json')).repeated.positions;
 writeFileSync(resolve(out,'positions.json'),JSON.stringify(workload)+'\n');
-const manifest={baseline,experimentCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),compiler:execFileSync(cxx,['--version'],{encoding:'utf8'}).trim(),flags,platform:process.platform,arch:process.arch,modelHeaderSha256:sha(header),workloadSha256:sha(readFileSync(resolve(out,'positions.json'))),harnessHashes:Object.fromEntries(['build.mjs','candidates.hpp','kernels.cpp','micro.cpp'].map(f=>[f,sha(readFileSync(`scripts/fast-flips/${f}`))])),builds:{}};
+const manifest={baseline,experimentCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),compiler:execFileSync(cxx,['--version'],{encoding:'utf8'}).trim(),flags,platform:process.platform,arch:process.arch,modelHeaderSha256:sha(header),workloadSha256:sha(readFileSync(resolve(out,'positions.json'))),harnessHashes:Object.fromEntries(['build.mjs','candidates.hpp','kernels.cpp','micro.cpp','driver.cpp'].map(f=>[f,sha(readFileSync(`scripts/fast-flips/${f}`))])),builds:{}};
 compile(['-I',resolve('native'),'-c','scripts/fast-flips/driver.cpp','-o',resolve(out,'driver.o')]);
 for(let id=0;id<tags.length;id++) {
   const tag=tags[id],dir=resolve(out,tag);mkdirSync(dir,{recursive:true});
@@ -44,7 +44,7 @@ for(let id=0;id<tags.length;id++) {
   writeFileSync(resolve(dir,'qualification.cpp'),adapter);
   compile(['-I',dir,resolve(dir,'engine.o'),resolve(dir,'qualification.cpp'),'-o',resolve(dir,'qualify')]);
   const sourceHashes=Object.fromEntries(['engine.cpp','engine.hpp','main.cpp','candidates.hpp'].map(f=>[f,sha(readFileSync(resolve(dir,f)))]));
-  const receipt={...manifest,builds:undefined,algorithm:tag,sourceHashes,executable,executableSha256:sha(readFileSync(executable)),models:{B:'original-production',...Object.fromEntries(['L','P'].map(k=>[k,frozenHeader().models[k].checksum]))}};
+  const receipt={...manifest,builds:undefined,algorithm:tag,sourceHashes,executable,executableSha256:sha(readFileSync(executable)),fixedWorkExecutableSha256:sha(readFileSync(resolve(dir,'fixed-work'))),driverObjectSha256:sha(readFileSync(resolve(out,'driver.o'))),models:{B:'original-production',...Object.fromEntries(['L','P'].map(k=>[k,frozenHeader().models[k].checksum]))}};
   receipt.fingerprint=sha(JSON.stringify(receipt));manifest.builds[tag]=receipt;
   writeFileSync(resolve(dir,'build.json'),JSON.stringify(receipt,null,2)+'\n');
   if(process.platform==='darwin') {

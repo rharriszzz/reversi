@@ -23,14 +23,17 @@ def main():
     for tag in dict.fromkeys(x['tag'] for x in ms):
         # Disjoint legal-play phase classes only; no duplicate edge subset or controlled stress.
         s=[x for x in ms if x['tag']==tag and x['class'] in ['opening','middle','late','last-two','last-one']]
-        weighted.append({'tag':tag,'cases':sum(x['cases'] for x in s),'ns':sum(x['cases']*x['ns']['median'] for x in s)/sum(x['cases'] for x in s)})
+        total=sum(x['cases'] for x in s)
+        values=[sum(x['cases']*x['ns']['values'][i] for x in s)/total for i in range(7)]
+        weighted.append({'tag':tag,'cases':total,'ns':sum(x['cases']*x['ns']['median'] for x in s)/total,'trials':values})
+    for w in weighted:w['vsOriginal']=effect([x/y for x,y in zip(w['trials'],weighted[0]['trials'])])
     panels=[]
     for w in data['workloads']:
         rs=[r for r in data['rows'] if r['workload']==w['id']]
         for tag in data['tags']:
             values=[r['results'][tag]['wallSeconds']/w['repeats'] for r in rs]
             cpu=[r['results'][tag]['workloadCpuSeconds']/w['repeats'] for r in rs]
-            panels.append({'workload':w['id'],'tag':tag,'roots':len(w['positionIds']),'repeats':w['repeats'],'batchSeconds':stats(values),'batchCpuSeconds':stats(cpu),'metricsPerBatch':{k:v/w['repeats'] for k,v in rs[0]['results'][tag]['metrics'].items()},'millionNodesPerSecond':rs[0]['results'][tag]['metrics']['nodes']/w['repeats']/statistics.median(values)/1e6,'vsOriginal':effect([r['results'][tag]['wallSeconds']/r['results']['original']['wallSeconds'] for r in rs])})
+            panels.append({'workload':w['id'],'tag':tag,'roots':len(w['positionIds']),'repeats':w['repeats'],'batchSeconds':stats(values),'batchCpuSeconds':stats(cpu),'metricsPerBatch':{k:v/w['repeats'] for k,v in rs[0]['results'][tag]['metrics'].items()},'millionNodesPerSecond':rs[0]['results'][tag]['metrics']['nodes']/w['repeats']/statistics.median(values)/1e6,'millionEvaluationsPerSecond':rs[0]['results'][tag]['metrics']['evaluations']/w['repeats']/statistics.median(values)/1e6,'vsOriginal':effect([r['results'][tag]['wallSeconds']/r['results']['original']['wallSeconds'] for r in rs])})
     timed=[]
     for model in ['B','L','P']:
         for budget in [80,300]:
@@ -42,8 +45,8 @@ def main():
         text=(OUT/tag/'assembly.txt').read_text();match=re.search(r'__ZN7reversi5flipsE\w+:\n(.*?)(?=^[_A-Za-z].*:\n)',text,re.M|re.S)
         if not match:continue
         instructions=[line for line in match[1].splitlines() if re.match('[0-9a-f]{16}\\s',line)]
-        assembly.append({'tag':tag,'flipInstructions':len(instructions),'flipBytes':4*len(instructions),'conditionalBranches':sum(bool(re.search(r'\tb\.(?:eq|ne|lt|gt|le|ge)\s|\t(?:cbz|cbnz|tbz|tbnz)\s',x)) for x in instructions),'loads':sum(bool(re.search(r'\t(?:ldr|ldp)\s',x)) for x in instructions),'tableBytes':4096 if tag in ['ray-table','late-ray'] else 0,'instructions':instructions})
-    result={'micro':ms,'legalPhaseWeightedMicro':weighted,'panels':panels,'timed':timed,'assembly':assembly,'qualification':json.loads((OUT/'qualification.json').read_text()),'sanitize':json.loads((OUT/'sanitize.json').read_text()),'diagnostic':json.loads((OUT/'diagnostic.json').read_text()),'builds':builds,'microCheckedCases':micro['checkedCases']}
+        assembly.append({'tag':tag,'flipInstructions':len(instructions),'flipBytes':4*len(instructions),'conditionalBranches':sum(bool(re.search(r'\tb\.(?:eq|ne|lt|gt|le|ge)\s|\t(?:cbz|cbnz|tbz|tbnz)\s',x)) for x in instructions),'loads':sum(bool(re.search(r'\t(?:ldr|ldp)\s',x)) for x in instructions),'tableBytes':4096 if tag in ['ray-table','late-ray','selected','refined'] else 0,'instructions':instructions})
+    result={'micro':ms,'legalPhaseWeightedMicro':weighted,'panels':panels,'timed':timed,'assembly':assembly,'qualification':json.loads((OUT/'qualification.json').read_text()),'sanitize':json.loads((OUT/(os.environ.get('FLIP_SANITIZE','sanitize')+'.json')).read_text()),'diagnostic':json.loads((OUT/'diagnostic.json').read_text()),'builds':builds,'microCheckedCases':micro['checkedCases']}
     (OUT/(os.environ.get('FLIP_SUMMARY','summary')+'.json')).write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({'weightedMicro':weighted,'candidatePanels':[x for x in panels if x['tag']=='ray-table'],'assembly':[{k:v for k,v in x.items() if k!='instructions'} for x in assembly]},indent=2))
 if __name__=='__main__':main()

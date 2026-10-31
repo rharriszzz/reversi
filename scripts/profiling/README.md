@@ -1,5 +1,10 @@
 # Local profiling investigation
 
+The separate [fast-flip experiment](../fast-flips/README.md) reuses this qualified
+collector with fresh builds/output and a small capture set. Use that recipe for
+its native optimization; do not rerun this historical full matrix into completed
+results. [Mac findings and PC handoff](../../docs/FLIP_OPTIMIZATION_MAC.md).
+
 Open the committed evidence with the ordinary dependency-free server:
 
 ```bash

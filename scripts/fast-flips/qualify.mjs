@@ -32,7 +32,7 @@ const engines=tags.map(tag=>{
   return new NativeEngine({receipt:{...receipt,executable,executableSha256:sha(readFileSync(executable))}});
 });
 const signature=r=>Object.fromEntries(Object.entries(r).filter(([k])=>!['id','interfaceMs','elapsedMs','cpuMs','backend','buildIdentity'].includes(k)));
-let rootQueries=0,children=0,pvSteps=0,coachingRows=0,timedPublications=0;
+let rootQueries=0,children=0,pvSteps=0,coachingRows=0,timedPublications=0,deepCoachingRows=0;
 try {
   for(const e of engines)await e.ready();
   for(const board of boards)for(const player of [1,-1])for(const model of ['B','L','P']) {
@@ -75,6 +75,13 @@ try {
       }
     }
   }
-  const result={passed:true,tags,seed:0x464c5154,boards:boards.length,rootQueries,children,coachingRows,pvSteps,timedPublications,method:'Independent 10x10 mailbox children/exhaustive minimax; all exposed search/TT counters identical between kernels at fixed work; node-limit interrupted completed horizons verified.'};
+  for(const p of [positions[1],positions[5]])for(const model of ['B','L','P']) {
+    let first;
+    for(const e of engines) {
+      const r=await e.request(`analyze ${boardArgs(p.board,p.player,model)} 6`);
+      if(first)assert.deepEqual(signature(r),first);else first=signature(r);deepCoachingRows+=r.moves.length;
+    }
+  }
+  const result={passed:true,tags,seed:0x464c5154,boards:boards.length,rootQueries,children,coachingRows,pvSteps,timedPublications,deepCoachingRows,method:'Independent 10x10 mailbox children/exhaustive minimax; all exposed search/TT counters identical between kernels at fixed work; node-limit interrupted completed horizons verified. Additional D6 full-window rows/PVs compared across builds and verified by production continuation searches.'};
   writeFileSync(resolve(out,'qualification.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
 }finally{engines.forEach(e=>e.close());}

@@ -89,6 +89,17 @@ is attribution evidence, not precise causal time accounting for one instruction.
 
 ## Ranked future work
 
+The unmerged [fast-flip Mac experiment](FLIP_OPTIMIZATION_MAC.md) now measures
+the next bounded optimization: a portable 4 KiB ray/sentinel kernel saves about
+37% on twelve exact roots, 18–21% on the mixed 48-root panel and 12–15% on
+opening/middle/coaching panels, versus current `main` including the retained
+final-empty specialization. Fixed scores and search/TT counters are identical;
+independent references, sanitizers and actual candidate Wasm/Chrome checks pass.
+These are **M4-only experimental results**, not a main-branch promotion or PC
+qualification. See the [cross-platform decision table](FLIP_OPTIMIZATION_RESULTS.md)
+and exact PC handoff; Windows/WSL2 measurements remain pending. Distributed Wasm
+artifacts are unchanged in this experiment.
+
 1. **Use matched unprofiled complete-work benchmarks as the decision gate.**
    Keep multiple exact roots, nonterminal searches and evaluator microbenchmarks;
    disclose trees, counts, compiler flags and variability. A percentage change in
@@ -97,10 +108,11 @@ is attribution evidence, not precise causal time accounting for one instruction.
    Start with a modest qualified event period, check sample count and interference,
    then collect stacks only for questions requiring callers. The new experiment's
    measured limits and recommended defaults are in the methods report.
-3. **Investigate remaining exact flip/control cost only under a separate bounded
-   optimization request.** Earlier evidence makes this plausible; it does not
-   establish that more specialization will pay. Require independent exact/pass
-   references and complete-search improvement.
+3. **Qualify the selected flip kernel on the actual WSL2 PC before promotion.**
+   The bounded Mac experiment above now establishes a substantial native benefit
+   with independent exact/pass references and unchanged search trees. Its
+   portable source still needs real GCC/x86-64 measurements. Defer further
+   endgame specialization until that cross-platform decision is complete.
 4. **Consider batching coaching adapter work.** Real worker profiles can reveal
    repeated conversions and verified-PV work. Measure the full all-move response,
    preserve comparable horizons, and separate UI/worker latency from engine time.

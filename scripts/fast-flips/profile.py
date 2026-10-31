@@ -23,7 +23,8 @@ def main():
         modes=(['plain','ip-10000000','ip-1000000'] if os.environ.get('FLIP_PROFILE_REFINEMENT') else ['plain','ip-10000000','ip-1000000','stacks-1000000','cpu-normal']) if name=='profile-root-P' else ['plain','ip-10000000']
         for mode in modes:
             for tag in tags:
-                stem=f'{name}-{tag}-{mode}';cmd=[str(OUT/tag/'fixed-work'),w['mode'],w['file'],str(repeats),'2','0']
+                suffix=('-'+os.environ['FLIP_PROFILE_SUFFIX']) if os.environ.get('FLIP_PROFILE_SUFFIX') else ''
+                stem=f'{name}-{tag}-{mode}{suffix}';cmd=[str(OUT/tag/'fixed-work'),w['mode'],w['file'],str(repeats),'2','0']
                 command,trace=measure.command(mode,cmd,stem);assert not trace or not trace.exists(),'Preserve previous trace'
                 start=time.monotonic();r=subprocess.run(command,capture_output=True,text=True,timeout=60)
                 (OUT/(stem+'.log')).write_text(r.stdout+r.stderr);r.check_returncode()
@@ -32,5 +33,7 @@ def main():
                 row={'id':stem,'mode':mode,'workload':name,'tag':tag,'rep':0,'raw':str(trace) if trace else None,'result':result,'command':command,'outerSeconds':time.monotonic()-start,'repeats':repeats}
                 rows.append(row);print(stem,file=sys.stderr,flush=True)
                 (OUT/'profile-checkpoint.json').write_text(json.dumps(rows)+'\n')
+        group=[r['result'] for r in rows if r['workload']==name]
+        assert all(r['metrics']==group[0]['metrics'] and r['checksum']==group[0]['checksum'] for r in group),'Profiled fixed work changed'
     print(json.dumps(rows))
 if __name__=='__main__':main()
