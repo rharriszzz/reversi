@@ -1,0 +1,1 @@
+{"passed":true,"games":256,"familiesPerBudget":64,"bootstrapReplicates":20000,"scope":"Public boards/colors reproduce all W/D/L, paired means, Student intervals and registered seeded bootstrap intervals exactly."}
