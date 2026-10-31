@@ -1,0 +1,4 @@
+// Optional research collection target. The explorer never loads this worker.
+import {WasmEngine} from '../src/wasm-engine.js';
+let engine;
+self.onmessage=async({data})=>{const {id,op,p,depth,model='P',repeats=1,n=10000000}=data;try{let result;if(op==='init'){engine=await WasmEngine.create();result={memoryBytes:engine.memoryBytes};}else{const start=performance.now();let checksum=0,nodes=0,evaluations=0;if(op==='static'){const r=engine.evalbench(p.board,p.player,model,n);checksum=r.checksum;evaluations=r.evaluations??n;}else{for(let i=0;i<repeats;i++){const r=engine.search(p.board,p.player,{model,depth,hints:false});checksum+=r.score;nodes+=r.nodes;evaluations+=r.evaluations;}}result={wallMs:performance.now()-start,checksum,nodes,evaluations,repeats,n};}self.postMessage({id,result});}catch(e){self.postMessage({id,error:String(e.stack||e)});}};

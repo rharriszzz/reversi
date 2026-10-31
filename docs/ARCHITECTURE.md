@@ -168,3 +168,22 @@ must not be interpreted as complete-search speedup. The original forty-byte,
 full-identity direct TT and its bounded allocation remain. A qualified equal-
 allocated-memory thirty-two-byte experiment was slower and rejected. Numerical,
 whole-search and profile evidence is in the [M4 report](MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md).
+
+## Local profiling evidence explorer
+
+`profiling/` is a standalone, read-only research UI served by the existing Python
+HTTP launcher. It reads committed normalized records from `docs/data/profiling/`;
+it does not invoke the native engine, train models, alter app preferences or start
+profilers. `model.js` validates event/weight/address/timestamp accounting and
+provides flat tables, address-containment trees, genuine stack trees and matched
+normalized differences. `explorer.js` renders those records in independent views.
+Only stack inputs can produce calling-context graphs. Timestamp-free records
+cannot produce a chronological chart. Presentation grouping retains small-count
+mass in accessible Other branches.
+
+The opt-in collection tools live separately in `scripts/profiling/`; raw native
+traces and Chrome profiles remain under ignored local research storage. The
+separate `capture-worker.html` research page is used only by that collection
+script and loads the existing production Wasm module. The game worker and Wasm
+artifacts are unchanged. See [measurement methods](PROFILING_METHODS_AND_VIEWS.md)
+and [the collection workflow](../scripts/profiling/README.md).

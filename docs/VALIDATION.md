@@ -239,3 +239,26 @@ qualifies actual installed Safari 27.2 using Apple's WebDriver (not a WebKit
 substitute). Run `python scripts/mac/safari-qualification.py` and
 `python scripts/mac/safari-custom.py` after activating `.venv`. Public replay
 and source/artifact checks need only `python scripts/mac/verify-safari.py`.
+
+## Profiling explorer and measurement qualification
+
+The M4 profiling campaign has separate measurement and presentation checks. See
+[methods and measured findings](PROFILING_METHODS_AND_VIEWS.md) and the committed
+`docs/data/profiling/qualification.json` receipt for actual completed counts and
+platform/tool identities. The explorer needs no profiler or Node at runtime.
+
+```bash
+node --test tests/profiling.test.mjs
+python3 -m unittest discover -s tests -p 'test_profiling.py'
+python3 scripts/profiling/browser-check.py
+```
+
+Run these **after**, not during, timed collection. The browser check uses actual
+installed Google Chrome in a disposable automation session and exercises source
+inspection, filtering/sorting, address zoom/Other mass, genuine stack context,
+weighted Speedscope export, matched normalized differences, actual timestamp
+charts and malformed/timestamp-free input. Unit tests independently check mass
+conservation, recursion, containment and XML reference/weight semantics. The
+existing fast rules/search/native/Wasm tests bracket the investigation. New
+collector qualification is specific to this M4/Xcode environment; it does not
+newly test WSL2, native Windows or Intel Mac hardware.

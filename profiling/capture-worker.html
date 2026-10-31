@@ -1,0 +1,3 @@
+<!doctype html><meta charset="utf-8"><title>Optional Reversi worker collection target</title><p>This page is used only by the separate Chrome profiling script. Return to <a href="./">the evidence explorer</a>.</p><script type="module">
+const worker=new Worker('capture-worker.js',{type:'module'});let seq=0;const pending=new Map();worker.onmessage=({data})=>{const p=pending.get(data.id);pending.delete(data.id);if(data.error)p.reject(Error(data.error));else p.resolve(data.result);};window.measure=(op,args={})=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});worker.postMessage({id,op,...args});});
+</script>

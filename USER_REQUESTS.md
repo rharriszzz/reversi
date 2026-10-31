@@ -6471,3 +6471,468 @@ It is dune.  Please do the qualification
 ---
 
 Please add commit push at the end
+
+---
+
+# Reversi — Hardware CPU Sampling, Call-Stack Profiling, and Modern Performance Visualization
+
+Work on my M4 iMac in `~/git/reversi`.
+
+Use GPT-6.1-Sol with High reasoning.
+
+Read `AGENTS.md` and `USER_REQUESTS.md` first.
+
+This replaces my previous profiling-and-visualization request. I stopped the preceding Codex session because I wanted to correct its experimental design.
+
+## 0. Recover safely from the interrupted session
+
+Before starting:
+
+- Check Git status, the latest local and remote commits, and any uncommitted work.
+- Determine whether the earlier profiling task left useful scripts, datasets, documents or visualizations.
+- Check for still-running profiling or benchmark processes owned by that task.
+- Preserve useful work, logs and evidence.
+- Do not reset the repository or discard unrelated files without examining them.
+- Do not blindly resume the previous plan.
+
+Review existing work against the revised requirements below. Reuse sound components, but replace approaches based on incorrect assumptions.
+
+The latest previously verified published commit was `1f0faa3`.
+
+This is a new profiling investigation, not an engine-optimization or model-training campaign.
+
+## 1. The fundamental measurement distinction
+
+I developed an instruction-sampling profiler years ago using IBM z/OS Hardware Instrumentation Services.
+
+Examine:
+
+https://github.com/rharriszzz/HIS_profile
+
+Especially `his_profile/his_plotting.py`, `his_profile/his_profile.py`, the example notebook and its sunburst visualization.
+
+Understand the design, including its progressive refinement of heavily sampled instruction-address regions.
+
+My particular concern is that Reversi contains extremely short, frequently executed routines such as positional evaluation. Instrumentation that adds work to every call can seriously distort these workloads.
+
+**Hardware CPU instruction sampling avoids per-call instrumentation and does not inherently require calling-stack collection.**
+
+It still has sampling uncertainty, possible skid and event-attribution issues, finite capture overhead and limited calling context.
+
+I want to examine these tradeoffs experimentally.
+
+Do not conflate:
+
+- Hardware event sampling.
+- Periodic software sampling.
+- Instruction-address-only records.
+- Stack collection and unwinding.
+- Per-call instrumentation.
+- Complete processor tracing.
+
+These are different measurement mechanisms with potentially different costs.
+
+Do not describe a cycle-triggered profiler that unwinds calling stacks as stack-free just because the sampling trigger is implemented in hardware.
+
+The principal objective is to compare measurement techniques and presentation methods, not simply generate attractive flame graphs.
+
+## 2. Establish three primary measurement modes
+
+Use identical qualified native C++ binaries and representative Reversi workloads wherever possible.
+
+### A. Unprofiled benchmarks
+
+This is the authoritative performance baseline.
+
+Use the current optimized production engine and, where useful, its previously qualified predecessor.
+
+Measure fixed-work elapsed time, CPU time, nodes per second, evaluations per second and search-tree statistics.
+
+Include four representative workloads:
+
+1. Very large numbers of static position evaluations.
+2. Opening search.
+3. Middle-game search.
+4. Exact endgame search.
+
+Include full-window all-move coaching if its behavior reveals useful additional costs.
+
+The evaluator microbenchmark is important because its functions are short and executed extremely frequently.
+
+Use controlled warmups, repeated trials, fixed boards, identical workloads and alternating measurement order.
+
+Avoid incidental CPU-intensive work during timing.
+
+### B. Hardware instruction-address sampling without stacks
+
+This is my preferred primary profiling method.
+
+Investigate the actual capabilities of Apple Instruments and the M4 performance-monitoring hardware.
+
+In particular, investigate CPU Counters, instruction-sampling modes and the available sampling events.
+
+Determine whether an actual hardware-triggered instruction-address-only dataset can be collected without stack walking.
+
+If available, collect at least one useful event type and explain precisely what it represents.
+
+Prefer a cycle-related sampling event for locating CPU-cycle hotspots if it is genuinely available in an instruction-only mode.
+
+Other useful events, such as branch mispredictions or cache misses, may be examined separately, but do not call their sample distributions CPU-time distributions.
+
+For every dataset, record:
+
+- Sampling event.
+- Trigger mechanism.
+- Configured sampling period or frequency.
+- Actual collected sample count.
+- Instruction addresses.
+- Sample weights or event counts where applicable.
+- Symbolization information.
+- Lost samples.
+- Unresolved samples.
+- Available processor/core attribution.
+
+Do not gather stacks merely to construct an address-only display.
+
+Do not present the top frame of an already-collected stack as evidence that a stack-free measurement was performed.
+
+If actual stack-free instruction sampling is unavailable, report that explicitly. Use a clearly labeled alternative if useful, but do not invent an equivalent mechanism or modify security settings to force access.
+
+Hardware sampling should not require instrumenting individual evaluation calls.
+
+### C. Sampled calling stacks
+
+Collect real sampled calling stacks using suitable Instruments facilities.
+
+Investigate CPU Profiler and Time Profiler independently, distinguishing hardware cycle-triggered stack sampling from timer-triggered stack sampling.
+
+Determine:
+
+- Actual sampling mechanism.
+- Stack-unwinding method.
+- Depth and completeness.
+- Whether inlined functions are represented.
+- Collection overhead.
+- Sampling bias and aliasing risks.
+- Symbolization accuracy.
+
+Do not use per-function entry/exit tracing as a substitute for sampled call stacks.
+
+Where practical, capture comparable stack-based profiles from the same production binary used for instruction sampling.
+
+If a separate build is necessary for reliable unwinding, measure its unprofiled performance independently so that compiler changes are not confused with profiler overhead.
+
+For WebAssembly, use an actual Chrome worker profile separately and document differences in its sampling method.
+
+## 3. Experimentally measure profiler interference
+
+This is one of the most important parts of the project.
+
+Compare the following conditions:
+
+- Production binary, no profiler.
+- Identical binary, hardware instruction-only sampling.
+- Identical binary, hardware-triggered stack sampling.
+- Identical binary, periodic stack sampling.
+- Recompiled stack-friendly binary, without a profiler, only if that build is needed.
+- That stack-friendly binary under its corresponding profiler.
+
+Not every condition is guaranteed to be supported; record actual availability.
+
+Do not alter the optimized native engine merely to make the profiler easier to use.
+
+Test multiple sampling periods or frequencies where supported.
+
+For each mode, measure the change in complete fixed-work elapsed time and CPU time relative to the appropriate unprofiled control.
+
+Separate:
+
+1. Overhead imposed on the profiled application.
+2. CPU/resource use of the collector.
+3. Data volume and capture overhead.
+4. Postprocessing and symbolization cost.
+
+Compare both static-evaluator throughput and full-search throughput.
+
+Quantify normal run-to-run variability.
+
+Do not attribute a small observed difference to profiler overhead unless it is distinguishable from measurement noise.
+
+Investigate whether hotspot rankings are consistent between hardware instruction-only samples and stack-based profiles.
+
+Pay attention to inlining, instruction skid, periodic aliasing, incomplete stacks and differences between performance and efficiency cores.
+
+If the results disagree, explain plausible causes and determine which conclusions remain supported.
+
+**Do not assume stack collection is expensive or inexpensive. Measure it.**
+
+Similarly, do not assume hardware instruction sampling is completely free of overhead. Establish what is actually measurable.
+
+## 4. Separate data collection from visualization
+
+Build a small, reusable profiling data model that preserves:
+
+- Raw sample addresses when available.
+- Sample event type and weights.
+- Modules and symbols.
+- Address containment hierarchy.
+- Actual calling stacks when collected.
+- Timestamps when collected.
+- Workload and build identity.
+- Profiling method and sampling configuration.
+- Unresolved and discarded sample counts.
+
+Preserve original records where practical, with compact normalized derivatives for presentation.
+
+A flat instruction-address dataset must not acquire fabricated caller relationships or timestamps.
+
+A stack profile must retain enough information to distinguish inclusive and self cost.
+
+Do not silently drop low-count samples.
+
+Design the analysis code so that multiple visualizations can be produced from the same collected dataset without rerunning the profiler.
+
+Keep the original HIS_profile source separate. Because it contains third-party corporate copyright notices, implement new visualization code independently.
+
+## 5. Explore several modern presentation methods
+
+Create a lightweight interactive browser-based profiling explorer.
+
+The explorer should work locally and use committed example data without requiring a new expensive profiling run.
+
+Use a clear, readable light theme.
+
+Try the following views.
+
+### A. Instruction hotspot table and source/assembly view
+
+Display sampled instruction addresses or address ranges, their functions/modules, sample counts and percentages.
+
+Allow sorting, searching and filtering.
+
+Support progressively finer drill-down where useful.
+
+Show source lines or assembly when reliable symbolization is available.
+
+Distinguish samples attributed to instructions from estimated execution time.
+
+### B. Address-hierarchy sunburst
+
+Revisit the central idea of my HIS profiling visualization.
+
+Display module, function, section or symbol, and finer instruction-address regions as concentric hierarchy levels.
+
+Allow zooming and tooltips.
+
+Show sample counts, percentages, and the event represented.
+
+Make small branches visible through an explicit Other category.
+
+This view should use address containment. It must not be labeled as a call tree unless the input truly contains calling stacks.
+
+### C. Flame graph or icicle graph
+
+Use actual sampled calling stacks.
+
+Support search, zoom and hover details.
+
+Explain that width represents aggregated sampled weight, not chronological time.
+
+Distinguish self and inclusive costs.
+
+If good compatible profiles are available, consider Speedscope interoperability rather than unnecessarily rebuilding every interaction.
+
+### D. Differential profiles
+
+Compare the qualified old and optimized current engines on exactly the same workloads.
+
+Show which instructions, functions or calling paths gained or lost sampled cost.
+
+Present both relative/normalized samples and actual unprofiled runtime results.
+
+Avoid interpreting a higher percentage as a regression when total runtime fell.
+
+Where absolute time attribution is not statistically justified, show sampled differences without claiming precise time savings.
+
+### E. Chronological profile or flame chart
+
+Use actual timestamped samples or trace records.
+
+Show when different workers or execution paths were active.
+
+Distinguish chronological flame charts from aggregate flame graphs.
+
+If timestamp information is unavailable in an address-only dataset, omit the timeline rather than invent it.
+
+### F. Benchmark and measurement-overhead plots
+
+Show:
+
+- Production baseline versus optimized execution time.
+- Different profiler modes and their observed overhead.
+- Variation across repeated trials.
+- Sampling-frequency versus overhead.
+- Sampling-frequency versus data volume and diagnostic quality.
+- Native versus WebAssembly where measurement conditions justify it.
+
+This view should be the authoritative place to judge whether an engine optimization produced a practical improvement.
+
+## 6. Compare the information each presentation provides
+
+Do not merely create a collection of charts.
+
+For every presentation, explain:
+
+- What underlying data it requires.
+- What its visual dimensions mean.
+- What questions it answers well.
+- What it cannot reveal.
+- Its susceptibility to bias or misleading interpretation.
+- Whether the necessary data are expensive to collect.
+- What additional information is gained over simpler views.
+
+Use two concrete examples:
+
+**Example 1: Position evaluation.**
+
+This is called extremely frequently, and its operations are short.
+
+Compare what instruction-only sampling, stack sampling, function tables and the visualizations reveal.
+
+Pay particular attention to inlining, missing stack frames and whether any apparent profiling overhead changes the evaluator's observed throughput.
+
+**Example 2: The final-empty endgame optimization.**
+
+Use the previous and current qualified engines.
+
+Show what changed in the instruction distribution, full-search elapsed time, and genuine call-stack relationships.
+
+Explain which presentation best reveals the optimization's mechanism and which establishes its measured benefit.
+
+A useful final outcome would be a reasoned recommendation for which two or three views deserve regular use, rather than treating every visualization as equally valuable.
+
+## 7. Modern research and optional advanced methods
+
+Review current authoritative documentation for:
+
+- Apple CPU Profiler and Time Profiler.
+- Apple CPU Counters and instruction sampling.
+- Apple Processor Trace, if supported on the M4.
+- Brendan Gregg's flame graphs.
+- Speedscope.
+- Chrome DevTools CPU and Performance profiling.
+- Perfetto where relevant.
+
+Explain whether Apple Processor Trace offers additional useful information beyond sampling.
+
+It may be worth one very short, bounded demonstration, but complete instruction tracing is a fourth measurement technique, not a substitute for instruction sampling.
+
+Do not capture gigabytes of processor traces without an explicit size and duration limit.
+
+Do not change macOS Developer Tools security settings without approval.
+
+Do not introduce a large continuous-profiling service for this local project.
+
+## 8. README and performance documentation
+
+Review the existing README against the actual current launch scripts.
+
+Add a short Quick Start section near the beginning that correctly describes:
+
+- macOS.
+- WSL2 Ubuntu.
+- Native Windows.
+- Python 3.13+ and the current Python 3.14 project environment.
+- `./start.sh`, direct Python startup, and supported flags.
+- How to stop the server.
+- Frozen B/L/P WebAssembly playing and coaching.
+- Custom-weight JavaScript behavior.
+- Optional native C++ research startup.
+- How to launch the new profiling explorer.
+
+Remove or clearly relocate obsolete starter-ZIP and historical startup instructions.
+
+Do not confuse old experimental results with current behavior.
+
+Create or update:
+
+`docs/PERFORMANCE_OVERVIEW.md`
+
+Summarize the established Mac and PC speedups, profiling bottlenecks, retained and rejected optimizations, and ranked future recommendations.
+
+Create:
+
+`docs/PROFILING_METHODS_AND_VIEWS.md`
+
+Explain the measurement techniques, their measured overhead, the visualization experiments, the relationship to HIS_profile, and your recommendations for future performance investigations.
+
+Link the explorer prominently.
+
+Keep raw traces in ignored local storage and commit compact, properly labeled datasets sufficient to demonstrate the visualizations.
+
+## 9. Qualification
+
+Verify:
+
+- Sample aggregation and denominators.
+- Correct event-type labeling.
+- Correct self/inclusive accounting.
+- Correct address containment.
+- Genuine rather than fabricated call stacks.
+- Appropriate sample weighting.
+- Visible unresolved/Other mass.
+- Correct differential normalization.
+- Real timestamp provenance.
+- Correct handling of malformed data.
+- Interactive zoom, filtering, legends, labels and tooltips.
+
+Test the explorer in a real browser.
+
+Run the existing fast Reversi correctness tests.
+
+Do not change native search algorithms, frozen B/L/P models or production Wasm artifacts.
+
+## 10. Resource limits and checkpoints
+
+Begin with a resource audit: CPU, memory pressure, swap, disk space and competing processes.
+
+Keep intensive measurements serial.
+
+Use no more than approximately 90 minutes of active profiling and benchmarking. Ordinary implementation, reporting and correctness testing are outside that limit.
+
+Maintain concise logs, recorded measurement settings and complete source/build identities.
+
+Preserve results from the earlier interrupted attempt where valid.
+
+Commit and push an intermediate checkpoint after the measurement pipeline and initial views are qualified.
+
+Commit and push the completed explorer, README and reports after final acceptance.
+
+Verify both remote commits.
+
+Do not commit large raw traces, generated SDK caches, private files or old scientific corpora.
+
+## Final questions
+
+I want a clear answer to each of the following:
+
+1. Could we obtain genuine hardware instruction-address-only samples on the M4?
+2. Which hardware event or events were actually sampled?
+3. Did instruction-only sampling measurably disturb performance?
+4. How much additional interference came from collecting stacks?
+5. Did profiling alter the performance of the tiny, frequently called evaluator?
+6. How did profiling overhead vary with sampling frequency?
+7. Did IP-only profiles and sampled call stacks identify the same important hotspots?
+8. Which visualizations were most useful for instruction-level costs?
+9. Which were most useful for calling context?
+10. Which made the effects of the final-empty optimization easiest to understand?
+11. What additional information would Processor Trace provide?
+12. Which combination of measurement and presentation methods should we adopt for future Reversi optimization?
+
+Give particular attention to the distinction between **how measurements are collected** and **how the resulting data are presented**.
+
+My preferred starting point is low-intrusion hardware instruction sampling, with stack collection used when its additional information is genuinely useful.
+
+But I want the experimental evidence—not a prior assumption—to determine the final recommendation.
+
+The objective is a rigorous, reusable profiling and visualization system, not another change to the Reversi engine.
