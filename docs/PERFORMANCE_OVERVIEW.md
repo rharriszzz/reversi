@@ -8,6 +8,21 @@ sample percentages as performance results.
 
 ## Established improvements
 
+**Current production:** the portable 4 KiB ray/sentinel flip kernel is retained
+in shared native/Wasm source. See [production acceptance and packaged build
+identities](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md). Fixed-depth scores, trees and
+search/TT counters are unchanged. Reduced elapsed time can permit deeper timed
+searches, but establishes no new playing-strength result.
+
+The fast-flip experiments measured about **37% less exact-panel time on M4**;
+WSL2 GCC 15 measured **25–27% portable / 34–36% host-tuned** across B/L/P.
+Opening, middle and coaching improve on both machines. Read the
+[cross-platform decision](FLIP_OPTIMIZATION_RESULTS.md) for separate workloads,
+intervals and compiler controls; do not combine those figures into a CPU ranking.
+
+The following table and profiling paragraphs describe the **pre-fast-flip**
+engine and their historical comparisons, not new production measurements.
+
 These are published measurements, with their original panels and limitations.
 They are not new measurements of every supported platform in this investigation.
 
@@ -19,8 +34,8 @@ They are not new measurements of every supported platform in this investigation.
 | WSL2 GCC 15 portable versus historical GCC 11 portable | 15.0% B / 9.1% P less elapsed time on the corresponding repeated eight-root batch | [PC handoff](PC_TO_MAC_HANDOFF.md); no matched GCC 11 rerun, so this does not isolate compiler or OS causality |
 | WSL2 GCC 15 host / POPCNT-only versus portable | Host saves 2.6% B / 7.0% P; POPCNT-only saves 3.0% / 9.9% | Same current-source work and node counts; overlap/desktop variability limit small distinctions; portable remains default |
 
-The Mac's deeper legacy 36-root subset remains **2.58% B / 2.16% P slower** than
-its old baseline. The final-empty improvement is concentrated in exact solving;
+The historical Mac deeper legacy 36-root subset was **2.58% B / 2.16% P slower** than
+its old baseline before faster flipping. That final-empty improvement was concentrated in exact solving;
 it is not a universal search speedup. The separate short steady panel is nearly
 unchanged. Real-game native search throughput is about 33–34% higher than Wasm
 in the published backend comparison, but paired game outcomes show no convincing
@@ -45,7 +60,8 @@ measured interference and its limitations.
 **Retained:** original bitboard alpha-beta search, complete-position TT identity,
 correct pass/terminal semantics, the uncapped natural-depth timed search,
 completed-iteration publication, omission of unnecessary depth-zero TT work,
-qualified evaluator implementation improvements, and specialized final one/two
+qualified evaluator implementation improvements, the portable geometry-table/
+sentinel flip kernel, and specialized final one/two
 empty-square handling. The tiny exact helper is gated to trees that can reach it
 and kept out of the general recursion body. Frozen evaluator coefficients remain
 unchanged. The details and numerical qualification are in the
@@ -60,8 +76,9 @@ was roughly 1.5–2% slower alone and with the tiny-endgame specialization. More
 entries or hits did not compensate for execution costs. No cache-miss mechanism
 was demonstrated. Reproducible variants and negative evidence remain preserved.
 
-No search algorithm, model or production Wasm artifact is changed by the
-profiling/explorer work. No new optimization or training campaign is implied.
+The earlier profiling/explorer work changed no search algorithm or model.
+Production promotion rebuilds Wasm from the already qualified flip source;
+it introduces no additional optimization or training campaign.
 
 ## Bottlenecks and evidence quality
 
@@ -89,16 +106,12 @@ is attribution evidence, not precise causal time accounting for one instruction.
 
 ## Ranked future work
 
-The unmerged [fast-flip Mac experiment](FLIP_OPTIMIZATION_MAC.md) now measures
-the next bounded optimization: a portable 4 KiB ray/sentinel kernel saves about
-37% on twelve exact roots, 18–21% on the mixed 48-root panel and 12–15% on
-opening/middle/coaching panels, versus current `main` including the retained
-final-empty specialization. Fixed scores and search/TT counters are identical;
-independent references, sanitizers and actual candidate Wasm/Chrome checks pass.
-These are **M4-only experimental results**, not a main-branch promotion or PC
-qualification. See the [cross-platform decision table](FLIP_OPTIMIZATION_RESULTS.md)
-and exact PC handoff; Windows/WSL2 measurements remain pending. Distributed Wasm
-artifacts are unchanged in this experiment.
+The [Mac](FLIP_OPTIMIZATION_MAC.md) and [WSL2 PC](FLIP_OPTIMIZATION_PC.md)
+fast-flip experiments are complete. Their historical reports preserve the
+experiment-only status and unchanged distribution at that time. The
+[production acceptance](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md) records the subsequent
+integration, actual distributed rebuild and final browser/benchmark checks.
+Further optimization requires a separate task.
 
 1. **Use matched unprofiled complete-work benchmarks as the decision gate.**
    Keep multiple exact roots, nonterminal searches and evaluator microbenchmarks;
@@ -108,11 +121,10 @@ artifacts are unchanged in this experiment.
    Start with a modest qualified event period, check sample count and interference,
    then collect stacks only for questions requiring callers. The new experiment's
    measured limits and recommended defaults are in the methods report.
-3. **Qualify the selected flip kernel on the actual WSL2 PC before promotion.**
-   The bounded Mac experiment above now establishes a substantial native benefit
-   with independent exact/pass references and unchanged search trees. Its
-   portable source still needs real GCC/x86-64 measurements. Defer further
-   endgame specialization until that cross-platform decision is complete.
+3. **Complete the short post-merge PC packaging/launcher check.** The exact
+   source already passes actual WSL2 GCC 15 correctness and performance, with
+   portable and host-tuned flags. The production report gives a small follow-up;
+   another full PC optimization campaign is unnecessary.
 4. **Consider batching coaching adapter work.** Real worker profiles can reveal
    repeated conversions and verified-PV work. Measure the full all-move response,
    preserve comparable horizons, and separate UI/worker latency from engine time.

@@ -77,7 +77,10 @@ and [the performance overview](docs/PERFORMANCE_OVERVIEW.md).
 
 The shared C++ engine supports exact frozen B/L/P evaluation, bitboards,
 alpha-beta search, a collision-safe transposition table, iterative deepening,
-forced passes and exact final-empty handling. Browser play, coaching and review
+forced passes, exact final-empty handling and faster disc flipping. A portable
+4 KiB table stores the eight board rays for each square; endpoint tests find
+bracketed opponents without directional loops. Fixed-depth scores, search trees,
+move ordering and frozen models are preserved. Browser play, coaching and review
 use its committed Wasm distribution for frozen models; ordinary play still needs
 only Python and a browser. Custom weights retain the original JavaScript path.
 
@@ -95,8 +98,16 @@ replay positions, undo, review a complete game and export custom weights.
 
 Established engineering results:
 
+- [Faster flipping production acceptance](docs/FAST_FLIPS_PRODUCTION_ACCEPTANCE.md):
+  the shared native engine and rebuilt packaged Wasm retain the qualified kernel.
+  The original [M4 experiment](docs/FLIP_OPTIMIZATION_MAC.md) saved about 37% on
+  twelve exact roots and 12–15% on opening/middle/coaching; the independent
+  [WSL2 GCC 15 experiment](docs/FLIP_OPTIMIZATION_PC.md) saved about 25–27% exact
+  with portable flags and 34–36% with host tuning. These are separate matched
+  comparisons. Shorter searches may reach deeper horizons at fixed time budgets;
+  no measured playing-strength improvement is claimed.
 - [M4 native/Wasm optimization and acceptance](docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md):
-  specialized final-empty handling reduces the disclosed exact batch by about
+  before faster flipping, specialized final-empty handling reduced its exact batch by about
   26% native / 33% Wasm. A compact TT was slower and rejected. All 96 Chromium
   acceptance games and 256 native/Wasm backend games passed independent replay.
 - [Actual Safari 27.2 qualification](docs/SAFARI_QUALIFICATION.md): numerical,
@@ -106,8 +117,9 @@ Established engineering results:
 - [Reusable M4 hardware sampling investigation](docs/PROFILING_METHODS_AND_VIEWS.md):
   collection mechanisms, measured interference and address/context views.
 
-These reports describe their actual machines and workloads. This profiling
-investigation does not newly qualify WSL2, native Windows or Intel Mac hardware.
+These reports describe their actual machines, versions and workloads. Production
+browser acceptance runs on this M4; post-merge Windows-browser/WSL2 launcher checks
+are a short follow-up, and Intel Mac hardware is not newly tested.
 
 ## Optional native C++ research startup
 

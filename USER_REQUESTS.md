@@ -7690,3 +7690,308 @@ If a potential workaround requires those actions, document the proposed action, 
 10. Do we have sufficient evidence to retain the optimization without another hardware profiling campaign?
 
 **Complete the PC performance qualification first. Pursue hardware PMU sampling only when its additional information justifies the cost and risk.**
+
+---
+
+# Reversi — Promote Faster Disc Flipping to Production
+
+Work on my M4 iMac in `~/git/reversi`.
+
+Use GPT-6.1-Sol, High reasoning.
+
+This task follows the completed, independently qualified faster-disc-flipping experiments on the Mac and WSL2 PC.
+
+The purpose is to integrate the successful optimization into `main`, rebuild the actual distributed WebAssembly engine, perform final production acceptance, and publish the result.
+
+**Do not begin another speculative optimization campaign.**
+
+## 1. Review the completed experiments
+
+First read:
+
+- `USER_REQUESTS.md`
+- `AGENTS.md`
+- `docs/FLIP_OPTIMIZATION_MAC.md`
+- `docs/FLIP_OPTIMIZATION_PC.md`
+- `docs/FLIP_OPTIMIZATION_RESULTS.md`
+- `docs/PERFORMANCE_OVERVIEW.md`
+- `docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md`
+
+Verify the current local and remote Git branches and any uncommitted work.
+
+The qualified experimental branch is:
+
+`perf/fast-flips`
+
+Last verified publication:
+
+`791c0f8516eb34d9ba683804b0e62428eb068c56`
+
+The original baseline on `main` was:
+
+`1058f013581e0566277586f857b0a2884be260f6`
+
+The tested optimized engine source was introduced at:
+
+`9357d4b3510d7931b3ea4b8739b7c8e693414f33`
+
+The selected `native/engine.cpp` SHA-256 was:
+
+`b97d526697e68aa04186b67d2e13dc0f4eab21fb086921532e8b9b63cf47e7a5`
+
+Confirm these identities before modifying production files.
+
+Preserve unrelated work and inspect any commits made after those revisions.
+
+## 2. Confirm the cross-platform decision
+
+The completed experiments recommend retaining the portable 4 KiB geometry-table/sentinel flipping algorithm.
+
+The actual Mac and PC results show substantial gains in exact endgames, opening, middle-game and coaching workloads.
+
+Independent correctness, search scores, continuations and counters agree.
+
+Both portable GCC 15 and host-tuned GCC 15 benefit.
+
+No platform-specific alternative or instruction-set dispatch is justified at present.
+
+Review the evidence for inconsistencies or outstanding correctness blockers.
+
+Unless you find a substantive problem, **accept the optimized algorithm as the new production implementation**.
+
+Do not reopen the earlier candidate search merely because a different kernel wins one isolated microbenchmark.
+
+## 3. Integrate safely into main
+
+Use a clean integration branch or suitable worktree.
+
+Bring the qualified experimental source, relevant tests, documentation and research evidence into the current `main`.
+
+Preserve the original experimental branch and all qualified historical evidence.
+
+A merge is acceptable if the history and files are appropriate. If selective integration produces a cleaner, equally traceable result, explain that choice.
+
+Do not reimplement the algorithm from memory.
+
+Verify that the resulting native source is identical to the qualified version, except for any explicitly necessary integration changes.
+
+Preserve:
+
+- The seven-feature B evaluator.
+- Frozen L and P models and model identities.
+- The alpha-beta search and move ordering.
+- The transposition-table implementation.
+- The retained one/two-empty endgame optimization.
+- Pass and terminal rules.
+- Exact and heuristic score semantics.
+- All-move coaching and verified continuations.
+- Timed-search interruption and completed-depth publication.
+
+The optimization should change flipping performance, not search behavior.
+
+Do not merge into or push `main` until the production acceptance checks below pass.
+
+## 4. Rebuild the distributed WebAssembly engine
+
+This is a particularly important part of the task.
+
+The Mac experiment built and qualified an experimental Wasm artifact, but the browser's distributed files under `src/wasm/` were deliberately left unchanged.
+
+Now rebuild the actual production distribution using the repository's normal build procedure:
+
+`npm run wasm:build`
+
+Use the existing qualified Emscripten 4.0.22 installation and project Python 3.14.10 environment.
+
+Do not install different compilers or upgrade unrelated tools.
+
+Verify:
+
+1. The distributed Wasm binary contains the optimized flip implementation.
+2. The generated manifest identifies the correct source and artifact hashes.
+3. B/L/P frozen model identities remain unchanged.
+4. The build ABI and exported interfaces remain compatible.
+5. JavaScript workers load the new module correctly.
+6. The production browser code uses the new Wasm, not the earlier experimental or cached artifact.
+7. Repeating the build with the same source and tools produces reproducible artifacts or a clearly explained difference.
+
+Preserve the old artifact identity in the documentation before replacing it.
+
+Do not accidentally publish experimental build paths in the production manifest.
+
+## 5. Native and WebAssembly numerical acceptance
+
+Run the existing fast test suites first, then the relevant native and Wasm qualification suites.
+
+Recheck:
+
+- Exhaustive and randomized flip correctness.
+- Independent mailbox rules reference.
+- Exact endgame search.
+- B/L/P evaluation and search results.
+- Forced passes and terminal states.
+- TT collision and generation handling.
+- Full-window all-move analysis.
+- Verified principal variations.
+- Timed-search cancellation and completed-horizon publication.
+- Native-versus-Wasm score/counter parity.
+
+Reuse the extensive published Mac and PC experimental evidence rather than rerunning every historical measurement.
+
+Run additional tests only where necessary to qualify the new production build.
+
+Use sanitizers where relevant.
+
+Any genuine correctness mismatch blocks promotion.
+
+## 6. Test the actual browser application
+
+Start the production application through its documented launcher.
+
+Test actual Chrome and Safari on the M4, using isolated browser profiles and the existing automated browser procedures.
+
+Include:
+
+- Starting a new game.
+- Human and computer moves.
+- B, L and P frozen evaluators.
+- 80 ms and 300 ms computer searches.
+- Fixed-depth searches.
+- All-move coaching and verified continuation display.
+- Game review and replay.
+- Undo and restart.
+- Rapid switching of evaluators and search settings.
+- Cancellation of obsolete computations.
+- Custom-weight JavaScript mode and persistence.
+- Recovery from worker errors.
+- Reloading the application and verifying the current Wasm build identity.
+
+Check for numerical errors, exceptions, stale responses, browser-console errors and unexpected memory growth.
+
+Use finite representative full games, not an unnecessarily large tournament.
+
+The purpose is to establish correctness and operational reliability of the production application.
+
+Do not claim Safari or Chrome acceptance without actually exercising the corresponding browser.
+
+Do not modify ordinary browser profiles, unrelated user preferences or security settings.
+
+## 7. Performance acceptance
+
+Perform a short final benchmark comparison against the qualified pre-flip baseline.
+
+Use fixed-work, unprofiled native and actual production-Wasm workloads.
+
+Include:
+
+- The twelve-root exact panel.
+- The mixed 48-root panel.
+- Representative opening and middle-game searches.
+- Coaching with comparable settings.
+
+Prefer existing reproducible benchmark infrastructure.
+
+For each comparison, verify workload identity, scores and search counters.
+
+Record elapsed time, CPU time where available, and variation.
+
+We do not need to repeat the entire experimental 90-minute measurement campaign.
+
+A modest set of repeatable confirmation tests is sufficient unless an unexpected regression appears.
+
+If a regression is found, investigate its cause before promotion. Distinguish production build/integration changes from the already qualified algorithm.
+
+**Do not introduce new optimizations while performing this final confirmation.**
+
+## 8. Update production documentation
+
+Update the top-level README and performance documentation so that they accurately describe the current production engine.
+
+In particular:
+
+- Identify faster flipping as a retained optimization.
+- Explain the 4 KiB geometry table briefly.
+- Distinguish the Mac and PC measurements.
+- State that fixed-depth scores and search trees are preserved.
+- Explain that shorter search time may allow deeper searches at fixed time budgets, without claiming a measured playing-strength improvement.
+- Clarify which performance results describe the original engine and which describe the new production version.
+- Update documentation that still describes PC fast-flip qualification as pending.
+- Record the original and new distributed Wasm build identities.
+- Retain links to the detailed experimental evidence.
+
+Create:
+
+`docs/FAST_FLIPS_PRODUCTION_ACCEPTANCE.md`
+
+This should include the integrated source and artifact hashes, test results, native/Wasm confirmation benchmarks, actual browser acceptance, and any remaining limitations.
+
+Do not rewrite historical benchmark reports to make old results appear current.
+
+## 9. Final publication
+
+After all acceptance criteria pass:
+
+1. Verify the complete Git diff.
+2. Check for unrelated modifications.
+3. Confirm that no raw traces, enormous benchmark files, SDK installations, virtual environments, personal files or browser caches are staged.
+4. Confirm that the qualified production Wasm module and manifest are staged.
+5. Commit the integration.
+6. Merge or fast-forward it into `main` using an appropriate auditable Git history.
+7. Push `main`.
+8. Fetch or otherwise verify the remote branch points to the intended commit.
+9. Check that the repository is clean, apart from explicitly preserved local research data.
+
+If any acceptance gate fails, do not push a partially qualified production build. Preserve the changes on the integration branch and report the blocker.
+
+Leave `perf/fast-flips` available as the experiment's original history.
+
+## 10. Provide a short PC follow-up handoff
+
+The PC already qualified the exact algorithm under WSL2 GCC 15, so do not require another full PC campaign.
+
+Prepare a concise set of commands for a subsequent PC session to:
+
+- Pull the new production `main`.
+- Verify the merged flip source identity.
+- Rebuild the native engine.
+- Run fast correctness checks.
+- Verify the packaged Wasm and manifest in actual Windows Chrome or Edge.
+- Run one brief representative fixed-work benchmark.
+- Confirm that the normal WSL2 launcher still works.
+
+Do not claim these post-merge PC checks were performed on the Mac.
+
+## 11. Resource management
+
+Check CPU activity, memory pressure, swap and disk space at startup.
+
+Keep expensive performance tests serial.
+
+Aim for no more than approximately 30 minutes of active benchmarking and profiling. Correctness and browser acceptance can take additional time, but avoid redundant testing.
+
+Do not run hardware profiling unless an unexpected problem makes it useful.
+
+No Processor Trace or changes to Developer Tools security settings are needed.
+
+Keep a concise implementation/test log.
+
+## 12. Final report
+
+Answer these questions:
+
+1. Is the optimized flip kernel now the production implementation on `main`?
+2. Is the production WebAssembly module rebuilt from that exact implementation?
+3. Did native and Wasm correctness qualification pass?
+4. Did actual Chrome and Safari acceptance pass?
+5. Do the final production benchmark results agree with the previous experimental gains?
+6. Were model identities, search behavior and exact scores preserved?
+7. Were the relevant README and performance documents updated?
+8. What is the final `main` commit and remote SHA?
+9. Are there any remaining unresolved issues?
+10. What exact short follow-up should I run on the PC?
+
+**This is a production integration and acceptance task. Its success criterion is a reproducibly built, correctly packaged, fully qualified faster Reversi engine—not another round of experimental optimization.**
+
+---
+
+What do I type to answer a question? I can't read the symbol

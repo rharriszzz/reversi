@@ -1,5 +1,9 @@
 # Faster disc flipping — independent WSL2 PC qualification
 
+**Subsequent production status:** see [production acceptance](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md)
+for integration and the rebuilt distribution. This report retains the original
+PC experiment's recommendation and publication scope.
+
 **Recommendation: retain the shared portable geometry-table/sentinel kernel on
 `perf/fast-flips`.** Both matched GCC configurations improve complete exact,
 mixed, opening, middle and coaching work. No architecture dispatch or new engine

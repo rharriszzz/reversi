@@ -1,5 +1,9 @@
 # Flip optimization — cross-platform decision
 
+**Production follow-up:** the selected source is integrated unchanged and the
+distributed Wasm is rebuilt; see [production acceptance](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md).
+The experiment-only publication scope below is retained as history.
+
 **Retain the shared portable 4 KiB geometry-table/sentinel kernel.** The actual M4 and WSL2 PC complete-search comparisons favor it, with preserved rules, frozen models, fixed scores, continuations and search/TT counters. No architecture-specific dispatch is justified. Keep the results on `perf/fast-flips`; this experiment does not merge into `main`.
 
 Original baseline: `1058f013581e0566277586f857b0a2884be260f6`. Selected source: `9357d4b3510d7931b3ea4b8739b7c8e693414f33`, published in Mac head `1b83a2b2c158078962afd48a48479346f854c813`. Selected engine SHA-256: `b97d526697e68aa04186b67d2e13dc0f4eab21fb086921532e8b9b63cf47e7a5`. PC work does not change that engine.

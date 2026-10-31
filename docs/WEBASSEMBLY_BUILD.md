@@ -1,11 +1,13 @@
 # Reproducible WebAssembly engine
 
-**M4 current-source rebuild:** Python 3.14.10 and Emscripten 4.0.22 now compile
-the shared completed-iteration correction. Two clean builds match byte for byte
-and pass native/Wasm numerical, standalone-internals and installed Mac Chrome
-qualification. See the [Mac report](MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md) and
-[preserved old/new identities](data/mac-stage1-qualification-20261030.json).
-The PC paragraphs below describe its earlier unchanged-artifact qualification.
+**Current production fast-flip build:** Python 3.14.10 and the existing
+Emscripten 4.0.22 compile the exact cross-platform-qualified shared source.
+Two `npm run wasm:build` runs produce byte-identical manifests and artifacts.
+Build identity: `eb25fd26b0e29d8e3ba5d2b0eb865c7658790b7791d8076cf4515235c369549b`.
+See [production acceptance](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md) for source,
+old/new artifact hashes, numerical checks and actual Chrome/Safari acceptance.
+ABI 1, exported interfaces, flags, model identities and coefficients are unchanged.
+The earlier Mac/PC rebuild paragraphs below describe historical versions.
 
 Active tooling now requires **Python 3.13+**; see
 [interpreter selection](PYTHON_ENVIRONMENT.md). SDK setup and both build scripts
@@ -13,18 +15,20 @@ pass the project-selected `EMSDK_PYTHON`, avoiding a silently selected SDK Pytho
 The [final PC handoff](PC_TO_MAC_HANDOFF.md) verifies the original distribution
 in actual Windows Chrome and Edge without rebuilding it. Its manifest retains
 the original source identity, before the shared GCC exception-return correction.
-Current-source SDK compilation/Python 3.14 compatibility must be checked on the
-Mac; no such rebuild is claimed on this PC.
+That earlier PC session did not rebuild Wasm. Current-source compilation is
+subsequently qualified on the M4; post-merge Windows-browser checks remain a
+separate follow-up.
 
 Running the application needs only Python 3 and a modern browser. Committed
 `src/wasm/` resources contain the compiler output and frozen B/L/P coefficients;
 no SDK, Node installation or remote computing service is required to play.
 
-The [Windows PC qualification](WINDOWS_PC_NATIVE_WASM_RESULTS.md) runs these
-exact committed artifacts in Windows Chrome without rebuilding them. The native
+The [historical Windows PC qualification](WINDOWS_PC_NATIVE_WASM_RESULTS.md) ran
+its then-committed artifacts in Windows Chrome without rebuilding them. The native
 GCC exception-return workaround added afterward has a later source hash; the
-committed Wasm manifest continues to identify its original pinned build. Both
-paths pass numerical/timeout qualification. No Wasm compiler setting changed.
+manifest then identified its original pinned build. Both paths passed
+numerical/timeout qualification. The later Mac rebuilds and fast-flip promotion
+are separately identified above; no Wasm compiler setting changed.
 
 For optional local native CPU targeting, use
 `NATIVE_CPU=native node scripts/native/build.mjs`. This writes a separate

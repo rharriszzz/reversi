@@ -1,5 +1,10 @@
 # Faster disc flipping — M4 Mac experiment
 
+**Subsequent production status:** actual [WSL2 PC qualification](FLIP_OPTIMIZATION_PC.md)
+is complete, and [production acceptance](FAST_FLIPS_PRODUCTION_ACCEPTANCE.md)
+records promotion and the rebuilt distribution. The report below preserves the
+original Mac experiment's measurements and then-pending handoff.
+
 **Phase 1 complete; Mac measurements only.** Retain the portable geometry-table
 kernel with the single sentinel refinement on `perf/fast-flips`, pending actual
 WSL2/x86-64 qualification. Do not merge it into `main` yet.
