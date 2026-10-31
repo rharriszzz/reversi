@@ -40,7 +40,13 @@ Engine::Engine(size_t mib):enhancedBackend(selectEnhanced()) {
 
 void Engine::nextGeneration() {if(++generation==0){std::fill(table.begin(),table.end(),Entry{});generation=1;}}
 const char* modelIdentity(int model) {return frozen::identities[model];}
-const char* Engine::backendName() const {return enhancedBackend?"x86-popcnt-bmi1-bmi2-lzcnt":"portable";}
+const char* Engine::backendName() const {
+#ifdef REVERSI_CPU_DISPATCH
+  return enhancedBackend?"x86-popcnt-bmi1-bmi2-lzcnt":"portable";
+#else
+  return "single-target"; // its compile target is recorded in the build receipt
+#endif
+}
 int pop(Bits x) {return cpu_portable::pop(x);}
 Bits legal(Bits a,Bits b) {return cpu_portable::legal(a,b);}
 Bits flips(Bits a,Bits b,int q) {return cpu_portable::flips(a,b,q);}

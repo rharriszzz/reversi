@@ -144,3 +144,12 @@ to choose by the question: aggregate cycle cost and throughput usually need no
 trace; exact short-call sequences may benefit. Branchless bodies can still be
 reconstructed and have callers, but their stall costs often call for counter
 evidence rather than more control-flow detail.
+
+## Experimental runtime CPU dispatch on the PC
+
+The separate `perf/runtime-cpu-dispatch` branch measures 7.6–10.2% less mixed-panel
+time with whole-search POPCNT/BMI1/BMI2/LZCNT specialization and an automatic
+baseline fallback. Exact gains are smaller and the mixed-L fallback has a small
+borderline slowdown. See [all variants, uncertainty and limits](RUNTIME_CPU_DISPATCH_RESULTS.md).
+This is not merged to main, does not change frozen models or distributed Wasm,
+and still needs M4 source/refactor qualification before promotion.

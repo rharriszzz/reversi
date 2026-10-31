@@ -269,3 +269,20 @@ harness/production-adapter cases and thirteen actual Chrome interaction checks.
 The Chrome check additionally verifies supplementary worker controls, software
 sampling labels, the CDP timestamp origin and refusal to invent native addresses.
 These counts and complete source/profile hashes are retained in the receipt.
+
+## Runtime CPU dispatch experiment
+
+Linux x86-64 GCC only; production browser artifacts are unchanged. Test both
+paths in the same binary and inspect backend identity with the native `hello`
+command. Portable forcing does not constitute older-hardware qualification.
+
+```bash
+NATIVE_CPU=dispatch node --test --test-concurrency=1 tests/native-search.test.mjs tests/native-v2.test.mjs tests/mac-endgame.test.mjs tests/runtime-cpu-dispatch.test.mjs
+REVERSI_CPU_BACKEND=portable NATIVE_CPU=dispatch node --test --test-concurrency=1 tests/native-search.test.mjs tests/native-v2.test.mjs tests/mac-endgame.test.mjs
+```
+
+The dispatch-specific regression tests >1.2 million mailbox flip cases per
+backend, TT rollover, same-object model/depth/window changes, deterministic
+interruption with every counter and PV compared, stable selection after an
+environment change, repeated construction/destruction and invalid selections.
+See [results and platform limits](RUNTIME_CPU_DISPATCH_RESULTS.md).

@@ -187,3 +187,15 @@ separate `capture-worker.html` research page is used only by that collection
 script and loads the existing production Wasm module. The game worker and Wasm
 artifacts are unchanged. See [measurement methods](PROFILING_METHODS_AND_VIEWS.md)
 and [the collection workflow](../scripts/profiling/README.md).
+
+## Experimental native CPU dispatch
+
+On `perf/runtime-cpu-dispatch`, `engine.cpp` supplies the portable entry/selection
+boundary and includes the one `engine-impl.inc` implementation. A separate
+`engine-enhanced.cpp` compiles that same source with four explicit x86 extensions.
+Private member specializations and separate helper namespaces bind the entire
+recursive call graph statically. The public Engine still owns one TT and one
+set of counters/deadline/model state. Immutable geometry and frozen data are
+shared at link time. Construction caches an eligible backend; public search,
+analysis and window operations branch once. No browser/runtime play dependency
+or frozen model changes. See [the design](RUNTIME_CPU_DISPATCH_DESIGN.md).

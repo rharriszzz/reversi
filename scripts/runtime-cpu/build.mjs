@@ -4,8 +4,8 @@ import {execFileSync} from 'node:child_process';
 import {resolve} from 'node:path';
 import {build,frozenHeader,sha} from '../native/build.mjs';
 import {microSource} from './support.mjs';
-const out=resolve(process.env.REVERSI_DISPATCH_RUN??'.local-research/runtime-cpu-20261031');
-if(existsSync(resolve(out,'benchmarks.json')))throw Error('Choose a fresh immutable run directory');
+const out=resolve(process.env.REVERSI_DISPATCH_RUN??'.local-research/runtime-cpu-final-20261031');
+if(['benchmarks.json','pilot.json','micro.json','bench-checkpoint.json','pilot-checkpoint.json','budget.json'].some(f=>existsSync(resolve(out,f))))throw Error('Choose a fresh immutable run directory');
 mkdirSync(out,{recursive:true});
 const cxx=process.env.CXX??'g++',base='e7b79b9510278b815606c47b667ddeff396e289b';
 const flags=['-O3','-std=c++17','-Wall','-Wextra','-Wpedantic','-ffp-contract=off','-fno-fast-math'];
@@ -24,8 +24,8 @@ for(const tag of ['B','C'])records[tag]={dir:resolve(out,tag),flags:[...ds.flags
 for(const [tag,r] of Object.entries(records)) {
  mkdirSync(r.dir,{recursive:true});
  const includes=['-I',r.header,'-I',resolve(out,'dispatch')];
- cc([...flags,...includes,'-c','scripts/fast-flips/driver.cpp','-o',resolve(r.dir,'driver.o')]);
- cc([...flags,...r.objects,resolve(r.dir,'driver.o'),`-Wl,-Map=${resolve(r.dir,'link.map')}`,'-o',resolve(r.dir,'fixed-work')]);
+ cc([...r.flags,...includes,'-c','scripts/fast-flips/driver.cpp','-o',resolve(r.dir,'driver.o')]);
+ cc([...r.flags,...r.objects,resolve(r.dir,'driver.o'),`-Wl,-Map=${resolve(r.dir,'link.map')}`,'-o',resolve(r.dir,'fixed-work')]);
  let adapter=readFileSync(tag==='B'||tag==='C'?'native/main.cpp':resolve(r.dir,'main.cpp'),'utf8');
  const from='}else if(command=="windows")';
  adapter=adapter.replace(from,`}else if(command=="analyze") {
@@ -34,9 +34,9 @@ for(const [tag,r] of Object.entries(records)) {
     std::cout<<",\\\"moves\\\":[";
     for(size_t i=0;i<a.moves.size();i++) {auto& row=a.moves[i];std::cout<<(i?",":"")<<"{\\\"move\\\":"<<row.result.move<<",\\\"score\\\":"<<row.result.score<<",\\\"exact\\\":"<<(row.result.exact?"true":"false")<<",\\\"pv\\\":[";for(size_t j=0;j<row.pv.size();j++)std::cout<<(j?",":"")<<row.pv[j];std::cout<<"]}";}std::cout<<"]";
   }else if(command=="windows")`);
- if(!adapter.includes('Could not')&&!adapter.includes('a.moves.size()'))throw Error('Adapter insertion failed');
+ if(!adapter.includes('a.moves.size()'))throw Error('Adapter insertion failed');
  writeFileSync(resolve(r.dir,'qualification.cpp'),adapter);
- cc([...flags,...includes,...r.objects,resolve(r.dir,'qualification.cpp'),'-o',resolve(r.dir,'qualify')]);
+ cc([...r.flags,...includes,...r.objects,resolve(r.dir,'qualification.cpp'),'-o',resolve(r.dir,'qualify')]);
  const models=ds.models,executable=resolve(r.dir,'qualify');
  const receipt={...r,executable,models,executableSha256:sha(readFileSync(executable)),fixedWorkSha256:sha(readFileSync(resolve(r.dir,'fixed-work')))};
  receipt.fingerprint=sha(JSON.stringify(receipt));
@@ -45,9 +45,9 @@ for(const [tag,r] of Object.entries(records)) {
  // Reuse the exact qualified corpus generator/reference, timing only this kernel.
  const micro=microSource(tag==='C',tag);
  writeFileSync(resolve(r.dir,'micro.cpp'),micro);
- cc([...flags,...includes,...r.objects,resolve(r.dir,'micro.cpp'),'-o',resolve(r.dir,'micro')]);
+ cc([...r.flags,...includes,...r.objects,resolve(r.dir,'micro.cpp'),'-o',resolve(r.dir,'micro')]);
  records[tag].microSha256=sha(readFileSync(resolve(r.dir,'micro')));
 }
-writeFileSync(resolve(out,'builds.json'),JSON.stringify({base,compiler:execFileSync(cxx,['--version'],{encoding:'utf8'}),records,sourceHashes:Object.fromEntries(['native/engine.cpp','native/engine.hpp','native/engine-impl.inc','native/engine-tables.hpp','native/engine-enhanced.cpp','scripts/native/build.mjs','scripts/runtime-cpu/build.mjs'].map(p=>[p,sha(readFileSync(p))]))},null,2)+'\n');
+writeFileSync(resolve(out,'builds.json'),JSON.stringify({base,compiler:execFileSync(cxx,['--version'],{encoding:'utf8'}),records,sourceHashes:Object.fromEntries(['native/engine.cpp','native/engine.hpp','native/engine-impl.inc','native/engine-tables.hpp','native/engine-enhanced.cpp','scripts/native/build.mjs','scripts/runtime-cpu/build.mjs','scripts/runtime-cpu/support.mjs','scripts/fast-flips/driver.cpp','scripts/fast-flips/micro.cpp'].map(p=>[p,sha(readFileSync(p))]))},null,2)+'\n');
 writeFileSync(resolve(out,'positions.json'),readFileSync('docs/data/fast-flips-mac/positions.json'));
 console.log(JSON.stringify({out,tags:Object.keys(records)}));

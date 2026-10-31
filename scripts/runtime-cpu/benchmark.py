@@ -7,7 +7,7 @@ import hashlib,json,math,os,statistics,subprocess,sys,time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'fast-flips'))
 from run import snapshot
-OUT=Path(os.environ.get('REVERSI_DISPATCH_RUN','.local-research/runtime-cpu-20261031')).resolve()
+OUT=Path(os.environ.get('REVERSI_DISPATCH_RUN','.local-research/runtime-cpu-final-20261031')).resolve()
 TAGS=os.environ.get('DISPATCH_TAGS','A,B,C,D,E').split(',')
 def bits(board,v):return format(sum(1<<q for q,x in enumerate(board) if x==v),'x')
 def line(p,depth,model):return f'{bits(p["board"],1)} {bits(p["board"],-1)} {p["player"]} {depth} {"BLP".index(model)}\n'
@@ -16,6 +16,8 @@ def run(tag,mode,file,repeats,warmups=2,budget=0):
     return json.loads(r.stdout)
 def signature(r):return [{k:v for k,v in x.items() if k!='elapsedMs'} for x in r['roots']]
 def main():
+    hello=json.loads(subprocess.check_output([str(OUT/'dispatch/reversi-native')],input='1 hello\n',text=True,env={**os.environ,'REVERSI_CPU_BACKEND':'auto'}))
+    assert hello['cpuBackend']=='x86-popcnt-bmi1-bmi2-lzcnt' and all(hello['cpuFeatures'].values()),'Enhanced comparison unsupported on this CPU'
     positions=json.loads((OUT/'positions.json').read_text());workloads=[]
     depth=lambda p:64-p['occupied'] if p.get('exactRoot') else 8 if p['occupied']<28 else 7 if p['occupied']<52 else max(1,min(10,64-p['occupied']))
     for model in ['B','L','P']:

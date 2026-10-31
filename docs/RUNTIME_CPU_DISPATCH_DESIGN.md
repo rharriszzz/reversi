@@ -14,7 +14,9 @@ printf '1 hello\n' | .local-research/native-dispatch/reversi-native
 `REVERSI_CPU_BACKEND=auto` is the default. `enhanced` is a guarded diagnostic
 request: unsupported hardware is rejected before search; it cannot override
 feature safety. Invalid values fail explicitly. Portable/native/popcnt standalone
-build modes remain available and do not contain the enhanced backend.
+build modes remain available and do not contain the enhanced backend. Their
+`cpuBackend=single-target` diagnostic leaves instruction targeting to their build
+receipt; a host-tuned standalone binary is never labeled portable.
 
 ## Organization and outer boundary
 
@@ -63,6 +65,11 @@ cores expose the required common features through WSL; this experiment does not
 claim core-specific timing or permit host flags hidden by the guest.
 
 The approach follows [GCC's x86 runtime detection documentation](https://gcc.gnu.org/onlinedocs/gcc-15.1.0/gcc/x86-Built-in-Functions.html).
+The executable ELF note declares `x86-64-baseline`. It remains dynamically
+linked to the ordinary Linux C++ runtime; the observed required symbol versions
+include GLIBC 2.38 and GLIBCXX 3.4.32. ISA portability still requires a compatible
+Linux runtime.
+
 Feature detection happens outside timed fixed batches/recursion. Environment
 selection is read at construction; changing it later does not change an active
 engine. Baseline REP-BSF encodings may disassemble as TZCNT; every operand is

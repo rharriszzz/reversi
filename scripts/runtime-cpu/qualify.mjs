@@ -8,7 +8,7 @@ import {oracleChildren,oracleScore} from '../../tests/oracle.mjs';
 import {randomOpening,seededRandom} from '../../src/learning.js';
 import {frozenModels} from '../frozen-player/models.mjs';
 import {compile} from '../next-residual/model.mjs';
-const out=resolve(process.env.REVERSI_DISPATCH_RUN??'.local-research/runtime-cpu-20261031');
+const out=resolve(process.env.REVERSI_DISPATCH_RUN??'.local-research/runtime-cpu-final-20261031');
 const tags=(process.env.DISPATCH_TAGS??'A,B,C,D,E').split(',');
 const evaluators=Object.fromEntries(Object.entries(frozenModels()).map(([m,v])=>[m,compile(v).evaluate]));
 const scoreCache=new Map();

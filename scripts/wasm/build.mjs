@@ -11,7 +11,7 @@ const compiler=resolve(sdk,'upstream/emscripten/em++'),version=execFileSync(comp
 if(!version.includes('4.0.22'))throw Error('Emscripten 4.0.22 required; run scripts/wasm/setup.sh');
 const {header,models,weights}=frozenHeader(),dir=resolve('.local-research/wasm-build');mkdirSync(dir,{recursive:true});
 writeFileSync(resolve(dir,'frozen.hpp'),header);
-const sources=['native/engine.hpp','native/engine.cpp','native/browser.cpp','scripts/native/build.mjs','scripts/wasm/build.mjs'];
+const sources=['native/engine.hpp','native/engine.cpp','native/engine-impl.inc','native/engine-tables.hpp','native/browser.cpp','scripts/native/build.mjs','scripts/wasm/build.mjs'];
 const sourceHashes=Object.fromEntries(sources.map(f=>[f,sha(readFileSync(f))]));
 const flags=['-O3','-std=c++17','-Wall','-Wextra','-ffp-contract=off','-fno-fast-math','-fexceptions',
  '-sDISABLE_EXCEPTION_CATCHING=0','-sMODULARIZE=1','-sEXPORT_ES6=1','-sENVIRONMENT=web,worker,node','-sFILESYSTEM=0',

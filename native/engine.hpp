@@ -45,7 +45,7 @@ CpuFeatures cpuFeatures();
 class Engine {
   friend struct EngineQualification; // standalone regression, no playing API
   std::vector<Entry> table;
-  const bool enhancedBackend; // selected at construction; table/state owned once
+  bool enhancedBackend; // selected at construction; ordinary engine copies retain it
   uint32_t generation=0;
   int model=0; bool useTT=true, orderingHints=true, exactHorizon=false;
   Clock::time_point deadline; bool timed=false;

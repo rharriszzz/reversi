@@ -1,5 +1,8 @@
 # Runtime dispatch checkpoint
 
+**Completed follow-up:** see [the final PC results](RUNTIME_CPU_DISPATCH_RESULTS.md).
+The text below preserves the mid-work checkpoint published at `1028930`.
+
 2026-10-31, before pilot timing. Stage 1 passed and was pushed on main at
 `6b480ed1bc6ddcdde2fdb37872c0ca8d0a804425`; the remote SHA matched.
 Stage 2 remains isolated on `perf/runtime-cpu-dispatch`.

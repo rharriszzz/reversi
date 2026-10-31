@@ -133,6 +133,15 @@ npm run native:test
 npm run native:play -- 80 P 2026103001
 ```
 
+Experimental Linux x86-64 GCC whole-search CPU dispatch is available on
+`perf/runtime-cpu-dispatch` with `NATIVE_CPU=dispatch`. It detects POPCNT,
+BMI1/BMI2 and LZCNT once and selects an entire compiled search backend.
+`REVERSI_CPU_BACKEND=portable` forces its fallback for testing. Run `hello`
+through the native protocol to inspect `cpuBackend` and `cpuFeatures`.
+See [design](docs/RUNTIME_CPU_DISPATCH_DESIGN.md) and
+[PC results](docs/RUNTIME_CPU_DISPATCH_RESULTS.md). Production browser assets
+retain their existing Mac-built identity; this experiment is not merged to main.
+
 `CXX` selects another compiler. Research clients can use
 [`scripts/native/client.mjs`](scripts/native/client.mjs) or
 [`scripts/native/client.py`](scripts/native/client.py). Python can use an

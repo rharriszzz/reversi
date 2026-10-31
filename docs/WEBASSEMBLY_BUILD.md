@@ -72,8 +72,12 @@ Complete exact flags are in the committed manifest. The default TT is the same
 10 MiB allocation as native; browser handles accept nominal 0..32 MiB ceilings.
 A test-only zero setting allocates one entry. There is no per-node allocation.
 
-`native/engine.cpp` remains the principal search/evaluator implementation for
-both targets. `native/main.cpp` provides only native process I/O.
+`native/engine.cpp` includes the single `engine-impl.inc` search/evaluator
+implementation and shared `engine-tables.hpp` for ordinary native and Wasm
+builds. The build provenance now hashes both included files. The separate x86
+enhanced translation unit is excluded from Emscripten. The current committed
+Mac-built distribution still accurately names its pre-refactor source; this PC
+experiment does not rebuild it. `native/main.cpp` provides only native process I/O.
 `native/browser.cpp` provides only a C-compatible request boundary with owned
 handles, structured JSON errors, split 32-bit bitboard halves, model identities,
 inspect/search/all-move queries, diagnostics and release. No search/evaluation
