@@ -9627,3 +9627,181 @@ Answer explicitly:
 Keep B as the production default until a separate promotion decision is authorized.
 
 **Guiding principle:** Establish scientifically defensible evidence that P is stronger than B, using the Mac as the evaluation computer. Preserve the historical independence criteria, and never confuse a favorable tournament result with successful provenance qualification.
+
+---
+
+# Reversi — Complete Historical Evidence Inventory on the M4
+
+Work on my Apple M4 iMac in `rharriszzz/reversi`.
+
+Use GPT-6.1-Sol with High reasoning.
+
+This is the continuation of Phase A, which stopped during the provenance preflight. Do not repeat completed qualification or start a tournament yet.
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first, followed by:
+
+- `docs/PHASE_A_MAC_CONFIRMATION_RESULTS.md` on `research/phase-a-mac-confirmation-20261031`
+- `docs/PHASE_A_EVALUATOR_STRENGTH_REVIEW.md`
+- `docs/P_CONFIRMATION_PROTOCOL.md`
+- `docs/P_CONFIRMATION_RESULTS.md`
+- The published Phase A preflight and qualification evidence.
+
+## Objective
+
+Complete the historical exclusion inventory needed for a valid independent P-versus-B confirmation tournament.
+
+The prior Mac investigation verified the original 21.7 GB PC import and the original P-confirmation archives. It stopped because more recent PC and Mac research artifacts were not fully reconciled.
+
+Preserve all previous findings and data.
+
+## 1. Locate missing historical evidence
+
+The prior report identified these missing PC directories:
+
+- `windows-pc-20261030`
+- `fast-flips-pc-20261031`
+- `runtime-cpu-20261031`
+- `runtime-cpu-final-20261031`
+- `runtime-cpu-followup-20261031`
+- `pc-production-followup-20261031`
+- `pc-final-production-20261031`
+
+These are documented run names, not necessarily the complete current filesystem names.
+
+Search available Mac archives and known paths first.
+
+If they remain unavailable, investigate whether the Windows PC can be reached through existing authorized SSH/rsync access.
+
+If a connection exists, retrieve only the necessary evidence with verified source identities and checksums. Avoid copying the entire original 21.7 GB archive again.
+
+Do not change network, firewall or security settings.
+
+If the PC cannot be reached, provide the exact source and destination paths and a safe transfer procedure for me to execute. Do not invent a hostname.
+
+## 2. Build a consolidated, auditable exclusion inventory
+
+Combine the original historical archive, later PC research, and later Mac research into a versioned inventory.
+
+For every relevant source, record:
+
+- Original file identity and SHA-256.
+- Experiment and source role.
+- Whether observations were used for training or assessment.
+- Whether a position was merely generated, reserved, searched or played.
+- Relevant canonical position identities.
+- Unresolved historical roles.
+
+Verify that the inventory covers all known prohibited historical targets and assessment positions under the existing strict independence contract.
+
+Do not classify every engineering or internal-search observation as an actual training target merely because it appears in an archive.
+
+However, preserve conservative restrictions whenever the applicable historical role cannot be established.
+
+Explain any remaining limitations or gaps. Do not claim universal completeness without evidence.
+
+Keep all existing historical run directories immutable.
+
+## 3. Assess whether the strict confirmation protocol is practical
+
+Review the significance of the previously identified two-empty position that was used by an older, unrelated linear-margin evaluator.
+
+Distinguish carefully between:
+
+1. Positions used directly to train frozen P or L.
+2. Positions used by unrelated historical models.
+3. Incidental intersections of independently played game trajectories.
+4. Unresolved observations.
+
+Do not retroactively change the old protocol or declare its failed provenance gate passed.
+
+Consider whether the strict historical-exclusion rules are appropriate for a new prospective experiment whose objective is to measure P's playing strength against B.
+
+If a scientifically defensible alternative independence definition would be more appropriate, explain it as a proposal for my review. Do not silently adopt it.
+
+## 4. Prepare the tournament without running it
+
+If the inventory can be qualified, prepare a concrete execution plan for the previously proposed:
+
+- 256 independent opening families.
+- 512 color-swapped games.
+- Frozen P against B.
+- 80 ms per move.
+- Native Apple Silicon execution.
+
+Recalibrate the complete resource and runtime forecast for the M4.
+
+Identify the exact scripts, executable, inputs, prerequisites, exclusion checks and publication artifacts.
+
+Do not generate or inspect scored outcomes.
+
+Keep B as the default in the player application.
+
+## 5. Deliverables
+
+Create a concise Phase A provenance-completion report describing:
+
+- Which missing archives were located or transferred.
+- Inventory coverage and outstanding gaps.
+- Historical-role findings and remaining restrictions.
+- Whether source admission can now be certified.
+- Whether the 512-game study is feasible under the proposed time budget.
+- Any recommended prospective protocol adjustment.
+- The precise remaining work before scored games.
+
+Use a dedicated research branch based on the latest qualified work. Preserve the original Phase A branch and all previous results.
+
+Commit and push verified code, documentation and compact evidence, but not bulk research archives.
+
+Do not merge experimental research into production `main`.
+
+**Do not launch the tournament in this round.**
+
+The goal is a reliable go/no-go decision and a ready-to-execute Mac tournament, not another incomplete or retrospectively adjusted confirmation attempt.
+
+---
+
+stop
+
+---
+
+I have transferred all 14 recent PC research directories, approximately 765 MB, to:
+
+`/Users/rharris/git/reversi/.local-research/phase-a-pc-transfer`
+
+Please continue the Phase A provenance investigation on the M4 Mac.
+
+Verify the transferred data, reconcile it with the existing historical PC import and later Mac experiments, and construct the complete current exclusion inventory.
+
+Preserve the distinction between actual training targets, assessments, engineering observations, and incidental game-path intersections. Do not weaken historical independence requirements.
+
+Determine whether all necessary historical evidence is now accounted for and whether the proposed 512-game P-versus-B tournament can be safely preregistered.
+
+Do not start the tournament yet.
+
+If any records are still missing, identify the specific files and explain why they matter. Otherwise, provide a final go/no-go recommendation, including a conservative M4 runtime forecast.
+
+Preserve the original archives and commit the verified results to the existing Phase A research branch.
+
+---
+
+The transfer was already verified from the PC, using WSL2 as the source.
+
+We transferred all 14 directories with:
+
+```bash
+rsync -av --checksum --stats \
+    "$src/" "$MAC:$DEST/$name/"
+```
+
+Then we verified the transfer with:
+
+```bash
+rsync -nac --itemize-changes \
+    "$src/" "$MAC:$DEST/$name/"
+```
+
+Both commands were run in a loop over all directories matching `.local-research/*20261030*` and `.local-research/*20261031*`.
+
+The verification used rsync's checksum comparison and dry-run mode. It found no files needing transfer, confirming that the PC source files were present with matching contents on the Mac at verification time.
+
+Therefore, a bulk recopy is unnecessary. Please record this transfer-verification procedure in your provenance report and continue the historical-evidence reconciliation.

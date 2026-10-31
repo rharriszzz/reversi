@@ -1,0 +1,9 @@
+{
+  "format": "phase-a-input-preservation-check-v1",
+  "pcFilesRehashed": 3184,
+  "pcAllByteHashesIdentical": true,
+  "allCatalogMetadataStable": 146011,
+  "originalUserLedgerPrefixPreserved": true,
+  "nativeAndWasmDiff": "",
+  "oldPrefixSha256": "0b4df4208dbd4829f3459b6c50d03d280a8299ee82a1d3504538412a18c2ba3e"
+}

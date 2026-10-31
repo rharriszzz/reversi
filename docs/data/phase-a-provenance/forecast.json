@@ -1,0 +1,289 @@
+{
+  "format": "phase-a-m4-forecast-v1",
+  "executableSha256": "aee4e98b2d00d1631c61383a3b6dbf11d716a47673276bf1eefa4fc52f0323f1",
+  "buildFingerprint": "118ac8f1ac74571993db0d7976e801d541aa6a52780d91448f092dbd0f511818",
+  "models": {
+    "B": "original-production",
+    "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+    "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+  },
+  "roots": [
+    "native-engineering-0",
+    "native-engineering-1",
+    "native-engineering-2",
+    "native-engineering-3",
+    "native-engineering-4",
+    "native-engineering-5",
+    "native-engineering-6",
+    "native-engineering-7",
+    "native-engineering-8",
+    "native-engineering-9",
+    "native-engineering-10",
+    "native-engineering-11",
+    "native-engineering-12",
+    "native-engineering-13",
+    "native-engineering-14",
+    "native-engineering-15"
+  ],
+  "rows": [
+    {
+      "root": "native-engineering-0",
+      "model": "B",
+      "interfaceMs": 79.77016699999999,
+      "elapsedMs": 79.674666,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-0",
+      "model": "P",
+      "interfaceMs": 79.940417,
+      "elapsedMs": 79.842916,
+      "depth": 11
+    },
+    {
+      "root": "native-engineering-1",
+      "model": "P",
+      "interfaceMs": 79.932042,
+      "elapsedMs": 79.831583,
+      "depth": 9
+    },
+    {
+      "root": "native-engineering-1",
+      "model": "B",
+      "interfaceMs": 79.98737499999999,
+      "elapsedMs": 79.869417,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-2",
+      "model": "B",
+      "interfaceMs": 79.96070800000001,
+      "elapsedMs": 79.836542,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-2",
+      "model": "P",
+      "interfaceMs": 79.91737499999999,
+      "elapsedMs": 79.820416,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-3",
+      "model": "P",
+      "interfaceMs": 79.97270800000001,
+      "elapsedMs": 79.866292,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-3",
+      "model": "B",
+      "interfaceMs": 79.96858399999996,
+      "elapsedMs": 79.85825,
+      "depth": 11
+    },
+    {
+      "root": "native-engineering-4",
+      "model": "B",
+      "interfaceMs": 79.9715829999999,
+      "elapsedMs": 79.852208,
+      "depth": 11
+    },
+    {
+      "root": "native-engineering-4",
+      "model": "P",
+      "interfaceMs": 79.93770799999993,
+      "elapsedMs": 79.831583,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-5",
+      "model": "P",
+      "interfaceMs": 79.96279100000004,
+      "elapsedMs": 79.848583,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-5",
+      "model": "B",
+      "interfaceMs": 79.97270800000001,
+      "elapsedMs": 79.858833,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-6",
+      "model": "B",
+      "interfaceMs": 79.95895800000017,
+      "elapsedMs": 79.840208,
+      "depth": 11
+    },
+    {
+      "root": "native-engineering-6",
+      "model": "P",
+      "interfaceMs": 79.94074999999998,
+      "elapsedMs": 79.81175,
+      "depth": 11
+    },
+    {
+      "root": "native-engineering-7",
+      "model": "P",
+      "interfaceMs": 79.94304199999988,
+      "elapsedMs": 79.828125,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-7",
+      "model": "B",
+      "interfaceMs": 79.92420800000014,
+      "elapsedMs": 79.808709,
+      "depth": 11
+    },
+    {
+      "root": "native-engineering-8",
+      "model": "B",
+      "interfaceMs": 79.95091699999989,
+      "elapsedMs": 79.840584,
+      "depth": 12
+    },
+    {
+      "root": "native-engineering-8",
+      "model": "P",
+      "interfaceMs": 79.95470899999987,
+      "elapsedMs": 79.845417,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-9",
+      "model": "P",
+      "interfaceMs": 79.9737090000001,
+      "elapsedMs": 79.861584,
+      "depth": 13
+    },
+    {
+      "root": "native-engineering-9",
+      "model": "B",
+      "interfaceMs": 79.97654199999988,
+      "elapsedMs": 79.836042,
+      "depth": 13
+    },
+    {
+      "root": "native-engineering-10",
+      "model": "B",
+      "interfaceMs": 2.4367919999999685,
+      "elapsedMs": 2.366166,
+      "depth": 12
+    },
+    {
+      "root": "native-engineering-10",
+      "model": "P",
+      "interfaceMs": 2.632624999999962,
+      "elapsedMs": 2.57075,
+      "depth": 12
+    },
+    {
+      "root": "native-engineering-11",
+      "model": "P",
+      "interfaceMs": 0.251540999999861,
+      "elapsedMs": 0.210459,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-11",
+      "model": "B",
+      "interfaceMs": 0.26300000000014734,
+      "elapsedMs": 0.230625,
+      "depth": 10
+    },
+    {
+      "root": "native-engineering-12",
+      "model": "B",
+      "interfaceMs": 0.20666699999992488,
+      "elapsedMs": 0.0455,
+      "depth": 8
+    },
+    {
+      "root": "native-engineering-12",
+      "model": "P",
+      "interfaceMs": 0.07837500000005093,
+      "elapsedMs": 0.05275,
+      "depth": 8
+    },
+    {
+      "root": "native-engineering-13",
+      "model": "P",
+      "interfaceMs": 0.034583999999995285,
+      "elapsedMs": 0.013959,
+      "depth": 6
+    },
+    {
+      "root": "native-engineering-13",
+      "model": "B",
+      "interfaceMs": 0.03154199999994489,
+      "elapsedMs": 0.012041,
+      "depth": 6
+    },
+    {
+      "root": "native-engineering-14",
+      "model": "B",
+      "interfaceMs": 0.02758300000004965,
+      "elapsedMs": 0.008209,
+      "depth": 5
+    },
+    {
+      "root": "native-engineering-14",
+      "model": "P",
+      "interfaceMs": 0.02995799999985138,
+      "elapsedMs": 0.010542,
+      "depth": 5
+    },
+    {
+      "root": "native-engineering-15",
+      "model": "P",
+      "interfaceMs": 0.019624999999905413,
+      "elapsedMs": 0.0015,
+      "depth": 4
+    },
+    {
+      "root": "native-engineering-15",
+      "model": "B",
+      "interfaceMs": 0.019416000000092026,
+      "elapsedMs": 0.001375,
+      "depth": 4
+    }
+  ],
+  "startupWarmupMs": [
+    14.311750000000004,
+    6.355457999999999,
+    6.185874999999996
+  ],
+  "checkpointMaxMs": 9.2852919999998,
+  "componentsMinutes": {
+    "search": 35.9424,
+    "startupWarmup": 0.24425386666666674,
+    "checkpointIO": 16.797712247466304,
+    "coverageRevalidation": 5,
+    "sourceAdmissionFreeze": 12,
+    "independentReservationAudit": 3,
+    "replayRoleAuditStatistics": 15
+  },
+  "rawMinutes": 87.98436611413297,
+  "requiredMinutes": 133.77889425407952,
+  "preparationAlreadySpent": {
+    "priorQualifiedPreflightMinutes": 12.835508816666668,
+    "resumedPreparationSpanMinutes": 13.644115287272136,
+    "additionalStoppedAttemptAndUnloggedLeadAllowanceMinutes": 7
+  },
+  "wholeContinuationRequiredMinutes": 178.97638679439692,
+  "nominalFutureRunFits": false,
+  "completeForecastQualified": false,
+  "assumptions": "Measured worst root query (minimum 81 ms), twice worst fresh B/P startup plus symmetric D3 warmup per game, twice worst 64 KB fsync per at most 106 path steps/game. Remaining non-search components are explicit planning allowances, not measured upper bounds. Admission must stop at its allowance before outcomes; no successful admission is guaranteed.",
+  "unresolved": "Current provenance is not certified; final history/admission/replay pipeline costs remain to be qualified. This forecast is for a future run reusing the completed inventory, not a retrospective reset of the earlier two-hour experiment.",
+  "noGames": true,
+  "sourceSha256": "52ce2dbce53338fffe40b8c445b44a2c39d0a8b5358f2a72e55aa23fda5c579d",
+  "correction": {
+    "measuredInputSha256": "d95bc209dfef8111ebb76e288dd7ca0a0a1f5c8bb89f7f90ccdd7be088c2fd77",
+    "priorManifestSha256": "4544069b2ad3632db5d9be972b5426c1ec5a2071633a75dbf1e59a84f275527c",
+    "sourceSha256": "04cf004702bdcd584ac25d09f41d92fa97fd19087f9437d6fd5a73ee207aff45",
+    "change": "Spent-time manifest key only; all measured observations and remaining components retained."
+  }
+}

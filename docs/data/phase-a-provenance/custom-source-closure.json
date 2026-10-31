@@ -1,0 +1,17 @@
+{
+  "format": "phase-a-custom-source-closure-verification-v1",
+  "oldDatasetSha256": "f1b278bed259cacea50ad031eb144088d82240fa0f003c133493c7fe523c9ac0",
+  "newDatasetSha256": "97e763cd24068033fdad2eb403e91cca7cc630b4c2a05f751453e6d53ed6c457",
+  "originalGeneratorSha256": "e74750b48512c4fddac85abe43a99579113fd5db1d5205f23b0aca59ff8a5eec",
+  "currentGeneratorSha256": "d15b01ea3da7396f0820040635eababdb54e7b51857d68fa74d9343c10d2737f",
+  "historicalPathAndCandidateEquality": true,
+  "fullTransitiveSearchSourceHashes": {
+    "src/learning.js": "1b370b213d74428e19ae21e84a6675023efaa69b2beb73a1ad8ef09cfe8f472d",
+    "src/search.js": "d120d99acecb77a12df93859e0bde4ef79ac445ecd6362b04ea3f7a802db205d",
+    "src/rules.js": "bbfa1ebb707bce8786fb3fb86297d1d94120026d993558d0770a445189ef1c95",
+    "src/features.js": "f55ac4b6c6c6dd37948158569ade860de35d687244d673c89e605564d5525966",
+    "src/fast-features.js": "8e9fd40cd603881bcabafaec36c0214e113d81142e7715a17d7d53cd9ebbb1c5"
+  },
+  "additionalFastFeaturesSourceVerifiedAgainstHistoricalCommit": "1f0faa3",
+  "noOutcomesComputed": true
+}

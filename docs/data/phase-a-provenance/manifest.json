@@ -1,0 +1,108 @@
+{
+  "format": "phase-a-provenance-completion-publication-v1",
+  "at": "2026-10-31T23:25:45.095288+00:00",
+  "base": "064d1f876b7a0fb2512af9020d673bed3466703d",
+  "branch": "research/phase-a-provenance-completion-20261031",
+  "originalPhaseABranchPreserved": "064d1f876b7a0fb2512af9020d673bed3466703d",
+  "productionRemoteMain": "a560896ef54a3c4cec19974ed8cbc2064e177e4b",
+  "scoredGames": 0,
+  "registeredFamilies": 0,
+  "strengthEstimate": null,
+  "productionDefault": "B",
+  "sourceTransferVerified": true,
+  "knownTargetAndAssessmentCoveragePassed": true,
+  "sourceAdmissionInventoryQualified": true,
+  "actualNewSampleAdmissionPassed": false,
+  "finalMembershipSHA256": "6e959bb877d14a96c1938090f0e94db5fc08118ee358ef949c75a7aaf5b5d9d0",
+  "canonicalKeys": 17321472,
+  "retentionLimits": [
+    "Two pure backend timing pilots retain no played paths. Exact source prefixes, roots and alternatives recovered. Collector establishes engineering-only purpose; they are not invented fitting targets or missing P/L assessment panels. This limits universal historical-observation completeness, not the verified known-target/assessment coverage."
+  ],
+  "fullTimeGatePassed": false,
+  "remainingConservativeMinutes": 133.77889425407952,
+  "wholeContinuationEstimateAtCalibrationMinutes": 178.97638679439692,
+  "preregistrationGo": false,
+  "historicalDecisionsUnchanged": true,
+  "resources": [
+    {
+      "at": "2026-10-31T23:07:35.710950+00:00",
+      "availableGiB": 8.39990234375,
+      "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)",
+      "swapins": 12,
+      "swapouts": 24,
+      "activeNativeSearches": 0,
+      "disk": "Filesystem   1024-blocks       Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5  1948455240 1340667248 581914240    70% 7601937 5819142400    0%   /System/Volumes/Data\n"
+    },
+    {
+      "at": "2026-10-31T23:08:27.181828+00:00",
+      "availableGiB": 8.639007568359375,
+      "swap": "vm.swapusage: total = 1024.00M  used = 0.38M  free = 1023.62M  (encrypted)",
+      "swapins": 12,
+      "swapouts": 24,
+      "activeNativeSearches": 0,
+      "disk": "Filesystem   1024-blocks       Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5  1948455240 1341325684 581255804    70% 7601946 5812558040    0%   /System/Volumes/Data\n"
+    }
+  ],
+  "artifacts": {
+    "coverage.json": "592c775bcb265344c9298e70c9eaf6cb88c849b7e3b24703d900dd326f00b772",
+    "custom-source-closure.json": "447fb8c1800be30d14272f00b8fb0fa47aadca7e5a4067209bcfa834f8cd42e3",
+    "forecast.json": "ca786de74e32450a5171ee681216058ffb694bbe40d397b77d1f8c26f3a1adf3",
+    "pc-files.jsonl.gz": "614318359379f51a35ee9b3fc8ab089ac7667a92d2329c1b34215cfb6414b875",
+    "pc-run-names.json": "b3e368b0680d79d692d796b5324eb8ff1303c6b640c2bed8b883ff49a17cfec4",
+    "preservation.json": "e40ed2a964b14fae86963cad77dd260b9726ec382654b8015614699ae20537a5",
+    "transfer-verification.json": "78c652a0c1684f2c4fbe5ebd636a31a60570fabbd9d8887be857a9f9c592dee1",
+    "transfer.json": "7f38d149707e3060501b01c8c297dcbe1f6a65936919fe8feb08b27a4d185bb5"
+  },
+  "sourceHashes": {
+    "scripts/phase-a-mac/check-transfer.py": "6a8b40042762114dbf2ccb92281c472f19ca53062148e965a2b78a242fab9711",
+    "scripts/phase-a-mac/forecast-correction.py": "04cf004702bdcd584ac25d09f41d92fa97fd19087f9437d6fd5a73ee207aff45",
+    "scripts/phase-a-mac/forecast.mjs": "5999156fd02e7cd1af37e5cc2295473abaeaec12cfbf2477487d002abaeebd54",
+    "scripts/phase-a-mac/inventory.py": "5d25981181849af53a911d132c0bc590d404e06eeea569c9ec65b383c3c92b1e",
+    "scripts/phase-a-mac/pc-catalog.py": "ada8bbb3ee1d801b9148e4d1a91c04593f0199af081808b79caba76cda846ba9",
+    "scripts/phase-a-mac/preflight.py": "b1b73d9c2cf1f9451d188c8c4b8ca7d580b612a8b56763d14a6123fe66b20818",
+    "scripts/phase-a-mac/prospective-protocol.mjs": "a581b171e7b1d61a703ca43ed2ea965e16867210eda2b31dae13740028c52d00",
+    "scripts/phase-a-mac/qualify.mjs": "976770ee10f700e0ed15add82cedd1f85482f2bfa3e847bdd767ddae4c2ada1c",
+    "scripts/phase-a-mac/reconcile.py": "f0ce0a000dc1396be9802ef50991960ad0b7df527011da29b2223325c9855b8c",
+    "scripts/phase-a-mac/reconstruct-custom.mjs": "d15b01ea3da7396f0820040635eababdb54e7b51857d68fa74d9343c10d2737f",
+    "scripts/phase-a-mac/reconstruct-engineering.mjs": "29cda10339915de313c47769e2ac242b37b157c8bfb68553ddf04cf9677092cb",
+    "scripts/phase-a-mac/review.py": "1e27a10d689564eb5841ac492d6aee8d51ff990f35a4eb33b6a08376a01d7489",
+    "tests/test_phase_a_inventory.py": "b185bb11b9f1968567c1e8ca202225e40693dbec0f41a1dd689c283799e93f35",
+    "tests/phase-a-prospective.test.mjs": "545d8231e2298b6a5d383d92271079f5911bedae8c0184c631ca270cf4e38fe3",
+    "docs/PHASE_A_PROVENANCE_COMPLETION.md": "7543ebc58686783cd844a34e5894aa0b24dae1d8c6a232ab390848cf072cdd47",
+    "USER_REQUESTS.md": "8f338ff4ce1f19d072acd67f5cb3caf496b12208dc6aeadbc9406e11b0e5dd77"
+  },
+  "engineeringReconstructionByteReproductionSHA256": "a5a38faa3a3d0c4ae3bc3daeb4bc09bed5b4378bce104b2211a597e4d77e2d4b",
+  "verification": [
+    {
+      "command": "node --test tests/rules.test.mjs tests/exact-solver.test.mjs tests/engine.test.mjs tests/frozen-player.test.mjs tests/p-confirmation.test.mjs tests/phase-a-prospective.test.mjs",
+      "tests": 26,
+      "exitStatus": 0,
+      "logSHA256": "1c4e60d16a7ad0bbc372b03dd9a5582bfb3b996cbf5a83cb2fb169d384fe4706"
+    },
+    {
+      "command": "TMPDIR=/private/tmp REVERSI_PYTHON=/Users/rharris/git/reversi/.venv/bin/python /Users/rharris/git/reversi/.venv/bin/python -m unittest discover -s tests -p 'test_*.py'",
+      "tests": 60,
+      "exitStatus": 0,
+      "logSHA256": "d55eda61d420e7d3b296c4c1319b238d2b4687067ddb7c88401fa741912acbc7"
+    },
+    {
+      "command": "python -m unittest discover -s tests -p 'test_phase_a*.py'",
+      "tests": 14,
+      "exitStatus": 0,
+      "scope": "Post historical dependency-closure guard; plus byte-identical eight-path reconstruction and two protocol tests"
+    }
+  ],
+  "retainedFailure": {
+    "logSHA256": "310e8e233603c91e1309639787e32e332d9be3bc048ef3bd9b35a6a41d42644d",
+    "reason": "Full Python collection source/protocol guard refused resume when new audit code was added while suite ran; later fixed-input collection passed."
+  },
+  "forecastCorrection": "Spent-time manifest-key calculation repaired in a separate artifact; every measured root/IO sample retained, no cherry-picked retiming.",
+  "publicationCommands": [
+    "git commit -m 'Complete Phase A historical provenance inventory'",
+    "git push -u origin research/phase-a-provenance-completion-20261031",
+    "git ls-remote origin refs/heads/research/phase-a-provenance-completion-20261031 refs/heads/main refs/heads/research/phase-a-mac-confirmation-20261031"
+  ],
+  "publicationEncoding": "Large coverage/transfer JSON uses lossless compact encoding, matching repository evidence style; pretty originals retained locally.",
+  "forecastCollectionSourceReconstructedSHA256": "52ce2dbce53338fffe40b8c445b44a2c39d0a8b5358f2a72e55aa23fda5c579d",
+  "forecastSourceCorrectionVerifiedAsSingleFieldLookupChange": true
+}

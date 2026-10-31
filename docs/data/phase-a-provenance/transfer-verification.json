@@ -1,0 +1,20 @@
+{
+  "format": "phase-a-user-verified-pc-transfer-v1",
+  "sourcePlatform": "Windows PC WSL2",
+  "sourceRoot": "/home/rharris/git/reversi/.local-research",
+  "destinationRoot": "/Users/rharris/git/reversi/.local-research/phase-a-pc-transfer",
+  "directories": 14,
+  "sourceSelection": [
+    ".local-research/*20261030*",
+    ".local-research/*20261031*"
+  ],
+  "copyCommand": "rsync -av --checksum --stats \"$src/\" \"$MAC:$DEST/$name/\"",
+  "verificationCommand": "rsync -nac --itemize-changes \"$src/\" \"$MAC:$DEST/$name/\"",
+  "result": "No files needing transfer in the checksum dry run, reported by the user who performed the WSL2 verification.",
+  "authority": "User-provided first-hand transfer-verification procedure and result; raw rsync transcripts not supplied.",
+  "acceptedForSourceTransferVerification": true,
+  "macIndependentSHA256Catalog": "pc-files.jsonl.gz",
+  "bulkRecopyRequired": false,
+  "additionalPCManifestRequired": false,
+  "priorMissingSourceManifestBlockerSuperseded": true
+}
