@@ -4,12 +4,10 @@ Current active Python requirement is **3.13+**; Ubuntu 26.04 qualification uses
 Python 3.14.4. See [Python setup](PYTHON_ENVIRONMENT.md). The dated tables below
 retain historical results and do not establish current Mac qualification.
 
-Latest [PC-to-Mac handoff](PC_TO_MAC_HANDOFF.md): Ubuntu 26.04.1 / Python 3.14.4 /
-GCC 15.2 pass the complete suites, sanitizers and broad native qualification.
-Actual Windows Chrome 156.0.8078.48 and Edge 156.0.4314.42 pass numerical and
-application acceptance with disposable profiles; Edge also passes custom export
-and finite memory/restart checks. Native Windows Python and current Mac Python
-3.13+ execution remain separately unqualified in this PC step.
+Current player UI cleanup qualification is recorded in
+[PLAYER_UI_CLEANUP.md](PLAYER_UI_CLEANUP.md). It supersedes historical training,
+export and custom-evaluator UI expectations below. Offline research tests remain.
+Dated platform results below retain their original scope.
 
 Verified 2026-10-26 local time (2026-10-27 UTC). See [INITIAL_CODEX_REVIEW.md](INITIAL_CODEX_REVIEW.md) for measurements, defects, and limitations.
 
@@ -45,7 +43,7 @@ python3 -m venv /tmp/reversi-browser-env
 /tmp/reversi-browser-env/bin/python tests/browser_check.py --screenshot /tmp/reversi-review.png
 ```
 
-The check covers human Black/White, computer moves, analysis comparison, Enter-key row selection, undo/replay, rapid depth/restart changes, eight-game training, JSON export, refresh/persistence, a complete game, and post-game review/replay. It asserts no page errors. A temporary localhost server and model storage are isolated to the test browser context. Linux hosts may need browser system libraries; supported desktop WSL/macOS runtimes do not gain a play-time dependency from this optional test.
+The check covers human Black/White, computer moves, analysis comparison, Enter-key row selection, undo/replay, rapid depth/restart changes, B/L/P selection, refresh/persistence, a complete game, and post-game review/replay. It asserts no page errors. A temporary localhost server and preference storage are isolated to the test browser context. Linux hosts may need browser system libraries; supported desktop WSL/macOS runtimes do not gain a play-time dependency from this optional test.
 
 From WSL2 with Windows Chrome in its standard installation location:
 
@@ -71,7 +69,7 @@ python3 "$repo/launch.py" --no-browser --port 0 --http-log /tmp/reversi-http.log
 2. Confirm HTTP requests appear in the printed log file rather than the terminal. Stop with Ctrl+C and confirm the server exits. Repeat from a path containing spaces. With 8000 occupied, confirm startup chooses another port.
 3. Play each color; check legal flips, automatic passes, game termination, undo, replay, and responsive layout. Compare any two moves, inspect both replies and continuation facts. Tab to rows and press Enter/Space; check focus remains usable.
 4. Change coach/computer depths, restart, undo, and enter replay while analysis is running. Confirm old results never change the new position and the computer waits during replay.
-5. Train, export JSON, refresh, and check the saved model/attempt count. Finish a game, run review at a stated depth, and replay a ranked decision.
+5. Check first-visit B, old custom-to-B migration with saved model bytes preserved, and B/L/P preference reload. Finish a game, run review at a stated depth with the selected evaluator, and replay a ranked decision.
 6. Run both correctness commands above and record OS/browser/CPU versions and any failures. Linux results do not substitute for this Mac check.
 
 ## Reproducible experiments

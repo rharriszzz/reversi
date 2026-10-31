@@ -9228,3 +9228,125 @@ Explicitly answer:
 **If all acceptance checks pass, declare the CPU-dispatch and branchless-flipping production integration complete.**
 
 Do not propose another optimization campaign merely because further optimization might be possible. The next project phase can return to improving the Reversi playing engine and its coaching capabilities.
+
+---
+
+# Reversi — Remove ML Controls from the Player UI and Prepare Phase A
+
+Work in `rharriszzz/reversi` on my Windows 11 PC under WSL2.
+
+Use GPT-6.1-Sol with High reasoning.
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first. Review the current production `main`, particularly `index.html`, `style.css`, `src/app.js`, `src/backend.js`, and the browser/UI tests.
+
+## 1. Clarify the product's purpose
+
+**This application is intended to teach Reversi strategy, not machine learning.**
+
+The current interface has an "EXPERIMENTAL — Learn through self-play" panel. I do not want this panel or other machine-learning controls in the player-facing interface.
+
+Remove the panel, including:
+
+- Training generations and self-play controls.
+- Weight mutation and reset controls.
+- Saved/custom coefficient tables.
+- Experimental model export controls.
+- Training status and other ML-oriented descriptions.
+
+Do not merely hide the panel with CSS. Clean up the associated UI code, event listeners, unused worker and unnecessary browser state.
+
+However, **retain the offline research and training infrastructure**. It remains useful for improving the engine scientifically. Do not delete historical experiments, research scripts, frozen evaluators, training evidence or documented results.
+
+Do not delete existing user-saved model data from localStorage. The ordinary interface should simply stop offering these experimental controls.
+
+## 2. Simplify evaluator selection
+
+Make B the default evaluator for new users and users previously configured to select saved/custom weights.
+
+Retain the frozen B, L and P evaluators as selectable opponents.
+
+Use understandable labels, distinguishing the original evaluator, the learned linear evaluator, and the pattern evaluator without making unsupported playing-strength claims.
+
+Preserve legitimate existing B/L/P preferences.
+
+Keep the current production WebAssembly implementation, with the established JavaScript B fallback when Wasm is unavailable.
+
+Do not change frozen model coefficients, search algorithms or the CPU-dispatch architecture.
+
+## 3. Preserve and emphasize Reversi coaching
+
+Retain and verify:
+
+- The game board, move highlighting and legal moves.
+- Playing either color.
+- Computer time and search-depth controls.
+- Scores for all legal alternatives.
+- Side-by-side move comparison information.
+- Verified principal variations.
+- Game replay, undo and completed-game review.
+- Correct labeling of heuristic estimates versus exact solutions.
+- Handling of passes, terminal positions and canceled searches.
+
+Check that removing custom-model state does not leave incorrect model-version references in the review system or cause stale-worker problems.
+
+Revise the header, footer and any visible copy that currently emphasizes machine learning.
+
+The interface should communicate that it is a **Reversi opponent and strategy coach**.
+
+Avoid a general visual redesign. Keep the existing layout and styling, using the space formerly occupied by the ML panel to make the real coaching interface clearer.
+
+## 4. Test thoroughly
+
+Update UI and actual-browser tests that currently expect training and export controls.
+
+Replace those obsolete UI expectations with meaningful game/coaching assertions rather than merely deleting test coverage.
+
+Keep separate research tests for the underlying machine-learning modules.
+
+Run the relevant Node, Python, native and WebAssembly regression suites, followed by actual Windows Chrome and Edge acceptance.
+
+Verify existing evaluator preference migration, first-visit B selection, B/L/P switching, coaching, replay, game review and browser reload.
+
+Do not rebuild the production Wasm unless a genuine dependency requires it.
+
+Document the UI changes briefly. Commit and push the qualified cleanup after checking for unrelated modifications and verifying the final remote SHA.
+
+## 5. Prepare Phase A — evaluator strength
+
+After completing and qualifying the UI cleanup, begin a **read-only scientific review** of existing B/L/P strength evidence.
+
+Read:
+
+- `docs/P_CONFIRMATION_PROTOCOL.md`
+- `docs/P_CONFIRMATION_RESULTS.md`
+- `docs/NEXT_EVALUATOR_RESEARCH.md`
+- `docs/NEXT_RESIDUAL_RESULTS.md`
+- `docs/STRONG_EVALUATOR_RESULTS_20261028.md`
+- Related provenance and independence audits.
+
+Focus particularly on the existing P-versus-B results of 63.57% at 80 ms and 61.72% at 300 ms.
+
+Determine precisely what the historical training-target overlap establishes, whether it involved P's actual training or a different historical evaluator, and which scientific independence requirements remain unsatisfied.
+
+Distinguish statistical evidence for playing strength from provenance requirements.
+
+Prepare a short proposal for an independent confirmation protocol with fixed openings, both colors, strict separation, predeclared statistical criteria and a bounded computation budget.
+
+Do not automatically start another large tournament or training experiment. We will review the scientific plan before authorizing it.
+
+## Final report
+
+Answer:
+
+1. Is the experimental ML panel completely removed from the player interface?
+2. Does the application default to B while retaining L and P?
+3. Are all Reversi playing and coaching capabilities intact?
+4. Are the underlying research tools and historical data preserved?
+5. Do the full relevant tests and actual Windows browsers pass?
+6. Is the cleanup committed and pushed?
+7. What exactly prevents us from treating P as independently confirmed stronger than B?
+8. What is the smallest defensible next Phase A experiment?
+
+The overarching principle is simple:
+
+**Keep the machine learning in the research laboratory. Use its results to build a stronger Reversi opponent and a better Reversi teacher.**

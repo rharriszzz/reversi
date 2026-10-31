@@ -33,6 +33,7 @@ def main():
                 errors = []
                 page.on('pageerror', lambda error: errors.append(str(error)))
                 page.goto(url)
+                expect(page.locator('#evaluator')).to_have_value('B')
                 expect(page.locator('#move-rows tr')).to_have_count(4)
                 page.locator('#move-rows tr').nth(1).focus()
                 page.keyboard.press('Enter')
@@ -56,30 +57,15 @@ def main():
                 page.locator('#new-game').click()
                 expect(page.locator('#turn-title')).to_have_text('White to move')
                 expect(page.locator('#depth-label')).to_have_text('Depth 2')
-                page.locator('#train').click()
-                expect(page.locator('#train')).to_be_enabled(timeout=120000)
-                expect(page.locator('#training-status')).to_contain_text('challenger', ignore_case=True)
-                if os.environ.get('REVERSI_WINDOWS_BROWSER')=='1':
-                    # CDP download paths belong to Windows, not the WSL driver.
-                    # Observe the exact exported Blob as well as its download.
-                    page.evaluate('()=>{const create=URL.createObjectURL.bind(URL);URL.createObjectURL=blob=>{window.exportedModelBlob=blob;return create(blob);};}')
-                    context_id=page.context.new_cdp_session(page).send('Target.getTargetInfo')['targetInfo']['browserContextId']
-                    export_folder=browser.reversi_windows_profile+'\\exports'
-                    browser.new_browser_cdp_session().send('Browser.setDownloadBehavior',{'behavior':'allow','downloadPath':export_folder,'browserContextId':context_id,'eventsEnabled':True})
-                with page.expect_download() as download:
-                    page.locator('#export-model').click()
-                import json
-                exported = json.loads(page.evaluate('()=>exportedModelBlob.text()') if os.environ.get('REVERSI_WINDOWS_BROWSER')=='1' else Path(download.value.path()).read_text())
-                if os.environ.get('REVERSI_WINDOWS_BROWSER')=='1':
-                    folder=Path(subprocess.check_output(['wslpath','-u',export_folder],text=True).strip())
-                    saved=folder/download.value.suggested_filename
-                    for _ in range(200):
-                        if saved.exists():break
-                        page.wait_for_timeout(50)
-                    assert json.loads(saved.read_text())==exported, 'Windows exported file differs from the Blob'
-                assert exported['attempts'] == 1
+                # Frozen opponent selection replaces the old training/export UI.
+                expect(page.locator('#train, #export-model, #reset-model, #weights-table')).to_have_count(0)
+                for model in 'BLP':
+                    page.locator('#evaluator').select_option(model)
+                    expect(page.locator('#search-metrics')).to_contain_text(model+' · WebAssembly')
+                    expect(page.locator('#move-rows tr')).not_to_have_count(0)
                 page.reload()
-                expect(page.locator('#training-status')).to_contain_text('1 training attempts')
+                expect(page.locator('#evaluator')).to_have_value('P')
+                expect(page.locator('#search-metrics')).to_contain_text('P · WebAssembly')
                 page.locator('#computer-depth').select_option('2')
                 page.locator('#analysis-depth').select_option('2')
                 page.locator('#new-game').click()
@@ -92,12 +78,13 @@ def main():
                 expect(page.locator('#turn-title')).to_have_text('Game over')
                 page.locator('#review-game').click()
                 expect(page.locator('#game-review button').first).to_be_visible(timeout=120000)
+                expect(page.locator('#game-review')).to_contain_text('evaluator P · WebAssembly')
                 page.locator('#game-review button').first.click()
                 expect(page.locator('#status')).to_contain_text('earlier position')
                 if args.screenshot:
                     page.screenshot(path=str(args.screenshot), full_page=True)
                 assert not errors, errors
-                print('PASS: real Chromium: colors, comparison, keyboard, undo/replay, rapid changes, training, export/reload, full game and mistake review')
+                print('PASS: real Chromium: colors, comparison, keyboard, undo/replay, rapid changes, B/L/P switching/reload, full game and mistake review')
                 print('Browser:', browser.version)
                 browser.close()
         finally:

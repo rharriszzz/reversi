@@ -1,4 +1,4 @@
-"""Separate complete custom-weight Safari play/training/review smoke."""
+"""Legacy command name: frozen B Safari play/review and saved-data preservation smoke."""
 import base64,hashlib,importlib.util,json,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'.local-research/safari-qualification-20261030'
@@ -6,8 +6,9 @@ spec=importlib.util.spec_from_file_location('safari_qualification',ROOT/'scripts
 def main():
     start=time.monotonic();build=safari.manifest()
     with safari.Safari() as s:
-        safari.setup_ui(s);s.select('#evaluator','custom');s.select('#computer-time',0);s.select('#computer-depth',2);s.select('#human-color',1)
-        s.click('#train');s.wait('!document.querySelector("#train").disabled',timeout=120);saved=json.loads(s.js('return localStorage.getItem("reversi-coach-lab-learning-v1")'));assert saved['attempts']==1
+        safari.setup_ui(s);s.select('#evaluator','B');s.select('#computer-time',0);s.select('#computer-depth',2);s.select('#human-color',1)
+        saved='historical user model bytes';s.js('localStorage.setItem("reversi-coach-lab-learning-v1",arguments[0])',saved)
+        assert s.js('return document.querySelectorAll("#train,#export-model,#reset-model,#weights-table").length')==0
         s.click('#new-game')
         for _ in range(64):
             safari.ready(s)
@@ -22,9 +23,9 @@ def main():
         assert b==safari.board(s) and not safari.independent.moves(b,1) and not safari.independent.moves(b,-1)
         plays=s.js('return __safari.events.filter(e=>e.response.type==="played")')
         for event in plays:
-            r=event['response']['choice'];req=event['request'];assert r['backend']=='JavaScript' and r['model']=='custom';assert (req['board'],req['player'],r['move']) in states
-        s.click('#review-game');s.wait('document.querySelector("#game-review button")',timeout=120);assert 'custom · JavaScript' in s.text('#backend-status');s.click('#game-review button');s.wait('document.querySelector("#status").textContent.includes("earlier position")');assert not s.js('return __safari.errors')
-        (OUT/'safari-custom-final.png').write_bytes(base64.b64decode(s.request('/screenshot')))
-        result={'passed':True,'browserVersion':s.capabilities['browserVersion'],'trainingAttempts':saved['attempts'],'savedVersion':saved['version'],'weightsSha256':hashlib.sha256(json.dumps(saved['weights'],sort_keys=True).encode()).hexdigest(),'moves':steps,'board':b,'forcedPasses':passes,'appliedReplies':len(plays),'reviewPassed':True,'pageErrors':s.js('return __safari.errors'),'wallSeconds':time.monotonic()-start,'wasmBuildIdentity':build['fingerprint'],'scope':'One disposable custom training attempt and full custom JS game/review; no frozen evaluator fitting or strength claim.'}
-    assert safari.manifest()==build;result['sourceSha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest();(OUT/'custom-game.json').write_text(json.dumps(result)+'\n');print(json.dumps({k:result[k] for k in ['passed','trainingAttempts','appliedReplies','forcedPasses','wallSeconds']}))
+            r=event['response']['choice'];req=event['request'];assert r['backend']=='WebAssembly' and r['model']=='B';assert (req['board'],req['player'],r['move']) in states
+        s.click('#review-game');s.wait('document.querySelector("#game-review button")',timeout=120);assert 'B · WebAssembly' in s.text('#backend-status');s.click('#game-review button');s.wait('document.querySelector("#status").textContent.includes("earlier position")');assert not s.js('return __safari.errors')
+        (OUT/'safari-player-final.png').write_bytes(base64.b64decode(s.request('/screenshot')))
+        result={'passed':True,'browserVersion':s.capabilities['browserVersion'],'savedModelBytesPreserved':s.js('return localStorage.getItem("reversi-coach-lab-learning-v1")')==saved,'moves':steps,'board':b,'forcedPasses':passes,'appliedReplies':len(plays),'reviewPassed':True,'pageErrors':s.js('return __safari.errors'),'wallSeconds':time.monotonic()-start,'wasmBuildIdentity':build['fingerprint'],'scope':'One frozen B Wasm game/review; saved model bytes preserved; no fitting or strength claim.'}
+    assert safari.manifest()==build;result['sourceSha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest();(OUT/'player-game.json').write_text(json.dumps(result)+'\n');print(json.dumps({k:result[k] for k in ['passed','savedModelBytesPreserved','appliedReplies','forcedPasses','wallSeconds']}))
 if __name__=='__main__':main()

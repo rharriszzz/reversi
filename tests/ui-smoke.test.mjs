@@ -1,122 +1,123 @@
-// Dependency-free UI-controller smoke test with a fake DOM/worker. This does NOT
-// replace an actual headless browser test; it catches app-level wiring errors.
+// Dependency-free controller checks. Actual Windows browser acceptance is separate.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scoreAllMoves, bestMove } from '../src/search.js';
-import { runGeneration } from '../src/learning.js';
+import {readFileSync} from 'node:fs';
+import {scoreAllMoves, bestMove} from '../src/search.js';
+import {reviewGame} from '../src/review.js';
 
+const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const PREFS='reversi-engine-preferences-v1', SAVED='reversi-coach-lab-learning-v1';
 class Element {
-  constructor() {
-    this.children = []; this.events = {}; this.value = ''; this.textContent = '';
-    this.disabled = false; this.className = ''; this.attributes = {};
-  }
-  addEventListener(type, fn) { this.events[type] = fn; }
-  append(...nodes) { this.children.push(...nodes); }
-  replaceChildren(...nodes) { this.children = nodes; }
-  setAttribute(name, value) { this.attributes[name] = value; }
-  click() { this.events.click?.({ target: this }); }
+  constructor() { this.children=[];this.events={};this.value='';this.textContent='';this.disabled=false;this.className='';this.attributes={}; }
+  addEventListener(type,fn){this.events[type]=fn;}
+  append(...nodes){this.children.push(...nodes);}
+  replaceChildren(...nodes){this.children=nodes;this.textContent='';}
+  setAttribute(name,value){this.attributes[name]=value;}
+  click(){this.events.click?.({target:this});}
 }
 class MockDocument {
-  constructor() {
-    this.ids = new Map();
-    for (const [id, value] of Object.entries({ 'human-color': '1', 'analysis-depth': '3', 'computer-depth': '3', 'review-slider': '0' })) {
-      this.getElementById(id).value = value;
-    }
+  constructor(){
+    this.ids=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],new Element()]));
+    for(const [id,value] of Object.entries({'human-color':'1','analysis-depth':'3','computer-depth':'2','review-slider':'0','evaluator':'B','computer-time':'0'}))this.ids.get(id).value=value;
   }
-  getElementById(id) { if (!this.ids.has(id)) this.ids.set(id, new Element()); return this.ids.get(id); }
-  createElement() { return new Element(); }
+  getElementById(id){assert.ok(this.ids.has(id),`Unexpected UI element: ${id}`);return this.ids.get(id);}
+  createElement(){return new Element();}
 }
-class MockWorker {
-  terminate() {}
-  postMessage({type, id, board, player, depth, weights, options}) {
-    queueMicrotask(() => {
-      try {
-        const content = type === 'train'
-          ? { type:'trained', id, outcome: runGeneration(weights, { ...options, depth: 1, openingPairs: 1 }) }
-          : type === 'play' ? { type: 'played', id, choice: bestMove(Int8Array.from(board), player, depth, weights) }
-          : { type:'analyzed', id, analysis: scoreAllMoves(Int8Array.from(board), player, depth, weights) };
-        this.onmessage?.({data:content});
-      } catch(error) { this.onmessage?.({data:{type:'error',id,message:String(error)}}); }
-    });
+function response(job){
+  const {type,id,board,player,depth,history,human,evaluator}=job;
+  assert.ok(['B','L','P'].includes(evaluator));assert.equal('weights' in job,false);
+  const tag=r=>({...r,model:evaluator,backend:'Test worker'});
+  if(type==='play')return {type:'played',id,choice:tag(bestMove(Int8Array.from(board),player,depth))};
+  if(type==='review')return {type:'reviewed',id,rows:reviewGame(history,depth,undefined,human),model:evaluator,backend:'Test worker'};
+  assert.equal(type,'analyze');return {type:'analyzed',id,analysis:tag(scoreAllMoves(Int8Array.from(board),player,depth))};
+}
+const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
+let serial=0;
+async function setup({prefs=null,controlled=false,unavailable=false,pauseReview=false}={}){
+  const workers=[],storage=new Map([[SAVED,'{"version":99,"weights":"historical user data"}']]);
+  if(prefs!==null)storage.set(PREFS,typeof prefs==='string'?prefs:JSON.stringify(prefs));
+  class Worker {
+    constructor(){workers.push(this);this.jobs=[];}
+    terminate(){this.terminated=true;}
+    postMessage(job){this.jobs.push(job);if(!controlled&&!(pauseReview&&job.type==='review'))queueMicrotask(()=>this.answer(job));}
+    // Deliberately allow a terminated worker to answer to test stale guards.
+    answer(job=this.jobs.at(-1)){this.onmessage?.({data:response(job)});}
   }
+  const document=new MockDocument();globalThis.document=document;globalThis.Worker=Worker;
+  globalThis.localStorage={getItem:key=>{assert.equal(key,PREFS,'saved model must never be read');if(unavailable)throw Error('denied');return storage.get(key)??null;},setItem:(key,value)=>{assert.equal(key,PREFS);if(unavailable)throw Error('denied');storage.set(key,value);}};
+  await import(`../src/app.js?ui=${serial++}`);if(!controlled)await tick();
+  return {get:id=>document.getElementById(id),workers,storage};
 }
-const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+function change(get,id,value,event='change'){get(id).value=value;get(id).events[event]({target:get(id)});}
 
-test('UI controller: initial analysis, a complete turn, undo, replay, training', async () => {
-  const document = new MockDocument();
-  globalThis.document = document;
-  globalThis.window = { confirm: () => true };
-  globalThis.Worker = MockWorker;
-  globalThis.localStorage = { getItem: () => null, setItem: () => {} };
-  await import('../src/app.js');
-  const get = id => document.getElementById(id);
-  await tick();
-  assert.equal(get('turn-title').textContent, 'Black to move');
-  assert.equal(get('board').children.length, 64);
-  assert.equal(get('move-rows').children.length, 4);
-  const first = get('board').children.find(b => b.attributes['aria-label'] === 'D3: legal move');
-  assert.ok(first && !first.disabled);
-  first.click();
-  await tick();
-  await tick();
-  assert.equal(get('history').children.length, 2, 'computer should have replied');
-  assert.equal(get('turn-title').textContent, 'Black to move');
-  get('review-slider').events.input({ target: { value: '0' } });
-  await tick();
-  assert.match(get('status').textContent, /earlier position/);
-  get('review-slider').events.input({ target: { value: '2' } });
-  await tick();
-  assert.equal(get('turn-title').textContent, 'Black to move');
-  get('undo').click();
-  await tick();
-  assert.equal(get('history').children.length, 0);
-  assert.equal(get('board').children.length, 64);
-  get('train').click();
-  await tick();
-  assert.match(get('training-status').textContent, /challenger/i);
-  assert.equal(get('train').disabled, false);
+test('player markup offers coaching and frozen B/L/P only',()=>{
+  assert.doesNotMatch(html,/id="(?:train|export-model|reset-model|weights-table|training-status|model-version)"|trainer-panel|value="custom"/);
+  assert.match(html,/B · Original evaluator/);assert.match(html,/L · Learned linear evaluator/);assert.match(html,/P · Pattern evaluator/);
+  assert.match(html,/USING THE COACH/);assert.match(html,/Full game rules/);
 });
 
-test('late worker responses, depth changes, replay and restart cannot overwrite the current game', async () => {
-  const workers = [];
-  class ControlledWorker {
-    constructor() { workers.push(this); this.jobs = []; }
-    postMessage(job) { this.jobs.push(job); }
-    terminate() { this.terminated = true; }
-    answer(job = this.jobs.at(-1)) {
-      this.onmessage({ data: job.type === 'play'
-        ? { type: 'played', id: job.id, choice: bestMove(Int8Array.from(job.board), job.player, job.depth, job.weights) }
-        : { type: 'analyzed', id: job.id, analysis: scoreAllMoves(Int8Array.from(job.board), job.player, job.depth, job.weights) } });
-    }
+test('first visit, custom migration, B/L/P preferences, malformed/unavailable storage',async()=>{
+  for(const [prefs,expected,time] of [[null,'B','0'],[{evaluator:'custom',timeMs:'80'},'B','80'],...[...'BLP'].map(evaluator=>[{evaluator,timeMs:'300'},evaluator,'300']),[{evaluator:'unknown',timeMs:'bad'},'B','0'],['{','B','0']]){
+    const {get,workers,storage}=await setup({prefs});
+    assert.equal(get('evaluator').value,expected);assert.equal(get('computer-time').value,time);
+    assert.equal(workers.length,3,'only analyzer, opponent and reviewer');
+    assert.equal(storage.get(SAVED),'{"version":99,"weights":"historical user data"}');
+    change(get,'evaluator',expected);await tick();
+    assert.deepEqual(JSON.parse(storage.get(PREFS)),{evaluator:expected,timeMs:time});
   }
-  const document = new MockDocument();
-  globalThis.document = document; globalThis.Worker = ControlledWorker;
-  await import('../src/app.js?controlled');
-  const get = id => document.getElementById(id);
-  const oldAnalyzer = workers[0];
-  get('analysis-depth').value = '2'; get('analysis-depth').events.change();
-  oldAnalyzer.answer();
-  assert.equal(get('move-rows').children.length, 1, 'old analysis ignored');
-  workers.at(-1).answer();
-  assert.equal(get('move-rows').children.length, 4);
-  get('move-rows').children[1].click();
-  get('compare-move').events.change({ target: { value: '37' } });
-  assert.match(get('interpretation').children[0].textContent, /versus F5/);
-  get('board').children[19].click();
-  const oldOpponent = workers[1];
-  get('computer-depth').value = '2'; get('computer-depth').events.change();
-  const newOpponent = workers.at(-1);
-  oldOpponent.answer();
-  assert.equal(get('history').children.length, 1, 'old computer depth ignored');
-  get('review-slider').events.input({ target: { value: '0' } });
-  newOpponent.answer();
-  assert.equal(get('history').children.length, 1, 'computer does not move during replay');
-  get('review-slider').events.input({ target: { value: '1' } });
-  const resumed = workers.at(-1);
-  get('new-game').click(); resumed.answer();
-  assert.equal(get('history').children.length, 0, 'old computer move ignored after new game');
-  get('human-color').value = '-1'; get('human-color').events.change();
-  workers.at(-1).answer();
-  assert.equal(get('turn-title').textContent, 'White to move');
-  assert.equal(get('history').children.length, 1);
+  const {get}=await setup({unavailable:true});change(get,'evaluator','B');await tick();assert.equal(get('move-rows').children.length,4);
+});
+
+test('coaching, both colors, complete turn, replay, undo and B/L/P switching',async()=>{
+  const {get}=await setup();
+  assert.equal(get('board').children.length,64);assert.equal(get('move-rows').children.length,4);
+  assert.match(get('search-metrics').textContent,/Heuristic estimate.*Equal depth/);
+  get('move-rows').children[1].click();change(get,'compare-move','37');
+  assert.match(get('interpretation').children[0].textContent,/versus F5/);
+  assert.equal(get('interpretation').children.filter(e=>e.className==='variation').length,2);
+  get('board').children[19].click();await tick();assert.equal(get('history').children.length,2);
+  change(get,'review-slider','0','input');await tick();assert.match(get('status').textContent,/earlier position/);
+  change(get,'review-slider','2','input');await tick();get('undo').click();await tick();assert.equal(get('history').children.length,0);
+  for(const model of 'BLP'){change(get,'evaluator',model);await tick();assert.match(get('search-metrics').textContent,new RegExp(model+' · Test worker'));}
+  change(get,'human-color','-1');await tick();assert.equal(get('turn-title').textContent,'White to move');assert.equal(get('history').children.length,1);
+});
+
+test('completed-game review uses frozen evaluator identity and replays a decision',async()=>{
+  const {get,storage}=await setup({prefs:{evaluator:'P'}});change(get,'analysis-depth','2');
+  for(let i=0;i<65&&get('turn-title').textContent!=='Game over';i++){
+    await tick();if(get('turn-title').textContent==='Game over')break;
+    const move=get('board').children.find(b=>!b.disabled);assert.ok(move);move.click();
+  }
+  await tick();assert.equal(get('turn-title').textContent,'Game over');assert.equal(get('review-game').disabled,false);
+  get('review-game').click();await tick();
+  assert.match(get('game-review').children[0].textContent,/evaluator P · Test worker/);
+  assert.doesNotMatch(get('game-review').children[0].textContent,/saved|version|99/);
+  assert.ok(get('game-review').children.length>1);get('game-review').children[1].click();await tick();
+  assert.match(get('status').textContent,/earlier position/);assert.equal(storage.get(SAVED),'{"version":99,"weights":"historical user data"}');
+});
+
+test('late worker responses, depth/model changes, replay and restart cannot overwrite current state',async()=>{
+  const {get,workers}=await setup({controlled:true});const oldAnalyzer=workers[0];
+  change(get,'analysis-depth','2');oldAnalyzer.answer();assert.equal(get('move-rows').children.length,1);workers.at(-1).answer();
+  assert.equal(get('move-rows').children.length,4);
+  get('board').children[19].click();const oldOpponent=workers[1];
+  change(get,'computer-depth','2');const newOpponent=workers.at(-1);oldOpponent.answer();assert.equal(get('history').children.length,1);
+  change(get,'review-slider','0','input');newOpponent.answer();assert.equal(get('history').children.length,1);
+  change(get,'review-slider','1','input');const resumed=workers.at(-1);get('new-game').click();resumed.answer();assert.equal(get('history').children.length,0);
+  const beforeSwitch=workers.findLast(w=>!w.terminated&&w.jobs.at(-1)?.type==='analyze');const staleJob=beforeSwitch.jobs.at(-1);change(get,'evaluator','L');beforeSwitch.answer(staleJob);assert.equal(get('move-rows').children.length,1);workers.findLast(w=>!w.terminated&&w.jobs.at(-1)?.type==='analyze').answer();assert.match(get('search-metrics').textContent,/L · Test worker/);
+});
+
+
+test('canceled completed-game review cannot publish an old evaluator after a switch',async()=>{
+  const {get,workers}=await setup({prefs:{evaluator:'P'},pauseReview:true});change(get,'analysis-depth','2');
+  for(let i=0;i<65;i++){
+    await tick();if(get('turn-title').textContent==='Game over')break;
+    get('board').children.find(b=>!b.disabled).click();
+  }
+  assert.equal(get('turn-title').textContent,'Game over');get('review-game').click();
+  const oldReviewer=workers[2],oldJob=oldReviewer.jobs.at(-1);assert.equal(oldJob.evaluator,'P');
+  change(get,'evaluator','L');assert.ok(oldReviewer.terminated);oldReviewer.answer(oldJob);
+  assert.equal(get('game-review').children.length,0,'canceled P review must remain absent');
+  get('review-game').click();workers.at(-1).answer();
+  assert.match(get('game-review').children[0].textContent,/evaluator L · Test worker/);
 });

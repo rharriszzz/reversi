@@ -1,5 +1,7 @@
 """Real-browser Wasm integration checks. Test-only Playwright, no user storage."""
 from pathlib import Path
+import importlib.util
+import ast
 import json
 import re
 import subprocess
@@ -10,7 +12,11 @@ from playwright.sync_api import sync_playwright, expect
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts/wasm'))
 from browser import launch_browser
+spec=importlib.util.spec_from_file_location('independent_rules',ROOT/'scripts/native/verify.py')
+independent=importlib.util.module_from_spec(spec);spec.loader.exec_module(independent)
 OUT=ROOT/os.environ.get('REVERSI_WASM_OUTPUT','.local-research/wasm-20261030')
+observer=ROOT/'scripts/wasm/fast-flips-production-acceptance.py'
+SPY=next(ast.literal_eval(n.value) for n in ast.parse(observer.read_text()).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SPY' for t in n.targets))
 
 def main():
     with tempfile.TemporaryDirectory(prefix='reversi-wasm-') as temp:
@@ -19,12 +25,32 @@ def main():
             url = re.search(r'http://127\.0\.0\.1:\d+/', server.stdout.readline()).group()
             with sync_playwright() as p:
                 browser = launch_browser(p)
-                page = browser.new_page(accept_downloads=True)
+                context = browser.new_context()
+                context.add_init_script(SPY)
+                page = context.new_page()
+                migrations=[]
+                for preference, expected in [(None,'B'),('custom','B'),('B','B'),('L','L'),('P','P'),('unknown','B')]:
+                    isolated=browser.new_context()
+                    seeded=isolated.new_page();seeded.goto(url)
+                    seeded.evaluate("""preference=>{
+                        localStorage.setItem('reversi-coach-lab-learning-v1','historical saved bytes');
+                        if(preference===null)localStorage.removeItem('reversi-engine-preferences-v1');
+                        else localStorage.setItem('reversi-engine-preferences-v1',JSON.stringify({evaluator:preference,timeMs:'80'}));
+                    }""",preference)
+                    seeded.reload()
+                    expect(seeded.locator('#evaluator')).to_have_value(expected)
+                    expect(seeded.locator('#search-metrics')).to_contain_text(expected+' · WebAssembly')
+                    expect(seeded.locator('#train, #export-model, #reset-model, #weights-table, .trainer-panel')).to_have_count(0)
+                    assert seeded.evaluate("localStorage.getItem('reversi-coach-lab-learning-v1')")=='historical saved bytes'
+                    seeded.reload();expect(seeded.locator('#evaluator')).to_have_value(expected)
+                    migrations.append({'previous':preference,'selected':expected,'savedBytesPreserved':True})
+                    isolated.close()
                 errors=[]
                 page.on('pageerror',lambda e: errors.append(str(e)))
                 page.goto(url)
                 expect(page.locator('#move-rows tr')).to_have_count(4)
-                expect(page.locator('#evaluator')).to_have_value('custom')
+                expect(page.locator('#evaluator')).to_have_value('B')
+                assert page.evaluate('__accept.created')==3,'Only three player workers expected'
                 for model in ['B','L','P']:
                     page.locator('#evaluator').select_option(model)
                     expect(page.locator('#search-metrics')).to_contain_text(f'{model} · WebAssembly')
@@ -52,6 +78,7 @@ def main():
                 page.reload()
                 expect(page.locator('#evaluator')).to_have_value('P')
                 expect(page.locator('#search-metrics')).to_contain_text('P · WebAssembly')
+                completed=[]
                 for model in ['B','P']:
                     page.locator('#evaluator').select_option(model)
                     page.locator('#analysis-depth').select_option('2')
@@ -62,9 +89,25 @@ def main():
                         if page.locator('#turn-title').inner_text()=='Game over':break
                         page.locator('#board button:not(:disabled)').first.click()
                     expect(page.locator('#turn-title')).to_have_text('Game over')
+                    # Replay every placement with the independent Python mailbox rules.
+                    board=[0]*64;board[28]=board[35]=1;board[27]=board[36]=-1;turn=1;passes=0
+                    for label in page.locator('#history .history-item').all_text_contents():
+                        match=re.fullmatch(r'\d+\. ([BW]) ([A-H])([1-8])',label);assert match,label
+                        moves=independent.children(board,turn)
+                        if not moves:
+                            turn=-turn;passes+=1;moves=independent.children(board,turn);assert moves
+                        move=(int(match[3])-1)*8+ord(match[2])-65
+                        assert (1 if match[1]=='B' else -1)==turn and move in moves
+                        board=moves[move];turn=-turn
+                    assert not independent.children(board,1) and not independent.children(board,-1)
+                    expect(page.locator('#black-count')).to_have_text(str(board.count(1)))
+                    expect(page.locator('#white-count')).to_have_text(str(board.count(-1)))
                     page.locator('#review-game').click()
+                    expect(page.locator('#game-review')).to_contain_text('evaluator '+model+' · WebAssembly')
                     expect(page.locator('#game-review button').first).to_be_visible(timeout=120000)
                     expect(page.locator('#backend-status')).to_contain_text(f'{model} · WebAssembly')
+                    assert 'saved version' not in page.locator('#game-review').inner_text()
+                    completed.append({'model':model,'plies':page.locator('#history .history-item').count(),'reviewDecisions':page.locator('#game-review button').count(),'independentlyReplayed':True,'forcedPasses':passes})
                     page.locator('#game-review button').first.click()
                     expect(page.locator('#status')).to_contain_text('earlier position')
                 # Confirm server MIME and distribution execution.
@@ -78,8 +121,8 @@ def main():
                 expect(failed.locator('#backend-status')).to_contain_text('JavaScript fallback')
                 failed.locator('#evaluator').select_option('P')
                 expect(failed.locator('#backend-status')).to_contain_text('No evaluator was substituted')
-                failed.locator('#evaluator').select_option('custom')
-                expect(failed.locator('#search-metrics')).to_contain_text('custom · JavaScript')
+                failed.locator('#evaluator').select_option('B')
+                expect(failed.locator('#search-metrics')).to_contain_text('B · JavaScript')
                 context.close()
                 # A stale/mixed manifest must fail closed, then recover on reload.
                 mismatch=browser.new_context()
@@ -94,7 +137,10 @@ def main():
                 expect(stale.locator('#search-metrics')).to_contain_text('P · WebAssembly')
                 mismatch.close()
                 assert not errors,errors
-                output={'passed':True,'browser':browser.version,'wasm':wasm,'checks':['B/L/P all-move coach','complete B/P games and model-consistent review','P timed play','undo/replay','rapid cancellation/model changes','reload/cache','B fallback','P fail closed','custom recovery','browser ABI mismatch/reload recovery']}
+                events=page.evaluate('__accept.events')
+                assert events and all(e['request']['type'] in ['analyze','play','review'] and 'weights' not in e['request'] for e in events)
+                output={'passed':True,'migrations':migrations,'completedGames':completed,'errors':errors,'browser':browser.version,'wasm':wasm,'checks':['B/L/P all-move coach','complete B/P games and model-consistent review','P timed play','undo/replay','rapid cancellation/model changes','reload/cache','B fallback','P fail closed','B recovery','browser ABI mismatch/reload recovery']}
+                OUT.mkdir(parents=True,exist_ok=True)
                 (OUT/'browser-integration.json').write_text(json.dumps(output,indent=2)+'\n')
                 page.screenshot(path=str(OUT/'integration.png'),full_page=True)
                 print(json.dumps(output))

@@ -53,7 +53,6 @@ select { height: 37px; border-radius: 8px; border: 1px solid #cfdacf; color: #29
 .primary-btn:disabled { opacity: .55; cursor: not-allowed; }
 .secondary-btn { color: #2d5941; background: #eaf3e9; border-color: #d0e2d2 !important; }
 .secondary-btn:hover { background: #dbeadd; }
-.quiet-btn { color: #6b766a; background: white; border-color: #dce4da !important; }
 .review-block { padding: 17px 0 13px; margin-top: 9px; border-top: 1px solid #e5eee5; }
 .review-title, .review-caption { display: flex; align-items: center; justify-content: space-between; font-size: .8rem; }
 .review-title span, .review-caption { color: #879488; }
@@ -82,16 +81,8 @@ select { height: 37px; border-radius: 8px; border: 1px solid #cfdacf; color: #29
 .interpretation p { font-size: .81rem; line-height: 1.57; margin: 9px 0 0; }
 .interpretation strong { color: #274e32; }
 .variation { padding: 9px; background: #eaf1e7; border-radius: 7px; font-variant-numeric: tabular-nums; }
-.trainer-actions { margin: 0 0 14px; }
-.training-status { color: #46644b; background: #f3f7f1; padding: 12px; border-radius: 8px; line-height: 1.5; font-size: .82rem; }
 details { margin: 17px 0; }
 summary { font-size: .79rem; font-weight: 750; color: #477459; cursor: pointer; }
-.weights-wrap { overflow: auto; margin-top: 10px; }
-.weights-wrap table { width: 100%; border-collapse: collapse; font-size: .76rem; }
-.weights-wrap th,.weights-wrap td { padding: 7px 9px; border-bottom: 1px solid #ebf0e9; text-align: right; }
-.weights-wrap th:first-child, .weights-wrap td:first-child { text-align: left; }
-.weights-wrap th { color: #738875; background: #f4f8f3; }
-.caveat { font-size: .74rem; color: #8d947e; line-height: 1.55; margin-bottom: 0; }
 footer { border-top: 1px solid #dfe8df; color: #879488; font-size: .74rem; margin-top: 25px; padding: 17px 0; }
 #game-review { display: grid; gap: 7px; margin-top: 10px; max-height: 260px; overflow: auto; font-size: .8rem; }
 #game-review button { text-align: left; border: 1px solid #d0e2d2; border-radius: 6px; padding: 8px; background: #f3f8f0; color: #294031; }

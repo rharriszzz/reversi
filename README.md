@@ -1,6 +1,6 @@
 # Reversi
 
-An original Reversi engine, browser opponent and coaching lab. Play locally with
+An original Reversi engine, browser opponent and strategy coach. Play locally with
 Python and a modern browser; no package installation, build service or network
 connection is required to play. The alpha-beta search and evaluators remain
 inspectable. Frozen B/L/P models and qualified WebAssembly binaries are included.
@@ -61,11 +61,13 @@ JavaScript modules and workers require HTTP.
 **Playing and coaching:** select **B**, **L** or **P** under Evaluator for the
 frozen WebAssembly engine. Select fixed depth or 80/300 ms computer time. All-move
 coaching and game review use the selected evaluator, equal-depth full-window
-scores and verified continuations. **Saved/custom weights** use JavaScript and
-retain local training, persistence and JSON export. Saved/custom is the initial
-selection; explicit frozen-model preferences are remembered separately. These
-are distinct backends, identified in the UI. No evaluator is promoted by the
-performance results.
+scores and verified continuations. **B · Original evaluator** is the default;
+**L · Learned linear evaluator** and **P · Pattern evaluator** remain selectable.
+Existing B/L/P preferences are preserved; former saved/custom selections use B.
+If Wasm cannot load, B uses its equivalent JavaScript fallback; L/P report their
+unavailability without substituting another evaluator. These labels make no
+playing-strength ranking. Training and model export are offline research tools;
+historical browser-saved models remain untouched and are not loaded by play.
 
 **Profiling explorer:** start the same server and append **`profiling/`** to its
 printed URL, for example **[http://127.0.0.1:8000/profiling/](http://127.0.0.1:8000/profiling/)**.
@@ -84,7 +86,7 @@ one shared algorithm across native and WebAssembly targets. Fixed-depth scores,
 search trees,
 move ordering and frozen models are preserved. Browser play, coaching and review
 use its committed Wasm distribution for frozen models; ordinary play still needs
-only Python and a browser. Custom weights retain the original JavaScript path.
+only Python and a browser. B retains the original JavaScript fallback.
 
 A move must capture at least one opposing disc along a straight line. All
 captured lines flip. A player with no legal move must pass; the game ends when
@@ -96,7 +98,7 @@ Heuristic search scores are not win probabilities or predicted final margins.
 Immediate feature contributions do not decompose a deeper minimax score. Coaching
 searches every candidate at the same horizon and verifies continuations; exact
 terminal results are labeled separately. You can compare any two legal moves,
-replay positions, undo, review a complete game and export custom weights.
+replay positions, undo and review a complete game.
 
 Established engineering results:
 
@@ -119,7 +121,7 @@ Established engineering results:
   26% native / 33% Wasm. A compact TT was slower and rejected. All 96 Chromium
   acceptance games and 256 native/Wasm backend games passed independent replay.
 - [Actual Safari 27.2 qualification](docs/SAFARI_QUALIFICATION.md): numerical,
-  worker, coaching, frozen-model and custom-weight browser acceptance.
+  worker, coaching and frozen-model browser acceptance.
 - [Windows PC / WSL2 / Chrome / Edge qualification](docs/PC_TO_MAC_HANDOFF.md):
   Python 3.14, GCC 15, CPU-target comparisons and documented platform limits.
 - [Reusable M4 hardware sampling investigation](docs/PROFILING_METHODS_AND_VIEWS.md):

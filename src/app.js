@@ -1,37 +1,19 @@
 import { BLACK, WHITE, initialBoard, counts, coord, flipsFor, legalMoves, play, nextPlayer } from './rules.js';
-import { cloneWeights, DEFAULT_WEIGHTS, FEATURE_NAMES, validWeights } from './features.js';
+import { FEATURE_NAMES } from './features.js';
 import { continuationEvidence } from './coaching.js';
 
 const $ = (id) => document.getElementById(id);
-const STORAGE_KEY = 'reversi-coach-lab-learning-v1';
-
-function loadModel() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && validWeights(saved.weights)) {
-      return { weights: cloneWeights(saved.weights), version: Math.max(0, Number(saved.version) || 0), attempts: Math.max(0, Number(saved.attempts) || 0) };
-    }
-  } catch (_) { /* Storage may be unavailable; continue without persistence. */ }
-  return { weights: cloneWeights(DEFAULT_WEIGHTS), version: 0, attempts: 0 };
-}
-let model = loadModel();
-// Preserve the original saved model/storage format. Backend preferences are
-// separate; a first visit continues using the existing saved/custom evaluator.
+// Only engine preferences are read. Historical saved models remain untouched.
 try {
   const prefs=JSON.parse(localStorage.getItem('reversi-engine-preferences-v1'));
-  if(['custom','B','L','P'].includes(prefs?.evaluator))$('evaluator').value=prefs.evaluator;
+  $('evaluator').value=['B','L','P'].includes(prefs?.evaluator)?prefs.evaluator:'B';
   if(['0','80','300'].includes(prefs?.timeMs))$('computer-time').value=prefs.timeMs;
 } catch (_) {}
-const selectedEvaluator=()=>$('evaluator').value||'custom';
+const selectedEvaluator=()=>$('evaluator').value||'B';
 function engineOptions(){return {evaluator:selectedEvaluator(),timeMs:Number($('computer-time').value)||0};}
 function showBackend(message) {
   const result=message.analysis??message.choice??message;
   $('backend-status').textContent=`${result.model??selectedEvaluator()} · ${result.backend??'JavaScript'}${result.warning?' · '+result.warning:''}`;
-}
-
-function saveModel() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(model)); }
-  catch (_) { $('training-status').textContent += ' (Browser storage unavailable; export to keep weights.)'; }
 }
 
 const game = { board: initialBoard(), turn: BLACK, human: BLACK, history: [], message: '' };
@@ -40,16 +22,12 @@ let reviewIndex = null; // null = live, integer = earlier position before this p
 let analysis = null;
 let pendingAnalysis = null;
 let pendingAi = null;
-let trainingBusy = false;
 let selectedMove = null;
 let compareMove = null;
 let reviewJob = null;
 let nextJob = 1;
-let trainingMessage = model.attempts ? `Loaded model ${model.version} after ${model.attempts} training attempts from local browser storage.` : 'Starter weights loaded. No training performed.';
-
 let analyzer = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 let opponent = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
-const trainer = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 let reviewer = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
 function restart(worker) {
@@ -80,7 +58,7 @@ function currentView() {
 }
 
 function viewKey() {
-  return `${revision}/${reviewIndex === null ? 'live' : reviewIndex}/${$('analysis-depth').value}/${model.version}/${selectedEvaluator()}`;
+  return `${revision}/${reviewIndex === null ? 'live' : reviewIndex}/${$('analysis-depth').value}/${selectedEvaluator()}`;
 }
 function sideName(side) { return side === BLACK ? 'Black' : 'White'; }
 function scoreText(value) {
@@ -251,31 +229,6 @@ function renderInterpretation(view) {
   box.append(caveat);
 }
 
-function renderWeights() {
-  const wrap = $('weights-table');
-  const table = document.createElement('table');
-  const head = document.createElement('thead');
-  const title = document.createElement('tr');
-  for (const text of ['Feature', 'Opening', 'Middle', 'Endgame']) {
-    const th = document.createElement('th'); th.textContent = text; title.append(th);
-  }
-  head.append(title); table.append(head);
-  const body = document.createElement('tbody');
-  for (const [feature, name] of Object.entries(FEATURE_NAMES)) {
-    const tr = document.createElement('tr');
-    for (const value of [name, model.weights.opening[feature], model.weights.middle[feature], model.weights.endgame[feature]]) {
-      const td = document.createElement('td'); td.textContent = typeof value === 'number' ? value.toFixed(1) : value; tr.append(td);
-    }
-    body.append(tr);
-  }
-  table.append(body); wrap.replaceChildren(table);
-  $('model-version').textContent = `Saved/custom model ${model.version}`;
-  $('training-status').textContent = trainingMessage + (selectedEvaluator()==='custom'?'':' Frozen evaluators stay unchanged; select Saved/custom weights to play with training results.');
-  $('train').disabled = trainingBusy;
-  $('train').textContent = trainingBusy ? 'Training…' : 'Train saved/custom weights';
-  $('reset-model').disabled = trainingBusy;
-}
-
 function render() {
   const view = currentView();
   const pieces = counts(view.board);
@@ -312,7 +265,6 @@ function render() {
   renderBoard(view);
   renderMoveRows();
   renderInterpretation(view);
-  renderWeights();
 }
 
 function startAnalysis() {
@@ -322,7 +274,7 @@ function startAnalysis() {
     const id = nextJob++;
     const key = viewKey();
     pendingAnalysis = { id, key };
-    analyzer.postMessage({ type: 'analyze', id, board: Array.from(view.board), player: view.turn, depth: Number($('analysis-depth').value), weights: model.weights, ...engineOptions() });
+    analyzer.postMessage({ type: 'analyze', id, board: Array.from(view.board), player: view.turn, depth: Number($('analysis-depth').value), ...engineOptions() });
   }
   render();
 }
@@ -332,7 +284,7 @@ function requestComputer() {
   if (pendingAi && pendingAi.revision === revision) { render(); return; }
   const id = nextJob++;
   pendingAi = { id, revision };
-  opponent.postMessage({ type: 'play', id, board: Array.from(game.board), player: game.turn, depth: Number($('computer-depth').value), weights: model.weights, ...engineOptions() });
+  opponent.postMessage({ type: 'play', id, board: Array.from(game.board), player: game.turn, depth: Number($('computer-depth').value), ...engineOptions() });
   render();
 }
 
@@ -427,31 +379,11 @@ opponent.onmessage = (event) => {
     render();
   }
 };
-trainer.onmessage = (event) => {
-  const message = event.data;
-  if (message.id !== trainingJobId) return;
-  trainingBusy = false;
-  if (message.type === 'error') {
-    trainingMessage = 'Training error: ' + message.message;
-    render(); return;
-  }
-  const x = message.outcome;
-  if (x.accepted) {
-    cancelComputer();
-    model.weights = cloneWeights(x.weights);
-    model.version++;
-  }
-  trainingMessage = `${x.accepted ? 'Accepted challenger!' : 'Challenger rejected.'} ${x.wins} wins, ${x.draws} draws, ${x.losses} losses (${x.points}/${x.total} points). Depth ${x.depth}, paired openings, candidate playing both colors. Attempt ${model.attempts}.`;
-  saveModel();
-  schedule();
-};
-let trainingJobId = null;
-
 function changeEngine() {
   cancelComputer();cancelAnalysis();
   if(reviewJob)reviewer=restart(reviewer);reviewJob=null;
   $('game-review').replaceChildren();$('play-metrics').textContent='';
-  $('backend-status').textContent=`${selectedEvaluator()} · ${selectedEvaluator()==='custom'?'JavaScript':'Initializing WebAssembly…'}`;
+  $('backend-status').textContent=`${selectedEvaluator()} · Initializing WebAssembly…`;
   try{localStorage.setItem('reversi-engine-preferences-v1',JSON.stringify({evaluator:selectedEvaluator(),timeMs:$('computer-time').value}));}catch(_){}
   revision++;schedule();
 }
@@ -470,36 +402,14 @@ $('review-slider').addEventListener('input', e => {
   reviewIndex = idx >= game.history.length ? null : idx;
   schedule();
 });
-$('train').addEventListener('click', () => {
-  if (trainingBusy) return;
-  trainingBusy = true;
-  model.attempts++;
-  const id = nextJob++;
-  trainingJobId = id;
-  const seed = 20261026 + model.attempts * 104729;
-  trainingMessage = 'Playing eight paired tournament games in a background worker. The game board remains usable.';
-  saveModel();
-  render();
-  trainer.postMessage({ type: 'train', id, weights: model.weights, options: { seed, depth: 2, openingPairs: 4 } });
-});
-$('reset-model').addEventListener('click', () => {
-  if (trainingBusy || !window.confirm('Reset all learned evaluator weights to the original starter values?')) return;
-  model = { weights: cloneWeights(DEFAULT_WEIGHTS), version: 0, attempts: 0 };
-  cancelComputer();
-  trainingMessage = 'Learning weights reset to the initial hand-designed model.';
-  saveModel();
-  schedule();
-});
 $('review-game').addEventListener('click', () => {
   if (game.turn !== null || reviewJob !== null) return;
   reviewJob = nextJob++;
-  reviewModelVersion = `${selectedEvaluator()} / saved version ${model.version}`;
-  $('game-review').textContent = `Reviewing your decisions at depth ${$('analysis-depth').value} with model ${model.version}…`;
+  $('game-review').textContent = `Reviewing your decisions at depth ${$('analysis-depth').value} with evaluator ${selectedEvaluator()}…`;
   reviewer.postMessage({ type: 'review', id: reviewJob, history: game.history, human: game.human,
-    depth: Number($('analysis-depth').value), weights: model.weights, ...engineOptions() });
+    depth: Number($('analysis-depth').value), ...engineOptions() });
   render();
 });
-let reviewModelVersion = null;
 reviewer.onmessage = ({ data }) => {
   if (data.id !== reviewJob) return;
   reviewJob = null;
@@ -508,7 +418,7 @@ reviewer.onmessage = ({ data }) => {
   else {
     showBackend(data);
     const title = document.createElement('p');
-    title.textContent = `Your decisions ranked by search-point loss using model ${reviewModelVersion}. Click to replay; heuristic losses depend on the stated depth.`;
+    title.textContent = `Your decisions ranked by search-point loss using evaluator ${data.model} · ${data.backend}. Click to replay; heuristic losses depend on the stated depth.`;
     box.append(title);
     for (const row of data.rows) {
       const button = document.createElement('button');
@@ -519,18 +429,8 @@ reviewer.onmessage = ({ data }) => {
   }
   render();
 };
-$('export-model').addEventListener('click', () => {
-  const json = JSON.stringify({ format: 'reversi-coach-lab-model-v1', exportedAt: new Date().toISOString(), ...model }, null, 2);
-  const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `reversi-coach-model-${model.version}.json`;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
-
 newGame();
 
-for(const worker of [analyzer,opponent,reviewer,trainer])worker.onerror=event=>{
+for(const worker of [analyzer,opponent,reviewer])worker.onerror=event=>{
   $('backend-status').textContent=`Worker failed: ${event.message}. Reload to retry, or select another evaluator.`;
 };

@@ -8,7 +8,7 @@ standard-library-only. See [Python environment policy](PYTHON_ENVIRONMENT.md).
 
 ## Purpose
 
-A **game**, a **move analyzer**, and a **teaching/learning experiment** in one local web application. A key design constraint is interpretability: expose all legal move scores and actual variations, rather than asking the user to trust an opaque score or generic advice. The repo builds its own Reversi implementation rather than delegating play to a black-box engine.
+A **Reversi opponent and strategy coach** in one local web application. Machine learning belongs to the separate offline research tools. A key design constraint is interpretability: expose all legal move scores and actual variations, rather than asking the user to trust an opaque score or generic advice. The repo builds its own Reversi implementation rather than delegating play to a black-box engine.
 
 ## Runtime
 
@@ -21,9 +21,9 @@ HTTP access/errors use a rotating file handler at `logs/http.log` (1 MB, three b
 1. `src/rules.js`: immutable 64-element board and legal move generation, flips, passes, terminal states.
 2. `src/features.js`: board-based positional measurements and phase-dependent weights; static evaluation from one player's perspective.
 3. `src/search.js`: shared original negamax alpha-beta core. `scoreAllMoves` provides full-window same-depth coaching values/verified lines; `findBestMove`/`bestMove` use root alpha sharing and omit coaching details. Preserve exact-vs-heuristic distinctions.
-4. `src/learning.js`: reproducible, seeded proposal of new weights; compare via paired openings with colors swapped. This is a **baseline experiment**, not a proven learning result.
-5. `src/worker.js`: work isolation for analysis, opponent play, and training. Avoid stale Worker responses overwriting a new position.
-6. `src/app.js`: game state, UI interactions, replay, interpretation, browser model persistence and export.
+4. `src/learning.js`: reproducible, seeded proposal of new weights; compare via paired openings with colors swapped. This is an **offline baseline experiment**, not a proven learning result; player workers do not import it.
+5. `src/worker.js`: work isolation for analysis, opponent play, and completed-game review. Avoid stale Worker responses overwriting a new position.
+6. `src/app.js`: game state, UI interactions, replay, interpretation, B/L/P engine preference persistence. Historical saved model data are not read, rewritten or deleted.
 
 ## Search, jobs, and coaching
 
@@ -35,7 +35,7 @@ Optional playing-search deadlines use iterative deepening, fresh TT bounds per i
 
 Continuations verify each chosen move against a full-window same-depth value, rather than trusting a TT cutoff move. Verification work is included in reported node/time totals. Feature extraction precomputes the fixed neighbor geometry; this changes allocation cost, not weights or values.
 
-Analysis jobs retain view/depth/model identities and job IDs. Superseded analyses are terminated and replaced. Computer searches are canceled on replay, undo, restart, computer depth changes, and accepted/reset model changes; leaving replay starts a current search. Training retains its separate worker and fixed model snapshot.
+Analysis jobs retain view/depth/model identities and job IDs. Superseded analyses are terminated and replaced. Computer searches are canceled on replay, undo, restart, computer depth changes, and evaluator/time changes; leaving replay starts a current search. Three workers own analysis, play and review; the training worker and custom coefficient/version state have been removed.
 
 `src/coaching.js` reports legal-move counts, actual corner placements and mandatory passes in the searched line. The coach compares any two legal moves and displays both scores, their difference and the searched replies. These are facts about one optimal continuation at the stated depth, not a proof of general strategic labels such as “mobility trap.”
 
@@ -65,13 +65,12 @@ The follow-up result-preserving implementation is `src/fast-features.js`. It pre
 
 - Deep search and TT replacement retain correctness regression tests; this is not a proof for every board/depth.
 - Verified continuations are optimal at their stated horizon; tied replies can differ and heuristic leaves can be misleading.
-- Browser weight mutation uses training-only acceptance. Independent holdout evidence is required before claiming stronger play.
-- Models export to JSON; an import/validation UI is not yet implemented.
+- Weight mutation, TD fitting and model export remain offline research tools with separate tests. Independent holdout evidence is required before claiming stronger play.
 - Historical WSL2-to-Windows Chrome checks passed. Current Apple Silicon native research and real Chromium acceptance pass; native Intel, current WSL2/native Windows backend execution and actual Mac default-browser launch remain unverified. See `VALIDATION.md`.
 
 ## B-preserving residual research
 
-`scripts/residual/` is an offline experiment, independent of browser learning and the older mixed-target fitting code. It compiles 21 learned weight corrections into the original B weights, preserving the existing evaluator/search and phase boundaries. `frontier.mjs` reconstructs the best two root alternatives using fresh full-window continuation searches, verifies final static children with independent rules, and records pass/terminal witnesses. `data.mjs` admits whole source trajectories with canonical historical/cross-role exclusions and filters independent D10/D12 sibling preferences. `model.mjs` implements the fixed convex source-normalized objective and a deterministic bounded optimizer; original defaults remain unchanged.
+`scripts/residual/` is an offline experiment, independent of the player UI and the older mixed-target fitting code. It compiles 21 learned weight corrections into the original B weights, preserving the existing evaluator/search and phase boundaries. `frontier.mjs` reconstructs the best two root alternatives using fresh full-window continuation searches, verifies final static children with independent rules, and records pass/terminal witnesses. `data.mjs` admits whole source trajectories with canonical historical/cross-role exclusions and filters independent D10/D12 sibling preferences. `model.mjs` implements the fixed convex source-normalized objective and a deterministic bounded optimizer; original defaults remain unchanged.
 
 `launch.py` freezes source and pins the qualified external teacher, performs Windows/WSL resource checks, detaches the coordinator and holds a bounded temporary keep-awake request. `run.mjs` separates cumulative scientific time from each explicit session allowance, checkpoints individual expensive tasks and optimizer/game state, and bars locked assessment in session one. The historical parsing heap lives in a short-lived builder process; the coordinator uses a compact sorted full-SHA-256 exclusion index. `audit.mjs` verifies receipts, split identities, original source/teacher identities and trajectory separation before `publish.mjs` exports compact evidence. See [the frozen protocol](RESIDUAL_FRONTIER_PROTOCOL.md) for precise score units, normalization, selection and gates.
 
@@ -140,12 +139,14 @@ browser worker termination/job-id lifecycle is unchanged. See
 `native/engine.cpp` is now shared by native and browser builds. The explicit C ABI
 in `native/browser.cpp` and `src/wasm-engine.js` adapt complete computational
 operations; there is no leaf callback to JavaScript. `src/backend.js` selects
-frozen Wasm or saved/custom JavaScript evaluation inside the existing workers.
+frozen B/L/P Wasm evaluation inside the existing workers, with equivalent JavaScript B fallback.
 Each worker owns its own lazy module/TT; terminating it cancels initialization or
 search and discards the whole memory lifetime. Workers serialize incoming jobs
 through initialization; the UI still rejects replies by ID/revision/view/model.
-Frozen B/L/P selection and time preferences use a separate storage key from the
-unchanged mutable model format. Initial defaults and training remain JS/custom.
+Frozen B/L/P selection and time preferences use their own storage key. B is the
+default for first visits and old custom selections; B/L/P choices persist. The
+historical saved-model key remains untouched. Review titles use the returned
+frozen evaluator/backend identity, without obsolete mutable-model versions.
 See `WEBASSEMBLY_INTEGRATION.md` and `WEBASSEMBLY_BUILD.md` for current runtime,
 full-window/PV semantics, memory bounds and visible fallback behavior. Earlier
 JS-only descriptions above retain their historical scope.

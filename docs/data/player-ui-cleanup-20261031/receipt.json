@@ -1,0 +1,708 @@
+{
+  "scope": "Player UI cleanup; no evaluator/search changes or scientific experiment",
+  "initialSha": "81ac936704d58604a439014ee8fb8035b880abe2",
+  "tests": {
+    "baselineFast": 14,
+    "finalNode": 187,
+    "python": 46,
+    "focusedNativeWasm": 20,
+    "failures": 0,
+    "skips": 0
+  },
+  "commands": [
+    "node --test tests/rules.test.mjs tests/search.test.mjs tests/ui-smoke.test.mjs tests/backend.test.mjs",
+    "CXX=g++ NATIVE_CPU=dispatch npm run native:build",
+    "CXX=g++ NATIVE_CPU=dispatch node --test --test-concurrency=1 tests/*.test.mjs",
+    "CXX=g++ NATIVE_CPU=dispatch .venv/bin/python -m unittest discover -s tests -p 'test_*.py'",
+    "CXX=g++ NATIVE_CPU=dispatch node --test --test-concurrency=1 tests/native-search.test.mjs tests/runtime-cpu-dispatch.test.mjs tests/wasm-engine.test.mjs tests/mac-endgame.test.mjs",
+    "node scripts/runtime-cpu-mac/verify-production.mjs"
+  ],
+  "sourceHashes": {
+    "index.html": "569ba84031cb361470aa91dd0bb4b553ce8b430b4c467ee629f634f05aaeb241",
+    "style.css": "88fe58fc4c73874385ac24e9c32dcc96b4f1b14145b22c8ab15ecaa44a4961af",
+    "src/app.js": "71a09a9ed3e2f346256635bf69995bc18e51da230102bf0a5b7659068167bf22",
+    "src/backend.js": "4d06b9886f4ef7583300d16737ea939b13493865d3812b783a38a9d6090ea0b6",
+    "tests/ui-smoke.test.mjs": "00893a5acaaef8b4a80460dca17bc0d14266ab1964315ca13673cc9ea457944a",
+    "tests/backend.test.mjs": "739d6570a33753eaf417d153e34754f96227e59e62f57464b733e47683ab971b",
+    "tests/browser_check.py": "83f1549f0f32e94e80d39a2ca817e53003b83df3ada59435688de2ce249fffb9",
+    "tests/wasm_browser_check.py": "ae00be1db1b89ece5c5238251f21331e3e7e19c04936e04c9b2b67014c026515",
+    "scripts/windows-pc/production-acceptance.py": "29e709275d879a1a2aa5faf4bb9762d1d40ca92638ca30f094e1a0b245ba6b3e",
+    "scripts/windows-pc/launcher-ui.ps1": "918d8b9369ec2ff7463bd503f23362a5f45cd02cf1a23696600b91e28973773a",
+    "scripts/mac/safari-qualification.py": "445e0b874eb7a55ace4cd7630fc2e440199a5dca067c9a1d78dfcce83939fe66",
+    "scripts/mac/safari-custom.py": "6bb138a35febc321667261eb5f47f98471a80fde0e6bbcc5d4ee62125da17f88",
+    "scripts/mac/fast-flips-production-safari.py": "29762d569b331e4572be2f1a279a3fc0fb3c6cc8cd9772c2dc609ae1c2ef7088",
+    "scripts/mac/runtime-cpu-safari.py": "4ccfb06c2fcfada2d686370c78ead33241d432a3b895c502d917bf78b67d1b27"
+  },
+  "wasm": {
+    "passed": true,
+    "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+    "sourceSha256": "2495c91660133996c79fb9cd06e5f98441136eb12f030b61f89763a527f93ee5",
+    "artifacts": {
+      "engine-934b888ad89f8d75.mjs": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+      "engine-934b888ad89f8d75.wasm": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+    },
+    "abi": 1,
+    "exports": [
+      {
+        "name": "R",
+        "kind": "memory"
+      },
+      {
+        "name": "S",
+        "kind": "function"
+      },
+      {
+        "name": "T",
+        "kind": "table"
+      },
+      {
+        "name": "U",
+        "kind": "function"
+      },
+      {
+        "name": "V",
+        "kind": "function"
+      },
+      {
+        "name": "W",
+        "kind": "function"
+      },
+      {
+        "name": "X",
+        "kind": "function"
+      },
+      {
+        "name": "Y",
+        "kind": "function"
+      },
+      {
+        "name": "Z",
+        "kind": "function"
+      },
+      {
+        "name": "_",
+        "kind": "function"
+      },
+      {
+        "name": "$",
+        "kind": "function"
+      },
+      {
+        "name": "aa",
+        "kind": "function"
+      },
+      {
+        "name": "ba",
+        "kind": "function"
+      },
+      {
+        "name": "ca",
+        "kind": "function"
+      },
+      {
+        "name": "da",
+        "kind": "function"
+      },
+      {
+        "name": "ea",
+        "kind": "function"
+      },
+      {
+        "name": "fa",
+        "kind": "function"
+      }
+    ],
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "geometryBytes": 4096,
+    "geometrySha256": "0540f902224a73c794cec44491946155bab64925f3db98227f52c10da11c5774",
+    "geometryMemoryOffset": 5656,
+    "memoryBytes": 33554432
+  },
+  "native": {
+    "fingerprint": "a7ba82955b15a46436dd1a9bef66bfd5741d4cbf253756cb3075f07db09c158f",
+    "executableSha256": "09d0df1c895466768b986696cdf5300ff8a208b5d82ffe5cab03e6ae880a34db"
+  },
+  "browsers": [
+    {
+      "channel": "chrome",
+      "playerCheck": "PASS: real Chromium: colors, comparison, keyboard, undo/replay, rapid changes, B/L/P switching/reload, full game and mistake review\nBrowser: 156.0.8078.48",
+      "integration": {
+        "passed": true,
+        "migrations": [
+          {
+            "previous": null,
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "custom",
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "B",
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "L",
+            "selected": "L",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "P",
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "unknown",
+            "selected": "B",
+            "savedBytesPreserved": true
+          }
+        ],
+        "completedGames": [
+          {
+            "model": "B",
+            "plies": 59,
+            "reviewDecisions": 26,
+            "independentlyReplayed": true,
+            "forcedPasses": 7
+          },
+          {
+            "model": "P",
+            "plies": 60,
+            "reviewDecisions": 25,
+            "independentlyReplayed": true,
+            "forcedPasses": 10
+          }
+        ],
+        "errors": [],
+        "browser": "156.0.8078.48",
+        "wasm": {
+          "type": "application/wasm",
+          "bytes": 378665
+        },
+        "checks": [
+          "B/L/P all-move coach",
+          "complete B/P games and model-consistent review",
+          "P timed play",
+          "undo/replay",
+          "rapid cancellation/model changes",
+          "reload/cache",
+          "B fallback",
+          "P fail closed",
+          "B recovery",
+          "browser ABI mismatch/reload recovery"
+        ]
+      },
+      "production": {
+        "passed": true,
+        "channel": "chrome",
+        "browser": "156.0.8078.48",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+        "identity": {
+          "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "models": {
+            "B": "original-production",
+            "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+            "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+          },
+          "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        },
+        "coaching": [
+          {
+            "model": "B",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "D3",
+                  "C5",
+                  "C6"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "C4",
+                  "E3",
+                  "F3"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "F5",
+                  "D6",
+                  "C6"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "E6",
+                  "F4",
+                  "F3"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "L",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "P",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          }
+        ],
+        "pvSteps": 36,
+        "timedReply": {
+          "move": 34,
+          "score": 4.919389608828059,
+          "depth": 12,
+          "exact": false,
+          "timedOut": true,
+          "elapsedMs": 80.7,
+          "tableBytes": 10485760,
+          "generation": 13,
+          "modelIdentity": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f",
+          "nodes": 560128,
+          "evaluations": 396718,
+          "ttProbes": 163381,
+          "ttHits": 33842,
+          "ttBoundHits": 5817,
+          "ttCollisions": 30213,
+          "ttReplacements": 26291,
+          "ttCutoffs": 5393,
+          "cutoffs": 112953,
+          "ttStores": 154039,
+          "ttRejectedStores": 3920,
+          "firstMoveCutoffs": 82846,
+          "interfaceMs": 81.59999990463257,
+          "backend": "WebAssembly",
+          "model": "P",
+          "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "memoryBytes": 33554432,
+          "player": -1,
+          "budgetMs": 80,
+          "warning": "",
+          "initializationMs": 12.200000047683716
+        },
+        "workersBefore": {
+          "created": 3,
+          "terminated": 0
+        },
+        "workersAfter": {
+          "created": 6,
+          "terminated": 3
+        },
+        "wasmRequests": [
+          "http://127.0.0.1:46033/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:46033/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:46033/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:46033/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:46033/src/wasm/engine-934b888ad89f8d75.wasm"
+        ],
+        "errors": [],
+        "warnings": [
+          {
+            "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+            "url": "http://127.0.0.1:46033/favicon.ico"
+          }
+        ],
+        "observerSha256": "d3e8f42e3722d8895cbf4d2411458533c5b3b3aabb98af304622ad3756b488f4",
+        "cleanup": {
+          "profileRemoved": true,
+          "serverExit": 0,
+          "portClosed": true
+        }
+      }
+    },
+    {
+      "channel": "edge",
+      "playerCheck": "PASS: real Chromium: colors, comparison, keyboard, undo/replay, rapid changes, B/L/P switching/reload, full game and mistake review\nBrowser: 156.0.4314.58",
+      "integration": {
+        "passed": true,
+        "migrations": [
+          {
+            "previous": null,
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "custom",
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "B",
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "L",
+            "selected": "L",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "P",
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "unknown",
+            "selected": "B",
+            "savedBytesPreserved": true
+          }
+        ],
+        "completedGames": [
+          {
+            "model": "B",
+            "plies": 59,
+            "reviewDecisions": 27,
+            "independentlyReplayed": true,
+            "forcedPasses": 5
+          },
+          {
+            "model": "P",
+            "plies": 60,
+            "reviewDecisions": 25,
+            "independentlyReplayed": true,
+            "forcedPasses": 10
+          }
+        ],
+        "errors": [],
+        "browser": "156.0.4314.58",
+        "wasm": {
+          "type": "application/wasm",
+          "bytes": 378665
+        },
+        "checks": [
+          "B/L/P all-move coach",
+          "complete B/P games and model-consistent review",
+          "P timed play",
+          "undo/replay",
+          "rapid cancellation/model changes",
+          "reload/cache",
+          "B fallback",
+          "P fail closed",
+          "B recovery",
+          "browser ABI mismatch/reload recovery"
+        ]
+      },
+      "production": {
+        "passed": true,
+        "channel": "edge",
+        "browser": "156.0.4314.58",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+        "identity": {
+          "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "models": {
+            "B": "original-production",
+            "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+            "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+          },
+          "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        },
+        "coaching": [
+          {
+            "model": "B",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "D3",
+                  "C5",
+                  "C6"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "C4",
+                  "E3",
+                  "F3"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "F5",
+                  "D6",
+                  "C6"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "E6",
+                  "F4",
+                  "F3"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "L",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "P",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          }
+        ],
+        "pvSteps": 36,
+        "timedReply": {
+          "move": 34,
+          "score": 4.919389608828059,
+          "depth": 12,
+          "exact": false,
+          "timedOut": true,
+          "elapsedMs": 84.7,
+          "tableBytes": 10485760,
+          "generation": 13,
+          "modelIdentity": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f",
+          "nodes": 536256,
+          "evaluations": 377505,
+          "ttProbes": 158722,
+          "ttHits": 32212,
+          "ttBoundHits": 5728,
+          "ttCollisions": 28777,
+          "ttReplacements": 24912,
+          "ttCutoffs": 5305,
+          "cutoffs": 110634,
+          "ttStores": 149523,
+          "ttRejectedStores": 3865,
+          "firstMoveCutoffs": 81018,
+          "interfaceMs": 86.89999985694885,
+          "backend": "WebAssembly",
+          "model": "P",
+          "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "memoryBytes": 33554432,
+          "player": -1,
+          "budgetMs": 80,
+          "warning": "",
+          "initializationMs": 11.200000047683716
+        },
+        "workersBefore": {
+          "created": 4,
+          "terminated": 1
+        },
+        "workersAfter": {
+          "created": 7,
+          "terminated": 4
+        },
+        "wasmRequests": [
+          "http://127.0.0.1:43999/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:43999/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:43999/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:43999/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:43999/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:43999/src/wasm/engine-934b888ad89f8d75.wasm"
+        ],
+        "errors": [],
+        "warnings": [
+          {
+            "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+            "url": "http://127.0.0.1:43999/favicon.ico"
+          }
+        ],
+        "observerSha256": "d3e8f42e3722d8895cbf4d2411458533c5b3b3aabb98af304622ad3756b488f4",
+        "cleanup": {
+          "profileRemoved": true,
+          "serverExit": 0,
+          "portClosed": true
+        }
+      }
+    }
+  ],
+  "normalLauncher": {
+    "url": "http://127.0.0.1:43549/",
+    "title": "Reversi Strategy Coach - Personal - Microsoft\u200b Edge",
+    "pid": 64532,
+    "httpLoaded": true,
+    "ordinaryProfileUiAutomation": false,
+    "reason": "UIA exposed browser chrome but not page controls",
+    "ownedWindowClosed": true,
+    "serverExit": 0,
+    "portClosed": true
+  },
+  "limitations": [
+    "Current macOS UI not executed; Safari test changes only syntax checked",
+    "Ordinary-profile Edge UIA exposed no page controls; no full ordinary-profile interaction claim. Actual disposable-profile Edge and Chrome UI checks passed.",
+    "Existing favicon 404 and Python HTTPError cleanup ResourceWarning retained"
+  ],
+  "logHashes": {
+    "node-final.log": "954bda86d3e119fb7aa99e85485b8d187e0acf4d640fc23840052e86e3f5a821",
+    "python.log": "10c99ebb739a638b752d8761d33645603d61f328754e29332dcb71b5e64e32cf",
+    "native-wasm.log": "836b88be867d41bccb03ea6ff89a6d3a1a7e1027e796766bac690daf46c67c84",
+    "provenance.log": "1c75ca8b8ee6742506e80918859ad5d15987945e131c591a8759a21b2cd95534"
+  }
+}

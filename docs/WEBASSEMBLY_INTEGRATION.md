@@ -1,5 +1,14 @@
 # Browser integration checkpoint
 
+**Player UI update, 2026-10-31:** B is now the default, including for former
+saved/custom preferences. B/L/P remain selectable; historical saved-model bytes
+are untouched. Training, export, coefficient UI/state and the training worker
+have been removed. The three player workers handle play, coaching and review;
+review identifies the returned frozen evaluator/backend. B's JavaScript fallback
+and L/P's refusal to substitute remain. The packaged Wasm is unchanged.
+See [current qualification](PLAYER_UI_CLEANUP.md). The original integration
+checkpoint below records historical behavior and evidence.
+
 Open `python3 launch.py`, choose **B**, **L** or **P** in Evaluator, and choose
 fixed depth or **80 ms / 300 ms** computer time. Every search runs in the existing
 module-worker architecture. Playing, coaching and review have separate workers,
