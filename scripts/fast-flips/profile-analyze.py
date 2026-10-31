@@ -7,7 +7,8 @@ spec=importlib.util.spec_from_file_location('normalize',ROOT/'scripts/profiling/
 manifest=json.loads((OUT/'builds.json').read_text());rows=json.loads((OUT/'profiles.json').read_text());positions=json.loads((OUT/'positions.json').read_text());workloads=json.loads((OUT/'workloads.json').read_text())
 symbols={};builds={}
 for tag in {r['tag'] for r in rows}:
-    b={**manifest['builds'][tag],'executable':str(OUT/tag/'fixed-work'),'commit':manifest['experimentCommit']};builds[tag]=b;symbols[tag]=m.Symbols(b)
+    receipt=manifest['builds'][tag]
+    b={**receipt,'executable':str(OUT/tag/'fixed-work'),'commit':receipt.get('commit',manifest['baseline'] if tag=='original' else manifest['experimentCommit'])};builds[tag]=b;symbols[tag]=m.Symbols(b)
 profiles=[];summary=[]
 for row in rows:
     if not row['raw']:continue

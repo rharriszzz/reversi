@@ -16,8 +16,8 @@ extern "C" {
 DECL(0) DECL(1) DECL(2) DECL(3) DECL(4)
 }
 using Fn=Bits(*)(Bits,Bits,int);
-const std::array<Fn,5> functions={kernel0,kernel1,kernel2,kernel3,kernel4};
-const char* names[]={"original","masked-loop","unrolled","doubling","ray-table"};
+const std::array<Fn,6> functions={kernel0,kernel1,kernel2,kernel3,kernel4,reversi::flips};
+const char* names[]={"original","masked-loop","unrolled","doubling","ray-table","selected"};
 struct Case {Bits own,opp;int q;};
 uint64_t state=0x464c49504d340001ULL;
 uint64_t random64(){state^=state<<13;state^=state>>7;state^=state<<17;return state;}
@@ -126,8 +126,8 @@ int main(int argc,char** argv) {
     std::cout<<"],\"rows\":["<<std::setprecision(12);bool comma=false;
     const bool onlyCheck=argc>1&&std::string(argv[1])=="--check";
     const int target=std::getenv("FLIP_MICRO_CALLS")?std::stoi(std::getenv("FLIP_MICRO_CALLS")):20000000;
-    if(!onlyCheck)for(int rep=0;rep<7;rep++)for(int group=0;group<8;group++)if(!corpus[group].empty())for(int at=0;at<5;at++) {
-      int tag=(at+rep)%5;if(rep%2)tag=4-tag;
+    if(!onlyCheck)for(int rep=0;rep<7;rep++)for(int group=0;group<8;group++)if(!corpus[group].empty())for(int at=0;at<6;at++) {
+      int tag=(at+rep)%6;if(rep%2)tag=5-tag;
       const auto& cases=corpus[group];const int repeats=std::max(1,int(target/cases.size()));
       work(functions[tag],cases,2);const auto start=std::chrono::steady_clock::now();const auto cpu=std::clock();
       const uint64_t checksum=work(functions[tag],cases,repeats);
