@@ -1,0 +1,30 @@
+"""Serial measurement boundary, resource check, durable 45-minute ledger."""
+import hashlib,importlib.util,json,os,platform,shutil,subprocess,sys,time
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
+OUT=(ROOT/os.environ['REVERSI_FLIP_RUN']).resolve()
+def snapshot():
+    if platform.system()=='Darwin':
+        spec=importlib.util.spec_from_file_location('resources',ROOT/'scripts/mac/resources.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+        return m.check()
+    return {'platform':platform.platform(),'memory':Path('/proc/meminfo').read_text(),'load':os.getloadavg(),'diskFreeBytes':shutil.disk_usage(ROOT).free,'processes':subprocess.check_output(['ps','-eo','pid,pcpu,pmem,comm','--sort=-pcpu'],text=True).splitlines()[:20]}
+def main():
+    import fcntl
+    OUT.mkdir(parents=True,exist_ok=True)
+    with (OUT/'measurement.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        name=sys.argv[1];path=OUT/(name+'.json');assert not path.exists(),f'Preserve {path}'
+        ledger=Path(os.environ.get('REVERSI_FOLLOWUP_BUDGET_ROOT',str(OUT)))/'budget.json';budget=json.loads(ledger.read_text()) if ledger.exists() else {'activeSeconds':0,'runs':[]}
+        assert budget['activeSeconds']<2600,'45-minute measurement cap'
+        before=snapshot();binaries={str(p.relative_to(OUT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.glob('*/fixed-work')};start=time.monotonic()
+        try:
+            with path.open('w') as output, (OUT/(name+'.stderr')).open('w') as error:
+                result=subprocess.run(sys.argv[2:],stdout=output,stderr=error,timeout=max(1,2700-budget['activeSeconds']))
+        finally:
+            elapsed=time.monotonic()-start;after=snapshot();budget['activeSeconds']+=elapsed
+            afterBinaries={str(p.relative_to(OUT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.glob('*/fixed-work')}
+            budget['runs'].append({'name':name,'command':sys.argv[2:],'seconds':elapsed,'before':before,'after':after,'fixedWorkBinarySha256':binaries,'binariesUnchanged':afterBinaries==binaries})
+            ledger.write_text(json.dumps(budget,indent=2)+'\n')
+            assert afterBinaries==binaries,'Measured executables changed during run'
+        result.check_returncode();print(json.dumps({'name':name,'seconds':elapsed,'activeSeconds':budget['activeSeconds']}))
+if __name__=='__main__':main()
