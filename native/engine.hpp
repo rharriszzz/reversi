@@ -37,22 +37,32 @@ struct Profile {
   std::array<uint64_t,Count> ns{},calls{};
 };
 extern Profile profile;
+struct CpuFeatures {
+  bool popcnt=false,bmi1=false,bmi2=false,lzcnt=false;
+  bool enhanced() const {return popcnt&&bmi1&&bmi2&&lzcnt;}
+};
+CpuFeatures cpuFeatures();
 class Engine {
   friend struct EngineQualification; // standalone regression, no playing API
   std::vector<Entry> table;
+  const bool enhancedBackend; // selected at construction; table/state owned once
   uint32_t generation=0;
   int model=0; bool useTT=true, orderingHints=true, exactHorizon=false;
   Clock::time_point deadline; bool timed=false;
   uint64_t stopNodes=0; // deterministic interrupted-iteration regression hook
   Counters stats;
-  size_t index(Board b,int player) const;
+  template<int ISA> size_t index(Board b,int player) const;
   void nextGeneration();
-  bool same(const Entry& e,Board b,int player) const;
-  int ordered(Board b,Bits moves,int favored,std::array<int,64>& output);
-  double negamax(Board b,int player,int depth,double alpha,double beta);
-  double lastEmpties(Board b,int player,int depth,double alpha,double beta,Bits empty);
-  Result root(Board b,int player,int depth,int favored);
+  template<int ISA> bool same(const Entry& e,Board b,int player) const;
+  template<int ISA> int ordered(Board b,Bits moves,int favored,std::array<int,64>& output);
+  template<int ISA> double negamax(Board b,int player,int depth,double alpha,double beta);
+  template<int ISA> double lastEmpties(Board b,int player,int depth,double alpha,double beta,Bits empty);
+  template<int ISA> Result root(Board b,int player,int depth,int favored);
+  template<int ISA> Result searchImpl(Board,int,int,int,double,uint64_t);
+  template<int ISA> Analysis analyzeImpl(Board,int,int,int);
+  template<int ISA> std::vector<double> windowsImpl(Board,int,int,int,const std::vector<std::array<double,2>>&);
 public:
+  const char* backendName() const;
   explicit Engine(size_t tableMiB=16);
   size_t tableBytes() const {return table.size()*sizeof(Entry);}
   void configure(bool tt=true,bool hints=true) {useTT=tt;orderingHints=hints;}

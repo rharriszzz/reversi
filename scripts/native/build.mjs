@@ -18,9 +18,10 @@ export function frozenHeader() {
     return {header,models,weights};
 }
 export function nativeDirectory(cpu=process.env.NATIVE_CPU??'portable') {
-  if(!['portable','native','popcnt'].includes(cpu))throw Error('NATIVE_CPU must be portable, native or popcnt');
+  if(!['portable','native','popcnt','dispatch'].includes(cpu))throw Error('NATIVE_CPU must be portable, native, popcnt or dispatch');
   if(cpu==='popcnt'&&!['x64','ia32'].includes(process.arch))throw Error('NATIVE_CPU=popcnt requires x86');
-  return cpu==='native'?'.local-research/native-host':cpu==='popcnt'?'.local-research/native-popcnt':'.local-research/native';
+  if(cpu==='dispatch'&&(process.arch!=='x64'||process.platform!=='linux'))throw Error('NATIVE_CPU=dispatch is currently qualified only for Linux x86-64 GCC');
+  return cpu==='dispatch'?'.local-research/native-dispatch':cpu==='native'?'.local-research/native-host':cpu==='popcnt'?'.local-research/native-popcnt':'.local-research/native';
 }
 function acquireBuildLock(directory) {
   const lock=resolve(directory,'.build-lock'),start=Date.now();
@@ -49,9 +50,13 @@ export function build({cpu=process.env.NATIVE_CPU??'portable',directory=resolve(
     const flags=['-O3','-std=c++17','-Wall','-Wextra','-Wpedantic','-ffp-contract=off','-fno-fast-math',...target,...(profile||instrument?['-g','-fno-omit-frame-pointer']:[]),...(instrument?['-DNATIVE_PROFILE']:[]),...(sanitize?['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']:[])];
     const compiler=process.env.CXX??'c++',version=spawnSync(compiler,['--version'],{encoding:'utf8'});
     if(version.status!==0)throw Error(`Compiler unavailable: ${compiler}`);
-    const sources=['native/engine.hpp','native/engine.cpp','native/main.cpp','scripts/native/build.mjs','scripts/native/client.mjs','scripts/native/client.py'];
+    const sources=['native/engine.hpp','native/engine.cpp','native/engine-impl.inc','native/engine-tables.hpp','native/engine-enhanced.cpp','native/main.cpp','scripts/native/build.mjs','scripts/native/client.mjs','scripts/native/client.py'];
     const sourceHashes=Object.fromEntries(sources.filter(p=>existsSync(p)).map(p=>[p,sha(readFileSync(p))]));
-    const fingerprint=sha(JSON.stringify({header:sha(header),sourceHashes,flags,compiler:version.stdout}));
+    const dispatch=cpu==='dispatch';
+    const baselineFlags=dispatch?['-march=x86-64','-mtune=generic','-DREVERSI_CPU_DISPATCH']:[];
+    const enhancedFlags=dispatch?['-mpopcnt','-mbmi','-mbmi2','-mlzcnt']:[];
+    if(dispatch&&(!version.stdout.includes('Free Software Foundation')||version.stdout.includes('clang')))throw Error('Dispatch currently requires GCC');
+    const fingerprint=sha(JSON.stringify({header:sha(header),sourceHashes,flags,baselineFlags,enhancedFlags,compiler:version.stdout}));
     mkdirSync(directory,{recursive:true});unlock=acquireBuildLock(directory);
     const executable=resolve(directory,process.platform==='win32'?'reversi-native.exe':'reversi-native');
     const receipt=resolve(directory,'build.json');
@@ -63,10 +68,19 @@ export function build({cpu=process.env.NATIVE_CPU??'portable',directory=resolve(
     const headerPath=resolve(directory,'frozen.hpp');
     writeFileSync(temporary(headerPath),header);renameSync(temporary(headerPath),headerPath);
     const pending=temporary(executable);
-    const run=spawnSync(compiler,[...flags,'-I',directory,'native/engine.cpp','native/main.cpp','-o',pending],{encoding:'utf8',cwd:root});
-    if(run.status!==0){rmSync(pending,{force:true});throw Error(run.stderr||run.error);}
+    const compile=args=>{
+      const run=spawnSync(compiler,[...flags,...args],{encoding:'utf8',cwd:root});
+      if(run.status!==0){rmSync(pending,{force:true});throw Error(run.stderr||run.error);}
+    };
+    if(dispatch) {
+      const portableObject=resolve(directory,'portable.o'),enhancedObject=resolve(directory,'enhanced.o'),mainObject=resolve(directory,'main.o');
+      compile([...baselineFlags,'-I',directory,'-c','native/engine.cpp','-o',portableObject]);
+      compile([...baselineFlags,...enhancedFlags,'-I',directory,'-c','native/engine-enhanced.cpp','-o',enhancedObject]);
+      compile([...baselineFlags,'-I',directory,'-c','native/main.cpp','-o',mainObject]);
+      compile([...baselineFlags,portableObject,enhancedObject,mainObject,`-Wl,-Map=${resolve(directory,'link.map')}`,'-o',pending]);
+    } else compile(['-I',directory,'native/engine.cpp','native/main.cpp','-o',pending]);
     renameSync(pending,executable);
-    const saved={version:1,fingerprint,sourceHashes,flags,compiler:version.stdout.trim(),executable,executableSha256:sha(readFileSync(executable)),modelHeaderSha256:sha(header),models:{B:'original-production',L:models.L.checksum,P:models.P.checksum},createdAt:new Date().toISOString()};
+    const saved={version:1,fingerprint,sourceHashes,flags,baselineFlags,enhancedFlags,cpu,compiler:version.stdout.trim(),executable,executableSha256:sha(readFileSync(executable)),modelHeaderSha256:sha(header),models:{B:'original-production',L:models.L.checksum,P:models.P.checksum},createdAt:new Date().toISOString()};
     writeFileSync(temporary(receipt),JSON.stringify(saved,null,2)+'\n');renameSync(temporary(receipt),receipt);return saved;
   } finally {unlock?.();process.chdir(previous);}
 }

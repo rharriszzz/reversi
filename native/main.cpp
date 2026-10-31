@@ -41,7 +41,7 @@ int main(int argc,char**argv) {
       auto* prior=std::cout.rdbuf(output.rdbuf());
       try {
         std::cout<<"{\"id\":"<<id;
-        if(command=="hello") {end(in);std::cout<<",\"protocol\":1,\"tableBytes\":"<<engine->tableBytes()<<",\"models\":[";for(int i=0;i<3;i++)std::cout<<(i?",":"")<<'"'<<modelIdentity(i)<<'"';std::cout<<"]";}
+        if(command=="hello") {end(in);const auto cpu=cpuFeatures();std::cout<<",\"cpuBackend\":\""<<engine->backendName()<<"\",\"cpuFeatures\":{\"popcnt\":"<<cpu.popcnt<<",\"bmi1\":"<<cpu.bmi1<<",\"bmi2\":"<<cpu.bmi2<<",\"lzcnt\":"<<cpu.lzcnt<<"},\"protocol\":1,\"tableBytes\":"<<engine->tableBytes()<<",\"models\":[";for(int i=0;i<3;i++)std::cout<<(i?",":"")<<'"'<<modelIdentity(i)<<'"';std::cout<<"]";}
         else if(command=="profile") {end(in);std::cout<<",\"ns\":[";for(int i=0;i<Profile::Count;i++)std::cout<<(i?",":"")<<profile.ns[i];std::cout<<"],\"calls\":[";for(int i=0;i<Profile::Count;i++)std::cout<<(i?",":"")<<profile.calls[i];std::cout<<"]";}
         else {
           std::string black,white;int player,model;

@@ -8547,3 +8547,7 @@ Answer these explicitly:
 14. What must subsequently be checked on the M4 before promotion?
 
 **Guiding principle: compile the hot search implementation for several instruction sets, choose once at the outer boundary, and execute the selected implementation without repeated CPU-feature checks. Preserve correctness and use complete-search benchmarks to determine whether the additional complexity is worthwhile.** ; add commit push after Stage 1.  For stage 2, be sure to include a command line argument or environment variable or something, to enable it to force it to run the less native version.  That way it is easier to test.
+
+---
+
+at some point in the middle of this work, please add commit push your plan, or a status update of some kind.
