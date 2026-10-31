@@ -9018,3 +9018,213 @@ Answer explicitly:
 If production promotion succeeds, recommend a **short PC acceptance follow-up** to verify the newly packaged Wasm in Edge and Chrome and confirm the optimized native dispatcher still works with the promoted source. Do not repeat the complete PC performance campaign.
 
 **Guiding principle:** The optimization research is finished. The remaining work is cross-platform correctness, reproducible packaging, actual application acceptance and safe production promotion.
+
+---
+
+# Reversi — Final Windows PC Production Acceptance
+
+Work on my Windows 11 PC under WSL2 Ubuntu 26.04.1, in `rharriszzz/reversi`.
+
+Use GPT-6.1-Sol with High reasoning.
+
+## 1. Objective
+
+The CPU-dispatch optimization and branchless flipping work are completed, qualified on the PC, subsequently qualified on the M4, and merged into production `main`.
+
+The latest verified production commit is:
+
+`e955e992708b7138b5c0f704451e17e3dee4484a`
+
+The new production Wasm fingerprint begins:
+
+`934b888ad89f8d75`
+
+This task is the **final PC production acceptance check** following the M4 integration.
+
+Do not repeat any compiler optimization campaigns, model training, performance profiling or extensive benchmarks.
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first, then:
+
+- `docs/RUNTIME_CPU_DISPATCH_MAC_ACCEPTANCE.md`
+- `docs/RUNTIME_CPU_DISPATCH_FOLLOWUP.md`
+- `docs/RUNTIME_CPU_DISPATCH_DESIGN.md`
+- `docs/RUNTIME_CPU_DISPATCH_RESULTS.md`
+- `docs/WEBASSEMBLY_BUILD.md`
+
+Follow the "Windows follow-up" section of the M4 acceptance report.
+
+## 2. Safely update the PC checkout
+
+Inspect the current local and remote repository states.
+
+Fetch the latest `main`, verify the expected production history, and update safely using fast-forward-only operations.
+
+Preserve unrelated local modifications, worktrees, research evidence and benchmark results.
+
+Do not reset or overwrite local work. Use a separate worktree if necessary.
+
+Verify that the final branchless implementation, two-backend CPU dispatch and updated production WebAssembly artifacts are all present.
+
+Confirm that the generated Wasm manifest identifies the expected current source and B/L/P models.
+
+## 3. Verify the runtime CPU dispatcher
+
+Use the existing qualified GCC 15.2, Python 3.14 and Node 24 environments. Do not install or replace toolchains.
+
+Build the production native executable with:
+
+`NATIVE_CPU=dispatch`
+
+Verify automatic selection on the i7-14700F reports:
+
+`x86-popcnt-bmi1-bmi2-lzcnt`
+
+Then force the portable backend using:
+
+`REVERSI_CPU_BACKEND=portable`
+
+Confirm that it reports `portable` and executes correctly.
+
+Verify that both use the same frozen models and preserve the single transposition-table design.
+
+Confirm that the portable fallback does not require enhanced x86 instructions and that the dispatcher still prevents unsupported instructions from executing.
+
+Do not modify CPU instruction-selection logic unless an actual defect is discovered.
+
+## 4. Run the prescribed production tests
+
+Execute the relevant rules, native search, CPU dispatch, WebAssembly and exact-endgame tests from the M4 handoff.
+
+In particular, run the equivalent of:
+
+```bash
+source .venv/bin/activate
+export CXX=g++ NATIVE_CPU=dispatch
+unset REVERSI_CPU_BACKEND
+
+npm run native:build
+
+node --test --test-concurrency=1 \
+  tests/rules.test.mjs \
+  tests/native-search.test.mjs \
+  tests/runtime-cpu-dispatch.test.mjs \
+  tests/wasm-engine.test.mjs \
+  tests/mac-endgame.test.mjs
+
+node scripts/runtime-cpu-mac/verify-production.mjs
+```
+
+Verify B/L/P model identities, exact scores, legal moves, coaching results, principal variations, transposition-table behavior, and completed-depth/cancellation semantics.
+
+Do not modify tests to obtain a pass.
+
+Run any additional short regression only if necessary to investigate a failure.
+
+## 5. Short native performance smoke
+
+Run the established short production smoke test with:
+
+1. Automatic enhanced CPU selection.
+2. Forced portable backend.
+
+Use the existing prescribed positions and checks.
+
+Compare scores, moves, node counts, evaluations, exactness and relevant counters with the previously qualified results.
+
+Record timing, but do not require exact agreement in elapsed time. The objective is to catch major regressions, not to establish new performance improvements.
+
+Keep demanding measurements serial.
+
+Check available memory, swap and competing processes first. Do not change Windows or WSL memory allocations, processor affinity, security settings or CPU configuration.
+
+No extensive performance campaign is authorized.
+
+## 6. Actual Windows Edge and Chrome acceptance
+
+Test the newly promoted, committed WebAssembly distribution in both actual Windows browsers:
+
+- Microsoft Edge.
+- Google Chrome.
+
+Use disposable profiles and the existing packaged-browser acceptance infrastructure.
+
+Verify:
+
+- Successful Wasm loading.
+- Actual fetched Wasm SHA-256 and manifest fingerprint.
+- Correct B/L/P model identities.
+- Coaching scores for all legal alternatives.
+- Verified principal variations.
+- An 80-ms timed computer reply.
+- Model switching.
+- Reload and persistence.
+- Worker cancellation and restart.
+- No unexpected JavaScript or browser errors.
+
+Confirm that the runtime is requesting the **new production Wasm artifact**, not an older cached version or local experimental build.
+
+Do not rebuild Wasm on the PC. The M4-built distributed artifact is already qualified.
+
+## 7. Verify normal startup
+
+Run:
+
+```bash
+./start.sh --port 0
+```
+
+Confirm that it opens the actual Windows default browser and loads the current application.
+
+Verify the game board, coaching interface, model selection and a computer response.
+
+Stop the server cleanly with Ctrl+C.
+
+Confirm that its port is closed and no test browser or server processes remain.
+
+Do not disturb unrelated browser windows or user profiles.
+
+## 8. Final evidence and report
+
+Create:
+
+`docs/PC_FINAL_PRODUCTION_ACCEPTANCE.md`
+
+Record:
+
+- Local and remote Git SHAs.
+- Exact environment and compiler versions.
+- CPU features and selected backend.
+- Native build identity.
+- Production Wasm identity and hash.
+- Test commands and pass/fail counts.
+- Automatic and forced-portable backend results.
+- Short performance smoke findings.
+- Actual Edge and Chrome results.
+- Launcher and shutdown checks.
+- Any unresolved warnings or limitations.
+
+Keep the report concise. Preserve historical experiments and their results without rewriting them.
+
+If all checks pass, commit and push the acceptance documentation and any compact, reproducible evidence to `main`, using fast-forward-safe procedures. Verify the resulting remote SHA.
+
+Do not commit compiled native executables, raw benchmark logs, browser profiles, SDK files or large generated traces.
+
+If any important check fails, investigate and fix a genuine defect if possible. Re-run the affected tests. Do not publish an unconditional PASS or modify production behavior merely to accommodate a test harness.
+
+## 9. Final answers
+
+Explicitly answer:
+
+1. Is the latest production `main` fully present on the PC?
+2. Does automatic CPU dispatch select the enhanced backend correctly?
+3. Does forced-portable execution pass?
+4. Are the B/L/P search results and counters unchanged?
+5. Does the new WebAssembly package pass actual Windows Edge and Chrome testing?
+6. Does the normal application launch and shut down cleanly?
+7. Are there any meaningful performance regressions?
+8. Is all qualified work committed and pushed to `main`?
+9. Are there any remaining technical issues requiring work?
+
+**If all acceptance checks pass, declare the CPU-dispatch and branchless-flipping production integration complete.**
+
+Do not propose another optimization campaign merely because further optimization might be possible. The next project phase can return to improving the Reversi playing engine and its coaching capabilities.

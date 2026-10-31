@@ -1,0 +1,1110 @@
+{
+  "passed": true,
+  "date": "2026-10-31",
+  "initialBranch": "perf/runtime-cpu-branchless-probe",
+  "initialHead": "911ce40096a869a684b21496f2c3060cd316fada",
+  "initialLocalMain": "6b480ed1bc6ddcdde2fdb37872c0ca8d0a804425",
+  "verifiedProductionLocalSha": "e955e992708b7138b5c0f704451e17e3dee4484a",
+  "verifiedProductionRemoteSha": "e955e992708b7138b5c0f704451e17e3dee4484a",
+  "updateCommands": [
+    "git fetch origin main",
+    "git switch main",
+    "git merge --ff-only origin/main"
+  ],
+  "environment": {
+    "linux": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ubuntu": "Ubuntu 26.04.1 LTS",
+    "compiler": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+    "python": "Python 3.14.4",
+    "node": "v24.16.0",
+    "windows": "Windows 11 Home 10.0.26300",
+    "cpu": "Intel Core i7-14700F",
+    "precheckAvailableGiB": 6.4,
+    "precheckSwapUsedKiB": 1016,
+    "precheckLoad": [
+      0.06,
+      0.05,
+      0.09
+    ],
+    "diskFreeGiB": 884,
+    "windowsResources": {
+      "rawLogSha256": "dfe210b250973dde969243e036fd19f64f0a89c62635f91fb83a674f2041c6e3",
+      "freePhysicalMemoryKiB": 4874836,
+      "sampleSeconds": 2,
+      "highestBackgroundConsumer": "Taskmgr",
+      "highestBackgroundCpuSeconds": 0.188
+    }
+  },
+  "nativeBuild": {
+    "version": 1,
+    "fingerprint": "a7ba82955b15a46436dd1a9bef66bfd5741d4cbf253756cb3075f07db09c158f",
+    "sourceHashes": {
+      "native/engine.hpp": "badccbd9e60b69eb089b82fb56d7d43a68461484cd80847be6bbb46e98d0b071",
+      "native/engine.cpp": "2495c91660133996c79fb9cd06e5f98441136eb12f030b61f89763a527f93ee5",
+      "native/engine-impl.inc": "c3317e89cc77c4b989b5c9a5a636092eef5b8e078aa58f4d0e9df42d1f1ca266",
+      "native/engine-tables.hpp": "c9b33d20a084d7200168aa64a5eeffb51572c5ba23f1504b3a655be50dc999e5",
+      "native/engine-enhanced.cpp": "7517f63d5347a09ef3da4ac6506f4aba4ad1518980376efdfb5928288cc62b82",
+      "native/main.cpp": "aec75e57ffe0966853efbe7a966e94d2bcac4bf0131a5049d737156ebf0da1dc",
+      "scripts/native/build.mjs": "c8223db15c6d050d2b452dcc542e6e41628fdaafeec4ec51984129945d05ac91",
+      "scripts/native/client.mjs": "7533a332307c9afe8daf26bbd02f4c4f9e1017e0f678816ca34a99f3f6b8952e",
+      "scripts/native/client.py": "c09d504e11b8eed3baeb82af0974d15474e28b82888d0f7267537506b88adab9"
+    },
+    "flags": [
+      "-O3",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-ffp-contract=off",
+      "-fno-fast-math"
+    ],
+    "baselineFlags": [
+      "-march=x86-64",
+      "-mtune=generic",
+      "-DREVERSI_CPU_DISPATCH"
+    ],
+    "enhancedFlags": [
+      "-mpopcnt",
+      "-mbmi",
+      "-mbmi2",
+      "-mlzcnt"
+    ],
+    "cpu": "dispatch",
+    "compiler": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "executable": "/home/rharris/git/reversi/.local-research/native-dispatch/reversi-native",
+    "executableSha256": "09d0df1c895466768b986696cdf5300ff8a208b5d82ffe5cab03e6ae880a34db",
+    "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "createdAt": "2026-10-31T21:38:37.313Z"
+  },
+  "backendHello": {
+    "auto": {
+      "id": 1,
+      "cpuBackend": "x86-popcnt-bmi1-bmi2-lzcnt",
+      "cpuFeatures": {
+        "popcnt": 1,
+        "bmi1": 1,
+        "bmi2": 1,
+        "lzcnt": 1
+      },
+      "protocol": 1,
+      "tableBytes": 10485760,
+      "models": [
+        "original-production",
+        "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+        "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+      ]
+    },
+    "portable": {
+      "id": 1,
+      "cpuBackend": "portable",
+      "cpuFeatures": {
+        "popcnt": 1,
+        "bmi1": 1,
+        "bmi2": 1,
+        "lzcnt": 1
+      },
+      "protocol": 1,
+      "tableBytes": 10485760,
+      "models": [
+        "original-production",
+        "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+        "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+      ]
+    }
+  },
+  "nativeStatic": {
+    "passed": true,
+    "nativeBinaryIdenticalToQualifiedB": true,
+    "portableObjectSha256": "21fae922259f4b7e76835ce40bfa3a9a1c56670ce507868a5658ea49518909a7",
+    "portableObjectIdenticalToQualifiedB": true,
+    "baselineFlags": [
+      "-march=x86-64",
+      "-mtune=generic",
+      "-DREVERSI_CPU_DISPATCH"
+    ],
+    "enhancedFlags": [
+      "-mpopcnt",
+      "-mbmi",
+      "-mbmi2",
+      "-mlzcnt"
+    ],
+    "forbiddenEnhancedMnemonics": [],
+    "avxFamilyMnemonics": [],
+    "sharedTableSymbols": [
+      "000000000002c260 000000000000222c u frozen::table0",
+      "0000000000018ec0 000000000001338c u frozen::table1",
+      "000000000002e4a0 00000000000001f8 u frozen::weights",
+      "0000000000017ec0 0000000000001000 u reversi::detail::flipRays"
+    ],
+    "oldCpuHardwareTested": false
+  },
+  "wasm": {
+    "passed": true,
+    "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+    "sourceSha256": "2495c91660133996c79fb9cd06e5f98441136eb12f030b61f89763a527f93ee5",
+    "artifacts": {
+      "engine-934b888ad89f8d75.mjs": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+      "engine-934b888ad89f8d75.wasm": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+    },
+    "abi": 1,
+    "exports": [
+      {
+        "name": "R",
+        "kind": "memory"
+      },
+      {
+        "name": "S",
+        "kind": "function"
+      },
+      {
+        "name": "T",
+        "kind": "table"
+      },
+      {
+        "name": "U",
+        "kind": "function"
+      },
+      {
+        "name": "V",
+        "kind": "function"
+      },
+      {
+        "name": "W",
+        "kind": "function"
+      },
+      {
+        "name": "X",
+        "kind": "function"
+      },
+      {
+        "name": "Y",
+        "kind": "function"
+      },
+      {
+        "name": "Z",
+        "kind": "function"
+      },
+      {
+        "name": "_",
+        "kind": "function"
+      },
+      {
+        "name": "$",
+        "kind": "function"
+      },
+      {
+        "name": "aa",
+        "kind": "function"
+      },
+      {
+        "name": "ba",
+        "kind": "function"
+      },
+      {
+        "name": "ca",
+        "kind": "function"
+      },
+      {
+        "name": "da",
+        "kind": "function"
+      },
+      {
+        "name": "ea",
+        "kind": "function"
+      },
+      {
+        "name": "fa",
+        "kind": "function"
+      }
+    ],
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "geometryBytes": 4096,
+    "geometrySha256": "0540f902224a73c794cec44491946155bab64925f3db98227f52c10da11c5774",
+    "geometryMemoryOffset": 5656,
+    "memoryBytes": 33554432
+  },
+  "tests": [
+    {
+      "command": "node --test --test-concurrency=1 tests/rules.test.mjs tests/native-search.test.mjs tests/runtime-cpu-dispatch.test.mjs tests/wasm-engine.test.mjs tests/mac-endgame.test.mjs",
+      "tests": 25,
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "be153a9750e078e19e1f3b93a7e4e9e419e8faaa8c229bdc8a3e8eeaeb85204f"
+    },
+    {
+      "command": "REVERSI_CPU_BACKEND=portable node --test --test-concurrency=1 tests/native-search.test.mjs tests/mac-endgame.test.mjs",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "ddf5a8dbb35859c81103c002f00ee2b9e2f7a3aa3104c404d0aa2db7d5664edf"
+    }
+  ],
+  "counterAudit": {
+    "passed": true,
+    "queries": 288,
+    "warmupBatches": 2,
+    "referenceFile": "docs/data/runtime-cpu-followup/search.json",
+    "referenceSha256": "d6e79d86c127db299a51e78199ab795072ef6fe87ff5816f03de713a7967f626",
+    "counterFields": {
+      "nodes": "nodes",
+      "evaluations": "evaluations",
+      "ttProbes": "probes",
+      "ttHits": "hits",
+      "ttBoundHits": "boundHits",
+      "ttCollisions": "collisions",
+      "ttReplacements": "replacements",
+      "cutoffs": "cutoffs",
+      "ttCutoffs": "ttCutoffs",
+      "ttStores": "stores",
+      "ttRejectedStores": "rejectedStores",
+      "firstMoveCutoffs": "firstMoveCutoffs"
+    },
+    "rows": [
+      {
+        "backend": "auto",
+        "model": "B",
+        "nodes": 1780838,
+        "evaluations": 841839,
+        "roots": 48
+      },
+      {
+        "backend": "auto",
+        "model": "L",
+        "nodes": 2018500,
+        "evaluations": 1023170,
+        "roots": 48
+      },
+      {
+        "backend": "auto",
+        "model": "P",
+        "nodes": 2578323,
+        "evaluations": 1438599,
+        "roots": 48
+      },
+      {
+        "backend": "portable",
+        "model": "B",
+        "nodes": 1780838,
+        "evaluations": 841839,
+        "roots": 48
+      },
+      {
+        "backend": "portable",
+        "model": "L",
+        "nodes": 2018500,
+        "evaluations": 1023170,
+        "roots": 48
+      },
+      {
+        "backend": "portable",
+        "model": "P",
+        "nodes": 2578323,
+        "evaluations": 1438599,
+        "roots": 48
+      }
+    ]
+  },
+  "smoke": {
+    "auto": {
+      "passed": true,
+      "workloadSha256": "a8deadc89f811e02da19910a702b073de12707ef19895a10f7d9861d088dcfee",
+      "native": {
+        "version": 1,
+        "fingerprint": "a7ba82955b15a46436dd1a9bef66bfd5741d4cbf253756cb3075f07db09c158f",
+        "sourceHashes": {
+          "native/engine.hpp": "badccbd9e60b69eb089b82fb56d7d43a68461484cd80847be6bbb46e98d0b071",
+          "native/engine.cpp": "2495c91660133996c79fb9cd06e5f98441136eb12f030b61f89763a527f93ee5",
+          "native/engine-impl.inc": "c3317e89cc77c4b989b5c9a5a636092eef5b8e078aa58f4d0e9df42d1f1ca266",
+          "native/engine-tables.hpp": "c9b33d20a084d7200168aa64a5eeffb51572c5ba23f1504b3a655be50dc999e5",
+          "native/engine-enhanced.cpp": "7517f63d5347a09ef3da4ac6506f4aba4ad1518980376efdfb5928288cc62b82",
+          "native/main.cpp": "aec75e57ffe0966853efbe7a966e94d2bcac4bf0131a5049d737156ebf0da1dc",
+          "scripts/native/build.mjs": "c8223db15c6d050d2b452dcc542e6e41628fdaafeec4ec51984129945d05ac91",
+          "scripts/native/client.mjs": "7533a332307c9afe8daf26bbd02f4c4f9e1017e0f678816ca34a99f3f6b8952e",
+          "scripts/native/client.py": "c09d504e11b8eed3baeb82af0974d15474e28b82888d0f7267537506b88adab9"
+        },
+        "flags": [
+          "-O3",
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-ffp-contract=off",
+          "-fno-fast-math"
+        ],
+        "baselineFlags": [
+          "-march=x86-64",
+          "-mtune=generic",
+          "-DREVERSI_CPU_DISPATCH"
+        ],
+        "enhancedFlags": [
+          "-mpopcnt",
+          "-mbmi",
+          "-mbmi2",
+          "-mlzcnt"
+        ],
+        "cpu": "dispatch",
+        "compiler": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+        "executable": "/home/rharris/git/reversi/.local-research/native-dispatch/reversi-native",
+        "executableSha256": "09d0df1c895466768b986696cdf5300ff8a208b5d82ffe5cab03e6ae880a34db",
+        "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+        "models": {
+          "B": "original-production",
+          "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+          "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+        },
+        "createdAt": "2026-10-31T21:38:37.313Z"
+      },
+      "rows": [
+        {
+          "rep": 0,
+          "model": "B",
+          "roots": 48,
+          "outerWallMs": 106.26901599999997,
+          "coreMs": 96.65085899999995,
+          "cpuMs": 96.64900000000004,
+          "nodes": 1780838
+        },
+        {
+          "rep": 0,
+          "model": "P",
+          "roots": 48,
+          "outerWallMs": 164.04791099999994,
+          "coreMs": 156.64287700000003,
+          "cpuMs": 156.643,
+          "nodes": 2578323
+        },
+        {
+          "rep": 1,
+          "model": "B",
+          "roots": 48,
+          "outerWallMs": 99.85979599999996,
+          "coreMs": 92.333575,
+          "cpuMs": 92.34800000000001,
+          "nodes": 1780838
+        },
+        {
+          "rep": 1,
+          "model": "P",
+          "roots": 48,
+          "outerWallMs": 167.615684,
+          "coreMs": 161.571976,
+          "cpuMs": 161.5820000000001,
+          "nodes": 2578323
+        },
+        {
+          "rep": 2,
+          "model": "B",
+          "roots": 48,
+          "outerWallMs": 97.24660100000006,
+          "coreMs": 90.96170900000003,
+          "cpuMs": 90.96700000000001,
+          "nodes": 1780838
+        },
+        {
+          "rep": 2,
+          "model": "P",
+          "roots": 48,
+          "outerWallMs": 162.98047599999995,
+          "coreMs": 155.38634000000008,
+          "cpuMs": 155.3859999999999,
+          "nodes": 2578323
+        }
+      ],
+      "method": "Mixed48 matched published horizons/scores/nodes/evaluations, one full warmup and three batches per B/P; core and IPC-inclusive wall are separate."
+    },
+    "portable": {
+      "passed": true,
+      "workloadSha256": "a8deadc89f811e02da19910a702b073de12707ef19895a10f7d9861d088dcfee",
+      "native": {
+        "version": 1,
+        "fingerprint": "a7ba82955b15a46436dd1a9bef66bfd5741d4cbf253756cb3075f07db09c158f",
+        "sourceHashes": {
+          "native/engine.hpp": "badccbd9e60b69eb089b82fb56d7d43a68461484cd80847be6bbb46e98d0b071",
+          "native/engine.cpp": "2495c91660133996c79fb9cd06e5f98441136eb12f030b61f89763a527f93ee5",
+          "native/engine-impl.inc": "c3317e89cc77c4b989b5c9a5a636092eef5b8e078aa58f4d0e9df42d1f1ca266",
+          "native/engine-tables.hpp": "c9b33d20a084d7200168aa64a5eeffb51572c5ba23f1504b3a655be50dc999e5",
+          "native/engine-enhanced.cpp": "7517f63d5347a09ef3da4ac6506f4aba4ad1518980376efdfb5928288cc62b82",
+          "native/main.cpp": "aec75e57ffe0966853efbe7a966e94d2bcac4bf0131a5049d737156ebf0da1dc",
+          "scripts/native/build.mjs": "c8223db15c6d050d2b452dcc542e6e41628fdaafeec4ec51984129945d05ac91",
+          "scripts/native/client.mjs": "7533a332307c9afe8daf26bbd02f4c4f9e1017e0f678816ca34a99f3f6b8952e",
+          "scripts/native/client.py": "c09d504e11b8eed3baeb82af0974d15474e28b82888d0f7267537506b88adab9"
+        },
+        "flags": [
+          "-O3",
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-ffp-contract=off",
+          "-fno-fast-math"
+        ],
+        "baselineFlags": [
+          "-march=x86-64",
+          "-mtune=generic",
+          "-DREVERSI_CPU_DISPATCH"
+        ],
+        "enhancedFlags": [
+          "-mpopcnt",
+          "-mbmi",
+          "-mbmi2",
+          "-mlzcnt"
+        ],
+        "cpu": "dispatch",
+        "compiler": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+        "executable": "/home/rharris/git/reversi/.local-research/native-dispatch/reversi-native",
+        "executableSha256": "09d0df1c895466768b986696cdf5300ff8a208b5d82ffe5cab03e6ae880a34db",
+        "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+        "models": {
+          "B": "original-production",
+          "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+          "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+        },
+        "createdAt": "2026-10-31T21:38:37.313Z"
+      },
+      "rows": [
+        {
+          "rep": 0,
+          "model": "B",
+          "roots": 48,
+          "outerWallMs": 113.76832200000001,
+          "coreMs": 105.04198399999996,
+          "cpuMs": 105.04800000000003,
+          "nodes": 1780838
+        },
+        {
+          "rep": 0,
+          "model": "P",
+          "roots": 48,
+          "outerWallMs": 179.31994000000003,
+          "coreMs": 169.64966399999997,
+          "cpuMs": 169.65300000000008,
+          "nodes": 2578323
+        },
+        {
+          "rep": 1,
+          "model": "B",
+          "roots": 48,
+          "outerWallMs": 115.447224,
+          "coreMs": 108.500517,
+          "cpuMs": 108.502,
+          "nodes": 1780838
+        },
+        {
+          "rep": 1,
+          "model": "P",
+          "roots": 48,
+          "outerWallMs": 177.68122500000004,
+          "coreMs": 171.689025,
+          "cpuMs": 171.697,
+          "nodes": 2578323
+        },
+        {
+          "rep": 2,
+          "model": "B",
+          "roots": 48,
+          "outerWallMs": 113.90310199999988,
+          "coreMs": 103.62064499999998,
+          "cpuMs": 103.62300000000008,
+          "nodes": 1780838
+        },
+        {
+          "rep": 2,
+          "model": "P",
+          "roots": 48,
+          "outerWallMs": 182.1839050000001,
+          "coreMs": 174.62644200000005,
+          "cpuMs": 174.63600000000002,
+          "nodes": 2578323
+        }
+      ],
+      "method": "Mixed48 matched published horizons/scores/nodes/evaluations, one full warmup and three batches per B/P; core and IPC-inclusive wall are separate."
+    }
+  },
+  "smokeMeans": {
+    "auto": {
+      "B": {
+        "coreMs": 93.31538099999999,
+        "cpuMs": 93.32133333333336,
+        "outerWallMs": 101.12513766666666
+      },
+      "P": {
+        "coreMs": 157.86706433333336,
+        "cpuMs": 157.87033333333335,
+        "outerWallMs": 164.88135699999995
+      }
+    },
+    "portable": {
+      "B": {
+        "coreMs": 105.72104866666665,
+        "cpuMs": 105.72433333333336,
+        "outerWallMs": 114.37288266666663
+      },
+      "P": {
+        "coreMs": 171.988377,
+        "cpuMs": 171.99533333333338,
+        "outerWallMs": 179.7283566666667
+      }
+    }
+  },
+  "previousSmokeReference": "docs/data/pc-production-followup/receipt.json",
+  "browsers": {
+    "edge": {
+      "packaged": {
+        "passed": true,
+        "browser": "156.0.4314.58",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+        "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+        "models": {
+          "B": "original-production",
+          "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+          "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+        },
+        "wasmSha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+        "errors": []
+      },
+      "ui": {
+        "passed": true,
+        "channel": "edge",
+        "browser": "156.0.4314.58",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+        "identity": {
+          "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "models": {
+            "B": "original-production",
+            "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+            "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+          },
+          "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        },
+        "coaching": [
+          {
+            "model": "B",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "D3",
+                  "C5",
+                  "C6"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "C4",
+                  "E3",
+                  "F3"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "F5",
+                  "D6",
+                  "C6"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "E6",
+                  "F4",
+                  "F3"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "L",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "P",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          }
+        ],
+        "pvSteps": 36,
+        "timedReply": {
+          "move": 34,
+          "score": 4.919389608828059,
+          "depth": 12,
+          "exact": false,
+          "timedOut": true,
+          "elapsedMs": 80.4,
+          "tableBytes": 10485760,
+          "generation": 13,
+          "modelIdentity": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f",
+          "nodes": 903360,
+          "evaluations": 629538,
+          "ttProbes": 273776,
+          "ttHits": 52242,
+          "ttBoundHits": 10161,
+          "ttCollisions": 77083,
+          "ttReplacements": 66214,
+          "ttCutoffs": 9490,
+          "cutoffs": 193779,
+          "ttStores": 253388,
+          "ttRejectedStores": 10865,
+          "firstMoveCutoffs": 145155,
+          "interfaceMs": 80.90000009536743,
+          "backend": "WebAssembly",
+          "model": "P",
+          "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "memoryBytes": 33554432,
+          "player": -1,
+          "budgetMs": 80,
+          "warning": "",
+          "initializationMs": 5.5
+        },
+        "workersBefore": {
+          "created": 4,
+          "terminated": 0
+        },
+        "workersAfter": {
+          "created": 7,
+          "terminated": 3
+        },
+        "wasmRequests": [
+          "http://127.0.0.1:33777/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:33777/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:33777/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:33777/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:33777/src/wasm/engine-934b888ad89f8d75.wasm"
+        ],
+        "errors": [],
+        "warnings": [
+          {
+            "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+            "url": "http://127.0.0.1:33777/favicon.ico"
+          }
+        ],
+        "observerSha256": "d3e8f42e3722d8895cbf4d2411458533c5b3b3aabb98af304622ad3756b488f4",
+        "cleanup": {
+          "profileRemoved": true,
+          "serverExit": 0,
+          "portClosed": true
+        }
+      }
+    },
+    "chrome": {
+      "packaged": {
+        "passed": true,
+        "browser": "156.0.8078.48",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+        "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+        "models": {
+          "B": "original-production",
+          "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+          "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+        },
+        "wasmSha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+        "errors": []
+      },
+      "ui": {
+        "passed": true,
+        "channel": "chrome",
+        "browser": "156.0.8078.48",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+        "identity": {
+          "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "models": {
+            "B": "original-production",
+            "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+            "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+          },
+          "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        },
+        "coaching": [
+          {
+            "model": "B",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "D3",
+                  "C5",
+                  "C6"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "C4",
+                  "E3",
+                  "F3"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "F5",
+                  "D6",
+                  "C6"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -3.3492063492063497,
+                "pv": [
+                  "E6",
+                  "F4",
+                  "F3"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "L",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          },
+          {
+            "model": "P",
+            "depth": 3,
+            "rows": [
+              {
+                "move": 19,
+                "score": -38.935452151617085,
+                "pv": [
+                  "D3",
+                  "E3",
+                  "F4"
+                ]
+              },
+              {
+                "move": 26,
+                "score": -38.935452151617085,
+                "pv": [
+                  "C4",
+                  "C5",
+                  "D6"
+                ]
+              },
+              {
+                "move": 37,
+                "score": -38.935452151617085,
+                "pv": [
+                  "F5",
+                  "F4",
+                  "E3"
+                ]
+              },
+              {
+                "move": 44,
+                "score": -38.935452151617085,
+                "pv": [
+                  "E6",
+                  "D6",
+                  "C5"
+                ]
+              }
+            ]
+          }
+        ],
+        "pvSteps": 36,
+        "timedReply": {
+          "move": 34,
+          "score": 4.919389608828059,
+          "depth": 12,
+          "exact": false,
+          "timedOut": true,
+          "elapsedMs": 80.3,
+          "tableBytes": 10485760,
+          "generation": 13,
+          "modelIdentity": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f",
+          "nodes": 898112,
+          "evaluations": 625962,
+          "ttProbes": 272104,
+          "ttHits": 52139,
+          "ttBoundHits": 10069,
+          "ttCollisions": 76181,
+          "ttReplacements": 65496,
+          "ttCutoffs": 9406,
+          "cutoffs": 192510,
+          "ttStores": 251984,
+          "ttRejectedStores": 10681,
+          "firstMoveCutoffs": 144275,
+          "interfaceMs": 80.70000004768372,
+          "backend": "WebAssembly",
+          "model": "P",
+          "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "memoryBytes": 33554432,
+          "player": -1,
+          "budgetMs": 80,
+          "warning": "",
+          "initializationMs": 5.400000095367432
+        },
+        "workersBefore": {
+          "created": 4,
+          "terminated": 0
+        },
+        "workersAfter": {
+          "created": 7,
+          "terminated": 3
+        },
+        "wasmRequests": [
+          "http://127.0.0.1:38797/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:38797/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:38797/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:38797/src/wasm/engine-934b888ad89f8d75.wasm",
+          "http://127.0.0.1:38797/src/wasm/engine-934b888ad89f8d75.wasm"
+        ],
+        "errors": [],
+        "warnings": [
+          {
+            "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+            "url": "http://127.0.0.1:38797/favicon.ico"
+          }
+        ],
+        "observerSha256": "d3e8f42e3722d8895cbf4d2411458533c5b3b3aabb98af304622ad3756b488f4",
+        "cleanup": {
+          "profileRemoved": true,
+          "serverExit": 0,
+          "portClosed": true
+        }
+      }
+    }
+  },
+  "launcher": {
+    "ui": {
+      "passed": true,
+      "url": "http://127.0.0.1:42501/",
+      "pid": 27356,
+      "title": "Reversi Coach Lab - Personal - Microsoft\u200b Edge",
+      "boardCells": 64,
+      "coaching": [
+        "B \u00b7 WebAssembly \u00b7 96 search nodes \u00b7 0 ms \u00b7 Heuristic estimate; horizon limited \u00b7 Equal depth for all moves.",
+        "L \u00b7 WebAssembly \u00b7 96 search nodes \u00b7 0 ms \u00b7 Heuristic estimate; horizon limited \u00b7 Equal depth for all moves.",
+        "P \u00b7 WebAssembly \u00b7 90 search nodes \u00b7 0 ms \u00b7 Heuristic estimate; horizon limited \u00b7 Equal depth for all moves."
+      ],
+      "computerReply": "Last computer search: P \u00b7 WebAssembly \u00b7 depth 12 \u00b7 965,632 nodes \u00b7 80.3 ms \u00b7 Heuristic estimate",
+      "turn": "Black to move",
+      "history": [
+        "1. B D3",
+        "2. W C5"
+      ],
+      "originalEvaluator": "Saved/custom weights \u00b7 JavaScript",
+      "originalTime": "Fixed depth below",
+      "ownedWindowClosed": true
+    },
+    "shutdown": {
+      "command": "./start.sh --port 0",
+      "url": "http://127.0.0.1:42501/",
+      "ctrlC": true,
+      "exitCode": 0,
+      "portClosed": true
+    },
+    "newModuleHttp200": true,
+    "cleanup": {
+      "DisposableBrowserProcesses": 0,
+      "NormalBrowserProcess": {},
+      "NormalBrowserCommand": {}
+    }
+  },
+  "helpers": {
+    "scripts/windows-pc/production-acceptance.py": "29e709275d879a1a2aa5faf4bb9762d1d40ca92638ca30f094e1a0b245ba6b3e",
+    "scripts/windows-pc/launcher-ui.ps1": "918d8b9369ec2ff7463bd503f23362a5f45cd02cf1a23696600b91e28973773a",
+    "scripts/windows-pc/production-counters.mjs": "7d4414546d02b70e5fcc3aa863e3e614c75937b77277483d8eedcbb1ecfcad97"
+  },
+  "rawEvidence": ".local-research/pc-final-production-20261031",
+  "collectionNotes": [
+    "Counter comparison matches the archived driver: separate Engine per model and two full warmups; an initial cold-table collector comparison was invalid and is excluded.",
+    "Windows UI Automation exposes some paragraph text without DOM IDs and gridcell Invoke selects rather than activates; the helper uses complete rendered metric text and Enter on the exact URL-verified focused cell. No application behavior or existing test was changed."
+  ],
+  "limitations": [
+    "No older physical x86 CPU tested; baseline instruction audit and actual forced portable execution pass.",
+    "Known existing favicon.ico 404 in both browsers; no unexpected errors.",
+    "Smoke only; no new timing confidence intervals, performance campaign, profiler, training, toolchain installation or Wasm rebuild."
+  ],
+  "wasmManifestSha256": "e7a71fdcda5c85d244a67e706b4ff14374b50d9adaf5d2c8af3d477cc9d64057",
+  "launcherHttpEvidence": [
+    "2026-10-31 17:41:06,041 127.0.0.1 \"GET / HTTP/1.1\" 200 -",
+    "2026-10-31 17:42:45,640 127.0.0.1 \"GET /src/wasm/engine-934b888ad89f8d75.mjs HTTP/1.1\" 200 -",
+    "2026-10-31 17:42:45,644 127.0.0.1 \"GET /src/wasm/engine-934b888ad89f8d75.wasm HTTP/1.1\" 200 -",
+    "2026-10-31 17:47:16,574 127.0.0.1 \"GET /src/wasm/engine-934b888ad89f8d75.mjs HTTP/1.1\" 304 -",
+    "2026-10-31 17:47:16,577 127.0.0.1 \"GET /src/wasm/engine-934b888ad89f8d75.wasm HTTP/1.1\" 304 -"
+  ],
+  "freshProductionRebuild": {
+    "passed": true,
+    "command": "CXX=g++ NATIVE_CPU=dispatch node --input-type=module (build({cpu:'dispatch', directory: fresh-native}))",
+    "receipt": {
+      "version": 1,
+      "fingerprint": "a7ba82955b15a46436dd1a9bef66bfd5741d4cbf253756cb3075f07db09c158f",
+      "sourceHashes": {
+        "native/engine.hpp": "badccbd9e60b69eb089b82fb56d7d43a68461484cd80847be6bbb46e98d0b071",
+        "native/engine.cpp": "2495c91660133996c79fb9cd06e5f98441136eb12f030b61f89763a527f93ee5",
+        "native/engine-impl.inc": "c3317e89cc77c4b989b5c9a5a636092eef5b8e078aa58f4d0e9df42d1f1ca266",
+        "native/engine-tables.hpp": "c9b33d20a084d7200168aa64a5eeffb51572c5ba23f1504b3a655be50dc999e5",
+        "native/engine-enhanced.cpp": "7517f63d5347a09ef3da4ac6506f4aba4ad1518980376efdfb5928288cc62b82",
+        "native/main.cpp": "aec75e57ffe0966853efbe7a966e94d2bcac4bf0131a5049d737156ebf0da1dc",
+        "scripts/native/build.mjs": "c8223db15c6d050d2b452dcc542e6e41628fdaafeec4ec51984129945d05ac91",
+        "scripts/native/client.mjs": "7533a332307c9afe8daf26bbd02f4c4f9e1017e0f678816ca34a99f3f6b8952e",
+        "scripts/native/client.py": "c09d504e11b8eed3baeb82af0974d15474e28b82888d0f7267537506b88adab9"
+      },
+      "flags": [
+        "-O3",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-ffp-contract=off",
+        "-fno-fast-math"
+      ],
+      "baselineFlags": [
+        "-march=x86-64",
+        "-mtune=generic",
+        "-DREVERSI_CPU_DISPATCH"
+      ],
+      "enhancedFlags": [
+        "-mpopcnt",
+        "-mbmi",
+        "-mbmi2",
+        "-mlzcnt"
+      ],
+      "cpu": "dispatch",
+      "compiler": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "executable": "/home/rharris/git/reversi/.local-research/pc-final-production-20261031/fresh-native/reversi-native",
+      "executableSha256": "09d0df1c895466768b986696cdf5300ff8a208b5d82ffe5cab03e6ae880a34db",
+      "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+      "models": {
+        "B": "original-production",
+        "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+        "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+      },
+      "createdAt": "2026-10-31T21:50:44.215Z"
+    }
+  }
+}
