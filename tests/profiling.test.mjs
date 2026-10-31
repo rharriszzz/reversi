@@ -19,6 +19,7 @@ test('recursion, empty stacks and overlapping inclusive rows have coherent costs
 });
 test('containment uses half-open bounds and supports full-width address strings',()=>{
  for(const address of ['0x0ff','0x120']){const p=ip();p.frames[0].relativeAddress=address;assert.throws(()=>validateProfile(p),/outside/);}
+ const logical=ip();Object.assign(logical.frames[0],{symbol:'inline logical function',name:'inline logical function',containingSymbol:'A',inlined:true});assert.equal(addressTree(logical).children.find(c=>c.name==='engine').children.find(c=>c.name==='A').name,'A');
  const p=ip();Object.assign(p.frames[0],{address:'0xffffffffffffff00',relativeAddress:'0xffffffffffffff00',start:'0xfffffffffffffe00',end:'0xffffffffffffffff'});assert.doesNotThrow(()=>validateProfile(p));
 });
 test('differential normalization is invariant to sampling density, and rejects mismatches',()=>{
@@ -39,4 +40,21 @@ test('flat address records without timestamps remain valid and do not acquire ti
 test('committed real captures balance with the same accounting used by every view',()=>{
  const path=new URL('../docs/data/profiling/manifest.json',import.meta.url);assert.ok(existsSync(path),'Commit qualified example captures');const m=JSON.parse(readFileSync(path));assert.ok(m.profiles.length>=4);
  for(const meta of m.profiles){const p=validateProfile(JSON.parse(readFileSync(new URL('../docs/data/profiling/'+meta.file,import.meta.url))));assert.equal(p.accounting.samples,meta.samples);assert.equal(addressTree(p).weight,p.accounting.weight);assert.equal(hotspots(p).reduce((x,r)=>x+r.self,0),p.accounting.weight);if(p.kind==='stacks')assert.equal(totalSelf(callTree(p)),p.accounting.weight);}
+});
+test('committed benchmark populations, throughput and paired effect denominators match full trials',()=>{
+ const b=JSON.parse(readFileSync(new URL('../docs/data/profiling/benchmarks.json',import.meta.url)));
+ const mean=a=>a.reduce((s,x)=>s+x,0)/a.length,median=a=>{a=[...a].sort((x,y)=>x-y);return a.length%2?a[(a.length-1)/2]:(a[a.length/2-1]+a[a.length/2])/2;};
+ const close=(a,c)=>assert.ok(Math.abs(a-c)<=1e-9*Math.max(1,Math.abs(c)));
+ assert.equal(b.trials.length,564);assert.equal(b.captureStatistics.length,480);
+ for(const g of b.groups){
+  const rows=b.trials.filter(r=>r.workload===g.workloadId&&r.tag===g.buildId&&r.mode===g.mode);
+  assert.equal(g.wall.n,rows.length);assert.deepEqual(g.wall.values,rows.map(r=>r.result.wallSeconds));close(g.wall.median,median(g.wall.values));close(g.wall.mean,mean(g.wall.values));
+  close(g.nodesPerSecond,g.metrics.nodes/g.wall.median);close(g.evaluationsPerSecond,g.metrics.evaluations/g.wall.median);
+  for(const r of rows){assert.deepEqual(r.result.metrics,g.metrics);assert.equal(r.result.repeats,g.repeats);assert.equal(r.result.ipAttempts,0);}
+  if(g.mode==='plain')continue;
+  const controls=b.trials.filter(r=>r.workload===g.workloadId&&r.tag===g.buildId&&r.mode==='plain');
+  for(const [field,key] of [['wallSeconds','wallEffect'],['workloadCpuSeconds','cpuEffect']]){
+   const logs=rows.map(r=>Math.log(r.result[field]/controls.find(c=>c.rep===r.rep).result[field]));close(g[key].percent,100*Math.expm1(mean(logs)));assert.equal(g[key].n,logs.length);assert.ok(g[key].low<=g[key].percent&&g[key].percent<=g[key].high);
+  }
+ }
 });

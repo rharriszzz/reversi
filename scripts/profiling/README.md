@@ -21,6 +21,10 @@ node scripts/profiling/build.mjs
 # Read .local-research/profiling-m4-20261030/registration.json first.
 .venv/bin/python scripts/profiling/measure.py
 .venv/bin/python scripts/profiling/normalize.py
+.venv/bin/python scripts/profiling/qualify-builds.py
+.venv/bin/python scripts/profiling/chrome.py  # optional separate actual Chrome worker captures
+.venv/bin/python scripts/profiling/analyze.py
+.venv/bin/python scripts/profiling/report.py
 ```
 
 Use the qualified project environment, Python 3.13+ and Xcode Instruments.
@@ -33,7 +37,8 @@ receipts or rebuild during collection.
 
 The default output directory identifies this investigation. For a new campaign,
 set `export REVERSI_PROFILE_RUN=.local-research/profiling-next` before running
-any commands; every collection/analysis script honors it. **Do not casually rerun the build into completed results.**
+any commands; every collection/analysis script honors it. `report.py` reads the
+explicitly published derivatives, not a raw run directory. **Do not casually rerun the build into completed results.**
 To start a distinct future investigation, first choose a fresh `REVERSI_PROFILE_RUN`, review the source commits/workloads
 in `build.mjs`, and register new identities.
 `measure.py` skips only completed trial IDs. A trace left without a completed row
@@ -90,8 +95,10 @@ HIS reference. Normalized profiles have:
 - explicit accepted, outside-work, unresolved, malformed and unknown-loss mass;
 - timestamp provenance and raw-export hashes.
 
-An IP location ID references a frame; a stack location ID references a stack.
-Time is relative to a captured workload signpost, not invented from sample order.
+Trailing collector-specific tuple fields are optional; `capture.sampleColumns`
+identifies the fields actually retained by each file. An IP location ID references a frame; a stack location ID references a stack.
+Native time is relative to a captured workload signpost; Chrome time is relative
+to CDP profile start. Neither is invented from sample order.
 Raw PMI weights are configured cycle periods, not cumulative counter values.
 Raw cumulative readings use decimal strings to retain full integer precision.
 CPU/Time weights retain the Instruments export's own units. Chrome worker
@@ -110,5 +117,10 @@ node --test tests/profiling.test.mjs
 .venv/bin/python -m unittest discover -s tests -p 'test_profiling.py'
 .venv/bin/python scripts/profiling/browser-check.py
 ```
+
+After acceptance, `receipt.py --final` publishes compact build/resource/test
+evidence. Run the qualification commands first: the receipt requires their
+passing logs. Playwright and installed Chrome are optional development tools for
+`chrome.py` / `browser-check.py`; local explorer use requires neither.
 
 See [methods, measured interference and view recommendations](../../docs/PROFILING_METHODS_AND_VIEWS.md).

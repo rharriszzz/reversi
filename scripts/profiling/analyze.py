@@ -1,6 +1,6 @@
 """Analyze completed evidence only. Does not launch a workload or profiler."""
 import os
-import collections,importlib.util,json,math,statistics
+import collections,hashlib,importlib.util,json,math,statistics
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];DATA=ROOT/'docs/data/profiling';OUT=(ROOT/os.environ.get('REVERSI_PROFILE_RUN','.local-research/profiling-m4-20261030')).resolve()
 spec=importlib.util.spec_from_file_location('normalize',ROOT/'scripts/profiling/normalize.py');n=importlib.util.module_from_spec(spec);spec.loader.exec_module(n)
@@ -12,7 +12,7 @@ def distribution(captures,work,tag,mode):
 def compare(a,b):
     keys=set(a)|set(b);return {'totalVariationPercent':50*sum(abs(a.get(k,0)-b.get(k,0)) for k in keys),'top5A':sorted(a,key=a.get,reverse=True)[:5],'top5B':sorted(b,key=b.get,reverse=True)[:5],'sharesA':dict(sorted(a.items(),key=lambda x:-x[1])),'sharesB':dict(sorted(b.items(),key=lambda x:-x[1]))}
 def main():
-    bench=json.loads((DATA/'benchmarks.json').read_text());rows=bench['trials'];caps=bench['captureStatistics'];lookup={(r['workload'],r['tag'],r['mode'],r['rep']):r for r in rows};reg=bench['registration'];increments=[];rates=[];hotspots=[];noise=[]
+    bench=json.loads((DATA/'benchmarks.json').read_text());bench['activeBudget']=json.loads((OUT/'budget.json').read_text());rows=bench['trials'];caps=bench['captureStatistics'];lookup={(r['workload'],r['tag'],r['mode'],r['rep']):r for r in rows};reg=bench['registration'];increments=[];rates=[];hotspots=[];noise=[]
     for work in reg['workloads']:
         wid=work['id']
         for tag in reg['builds']:
@@ -37,8 +37,12 @@ def main():
     manifest=json.loads((DATA/'manifest.json').read_text());paths={};quality=[]
     for meta in manifest['profiles']:
         p=json.loads((DATA/meta['file']).read_text())
+        if not p['method'].startswith('chrome-'):
+            workload=next(w for w in reg['workloads'] if w['id']==p['workloadId'])
+            p['workloadFingerprint']=hashlib.sha256(json.dumps({k:workload[k] for k in ['mode','position','depth','model','repeats']},sort_keys=True).encode()).hexdigest()
+            p['configuration']['workRepetitions']=workload['repeats']
         if meta['mode'].startswith('cpu-'):
-            capture=next(c for c in caps if c['id']==meta['id']);p['event']=dict(capture['event']);meta['event']=dict(capture['event'])
+            capture=next(c for c in caps if c['id']==meta['id']);p['event']=dict(capture['event']);p['capture']['event']=dict(capture['event']);meta['event']=dict(capture['event'])
         toc=OUT/'exports'/(meta['id']+'-toc.xml')
         if toc.exists():
             import xml.etree.ElementTree as ET
@@ -46,6 +50,11 @@ def main():
             for capture in caps:
                 if capture['id']==meta['id']:capture['recordingMode']=mode
             (DATA/meta['file']).write_text(json.dumps(p,separators=(',',':'))+'\n')
+        if p['method']=='chrome-v8-software-stacks' and 'wasmBuild' not in p['capture']:
+            manifestPath=ROOT/'src/wasm/manifest.js'
+            assert hashlib.sha256(manifestPath.read_bytes()).hexdigest()==p['capture']['wasmManifestSha256']
+            wasm=json.loads(manifestPath.read_text().split('export default ',1)[1].strip().removesuffix(';'))
+            p['capture']['wasmBuild']={k:wasm[k] for k in ['abi','fingerprint','version','flags','sourceHashes','modelHeaderSha256','models']}
         if p['method']=='hardware-raw-stacks':
             xml=n.XML(OUT/'exports'/(p['id']+'-pmi-sample.xml'));registers={}
             for row in xml.rows('pmi-sample'):

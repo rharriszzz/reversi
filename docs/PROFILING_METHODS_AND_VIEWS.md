@@ -56,7 +56,8 @@ ordinary desktop/system activity; it was not a laboratory-isolated machine.
 Resource checks precede every timed run, with a swap-output stop gate. Intensive
 work is serial. Browser tests, correctness tests and offline symbolization run
 after collection. The compact qualification receipt records the completed
-budget, tests and remote checkpoints.
+budget, tests and the verified intermediate remote checkpoint. Final publication
+verification is reported with the completed commit.
 
 ## Mechanisms actually distinguished
 
@@ -277,6 +278,106 @@ teardown and nonrunning exclusions have explicit counts and use different
 denominators from the fixed-work views. The sample density, unique-PC coverage,
 unresolved weight, depth and core distributions accompany the capture statistics.
 
+## Collector resources, postprocessing and context quality
+
+The [compact receipt](data/profiling/receipt.json) and
+[separate collector audit](data/profiling/collector-resources.json) preserve these
+scopes. Active measurement, including the conservative probe allowance and the
+supplementary resource/Chrome captures, used **3,432.0 s (57.2 minutes)**.
+All 564 pre-trial snapshots reported normal memory pressure; swap-outs remained
+24 throughout. Snapshots precede work, so they do not certify an isolated CPU
+throughout each trial. No competing benchmark, browser acceptance or offline
+symbolization was run during the primary matrix.
+
+The supplementary resource audit uses one static-B run per condition with a
+5 Hz process observer. It is separate from the repeated overhead experiment:
+
+| Condition | Target thread CPU s | Launch/save wall s | Timed process-family CPU s | Last observed xctrace own CPU s | Peak observed xctrace RSS MiB |
+| --- | --- | --- | --- | --- | --- |
+| Plain | 2.135 | 2.150 | 2.13 | — | — |
+| IP, 1 M | 2.169 | 5.391 | 3.97 | 1.49 | 408.8 |
+| Raw stacks, 1 M | 2.183 | 5.394 | 4.00 | 1.47 | 338.4 |
+| CPU Profiler normal | 2.190 | 5.856 | 4.36 | 2.03 | 525.0 |
+| Time Profiler normal | 2.197 | 5.902 | 4.37 | 2.04 | 521.9 |
+| Time Profiler high | 2.208 | 5.888 | 4.47 | 2.11 | 533.5 |
+
+PID/PPID observations confirm that the target is a child of xctrace. Process-family
+CPU includes target, launcher and charged descendants plus startup/sealing; it
+must not be added to target CPU as if independent. The observed xctrace values
+are lower bounds before exit, not exact lifetime totals. Shared-daemon deltas
+are retained but can include other clients. RSS is resident address-space usage,
+not uniquely allocated physical memory. The roughly three seconds outside the
+target work include startup, warmup and saving, rather than three seconds of
+interference with a two-second evaluator loop.
+
+The 480 primary raw traces occupy **4.09 GiB**, kept ignored. The successful final
+offline normalization pass took **2,048.2 s wall**, **257.7 s Python CPU** and
+**1,069.3 s charged child CPU**. Its 988 xctrace export commands accounted for
+1,790.9 s wall / 1,068.7 s child CPU; cached symbol/assembly commands were much
+smaller. Earlier cached exports and failed format-qualification passes are
+**outside that subtotal**, with their logs preserved. It is not a complete
+lifetime postprocessing total and none of it is application interference.
+Analysis/report/browser rendering are additional offline work. The expense of
+exporting hundreds of captures reinforces the value of reusing normalized data.
+
+Across the matrix there are **10,234,702 accepted native sample records**;
+1,190 are attributed to E cores, about **0.012% of observations**. This count
+mixes different sampling densities and is not an elapsed-time fraction. It gives
+no useful independent E-core performance estimate. P-core migration is visible;
+no processor affinity was forced. Capture-specific core distributions remain in
+the data.
+
+For the current exact rep-0 example, raw stack depths range **5–19**, median
+**14**, versus CPU Profiler **9–21**, median **17**. CPU Profiler exports 222 inline
+frame definitions in that capture; this counts definitions at distinct metadata
+locations, not calls. Raw fragments have no invented inline frames and contain
+an unresolved system ancestor in every accepted stack, despite **zero unresolved
+leaf weight**. The UI reports both diagnostics. Unknown system symbolization
+alone does not prove the unwind was truncated; the separately retained LR fixups
+and omitted frameless callers do limit claims about immediate caller adjacency.
+
+That distinction changes a practical conclusion: the helper has about **23.45%**
+inclusive raw-fragment weight but **42.76%** in CPU Profiler's reconstructed
+context. Their physical leaf-function distributions still agree closely.
+A missing intervening helper frame while inside `flips` can explain this
+inclusive discrepancy; it is not evidence that one profiler measured twice as
+much helper execution. Use the richer symbolic context for caller questions.
+Individual-instruction IP/raw-stack variation on the selected rep-0 pairs ranges
+**3.11–9.58 pp**, versus **2.56–5.36 pp** for 64-byte regions. Pooled function
+shares are much more stable. This does not separate skid from phase/aliasing or
+sparse-count uncertainty; no exact instruction-latency claim is made.
+
+CPU Profiler high versus normal adds **1.42–2.54%** elapsed time across these six
+current workloads, with each descriptive paired interval above zero. Raw IP
+1 M versus 10 M does not show a uniform resolved increase; only the opening
+comparison's interval is wholly positive. Time Profiler's denser mode has a
+smaller and less consistently resolved effect. Higher density supplies more
+observations and finer support, not guaranteed unbiased instruction rankings.
+
+### Separate Chrome worker evidence
+
+Actual Chrome **156.0.8078.74** collected four dedicated production-Wasm worker
+profiles. The worker includes normal Wasm adapter/JSON work; it is a research
+capture target, not a claim to have profiled every browser-game interaction.
+Both unprofiled checksums match their profiled checksums. These supplementary
+single observations do not support confidence intervals or a fresh backend ratio.
+
+| Work | Requested interval µs | Plain before ms | Profiled ms | Plain after ms | Actual samples |
+| --- | --- | --- | --- | --- | --- |
+| 10 million static P evaluations | 1,000 | 337.0 | 324.0 | 324.4 | 224 |
+| Same static work | 100 | 337.0 | 333.5 | 324.4 | 2,257 |
+| 696 exact P searches | 1,000 | 2,860.8 | 2,877.4 | 2,894.5 | 1,920 |
+| Same exact work | 100 | 2,860.8 | 3,017.8 | 2,894.5 | 19,778 |
+
+The requested interval does not guarantee the achieved rate. Full profile
+`startTime`/actual deltas, dispatch and idle observations remain available;
+chronology begins at **Chrome CPU profile start**, not a native signpost.
+The dense exact capture is slower in this observation, but repetitions would be
+needed for a statistical Chrome overhead conclusion. The stack view reveals
+Wasm, V8/JS, `rv_query`, serialization and idle context. No native instruction
+address hierarchy or core attribution is invented for it. These captures do not
+measure all-move coaching or its explanation pipeline.
+
 ## One reusable model, several independent views
 
 [Collection scripts](../scripts/profiling/README.md) and
@@ -389,6 +490,17 @@ Actual observed helper caller paths include:
 - `reversi::Engine::negamax(reversi::Board, int, int, double, double) → reversi::Engine::negamax(reversi::Board, int, int, double, double) → reversi::Engine::lastEmpties(reversi::Board, int, int, double, double, unsigned long long)`.
 
 The differential table explains redistribution, the real icicle establishes calling context, and the unprofiled benchmark establishes the practical benefit. A larger helper share is not a regression.
+
+Selected complete rep-0 IP captures (independent all-accepted denominators, same event/period):
+
+| Physical function | Previous cycle-sample share | Current cycle-sample share |
+| --- | --- | --- |
+| negamax | 47.44% | 28.03% |
+| flips | 39.14% | 58.77% |
+| legal | 13.39% | 4.37% |
+| lastEmpties | 0.00% | 8.77% |
+
+`flips` gains share while the complete search becomes faster. General recursion/legal-work share falls and the specialized helper appears. This supports redistribution, not a precise absolute time saving for any instruction. Build-specific instruction addresses and source/assembly remain inspectable in the IP table and address zoom; they are not aligned solely by equal numeric offsets.
 
 <!-- END_FINAL_EMPTY_EXAMPLE -->
 

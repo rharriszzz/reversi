@@ -244,7 +244,7 @@ and source/artifact checks need only `python scripts/mac/verify-safari.py`.
 
 The M4 profiling campaign has separate measurement and presentation checks. See
 [methods and measured findings](PROFILING_METHODS_AND_VIEWS.md) and the committed
-`docs/data/profiling/qualification.json` receipt for actual completed counts and
+[compact qualification receipt](data/profiling/receipt.json) for actual completed counts and
 platform/tool identities. The explorer needs no profiler or Node at runtime.
 
 ```bash
@@ -262,3 +262,10 @@ conservation, recursion, containment and XML reference/weight semantics. The
 existing fast rules/search/native/Wasm tests bracket the investigation. New
 collector qualification is specific to this M4/Xcode environment; it does not
 newly test WSL2, native Windows or Intel Mac hardware.
+
+Completed M4 acceptance: 30 fast Reversi tests before and 30 after, nine profile
+model/accounting tests, seven XML-import tests, five launcher tests, ten measured
+harness/production-adapter cases and thirteen actual Chrome interaction checks.
+The Chrome check additionally verifies supplementary worker controls, software
+sampling labels, the CDP timestamp origin and refusal to invent native addresses.
+These counts and complete source/profile hashes are retained in the receipt.

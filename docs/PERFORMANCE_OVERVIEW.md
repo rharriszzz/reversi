@@ -31,6 +31,15 @@ static evaluator throughput with production compiler options. Its complete trial
 matrix, uncertainty and profiler interference plots are in the explorer; those
 results have a narrower workload scope than the original twelve-root experiment.
 
+In the new seven-pair fixed-work check, this one twelve-empty root takes
+**4.0447 s → 2.6562 s**, a **34.25%** paired elapsed reduction (descriptive 95%
+interval **33.96–34.55%**). Static B/P and middle P differences are unresolved;
+the opening/coaching point changes are small. This is not a replacement estimate
+for the historical twelve-root panel. Hardware-IP versus matched-stack function
+rankings agree closely, while the richer CPU Profiler context recovers helper
+ancestors missing from raw unwind fragments. See the methods report for the
+measured interference and its limitations.
+
 ## Retained and rejected engineering work
 
 **Retained:** original bitboard alpha-beta search, complete-position TT identity,
@@ -60,8 +69,9 @@ Native exact solving spends most sampled work in general control/TT/ordering,
 flipping and the specialized exact tail. Nonterminal searches also show legal
 move generation, seven-feature evaluation and P's pattern evaluation. All-move
 coaching additionally verifies continuations and builds result/explanation data.
-Actual Wasm worker profiles expose some adapter/JSON and explanation costs that
-ordinary native best-move loops do not contain.
+The new dedicated Wasm worker profiles expose adapter/JSON costs. Their static
+and exact workloads do not measure coaching explanations; that pipeline needs
+its own worker capture.
 
 Older tables based on `sample` retained only its collapsed ≥5-count output;
 older exclusive component timers perturb short calls. Their percentages are not

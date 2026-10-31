@@ -87,7 +87,7 @@ export function addressTree(p) {
   const root=node('All sampled instruction locations');
   for (const s of p.samples) {
     const f=leafFrame(p,s);let n=root;n.weight+=s[2];n.count++;
-    const parts=[['module',f?.module || 'Unresolved'],['symbol',f?.symbol || f?.name || '(empty stack)']];
+    const parts=[['module',f?.module || 'Unresolved'],['symbol',f?.containingSymbol || f?.symbol || f?.name || '(empty stack)']];
     if (f?.relativeAddress && f.start != null) {
       const pc=BigInt(f.relativeAddress),start=BigInt(f.start),end=BigInt(f.end);
       for (const size of [256n,64n,16n,4n]) {

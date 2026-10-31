@@ -1,5 +1,5 @@
 """Fill measured report sections from completed, qualified data (offline only)."""
-import json,statistics
+import collections,json,statistics
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];DATA=ROOT/'docs/data/profiling'
 def load(f):return json.loads((DATA/f).read_text())
@@ -29,6 +29,15 @@ def main():
     evaltext+='These rates include the external call/loop/checksum and exclude recomputing own legal moves, so they must not be substituted for the older full-static benchmark rates. No invocation count is inferred from a sampled frame. The committed standard CPU/Time profiles show whatever inline expansion their actual exports supplied; raw PMI stacks add none.\n'
     exact=groups['exact-P','after','plain'];old=groups['exact-P','before','plain'];paths={k:v for k,v in a['finalEmptyCallerEvidence'].items() if 'after-cpu-normal-0' in k};path=next(iter(paths.values()))
     exacttext=f"On this **one disclosed twelve-empty root**, complete fixed work falls from **{old['wall']['median']:.4f} s to {exact['wall']['median']:.4f} s**; current/previous paired change is {ci(cmp['exact-P'])}. This is a narrower root-specific result than the earlier independent twelve-root batch. The CPU Profiler capture places the helper in {path['helperInclusivePercent']:.2f}% of accepted inclusive cycle-period weight; {path['withMainPercent']:.2f}% of its weight retains a `main` frame.\n\nActual observed helper caller paths include:\n\n"+'\n'.join('- `'+k+'`.' for k in list(path['actualCallerPaths'])[:3])+'\n\nThe differential table explains redistribution, the real icicle establishes calling context, and the unprofiled benchmark establishes the practical benefit. A larger helper share is not a regression.\n'
+    shares={}
+    for tag in ['before','after']:
+        profile=load('exact-P-'+tag+'-ip-1000000-0.json');weights=collections.Counter()
+        for sample in profile['samples']:
+            frame=profile['frames'][sample[1]];weights[frame.get('containingSymbol',frame['name'])]+=sample[2]
+        shares[tag]={name:100*weight/profile['accounting']['weight'] for name,weight in weights.items()}
+    exacttext+='\nSelected complete rep-0 IP captures (independent all-accepted denominators, same event/period):\n\n'
+    exacttext+=table(['Physical function','Previous cycle-sample share','Current cycle-sample share'],[[name,*[number(sum(v for k,v in shares[tag].items() if token in k))+'%' for tag in ['before','after']]] for name,token in [('negamax','Engine::negamax('),('flips','reversi::flips('),('legal','reversi::legal('),('lastEmpties','Engine::lastEmpties(')]])
+    exacttext+='\n`flips` gains share while the complete search becomes faster. General recursion/legal-work share falls and the specialized helper appears. This supports redistribution, not a precise absolute time saving for any instruction. Build-specific instruction addresses and source/assembly remain inspectable in the IP table and address zoom; they are not aligned solely by equal numeric offsets.\n'
     ips=[groups[w['id'],'after',mode]['wallEffect'] for w in work for mode in ['ip-1000000','ip-10000000']];stacks=[inc[w['id'],'after',period]['wall'] for w in work for period in [1000000,10000000]]
     agreement=[x for x in a['hotspotComparisons'] if x['build']=='after' and x['b']=='stacks-1000000'];sameLeader=sum(x['top5A'][0]==x['top5B'][0] for x in agreement)
     evalEffects=[groups[w,'after',mode]['wallEffect'] for w in ['evaluate-B','evaluate-P'] for mode in ['ip-1000000','cpu-high']]
