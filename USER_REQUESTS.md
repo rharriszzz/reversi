@@ -9805,3 +9805,260 @@ Both commands were run in a loop over all directories matching `.local-research/
 The verification used rsync's checksum comparison and dry-run mode. It found no files needing transfer, confirming that the PC source files were present with matching contents on the Mac at verification time.
 
 Therefore, a bulk recopy is unnecessary. Please record this transfer-verification procedure in your provenance report and continue the historical-evidence reconciliation.
+
+---
+
+# Reversi Phase A — Execute the Independent P-versus-B Tournament on the M4
+
+Work on my **Apple M4 iMac with 24 GB RAM**, in `rharriszzz/reversi`.
+
+Use GPT-6.1-Sol with High reasoning.
+
+All tournament computation, benchmarking, calibration and statistical evaluation must run on the Mac.
+
+## 1. Starting point
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first.
+
+Then read:
+
+- `docs/PHASE_A_PROVENANCE_COMPLETION.md`
+- `docs/PHASE_A_MAC_CONFIRMATION_RESULTS.md`
+- `docs/PHASE_A_EVALUATOR_STRENGTH_REVIEW.md`
+- `docs/P_CONFIRMATION_PROTOCOL.md`
+- `docs/P_CONFIRMATION_RESULTS.md`
+- `scripts/phase-a-mac/prospective-protocol.mjs`
+- The final provenance inventory and forecast evidence.
+
+The latest completed research branch is:
+
+`research/phase-a-provenance-completion-20261031`
+
+At commit:
+
+`886c5aff60bd42e7368f67a531980afb2b7e5609`
+
+Fetch and verify the actual repository state. Preserve all existing worktrees, local modifications, archives, and completed experiment records.
+
+The historical provenance investigation is complete within its documented scope. Do not repeat the 21.7 GB import, the 790 MB PC transfer, or the full historical reconstruction.
+
+The qualified inventory contains 17,321,472 canonical position keys. Preserve its original hashes and conservative restrictions.
+
+The remaining obstacle was the former two-hour time ceiling.
+
+**This prompt authorizes a new Phase A experiment with a three-hour active-work ceiling**, starting from the completed inventory. The old stopped experiments and their budgets remain historical evidence; do not rewrite them.
+
+## 2. Objective
+
+Establish whether frozen evaluator P is stronger than frozen evaluator B at 80 ms per move.
+
+Previous observations favored P, but those experiments failed their strict historical provenance requirements.
+
+We now have a substantially more complete historical-exclusion inventory and qualified Apple Silicon native engine.
+
+Do not alter:
+
+- The search algorithm or move ordering.
+- B, L or P coefficients.
+- Terminal scoring conventions.
+- Transposition-table policies.
+- Timed-search semantics.
+- The player-facing UI.
+- Production WebAssembly.
+- The production `main` branch.
+
+B remains the application default.
+
+## 3. Complete the prospective experiment implementation
+
+The existing `scripts/phase-a-mac/prospective-protocol.mjs` is a draft, not a complete tournament runner.
+
+Use its existing design, together with the qualified research infrastructure, to implement a reproducible registration, admission, execution, checkpointing and verification pipeline.
+
+Reuse existing tested components wherever possible, particularly the native game runner, native client, historical source-admission logic and frozen-model verification.
+
+Do not introduce an elaborate new research framework.
+
+Implement:
+
+1. Deterministic generation and admission of 256 independent opening families.
+2. Historical and mutual-exclusion checks.
+3. A frozen registration containing literal openings, seeds, source trajectories and complete game schedule.
+4. Serial native game execution with both colors.
+5. Atomic, restartable checkpoints containing complete opening pairs.
+6. Independent game replay and provenance verification.
+7. Statistical evaluation only after integrity and provenance audits.
+8. A compact, independently auditable final report.
+
+Test the pipeline with disclosed, nonconfirmation fixtures before registering the actual sample. Do not expose confirmation outcomes during development.
+
+## 4. Freeze the tournament
+
+Preserve the previously specified design:
+
+- 256 independent opening families.
+- 16 families in each of 16 balanced strata.
+- 512 games, two colors per family.
+- Frozen P versus frozen B.
+- 80 ms per move.
+- Ordinary native Apple Silicon engine.
+- Separate 16-MiB transposition tables and controlled process lifetimes.
+- Symmetric disclosed-root warmup.
+- Serial game execution.
+
+Keep the B1/12% and B4/2% source-policy mixture, 12/13-occupied starts and specified balancing of parity, turn and first color.
+
+Record every accepted and rejected source with its relevant provenance.
+
+Freeze all literal openings, seed namespaces, schedules, executable identities, model checksums, inventory hashes and analysis rules **before playing scored games**.
+
+Do not treat individual games or symmetry-equivalent positions as additional independent families.
+
+## 5. Historical independence requirements
+
+Use the completed inventory and preserve the existing broad historical-exclusion policy.
+
+Known historical training targets and assessments, including unrelated experiments, remain prohibited as specified.
+
+Unknown or unresolved historical occurrence roles remain conservatively restricted.
+
+Distinguish:
+
+- Direct fitting targets.
+- Development and assessment positions.
+- Reserved or rejected positions.
+- Internal search observations.
+- Played paths and incidental convergence.
+
+The previously documented two-empty board used by an older linear-margin evaluator remains an actual historical target, but it is not evidence that frozen P trained on that board.
+
+Do not change the old experiment's failed gates or retroactively reinterpret them.
+
+The newly registered sample must pass the existing admission requirements. The complete played trajectories must subsequently pass the strict whole-sample audit.
+
+If any prohibited or unresolved encounter occurs, preserve the entire registered sample and report the failure. Do not delete, replace or selectively exclude completed games to obtain confirmation.
+
+A scientifically narrower independence definition may be discussed separately, but **do not adopt one during this experiment**.
+
+## 6. New three-hour time budget
+
+The previous conservative estimate was:
+
+- Raw remaining work: approximately 87.98 minutes.
+- With 35% allowance and 15-minute reserve: approximately 133.78 minutes.
+
+The new limit is **180 active minutes**.
+
+Before scored execution:
+
+1. Check current CPU, memory, swap, disk and competing processes.
+2. Verify that the frozen native executable and inventory are unchanged.
+3. Measure the small amount of additional implementation/checkpoint overhead where necessary, using only disclosed nonconfirmation fixtures.
+4. Update the complete conservative forecast.
+5. Require the entire remaining study, including independent audits and reporting reserve, to fit within the unspent authorized time.
+
+Use the original 35% contingency and 15-minute reporting reserve.
+
+Charge qualifying preparation, calibration, scored execution and post-run verification to the new ledger consistently. Never reset elapsed time merely to circumvent the cap.
+
+Keep demanding work serial. Do not run profiling, training, compilation or other benchmarks concurrently with scored games.
+
+If the updated full forecast exceeds the remaining allowance, stop before scored games and report the blocker. Do not reduce the 256-family target or extend the budget automatically.
+
+If interrupted during scored execution, preserve complete-pair checkpoints and report an incomplete experiment. Never analyze a partial sample as though it were the registered confirmation.
+
+## 7. Independent verification before strength analysis
+
+Once all 512 games finish, first independently verify:
+
+- Every opening and complete move sequence.
+- Legal moves, flips, passes and terminal outcomes.
+- Both color assignments.
+- Model and executable identities.
+- Completed-depth and time-control behavior.
+- Historical and mutual provenance.
+- Complete source-family admission and registration.
+- All checkpoint and receipt hashes.
+
+Run the relevant independent Python mailbox/rules verification.
+
+Do not inspect or publish aggregate strength results until the integrity and provenance audit has completed.
+
+If a provenance restriction fails, report that outcome separately from any descriptive playing results. Do not declare independent confirmation.
+
+## 8. Prespecified statistical evaluation
+
+The primary endpoint is mean P points across the 256 complete color-swapped opening families.
+
+Use:
+
+- Win = 1 point.
+- Draw = 0.5 point.
+- Loss = 0 points.
+
+Each opening pair contributes one independent family-level observation under the protocol's assumptions.
+
+Retain one-sided alpha = 0.05.
+
+Require both:
+
+1. The conservative Hoeffding lower bound above 50%.
+2. The predefined approximate one-sided Student 95% lower bound above 50%.
+
+The Hoeffding threshold for 256 families requires an observed score strictly above **57.64920885%**.
+
+Also report 10,000 stratified whole-family bootstrap resamples as sensitivity analysis.
+
+Report:
+
+- Win/draw/loss counts.
+- Overall paired score.
+- Scores by opening stratum.
+- Mean disc margins.
+- Actual completed depths.
+- Nodes and evaluations.
+- Actual elapsed time and deadline overruns.
+- Confidence intervals and statistical limitations.
+
+Compare with the historical 63.57% at 80 ms, without pooling the observations or treating the old provenance failures as resolved.
+
+Do not claim 300-ms superiority from this experiment.
+
+## 9. Documentation and publication
+
+Create:
+
+`docs/PHASE_A_MAC_TOURNAMENT_RESULTS.md`
+
+Include the complete registered protocol, frozen identities, audited provenance, source admission, actual resource/time expenditure, all games, independent checks and statistical results.
+
+Publish compact auditable evidence and the scripts necessary to verify it.
+
+Preserve original historical runs and immutable research records.
+
+Commit and push the new work on a dedicated research branch descended from the completed Phase A provenance branch.
+
+Do not merge the research into production `main` or modify the player-facing interface.
+
+Do not commit bulk archives, native executables, raw profiles or large traces.
+
+## 10. Final report
+
+Answer explicitly:
+
+1. Did the full historical source-admission process pass?
+2. Were all 256 opening families registered before scored play?
+3. Did all 512 games finish within three active hours?
+4. Did the complete played-path independence audit pass?
+5. What percentage of points did P score against B?
+6. Did P satisfy both predefined statistical gates?
+7. How consistent was the result with the previous 63.57%?
+8. Were there meaningful phase-specific or time-control issues?
+9. What limitations remain?
+10. Is a separate 300-ms Mac confirmation justified?
+
+If all independence and strength gates pass, recommend a subsequent 300-ms confirmation, but do not begin it automatically.
+
+If independence fails, preserve the results, identify the actual restricted encounters, and explain what they imply. Do not silently change the scientific protocol.
+
+**The purpose of this round is to determine whether P is demonstrably stronger than B—not to optimize the search engine or train another evaluator.**

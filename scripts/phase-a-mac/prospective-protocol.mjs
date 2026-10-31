@@ -26,3 +26,13 @@ export function requireRegistration(value){
   if(value.status!=='registered'||!value.historicalInventory||!value.executableSha256||!Array.isArray(value.literalOpenings)||value.literalOpenings.length!==256)
     throw Error('Draft protocol cannot authorize scored games; verified coverage, executable and literal openings required');
 }
+
+// New authorization; the original stopped draft and its 120-minute budget above
+// remain historical evidence. No literal sample is implied by this template.
+export const TOURNAMENT = Object.freeze({...DRAFT,
+  status:'prospective-not-registered',capMinutes:180,
+  authorization:'Reversi Phase A — Execute the Independent P-versus-B Tournament on the M4',
+  checkpoint:'Immutable per-game receipts and atomic complete-pair receipts; every move prefix durable. Resume skips verified complete pairs only. An interrupted partial pair is retained and stops confirmation; no replay/replacement to recover a favorable outcome.',
+  student:'one-sided alpha .05; critical t(.95,255); also descriptive two-sided 95% interval. Zero observed variance does not establish a constant population.',
+  bootstrap:'10,000 draws; ascending cell then ascending family; 16 sampled with replacement in each of 16 cells; seededRandom(2026103192); whole families, score and margin jointly; two-sided 95% percentile sensitivity.',
+});
