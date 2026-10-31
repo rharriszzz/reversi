@@ -1,0 +1,22 @@
+--- a/native/engine.cpp
++++ b/native/engine.cpp
+@@ -171,6 +171,19 @@
+ double Engine::negamax(Board b,int p,int depth,double alpha,double beta) {
+   if((timed&&((stats.nodes&63)==0)&&Clock::now()>=deadline)||(stopNodes&&stats.nodes>=stopNodes))throw Timeout{};
+   stats.nodes++;
++
++  // Exact one-empty result: the sole legal placement (possibly after a pass)
++  // determines the raw margin. Unplayed squares are never awarded.
++  const Bits empty=~(b.black|b.white),rest=empty&(empty-1);
++  if(depth>0&&!rest) {
++    if(!empty)return terminal(b,p);
++    const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
++    const int q=first(empty);int margin=pop(own)-pop(opp);
++    const int ownFlips=pop(flips(own,opp,q));
++    if(ownFlips)margin+=1+2*ownFlips;
++    else {const int otherFlips=pop(flips(opp,own,q));if(otherFlips)margin-=1+2*otherFlips;}
++    return margin==0?0:(margin>0?10000:-10000)+margin;
++  }
+   double oldAlpha=alpha,oldBeta=beta;uint64_t horizon=stats.horizonHits;
+   int favored=-1;size_t slot=0;
+   // Static leaves never store entries. Do not hash/probe them; legal moves,

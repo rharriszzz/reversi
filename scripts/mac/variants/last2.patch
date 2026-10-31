@@ -1,0 +1,41 @@
+--- a/native/engine.cpp
++++ b/native/engine.cpp
+@@ -171,6 +171,38 @@
+ double Engine::negamax(Board b,int p,int depth,double alpha,double beta) {
+   if((timed&&((stats.nodes&63)==0)&&Clock::now()>=deadline)||(stopNodes&&stats.nodes>=stopNodes))throw Timeout{};
+   stats.nodes++;
++
++  // Exact one-empty result: the sole legal placement (possibly after a pass)
++  // determines the raw margin. Unplayed squares are never awarded.
++  const Bits empty=~(b.black|b.white),rest=empty&(empty-1);
++  if(depth>0&&!rest) {
++    if(!empty)return terminal(b,p);
++    const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
++    const int q=first(empty);int margin=pop(own)-pop(opp);
++    const int ownFlips=pop(flips(own,opp,q));
++    if(ownFlips)margin+=1+2*ownFlips;
++    else {const int otherFlips=pop(flips(opp,own,q));if(otherFlips)margin-=1+2*otherFlips;}
++    return margin==0?0:(margin>0?10000:-10000)+margin;
++  }
++
++  if(depth>=2&&rest&&!(rest&(rest-1))) {
++    const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
++    const int squares[2]={first(empty),first(rest)};
++    const Bits captures[2]={flips(own,opp,squares[0]),flips(own,opp,squares[1])};
++    Bits moves=0;for(int i=0;i<2;i++)if(captures[i])moves|=Bits(1)<<squares[i];
++    if(!moves) {
++      if(!flips(opp,own,squares[0])&&!flips(opp,own,squares[1]))return terminal(b,p);
++      return -negamax(b,-p,depth,-beta,-alpha);
++    }
++    std::array<int,64> choices;const int n=ordered(b,moves,-1,choices);double best=-INF;
++    for(int i=0;i<n;i++) {
++      const int q=choices[i];const Bits f=captures[q==squares[0]?0:1],m=Bits(1)<<q;
++      const Board child=p==1?Board{b.black|f|m,b.white&~f}:Board{b.black&~f,b.white|f|m};
++      best=std::max(best,-negamax(child,-p,depth-1,-beta,-alpha));alpha=std::max(alpha,best);
++      if(alpha>=beta){stats.cutoffs++;if(i==0)stats.firstMoveCutoffs++;break;}
++    }
++    return best;
++  }
+   double oldAlpha=alpha,oldBeta=beta;uint64_t horizon=stats.horizonHits;
+   int favored=-1;size_t slot=0;
+   // Static leaves never store entries. Do not hash/probe them; legal moves,

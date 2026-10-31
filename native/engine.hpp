@@ -41,7 +41,7 @@ class Engine {
   friend struct EngineQualification; // standalone regression, no playing API
   std::vector<Entry> table;
   uint32_t generation=0;
-  int model=0; bool useTT=true, orderingHints=true;
+  int model=0; bool useTT=true, orderingHints=true, exactHorizon=false;
   Clock::time_point deadline; bool timed=false;
   uint64_t stopNodes=0; // deterministic interrupted-iteration regression hook
   Counters stats;
@@ -50,6 +50,7 @@ class Engine {
   bool same(const Entry& e,Board b,int player) const;
   int ordered(Board b,Bits moves,int favored,std::array<int,64>& output);
   double negamax(Board b,int player,int depth,double alpha,double beta);
+  double lastEmpties(Board b,int player,int depth,double alpha,double beta,Bits empty);
   Result root(Board b,int player,int depth,int favored);
 public:
   explicit Engine(size_t tableMiB=16);

@@ -149,3 +149,22 @@ unchanged mutable model format. Initial defaults and training remain JS/custom.
 See `WEBASSEMBLY_INTEGRATION.md` and `WEBASSEMBLY_BUILD.md` for current runtime,
 full-window/PV semantics, memory bounds and visible fallback behavior. Earlier
 JS-only descriptions above retain their historical scope.
+
+## Qualified tiny exact tails on the M4
+
+Shared native/Wasm search can solve the last one or two empty squares without
+full-board legal propagation. One empty square uses directional flips and the
+actual resulting raw margin, including a required pass or double-pass terminal.
+It never awards an unplayed square. Two empties check both flip masks once,
+reuse them to construct children, and retain alpha-beta and pass semantics.
+The final-empty body is an out-of-line shared C++ method. Each root/analysis/
+window request records whether its placement horizon covers all remaining
+empties; truncated trees cannot reach a tiny exact tail and bypass its tests.
+Terminal detection still precedes heuristic evaluation, including horizon zero.
+
+There is no new selective pruning, PVS, aspiration search or evaluator change.
+Analytically resolved final placements reduce visited-node counts; NPS alone
+must not be interpreted as complete-search speedup. The original forty-byte,
+full-identity direct TT and its bounded allocation remain. A qualified equal-
+allocated-memory thirty-two-byte experiment was slower and rejected. Numerical,
+whole-search and profile evidence is in the [M4 report](MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md).

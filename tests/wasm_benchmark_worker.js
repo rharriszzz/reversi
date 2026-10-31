@@ -31,7 +31,7 @@ self.onmessage=({data})=>{queue=queue.then(async()=>{
    let checksum=0;const start=performance.now();for(let i=0;i<n;i++)checksum+=engine.inspect(p.board,p.player,model).evaluation;
    result={checksum,requests:n,elapsedMs:performance.now()-start};
   }else if(op==='profile'){
-   const start=performance.now();let searches=0,nodes=0;while(performance.now()-start<2500){const r=engine.search(p.board,p.player,{model,depth,hints:false});searches++;nodes+=r.nodes;}
+   const start=performance.now();let searches=0,nodes=0;while(performance.now()-start<2500){const r=data.coaching?engine.analyze(p.board,p.player,depth,model):engine.search(p.board,p.player,{model,depth,hints:false});searches++;nodes+=r.nodes;}
    result={searches,nodes,elapsedMs:performance.now()-start};
   }else throw Error('Unknown benchmark operation');
   self.postMessage({id,result});

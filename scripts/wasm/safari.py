@@ -1,7 +1,7 @@
 """Attempt actual Safari qualification without enabling/changing automation settings."""
 from pathlib import Path
-import json,sys,re,subprocess,tempfile,time,socket,urllib.request,urllib.error
-ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'.local-research/wasm-20261030'
+import json,sys,re,subprocess,tempfile,time,socket,urllib.request,urllib.error,os
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/os.environ.get('REVERSI_WASM_OUTPUT','.local-research/wasm-20261030')
 def main():
  if sys.platform!='darwin' or not Path('/usr/bin/safaridriver').exists():
   result={'available':False,'reason':'SafariDriver is unavailable on this host'}

@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><title>Reversi backend engineering acceptance</title>
+<p>Developer-only serial backend comparison. No application storage is used.</p>
+<script type="module">
+let worker,next=0;const pending=new Map();
+window.resetBackend=()=>{
+ worker?.terminate();worker=new Worker('../scripts/mac/backend-worker.js',{type:'module'});
+ worker.onmessage=({data})=>{const p=pending.get(data.id);if(!p)return;pending.delete(data.id);data.error?p.reject(Error(data.error)):p.resolve({...data.result,workerRoundTripMs:performance.now()-p.start});};
+ return backend('init');
+};
+window.backend=(op,args={})=>new Promise((resolve,reject)=>{const id=++next;pending.set(id,{resolve,reject,start:performance.now()});worker.postMessage({id,op,...args});});
+</script>

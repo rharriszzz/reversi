@@ -1,0 +1,94 @@
+--- a/native/engine.cpp
++++ b/native/engine.cpp
+@@ -138,10 +138,10 @@
+ static Bits mix(Bits x) {x^=x>>30;x*=0xbf58476d1ce4e5b9ULL;x^=x>>27;x*=0x94d049bb133111ebULL;return x^(x>>31);}
+ Engine::Engine(size_t mib) {
+   if(mib>1024)throw std::runtime_error("TT must be 0..1024 MiB");
+-  size_t count=1,target=std::max(size_t(1),mib*1024*1024/sizeof(Entry));
+-  while(count<=target/2)count*=2;table.resize(count);
++  size_t count=1,target=std::max(size_t(1),mib*1024*1024/40);
++  while(count<=target/2)count*=2;table.resize(mib?count*40/sizeof(Entry):1);
+ }
+-size_t Engine::index(Board b,int p) const {return (mix(b.black)^mix(b.white+0x9e3779b97f4a7c15ULL)^Bits(p==1?0:0xa0761d6478bd642fULL))&(table.size()-1);}
++size_t Engine::index(Board b,int p) const {const auto hash=mix(b.black)^mix(b.white+0x9e3779b97f4a7c15ULL)^Bits(p==1?0:0xa0761d6478bd642fULL);return (uint64_t(uint32_t(hash))*table.size())>>32;}
+ bool Engine::same(const Entry& e,Board b,int p) const {return e.player==p&&e.black==b.black&&e.white==b.white;}
+ void Engine::nextGeneration() {if(++generation==0){std::fill(table.begin(),table.end(),Entry{});generation=1;}}
+ constexpr auto makePriorities() {
+@@ -171,6 +171,38 @@
+ double Engine::negamax(Board b,int p,int depth,double alpha,double beta) {
+   if((timed&&((stats.nodes&63)==0)&&Clock::now()>=deadline)||(stopNodes&&stats.nodes>=stopNodes))throw Timeout{};
+   stats.nodes++;
++
++  // Exact one-empty result: the sole legal placement (possibly after a pass)
++  // determines the raw margin. Unplayed squares are never awarded.
++  const Bits empty=~(b.black|b.white),rest=empty&(empty-1);
++  if(depth>0&&!rest) {
++    if(!empty)return terminal(b,p);
++    const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
++    const int q=first(empty);int margin=pop(own)-pop(opp);
++    const int ownFlips=pop(flips(own,opp,q));
++    if(ownFlips)margin+=1+2*ownFlips;
++    else {const int otherFlips=pop(flips(opp,own,q));if(otherFlips)margin-=1+2*otherFlips;}
++    return margin==0?0:(margin>0?10000:-10000)+margin;
++  }
++
++  if(depth>=2&&rest&&!(rest&(rest-1))) {
++    const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
++    const int squares[2]={first(empty),first(rest)};
++    const Bits captures[2]={flips(own,opp,squares[0]),flips(own,opp,squares[1])};
++    Bits moves=0;for(int i=0;i<2;i++)if(captures[i])moves|=Bits(1)<<squares[i];
++    if(!moves) {
++      if(!flips(opp,own,squares[0])&&!flips(opp,own,squares[1]))return terminal(b,p);
++      return -negamax(b,-p,depth,-beta,-alpha);
++    }
++    std::array<int,64> choices;const int n=ordered(b,moves,-1,choices);double best=-INF;
++    for(int i=0;i<n;i++) {
++      const int q=choices[i];const Bits f=captures[q==squares[0]?0:1],m=Bits(1)<<q;
++      const Board child=p==1?Board{b.black|f|m,b.white&~f}:Board{b.black&~f,b.white|f|m};
++      best=std::max(best,-negamax(child,-p,depth-1,-beta,-alpha));alpha=std::max(alpha,best);
++      if(alpha>=beta){stats.cutoffs++;if(i==0)stats.firstMoveCutoffs++;break;}
++    }
++    return best;
++  }
+   double oldAlpha=alpha,oldBeta=beta;uint64_t horizon=stats.horizonHits;
+   int favored=-1;size_t slot=0;
+   // Static leaves never store entries. Do not hash/probe them; legal moves,
+@@ -182,10 +214,10 @@
+       // Same-depth only, even when the old score was endgame-solved. This
+       // preserves truncated minimax semantics at every qualified horizon.
+       if(e.generation==generation&&e.depth==depth) {
+-        stats.boundHits++;if(!e.solved)stats.horizonHits++;
+-        if(e.flag==1){stats.ttCutoffs++;return e.score;}
+-        if(e.flag==2)alpha=std::max(alpha,e.score);
+-        if(e.flag==3)beta=std::min(beta,e.score);
++        stats.boundHits++;if(!e.solved())stats.horizonHits++;
++        if(e.bound()==1){stats.ttCutoffs++;return e.score;}
++        if(e.bound()==2)alpha=std::max(alpha,e.score);
++        if(e.bound()==3)beta=std::min(beta,e.score);
+         if(alpha>=beta){stats.ttCutoffs++;return e.score;}
+       }
+     }else if(e.player)stats.collisions++;
+@@ -210,7 +242,7 @@
+       stats.stores++;
+       if(e.player&&!same(e,b,p))stats.replacements++;
+       uint8_t flag=best<=oldAlpha?3:best>=oldBeta?2:1;
+-      e={b.black,b.white,best,generation,int8_t(p),uint8_t(depth),int8_t(bestMove),flag,stats.horizonHits==horizon};
++      e={b.black,b.white,best,generation,int8_t(p),uint8_t(depth),int8_t(bestMove),uint8_t(flag|(stats.horizonHits==horizon?4:0))};
+     }else stats.rejectedStores++;
+   }
+   return best;
+--- a/native/engine.hpp
++++ b/native/engine.hpp
+@@ -30,8 +30,11 @@
+ // Full bitboard identity prevents even deliberately colliding indices from reuse.
+ struct Entry {
+   Bits black=0,white=0; double score=0;
+-  uint32_t generation=0; int8_t player=0; uint8_t depth=0; int8_t move=-1; uint8_t flag=0; bool solved=false;
++  uint32_t generation=0; int8_t player=0; uint8_t depth=0; int8_t move=-1; uint8_t metadata=0;
++  uint8_t bound() const {return metadata&3;}
++  bool solved() const {return metadata&4;}
+ };
++static_assert(sizeof(Entry)==32,"Compact TT must occupy exactly 32 bytes");
+ struct Profile {
+   enum Part { Legal, Flips, Features, Patterns, TT, Ordering, Count };
+   std::array<uint64_t,Count> ns{},calls{};

@@ -211,3 +211,25 @@ Safari automation was attempted and unavailable because Allow remote automation
 is disabled; that setting was left unchanged. No new Intel/WSL2/Windows coverage
 is inferred. The report discloses initialization, worker round trips, CPU profiles,
 frame gaps and bounded-memory behavior rather than equating Wasm with native.
+
+## M4 modernization and optimization campaign
+
+See [the report](MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md) for exact source/build
+identities, current Python 3.14.10, repeated complete-search timings and actual
+Chrome checks. The additional focused native/compiled-Wasm test covers every
+possible final empty square, one/two-empty passes, all alternatives, full-board
+horizon-zero termination and shallow horizons that must remain heuristic:
+
+```bash
+source .venv/bin/activate
+node --test tests/mac-endgame.test.mjs
+NATIVE_SANITIZE=1 node --test tests/mac-endgame.test.mjs
+REVERSI_BROWSER_CHANNEL=chrome python scripts/mac/browser-qualify.py
+```
+
+The local Mac campaign tools are optional developer scripts. Scored backend
+samples are frozen before play, audited before summaries are opened, and used
+only for engineering comparison. No evaluator is trained or promoted. Safari
+is attempted only under existing automation settings. Other platforms require
+separate execution; MacIntel browser user-agent text is not evidence of Intel
+hardware qualification.

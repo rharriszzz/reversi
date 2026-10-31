@@ -1,0 +1,6 @@
+<!doctype html><meta charset="utf-8"><title>Reversi matched Wasm builds</title>
+<script type="module">
+const worker=new Worker('../scripts/mac/wasm-compare-worker.js',{type:'module'});let next=0;const pending=new Map();
+worker.onmessage=({data})=>{const p=pending.get(data.id);pending.delete(data.id);data.error?p.reject(Error(data.error)):p.resolve(data.result);};
+window.compare=(op,args={})=>new Promise((resolve,reject)=>{const id=++next;pending.set(id,{resolve,reject});worker.postMessage({id,op,...args});});
+</script>

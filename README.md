@@ -1,9 +1,11 @@
 # Reversi
 
-**M4 modernization, Stage 1:** Python **3.14.10**, Node **24.22.1**, project npm
-**12.2.1**, Apple Clang 21 and current-source Emscripten 4.0.22 builds pass
-native/Wasm qualification and actual Mac Chrome checks. See the ongoing
-[Mac optimization report](docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md).
+**M4 modernization and optimization, engineering checkpoint:** Python **3.14.10**,
+Node **24.22.1**, project npm **12.2.1**, Apple Clang 21 and current-source
+Emscripten 4.0.22 pass qualification. Specialized final-empty handling reduces
+the disclosed exact batch by about **26% native / 33% Wasm**; the compact TT
+experiment was slower and rejected. See the [Mac report](docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md).
+The frozen 96-browser-game / 256-backend-game final acceptance campaign follows.
 Python 3.13 remains the minimum; frozen B/L/P remain unchanged.
 
 **Final PC qualification:** Ubuntu **26.04.1**, Python **3.14.4**, GCC **15.2**,

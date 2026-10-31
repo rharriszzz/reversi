@@ -1,0 +1,106 @@
+--- a/native/engine.cpp
++++ b/native/engine.cpp
+@@ -172,36 +172,40 @@
+   if((timed&&((stats.nodes&63)==0)&&Clock::now()>=deadline)||(stopNodes&&stats.nodes>=stopNodes))throw Timeout{};
+   stats.nodes++;
+ 
+-  // Exact one-empty result: the sole legal placement (possibly after a pass)
+-  // determines the raw margin. Unplayed squares are never awarded.
+-  const Bits empty=~(b.black|b.white),rest=empty&(empty-1);
+-  if(depth>0&&!rest) {
+-    if(!empty)return terminal(b,p);
+-    const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
+-    const int q=first(empty);int margin=pop(own)-pop(opp);
+-    const int ownFlips=pop(flips(own,opp,q));
+-    if(ownFlips)margin+=1+2*ownFlips;
+-    else {const int otherFlips=pop(flips(opp,own,q));if(otherFlips)margin-=1+2*otherFlips;}
+-    return margin==0?0:(margin>0?10000:-10000)+margin;
+-  }
+-
+-  if(depth>=2&&rest&&!(rest&(rest-1))) {
+-    const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
+-    const int squares[2]={first(empty),first(rest)};
+-    const Bits captures[2]={flips(own,opp,squares[0]),flips(own,opp,squares[1])};
+-    Bits moves=0;for(int i=0;i<2;i++)if(captures[i])moves|=Bits(1)<<squares[i];
+-    if(!moves) {
+-      if(!flips(opp,own,squares[0])&&!flips(opp,own,squares[1]))return terminal(b,p);
+-      return -negamax(b,-p,depth,-beta,-alpha);
++  // A truncated placement horizon cannot reach the tiny exact tail. Decide
++  // this once at each root instead of testing empties throughout such trees.
++  if(exactHorizon) {
++    // Exact one-empty result: the sole legal placement (possibly after a pass)
++    // determines the raw margin. Unplayed squares are never awarded.
++    const Bits empty=~(b.black|b.white),rest=empty&(empty-1);
++    if(depth>0&&!rest) {
++      if(!empty)return terminal(b,p);
++      const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
++      const int q=first(empty);int margin=pop(own)-pop(opp);
++      const int ownFlips=pop(flips(own,opp,q));
++      if(ownFlips)margin+=1+2*ownFlips;
++      else {const int otherFlips=pop(flips(opp,own,q));if(otherFlips)margin-=1+2*otherFlips;}
++      return margin==0?0:(margin>0?10000:-10000)+margin;
+     }
+-    std::array<int,64> choices;const int n=ordered(b,moves,-1,choices);double best=-INF;
+-    for(int i=0;i<n;i++) {
+-      const int q=choices[i];const Bits f=captures[q==squares[0]?0:1],m=Bits(1)<<q;
+-      const Board child=p==1?Board{b.black|f|m,b.white&~f}:Board{b.black&~f,b.white|f|m};
+-      best=std::max(best,-negamax(child,-p,depth-1,-beta,-alpha));alpha=std::max(alpha,best);
+-      if(alpha>=beta){stats.cutoffs++;if(i==0)stats.firstMoveCutoffs++;break;}
++
++    if(depth>=2&&rest&&!(rest&(rest-1))) {
++      const Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black;
++      const int squares[2]={first(empty),first(rest)};
++      const Bits captures[2]={flips(own,opp,squares[0]),flips(own,opp,squares[1])};
++      Bits moves=0;for(int i=0;i<2;i++)if(captures[i])moves|=Bits(1)<<squares[i];
++      if(!moves) {
++        if(!flips(opp,own,squares[0])&&!flips(opp,own,squares[1]))return terminal(b,p);
++        return -negamax(b,-p,depth,-beta,-alpha);
++      }
++      std::array<int,64> choices;const int n=ordered(b,moves,-1,choices);double best=-INF;
++      for(int i=0;i<n;i++) {
++        const int q=choices[i];const Bits f=captures[q==squares[0]?0:1],m=Bits(1)<<q;
++        const Board child=p==1?Board{b.black|f|m,b.white&~f}:Board{b.black&~f,b.white|f|m};
++        best=std::max(best,-negamax(child,-p,depth-1,-beta,-alpha));alpha=std::max(alpha,best);
++        if(alpha>=beta){stats.cutoffs++;if(i==0)stats.firstMoveCutoffs++;break;}
++      }
++      return best;
+     }
+-    return best;
+   }
+   double oldAlpha=alpha,oldBeta=beta;uint64_t horizon=stats.horizonHits;
+   int favored=-1;size_t slot=0;
+@@ -248,6 +252,7 @@
+   return best;
+ }
+ Result Engine::root(Board b,int p,int depth,int favored) {
++  exactHorizon=depth>=64-pop(b.black|b.white);
+   Result r;Bits own=p==1?b.black:b.white,opp=p==1?b.white:b.black,moves=legal(own,opp);uint64_t horizon=stats.horizonHits;
+   if(!moves){r.score=negamax(b,p,depth,-INF,INF);}
+   else {
+@@ -280,6 +285,7 @@
+ }
+ Analysis Engine::analyze(Board b,int p,int depth,int selectedModel) {
+   if((b.black&b.white)||(p!=1&&p!=-1)||depth<1||depth>64||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid analysis parameters");
++  exactHorizon=depth>=64-pop(b.black|b.white);
+   const auto start=Clock::now();model=selectedModel;stats={};timed=false;stopNodes=0;nextGeneration();
+   Analysis out;std::array<int,64> list;int n=ordered(b,legal(p==1?b.black:b.white,p==1?b.white:b.black),-1,list);
+   bool allExact=true;
+@@ -314,6 +320,7 @@
+ }
+ std::vector<double> Engine::windows(Board b,int p,int depth,int selectedModel,const std::vector<std::array<double,2>>& ranges) {
+   if((b.black&b.white)||std::abs(p)!=1||depth<0||depth>64||selectedModel<0||selectedModel>2)throw std::runtime_error("Invalid window parameters");
++  exactHorizon=depth>=64-pop(b.black|b.white);
+   stats={};timed=false;stopNodes=0;model=selectedModel;nextGeneration();std::vector<double> values;
+   for(auto w:ranges){if(!std::isfinite(w[0])||!std::isfinite(w[1])||w[0]>=w[1])throw std::runtime_error("Invalid window");values.push_back(negamax(b,p,depth,w[0],w[1]));}
+   return values;
+--- a/native/engine.hpp
++++ b/native/engine.hpp
+@@ -41,7 +41,7 @@
+   friend struct EngineQualification; // standalone regression, no playing API
+   std::vector<Entry> table;
+   uint32_t generation=0;
+-  int model=0; bool useTT=true, orderingHints=true;
++  int model=0; bool useTT=true, orderingHints=true, exactHorizon=false;
+   Clock::time_point deadline; bool timed=false;
+   uint64_t stopNodes=0; // deterministic interrupted-iteration regression hook
+   Counters stats;

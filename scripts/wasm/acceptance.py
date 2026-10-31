@@ -1,9 +1,13 @@
-"""48 complete visible UI games, independently replayed. Engineering only."""
+"""Balanced complete visible UI games, independently replayed. Engineering only.
+
+REVERSI_ACCEPTANCE_REPS sets repetitions per B/P, 80/300 ms, color cell.
+"""
 from pathlib import Path
 import json,sys,re,subprocess,tempfile,time,importlib.util,random,statistics,os
 from browser import launch_browser,process_resources,check_resources
 from playwright.sync_api import sync_playwright,expect
 ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/os.environ.get('REVERSI_WASM_OUTPUT','.local-research/wasm-20261030')
+SEED=int(os.environ.get('REVERSI_ACCEPTANCE_SEED','0x57415300'),0)
 def module(name,path):
  spec=importlib.util.spec_from_file_location(name,ROOT/path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 children=module('independent','scripts/native/verify.py').children
@@ -50,7 +54,7 @@ def main():
     schedule=[(model,budget,color,i) for i in range(int(os.environ.get('REVERSI_ACCEPTANCE_REPS','6'))) for budget in [80,300] for model in ['B','P'] for color in [1,-1]]
     for game_index,(model,budget,color,rep) in enumerate(schedule):
      check_resources()
-     rng=random.Random(0x57415300+game_index)
+     rng=random.Random(SEED+game_index)
      page.locator('#evaluator').select_option(model);page.locator('#computer-time').select_option(str(budget));page.locator('#human-color').select_option(str(color))
      page.evaluate('__accept.events=[];__accept.frames=[]')
      page.locator('#new-game').click()
@@ -98,9 +102,9 @@ def main():
       if r['depth']==0:assert r['score'] is None and not r['exact']
       memory.append(r['memoryBytes'])
      frames=telemetry.pop('frames');events=telemetry.pop('events')
-     entry=dict(index=game_index,model=model,budgetMs=budget,human=color,seed=0x57415300+game_index,moves=moves,board=final,forcedPasses=passes,coachingChecks=coaching_checks,plays=plays,frames={'count':len(frames),'maxMs':max(frames,default=0),'p95Ms':sorted(frames)[int(len(frames)*.95)] if frames else 0},workers=telemetry)
+     entry=dict(index=game_index,model=model,budgetMs=budget,human=color,seed=SEED+game_index,moves=moves,board=final,forcedPasses=passes,coachingChecks=coaching_checks,plays=plays,frames={'count':len(frames),'maxMs':max(frames,default=0),'p95Ms':sorted(frames)[int(len(frames)*.95)] if frames else 0},workers=telemetry)
      games.append(entry)
-     if game_index in [0,11,23,35,47]:
+     if game_index%8==0 or game_index==len(schedule)-1:
       resources.append({'game':game_index,**process_resources(session)})
      (OUT/'acceptance-games.json').write_text(json.dumps({'browser':browser.version,'games':games,'elapsedSeconds':time.monotonic()-start,'checks':checks,'memoryBytes':sorted(set(memory)),'resources':resources}))
      print(json.dumps({'complete':game_index+1,'model':model,'budget':budget,'moves':len(moves),'passes':passes,'checks':checks,'elapsedSeconds':round(time.monotonic()-start,1)}),flush=True)
