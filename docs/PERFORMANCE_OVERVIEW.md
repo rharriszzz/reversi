@@ -114,3 +114,9 @@ A short Processor Trace could answer call-frequency/control-flow questions that
 sampling misses, if separately permitted and bounded. Its hardware support is not
 permission to alter this Mac's Developer Tools security setting. No trace-derived
 performance claim is made without a real capture.
+
+Use the [Processor Trace decision guide](PROFILING_METHODS_AND_VIEWS.md#when-to-enable-processor-trace)
+to choose by the question: aggregate cycle cost and throughput usually need no
+trace; exact short-call sequences may benefit. Branchless bodies can still be
+reconstructed and have callers, but their stall costs often call for counter
+evidence rather than more control-flow detail.

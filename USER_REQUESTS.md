@@ -6943,3 +6943,15 @@ The objective is a rigorous, reusable profiling and visualization system, not an
 did you mention something about ancestry a while back?  please explain if so.
 
 include that in one of the delivered documents please
+
+
+---
+
+explain this: 11. Processor Trace’s contribution? Control-flow and branch/call sequences between samples. Capture was blocked by existing settings; those settings were unchanged.; then explain if this loss of information matters to us in this step.
+
+Please record this information in one of the markdowns, with enough context to make easy to tell if it needs to be enabled when we need to determine something.  If it is like, recording branches, it might not be needed for certain branchless subroutines.  I don't know.
+
+
+---
+
+are there loops in the leaf evaluation routines

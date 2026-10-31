@@ -1,0 +1,74 @@
+{
+  "binarySha256": "0a51e2a95c7c1321250ae8c14b7cc37ba0cc512b770f7c7ba033c996afcd5def",
+  "sourceCommit": "1f0faa3b7fac3ca42f7ccd06aec1d8c27e38acbf",
+  "scope": "Optimized measured M4 native evaluator functions only; branch edges plus fallthrough, calls treated as returning. Legal and patternSum have no calls; evaluator call graph has no recursive cycle. Backward branch alone is not a loop. Not a timing experiment or qualification of other compilers/Wasm/JIT.",
+  "functions": [
+    {
+      "symbol": "__ZN7reversi5legalEyy",
+      "instructions": 129,
+      "conditionalBranches": 0,
+      "backwardBranches": [],
+      "controlFlowCycles": [],
+      "calls": [],
+      "tailTransfers": []
+    },
+    {
+      "symbol": "__ZN7reversi8featuresENS_5BoardEiy",
+      "instructions": 235,
+      "conditionalBranches": 7,
+      "backwardBranches": [
+        [
+          "0x100000bec",
+          "0x100000b80"
+        ],
+        [
+          "0x100000c20",
+          "0x100000b84"
+        ],
+        [
+          "0x100000c54",
+          "0x100000b88"
+        ]
+      ],
+      "controlFlowCycles": [],
+      "calls": [
+        "__ZN7reversi5legalEyy"
+      ],
+      "tailTransfers": []
+    },
+    {
+      "symbol": "__ZN7reversi8patternsENS_5BoardEi",
+      "instructions": 1,
+      "conditionalBranches": 0,
+      "backwardBranches": [],
+      "controlFlowCycles": [],
+      "calls": [],
+      "tailTransfers": [
+        "__ZN7reversi10patternSumIJLm0ELm1ELm2ELm3ELm4ELm5ELm6ELm7ELm8ELm9ELm10ELm11ELm12ELm13ELm14ELm15EEEEdNS_5BoardEiNSt3__116integer_sequenceImJXspT_EEEE"
+      ]
+    },
+    {
+      "symbol": "__ZN7reversi10patternSumIJLm0ELm1ELm2ELm3ELm4ELm5ELm6ELm7ELm8ELm9ELm10ELm11ELm12ELm13ELm14ELm15EEEEdNS_5BoardEiNSt3__116integer_sequenceImJXspT_EEEE",
+      "instructions": 228,
+      "conditionalBranches": 0,
+      "backwardBranches": [],
+      "controlFlowCycles": [],
+      "calls": [],
+      "tailTransfers": []
+    },
+    {
+      "symbol": "__ZN7reversi8evaluateENS_5BoardEiiy",
+      "instructions": 66,
+      "conditionalBranches": 1,
+      "backwardBranches": [],
+      "controlFlowCycles": [],
+      "calls": [
+        "__ZN7reversi8featuresENS_5BoardEiy",
+        "__ZN7reversi10patternSumIJLm0ELm1ELm2ELm3ELm4ELm5ELm6ELm7ELm8ELm9ELm10ELm11ELm12ELm13ELm14ELm15EEEEdNS_5BoardEiNSt3__116integer_sequenceImJXspT_EEEE"
+      ],
+      "tailTransfers": []
+    }
+  ],
+  "method": "otool -tvV on the preserved executable, plus static branch/fallthrough graph inspection of the listed functions. Calls and the patterns tail transfer were checked against the listed callees. No runtime tracing or timing.",
+  "addressSpace": "Link-time Mach-O virtual addresses from otool, not sampled run-time ASLR PCs."
+}

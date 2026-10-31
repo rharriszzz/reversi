@@ -559,14 +559,120 @@ questions from cycle sampling. The preserved guided probe illustrates the
 available events; it is not mixed into the stack-free cycle results.
 [Apple's bottleneck documentation](https://developer.apple.com/documentation/xcode/addressing-cpu-bottlenecks).
 
-Processor Trace could expose control flow and short calls between sample points,
-call counts, branch choices and sequences of specialized final-empty work.
-Inlining still requires debug/source interpretation, and traces do not reveal
-arbitrary data values. It is a fourth technique, not an IP sampler. The earlier
-bounded probe failed because this Mac is not enabled for tracing; no Developer
-Tools setting was changed and no large trace was captured. No Reversi trace
-interference estimate is inferred from a vendor demonstration.
-[Apple Processor Trace documentation](https://developer.apple.com/documentation/xcode/analyzing-cpu-usage-with-processor-trace).
+### When to enable Processor Trace
+
+**Default for future Reversi work: leave tracing disabled unless a specific
+unresolved question needs execution sequences or individual calls.** The current
+sampling investigation does not require it. Use the question table below before
+requesting a settings change.
+
+**What it records.** Sampling observes selected instants. Processor Trace is a
+separate recording: hardware records branch decisions and timing information,
+and Instruments uses the executable binaries to reconstruct the user-space
+instruction path and calls. It can expose short operations that occur entirely
+between sampling instants. It does not fill gaps in previously collected
+samples. Apple describes this reconstruction and recommends short captures
+because trace volume can be substantial.
+[Apple's Processor Trace demonstration](https://developer.apple.com/videos/play/wwdc2025/308/?time=935),
+[Processor Trace documentation](https://developer.apple.com/documentation/xcode/analyzing-cpu-usage-with-processor-trace).
+
+**What was unavailable here.** The preserved two-second-limit probe failed with:
+
+> The target device is not configured for tracing. Enable Processor Trace in System Settings to capture traces.
+
+This was the setting's state at the recorded probe, not a live check of future
+Mac settings. M4 hardware supports the facility. Its control is under macOS
+**System Settings → Privacy & Security → Developer Tools**; no setting was
+changed. This permission failure did not block the qualified hardware IP or
+sampled-stack captures. It means an optional trace dataset was not obtained;
+lost samples in the datasets we did collect remain a separate, unknown diagnostic.
+No Reversi-specific Processor Trace overhead or exhaustive execution timeline
+was established. A vendor overhead demonstration is not a measurement of this
+engine on this Mac.
+
+| Question we need to determine | Start with | Is enabling Processor Trace warranted? |
+| --- | --- | --- |
+| Did an optimization improve complete-search or evaluator throughput? | Repeated unprofiled fixed work, checksums and tree counters | Usually no. Runtime controls establish the benefit. Trace can explain execution but does not replace these controls. |
+| Which functions or instruction regions account for aggregate cycle cost? | Qualified cycle-triggered IP sampling, table, assembly and address refinement | Usually no. Collect sufficient observations and check period sensitivity/interference first. |
+| Who calls this hot helper, and what is its inclusive cost? | Richer sampled stacks, self/inclusive accounting and source/assembly inspection | Consider trace if missing intermediate frames or conflicting context leave a consequential caller-path question unresolved. |
+| How many times did this short non-inlined function actually run in one operation, or in what order? | Inspect optimized call boundaries; use trace if exact executed sequence/count is necessary | Often useful. Sample counts are not invocation counts. Conclusions require complete, correctly decoded coverage of the interval. |
+| Which rare pass/terminal/last-empty branch sequence occurred in this search? | Independent correctness references, source inspection and targeted workload | Useful if the remaining question concerns the actual dynamic sequence. Trace is not itself proof of game-rule correctness. |
+| Why is a branchless arithmetic/load sequence slow? | Cycle IP samples and assembly, then appropriate CPU Counters bottleneck/cache events | Usually not the first tool. A reconstructed path alone does not identify cache stalls or dependency/pipeline limits. Counter event distributions need their own labels and qualification. |
+| Do we need per-invocation timing or a chronological path that sampling misses? | Determine the required timing resolution and the operation to isolate | Consider a bounded trace. Check the actual export's timing granularity and coverage before claiming precision for tiny calls. |
+
+**Branchless routines: less control-flow uncertainty, not automatic irrelevance.**
+A branchless body can still consume many cycles, and hardware cycle IP sampling
+does not require branches to locate its hot instructions. For its aggregate
+cost, the existing evaluator microbenchmark and IP/source/assembly views are
+usually the right starting point. Absence of branches does not exclude expensive
+loads, dependencies or execution-unit pressure.
+
+The following is an implication of reconstruction from binaries, rather than a
+new Reversi trace measurement: once a straight-line region's execution is
+identified, its known instructions can be reconstructed even without a branch
+inside the region. Calls and returns around an out-of-line branchless body are
+control transfers, so trace may still answer invocation-count or caller-sequence
+questions. An inlined body has no distinct machine-level call boundary; source
+mapping is needed, and trace does not create a missing call instruction. Inspect
+the **optimized assembly** before calling a routine branchless: source-level
+conditions, loops and helpers need not map directly to machine branches.
+Reconstructing instructions also does not give an independent latency
+measurement for every instruction or reveal arbitrary register/memory values.
+
+**Concrete check: are there loops in our leaf evaluator?** Here, "leaf evaluator"
+means native static evaluation at the search horizon, not search recursion or
+the benchmark's outer repetition loop. The C++ has loops, but inspection of the
+retained, optimized M4 binary found **no control-flow cycles in `evaluate`,
+`features`, `legal` or P's `patternSum`**, and no recursion among these evaluator
+callees. Their fixed work has been unrolled or expanded. This is static assembly
+inspection, not a new timing or trace experiment.
+
+| Component | Source-level work | Measured M4 native binary |
+| --- | --- | --- |
+| `evaluate` | Seven-weight accumulation loop | Unrolled; no runtime loop. One conditional branch selects whether P's pattern contribution is needed. |
+| `features` | Four corners, with two C-square checks per selected corner | Loops unrolled; seven conditional branch instructions remain for corner-dependent paths. No control-flow cycle. |
+| `legal` | Five fixed ray expansions in each of eight template directions | Unrolled into straight-line code; no conditional branches or runtime loops. |
+| P's `patternSum` | Sixteen template-expanded pattern contributions | Straight-line computation/table loads; no conditional branches or runtime loops. The small `patterns` wrapper tail-transfers to it. |
+| Pattern geometry tables | Loops in `constexpr` table/origin construction | Computed at compile time, not on every position evaluation. |
+
+The [compact assembly inspection](data/profiling/evaluator-loop-review.json)
+records the exact measured executable hash, source commit and branch/cycle
+findings. `features` contains backward-address branches due to code layout, but
+its control-flow graph is acyclic: **a backward branch alone is not proof of a
+loop**. The branch counts above count static instructions in these function
+bodies, not branches taken or cycles spent during an evaluation. See
+[the evaluator source](../native/engine.cpp).
+
+Thus this evaluator path is **loop-free, but not entirely branch-free** in this
+binary. `flips` separately has data-dependent ray loops used in move application
+and exact solving; it is not called by these static-evaluation functions. This
+inspection does not qualify the generated code of Wasm, custom-weight JavaScript,
+Intel Mac or another compiler. For aggregate evaluator cost here, cycle sampling
+and bottleneck counters are well matched to the question. Trace could still
+investigate individual calls, caller sequences or the remaining conditional
+paths if those become the unresolved question.
+
+**How this applies to the completed step.** We can establish hardware IP-only
+availability, measured sampling/stack interference, aggregate hotspots and the
+unprofiled final-empty speedup without trace. For position evaluation, exact
+per-call histories remain unavailable, while repeated aggregate throughput is
+measured. For the final-empty helper, trace could independently investigate the
+executed paths behind the raw-versus-reconstructed ancestry discrepancy; it
+would not retroactively repair the raw stack fragments. A complete sequence of
+short helper calls and rare branches remains an optional follow-up question.
+
+**Gate for a future capture.** State the unresolved question, why benchmarks,
+assembly and richer stacks are insufficient, and what trace observation would
+answer it. Obtain the user's approval before changing Developer Tools security
+settings. Before recording, choose an explicit short duration and small size
+ceiling and establish how both will be enforced or bounded; do not begin an
+unbounded capture. Preserve the matching executable/debug identity, check
+coverage/loss/decoding warnings and timing granularity, and account separately
+for target interference, trace volume and offline decoding. Keep unprofiled
+controls. If these requirements cannot be met, retain sampling and record the
+unresolved question instead of claiming a complete trace.
+
+### Chrome software profiles and Perfetto
 
 V8's current POSIX sampler sends `SIGPROF` to its target thread and reads the
 saved register context before collecting a software stack sample. This is
@@ -617,7 +723,7 @@ Start a future pilot with 10 M cycle IP sampling for coarse function questions, 
 | 8. Best instruction-cost views? | Sortable IP/function tables with actual assembly/source, followed by address-containment sunburst refinement. No caller inference is made from these rings. |
 | 9. Best calling-context views? | A real sampled-stack icicle/flame graph, supported by self/inclusive tables and weighted Speedscope export. |
 | 10. Best final-empty explanation? | Function/path differential plus genuine helper caller paths explain redistribution; unprofiled full-search elapsed time establishes benefit. |
-| 11. What would Processor Trace add? | Control-flow/branch sequences and short-call behavior between samples, with much larger data/decoding cost. Hardware support exists, but this Mac is not enabled; no setting was changed and no Reversi trace-overhead claim is made. |
+| 11. What would Processor Trace add? | A separate trace can reconstruct executed paths and short calls that sampling misses. It is optional for the current aggregate findings; branchless bodies do not automatically make it useless. See [when to enable Processor Trace](#when-to-enable-processor-trace) for question-by-question guidance, the recorded permission failure and the approval/bounds required for a future capture. No Reversi trace-overhead claim is made. |
 | 12. Future combination? | Fixed-work unprofiled controls + qualified hardware IP tables/refinement + selective real stacks. Use chronology when timing/context is the question, and bounded trace only for a question sampling cannot resolve. |
 
 <!-- END_RECOMMENDATIONS_AND_ANSWERS -->

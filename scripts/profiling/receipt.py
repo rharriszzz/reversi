@@ -46,7 +46,7 @@ def main():
       'completePublishedProfiles':len(m['profiles']),
       'sourceHashes':{str(p.relative_to(ROOT)):sha(p) for p in paths if p.is_file()},
       'profileHashes':{p['file']:sha(DATA/p['file']) for p in m['profiles']},
-      'dataHashes':{file:sha(DATA/file) for file in ['benchmarks.json','analysis.json','chrome-summary.json','collector-resources.json']},
+      'dataHashes':{file:sha(DATA/file) for file in ['benchmarks.json','analysis.json','chrome-summary.json','collector-resources.json','evaluator-loop-review.json'] if (DATA/file).exists()},
       'postprocessing':{k:v for k,v in post.items() if k!='commands'}|{'tools':tools,
         'scope':'Successful final normalization pass only. Includes cached earlier exports without recounting their commands. Failed qualification passes and earlier cached export CPU/wall are not included in this subtotal; their logs remain local. Not application interference.'},
       'checks':{'fastBefore':node_check('fast-before.log'),'fastAfter':node_check('fast-after.log'),'model':node_check('profiling-node-tests.log'),'xmlImporter':python_check('xml-tests.log'),'launcher':python_check('launcher-tests.log'),
