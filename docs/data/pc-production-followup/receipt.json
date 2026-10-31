@@ -1,0 +1,268 @@
+{
+  "packaging": {
+    "passed": true,
+    "fingerprint": "eb25fd26b0e29d8e3ba5d2b0eb865c7658790b7791d8076cf4515235c369549b",
+    "sourceSha256": "b97d526697e68aa04186b67d2e13dc0f4eab21fb086921532e8b9b63cf47e7a5",
+    "artifacts": {
+      "engine-eb25fd26b0e29d8e.mjs": "4b58ea9939eb73941f4ef2ea12f5a9a2e42f6e6d60a61a3740fceeb511f2fd8e",
+      "engine-eb25fd26b0e29d8e.wasm": "a6540b1b9b83d80098fad424bfdf14a71b72e073e2aa972daa03366175a5414e"
+    },
+    "abi": 1,
+    "exports": [
+      {
+        "name": "R",
+        "kind": "memory"
+      },
+      {
+        "name": "S",
+        "kind": "function"
+      },
+      {
+        "name": "T",
+        "kind": "table"
+      },
+      {
+        "name": "U",
+        "kind": "function"
+      },
+      {
+        "name": "V",
+        "kind": "function"
+      },
+      {
+        "name": "W",
+        "kind": "function"
+      },
+      {
+        "name": "X",
+        "kind": "function"
+      },
+      {
+        "name": "Y",
+        "kind": "function"
+      },
+      {
+        "name": "Z",
+        "kind": "function"
+      },
+      {
+        "name": "_",
+        "kind": "function"
+      },
+      {
+        "name": "$",
+        "kind": "function"
+      },
+      {
+        "name": "aa",
+        "kind": "function"
+      },
+      {
+        "name": "ba",
+        "kind": "function"
+      },
+      {
+        "name": "ca",
+        "kind": "function"
+      },
+      {
+        "name": "da",
+        "kind": "function"
+      },
+      {
+        "name": "ea",
+        "kind": "function"
+      },
+      {
+        "name": "fa",
+        "kind": "function"
+      }
+    ],
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "geometryBytes": 4096,
+    "geometrySha256": "0540f902224a73c794cec44491946155bab64925f3db98227f52c10da11c5774",
+    "geometryMemoryOffset": 5640,
+    "memoryBytes": 33554432
+  },
+  "edge": {
+    "passed": true,
+    "browser": "156.0.4314.42",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+    "buildIdentity": "eb25fd26b0e29d8e3ba5d2b0eb865c7658790b7791d8076cf4515235c369549b",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "wasmSha256": "a6540b1b9b83d80098fad424bfdf14a71b72e073e2aa972daa03366175a5414e",
+    "errors": []
+  },
+  "chrome": {
+    "passed": true,
+    "browser": "156.0.8078.48",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+    "buildIdentity": "eb25fd26b0e29d8e3ba5d2b0eb865c7658790b7791d8076cf4515235c369549b",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "wasmSha256": "a6540b1b9b83d80098fad424bfdf14a71b72e073e2aa972daa03366175a5414e",
+    "errors": []
+  },
+  "smoke": {
+    "passed": true,
+    "workloadSha256": "a8deadc89f811e02da19910a702b073de12707ef19895a10f7d9861d088dcfee",
+    "native": {
+      "version": 1,
+      "fingerprint": "23dce7bdc704a15417e656b01331f0be65e34da8cdd13e93c8fc76ed1f21ae9b",
+      "sourceHashes": {
+        "native/engine.hpp": "f84153d587755542b6006150100e55e5ceb0b1f0e79111a8f91faa8fe4c784d6",
+        "native/engine.cpp": "b97d526697e68aa04186b67d2e13dc0f4eab21fb086921532e8b9b63cf47e7a5",
+        "native/main.cpp": "0d7b9978c2e20668334a965f0b384277cb77383f5dc4d4045d475a20a31a8edd",
+        "scripts/native/build.mjs": "d377f91c1fdb24702ec4cafe00375dd667b6656d33e7ec5fbfdb04cd96234922",
+        "scripts/native/client.mjs": "7533a332307c9afe8daf26bbd02f4c4f9e1017e0f678816ca34a99f3f6b8952e",
+        "scripts/native/client.py": "c09d504e11b8eed3baeb82af0974d15474e28b82888d0f7267537506b88adab9"
+      },
+      "flags": [
+        "-O3",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-ffp-contract=off",
+        "-fno-fast-math"
+      ],
+      "compiler": "c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "executable": "/home/rharris/git/reversi/.local-research/native/reversi-native",
+      "executableSha256": "2cf8a9c35facf8b6a2df287416b41fa762f358abea29cb2ffc919c008443159a",
+      "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+      "models": {
+        "B": "original-production",
+        "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+        "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+      },
+      "createdAt": "2026-10-31T15:10:11.798Z"
+    },
+    "rows": [
+      {
+        "rep": 0,
+        "model": "B",
+        "roots": 48,
+        "outerWallMs": 134.93850499999996,
+        "coreMs": 129.20167400000003,
+        "cpuMs": 129.203,
+        "nodes": 1780838
+      },
+      {
+        "rep": 0,
+        "model": "P",
+        "roots": 48,
+        "outerWallMs": 190.46428099999991,
+        "coreMs": 185.09048299999998,
+        "cpuMs": 185.0990000000001,
+        "nodes": 2578323
+      },
+      {
+        "rep": 1,
+        "model": "B",
+        "roots": 48,
+        "outerWallMs": 114.371262,
+        "coreMs": 109.77715000000005,
+        "cpuMs": 109.77500000000003,
+        "nodes": 1780838
+      },
+      {
+        "rep": 1,
+        "model": "P",
+        "roots": 48,
+        "outerWallMs": 182.08593699999994,
+        "coreMs": 175.58414900000002,
+        "cpuMs": 175.59200000000004,
+        "nodes": 2578323
+      },
+      {
+        "rep": 2,
+        "model": "B",
+        "roots": 48,
+        "outerWallMs": 114.7476059999999,
+        "coreMs": 105.60015999999999,
+        "cpuMs": 105.61000000000001,
+        "nodes": 1780838
+      },
+      {
+        "rep": 2,
+        "model": "P",
+        "roots": 48,
+        "outerWallMs": 207.61982799999987,
+        "coreMs": 201.3011940000001,
+        "cpuMs": 201.31200000000007,
+        "nodes": 2578323
+      }
+    ],
+    "method": "Mixed48 matched published horizons/scores/nodes/evaluations, one full warmup and three batches per B/P; core and IPC-inclusive wall are separate."
+  },
+  "launcher": {
+    "passed": true,
+    "command": "./start.sh --port 0 --http-log <ignored path>",
+    "url": "http://127.0.0.1:39055/",
+    "exitCode": 0,
+    "portClosed": true,
+    "httpLog": "2026-10-31 11:10:31,733 127.0.0.1 \"GET / HTTP/1.1\" 200 -\n2026-10-31 11:10:31,774 127.0.0.1 \"GET /src/app.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,774 127.0.0.1 \"GET /style.css HTTP/1.1\" 200 -\n2026-10-31 11:10:31,813 127.0.0.1 \"GET /src/rules.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,815 127.0.0.1 \"GET /src/features.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,816 127.0.0.1 \"GET /src/coaching.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,825 127.0.0.1 \"GET /src/worker.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,839 127.0.0.1 code 404, message File not found\n2026-10-31 11:10:31,839 127.0.0.1 \"GET /favicon.ico HTTP/1.1\" 404 -\n2026-10-31 11:10:31,842 127.0.0.1 \"GET /src/backend.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,849 127.0.0.1 \"GET /src/search.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,849 127.0.0.1 \"GET /src/learning.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,850 127.0.0.1 \"GET /src/review.js HTTP/1.1\" 200 -\n2026-10-31 11:10:31,855 127.0.0.1 \"GET /src/fast-features.js HTTP/1.1\" 200 -\n",
+    "windowsBrowserWindows": "[{\"ProcessName\":\"chrome\",\"MainWindowTitle\":\"Reversi Coach Design - Google Chrome\"},{\"ProcessName\":\"msedge\",\"MainWindowTitle\":\"Reversi Coach Lab and 3 more pages - Personal - Microsoft? Edge\"}]\n",
+    "stdout": "Reversi is running at http://127.0.0.1:39055/\n",
+    "stderr": ""
+  },
+  "nativeBuild": {
+    "version": 1,
+    "fingerprint": "23dce7bdc704a15417e656b01331f0be65e34da8cdd13e93c8fc76ed1f21ae9b",
+    "sourceHashes": {
+      "native/engine.hpp": "f84153d587755542b6006150100e55e5ceb0b1f0e79111a8f91faa8fe4c784d6",
+      "native/engine.cpp": "b97d526697e68aa04186b67d2e13dc0f4eab21fb086921532e8b9b63cf47e7a5",
+      "native/main.cpp": "0d7b9978c2e20668334a965f0b384277cb77383f5dc4d4045d475a20a31a8edd",
+      "scripts/native/build.mjs": "d377f91c1fdb24702ec4cafe00375dd667b6656d33e7ec5fbfdb04cd96234922",
+      "scripts/native/client.mjs": "7533a332307c9afe8daf26bbd02f4c4f9e1017e0f678816ca34a99f3f6b8952e",
+      "scripts/native/client.py": "c09d504e11b8eed3baeb82af0974d15474e28b82888d0f7267537506b88adab9"
+    },
+    "flags": [
+      "-O3",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-ffp-contract=off",
+      "-fno-fast-math"
+    ],
+    "compiler": "c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "executable": "/home/rharris/git/reversi/.local-research/native/reversi-native",
+    "executableSha256": "2cf8a9c35facf8b6a2df287416b41fa762f358abea29cb2ffc919c008443159a",
+    "modelHeaderSha256": "1b286ed8371f0a2cd957b06b679e7422b68b3699cb7c8fe7c9f50968d27ceba1",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "createdAt": "2026-10-31T15:10:11.798Z"
+  },
+  "tests": {
+    "command": "node --test --test-concurrency=1 tests/rules.test.mjs tests/native-search.test.mjs tests/wasm-engine.test.mjs tests/fast-flips.test.mjs",
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "logSha256": "80df2ad0a94f011669325fd69630eaf214713ba74c99083cd3bc0c33fe3902a2"
+  },
+  "environment": {
+    "cpu": "Intel Core i7-14700F",
+    "os": "Ubuntu 26.04.1 WSL2",
+    "compiler": "GCC 15.2.0-16ubuntu1",
+    "python": "3.14.4",
+    "node": "24.16.0",
+    "availableMemoryGiB": 6.2,
+    "availableDiskGiB": 885
+  },
+  "base": "e7b79b9510278b815606c47b667ddeff396e289b"
+}

@@ -7995,3 +7995,555 @@ Answer these questions:
 ---
 
 What do I type to answer a question? I can't read the symbol
+
+---
+
+# Reversi — PC Production Follow-up and Runtime CPU Instruction-Set Dispatch
+
+Work on my Windows 11 PC under WSL2 Ubuntu 26.04.1, in the `rharriszzz/reversi` repository.
+
+Use GPT-6.1-Sol with High reasoning.
+
+This is a two-stage task:
+
+1. Follow up and qualify the recently completed Mac production integration on the PC.
+2. Investigate and implement runtime CPU instruction-set selection for the native x86-64 engine.
+
+Complete Stage 1 before beginning Stage 2.
+
+The objective is a single portable native executable that automatically uses optimized x86-64 instructions when supported, while retaining a safe fallback for older processors.
+
+The important design preference is **whole-search specialization at compilation time, with dispatch outside the search recursion**.
+
+Do not start another general engine-optimization campaign.
+
+## 1. Read the current project and production results
+
+Read `USER_REQUESTS.md` and `AGENTS.md` first.
+
+Then review:
+
+- `README.md`
+- `native/engine.cpp`
+- `native/engine.hpp`
+- `scripts/native/build.mjs`
+- `docs/FAST_FLIPS_PRODUCTION_ACCEPTANCE.md`
+- `docs/FLIP_OPTIMIZATION_PC.md`
+- `docs/FLIP_OPTIMIZATION_RESULTS.md`
+- `docs/PERFORMANCE_OVERVIEW.md`
+- `docs/WEBASSEMBLY_BUILD.md`
+
+The completed Mac production integration is on `main`:
+
+`e7b79b9510278b815606c47b667ddeff396e289b`
+
+It promoted the qualified 4 KiB geometry-table/sentinel flipping algorithm and rebuilt the actual distributed WebAssembly artifacts.
+
+The integrated `native/engine.cpp` SHA-256 is:
+
+`b97d526697e68aa04186b67d2e13dc0f4eab21fb086921532e8b9b63cf47e7a5`
+
+The production Wasm build fingerprint is:
+
+`eb25fd26b0e29d8e3ba5d2b0eb865c7658790b7791d8076cf4515235c369549b`
+
+Verify the current remote and local state. If newer commits exist, inspect them before proceeding.
+
+Preserve all unrelated local modifications, worktrees and research files.
+
+## STAGE 1 — PC FOLLOW-UP OF THE MAC PRODUCTION WORK
+
+### 2. Update and verify the production checkout
+
+Fetch the new production `main` safely.
+
+Use fast-forward-only updates when possible. Do not reset or overwrite local work.
+
+Confirm that:
+
+- The optimized flip source is present.
+- The generated production Wasm module and manifest are committed.
+- The frozen B/L/P model identities have not changed.
+- The runtime browser code references the current production module.
+- The PC's compiler, Python and Node environments remain qualified.
+
+Expected PC environment:
+
+- Intel Core i7-14700F.
+- Ubuntu 26.04.1 under WSL2.
+- GCC 15.2.
+- Python 3.14.4.
+- Node 24.x.
+
+Do not install older versions or replace working toolchains.
+
+### 3. Run the Mac report's prescribed PC handoff
+
+Follow the "Short PC follow-up" section of:
+
+`docs/FAST_FLIPS_PRODUCTION_ACCEPTANCE.md`
+
+In particular:
+
+- Rebuild the portable native engine.
+- Run the specified native, rules, Wasm and fast-flip correctness tests.
+- Verify the packaged Wasm artifact and manifest.
+- Run the short production smoke benchmark.
+- Test the actual Windows Edge browser, and Chrome if available.
+- Verify B/L/P coaching, a timed computer reply, module identity and reload.
+- Verify that `./start.sh` opens the Windows default browser correctly.
+- Stop the test server cleanly.
+
+Use disposable browser profiles for automated acceptance.
+
+Do not rebuild the distributed Wasm with an unqualified PC SDK. The newly published Mac-built artifact is already the production artifact.
+
+Do not repeat the entire previous Mac or PC performance campaigns.
+
+If the production follow-up fails, investigate and correct the problem before beginning the new CPU-dispatch experiment.
+
+Create a concise Stage 1 acceptance record and preserve it for the final report.
+
+## STAGE 2 — RUNTIME CPU INSTRUCTION-SET DISPATCH
+
+### 4. Motivation
+
+Previous PC results revealed a large difference between portable and host-tuned compilation of the same optimized flip algorithm.
+
+For the common legal-position microbenchmark:
+
+- Portable GCC 15: approximately 10.74 ns per `flips()` call.
+- GCC 15 `-march=native`: approximately 4.37 ns per call.
+
+Full search also benefits from host tuning.
+
+We want to recover as much of that advantage as practical **without compiling the entire executable for one particular processor**.
+
+The goal is automatic CPU-feature selection at runtime, similar to the multiversioning used in optimized numerical libraries.
+
+The executable should run correctly on older baseline x86-64 machines.
+
+Do not assume all of the `-march=native` advantage comes from any one instruction extension.
+
+### 5. Preferred architecture: compile the hot search code twice
+
+My preferred design is:
+
+**Portable implementation**
+
+Compile the performance-critical search implementation using baseline x86-64 instruction availability.
+
+**Enhanced implementation**
+
+Compile the exact same implementation source using a selected set of x86-64 extensions, initially investigating:
+
+- POPCNT.
+- BMI1.
+- BMI2.
+- LZCNT.
+
+Use GCC's relevant flags, such as `-mpopcnt`, `-mbmi`, `-mbmi2` and `-mlzcnt`.
+
+Use explicit CPU-feature requirements, not an implicit assumption that every future CPU matches the present i7-14700F.
+
+Initially support two runtime variants. Add a third capability tier, such as POPCNT-only, only if measurements show enough value to justify it.
+
+Compile the variants in separate translation units or another cleanly isolated scheme, so each compiler invocation can optimize the entire hot implementation for its intended instruction set.
+
+**Use one maintainable implementation source, not manually duplicated search algorithms.**
+
+Distinct namespaces, symbol isolation, shared implementation files or another clean C++ design are acceptable.
+
+Explain the design and why it preserves the existing public interface.
+
+Do not introduce complicated generic abstractions merely to make the source appear elegant.
+
+### 6. Dispatch at the outer search boundary
+
+The CPU test belongs outside the expensive recursive operations.
+
+Investigate the existing entry points:
+
+- `Engine::search()`
+- `Engine::analyze()`
+- `Engine::windows()`
+
+All relevant operations eventually reach the hot recursive search and supporting bitboard/evaluator code.
+
+Arrange that each active search uses the selected implementation for its entire recursive execution.
+
+The recursive calls and hot helper calls should be statically bound within that implementation, allowing the compiler to inline and optimize them normally.
+
+**There must be no CPU-feature check inside `negamax()`, `flips()`, `legal()`, or any other high-frequency routine.**
+
+Avoid per-move indirect dispatch as well.
+
+Detect processor features once, cache the result, and select the backend when the engine is constructed or when its public search begins.
+
+A single cached outer dispatch is acceptable if it is simpler and measurably negligible.
+
+The selected backend should remain stable during an engine's lifetime unless there is a compelling reason otherwise.
+
+Do not introduce a dynamic language-level dispatch on every recursive call.
+
+### 7. Preserve engine state and behavior
+
+This is important because the engine has mutable state.
+
+Both compiled implementations must preserve the semantics of:
+
+- The transposition table.
+- TT generations and replacement.
+- Search counters.
+- Search depth and exactness.
+- Time budgets and cancellation.
+- Alpha-beta windows.
+- Move ordering.
+- Frozen evaluators B/L/P.
+- Complete result values and principal variations.
+
+Avoid unnecessarily constructing two independent 10 MiB transposition tables for one active engine.
+
+Prefer an arrangement in which an engine instance owns only the state it needs for the selected backend.
+
+Where shared state is appropriate, use exactly compatible layouts and lifetime rules.
+
+Where the implementation variants need distinct internal types, preserve the public engine API and ownership behavior.
+
+Do not duplicate frozen coefficient tables unnecessarily.
+
+The 4 KiB flipping geometry table should be shared if practical, rather than creating separate mutable copies.
+
+Preserve numerical reproducibility: existing strict floating-point options must remain in effect.
+
+Do not change the search algorithm while implementing CPU dispatch.
+
+### 8. Reliable CPU-feature detection and fallback
+
+Use GCC-supported runtime CPU detection where appropriate, such as `__builtin_cpu_supports()`.
+
+Check the actual available features rather than relying on CPU brand or model names.
+
+The dispatch code, feature detector, startup routines and portable fallback must themselves be compiled for the baseline architecture.
+
+Confirm that the enhanced implementation cannot execute on an unsupported processor.
+
+Consider the Intel P-core/E-core architecture and any feature exposure restrictions introduced by WSL2.
+
+Do not infer feature safety from the presence or absence of a hardware PMU. The previous WSL2 work established that hardware performance counters were unavailable to Linux, but that is distinct from CPU instruction-set availability.
+
+Avoid unnecessary AVX or AVX-512 variants. If any AVX-family instructions are considered, verify the necessary CPU and operating-system state support.
+
+Provide a test-only way to select the portable implementation even on the current CPU.
+
+A test request must never force unsupported instructions onto a processor.
+
+Expose the chosen backend through a diagnostic or build/test receipt so that automatic selection can be verified, rather than inferred from timing.
+
+### 9. Consider GCC target_clones, but do not use it blindly
+
+There is a simpler alternative: place `target_clones` attributes on the necessary functions and their callees.
+
+This may be worth a small comparison.
+
+However, independently multiversioned functions can introduce extra resolver or indirect-call boundaries, and the compiler does not automatically make every caller/callee combination into one statically optimized search implementation.
+
+Our preferred strategy is to compile the complete performance-critical call graph as separate variants and dispatch once at its entry.
+
+If `target_clones` turns out to generate equally efficient machine code with less implementation complexity, document the evidence.
+
+Otherwise retain the separately compiled backend approach.
+
+Do not maintain multiple sets of hand-written source algorithms.
+
+### 10. Instruction-cache layout and alignment
+
+Investigate the resulting machine-code layout.
+
+Two implementations in one executable do not necessarily compete for L1 instruction-cache space: code that is not fetched normally does not occupy it.
+
+Nevertheless, compiler and linker placement may matter.
+
+Consider:
+
+- Separate object files.
+- Separate text sections when useful.
+- Grouping hot functions belonging to one backend.
+- Modest entry-point alignment, such as a cache-line boundary.
+- Avoiding interleaved hot and cold implementations.
+- Avoiding unnecessary branches into distant helper code.
+
+Do not assume that padding every function improves speed.
+
+Excessive alignment and padding can increase code size and instruction-cache pressure.
+
+Use `objdump`, `nm`, section information and linker maps to inspect:
+
+1. The portable backend's instruction ranges.
+2. The enhanced backend's instruction ranges.
+3. Internal direct-call and recursive-call targets.
+4. Any remaining indirect calls.
+5. Instruction count and total text size.
+6. Actual alignment and code-section boundaries.
+
+Verify that the linker has not accidentally folded, aliased or resolved variant-specific code to the wrong implementation.
+
+Do not use elaborate linker scripts unless ordinary compilation and linking prove inadequate.
+
+Benchmark the normal layout first. Try one modest alignment/grouping experiment only if there is a plausible reason or measurable benefit.
+
+The objective is good code locality, not decorative alignment.
+
+### 11. Inspect what the compiler actually generates
+
+For each backend, inspect the optimized assembly of:
+
+- `flips()`.
+- `legal()`.
+- `pop()` and other bit-counting operations.
+- `negamax()`.
+- `lastEmpties()`.
+- The seven-feature evaluator.
+- P pattern extraction.
+- Relevant TT operations.
+
+Determine which instructions are actually introduced by the enhanced target flags.
+
+Pay attention to:
+
+- POPCNT and LZCNT.
+- BMI bit manipulation.
+- Variable shifts.
+- Conditional branches.
+- Loads from the flipping geometry table.
+- Function inlining.
+- Code size and register pressure.
+
+Do not claim that BMI2 improves the implementation merely because the compiler was permitted to use BMI2.
+
+If the optimized code is significantly different, explain where the gains are likely to originate.
+
+### 12. Benchmark several configurations
+
+Use the same qualified engine source and matched workloads.
+
+Compare at least:
+
+**A. Existing production portable build**
+
+The current GCC portable implementation, with no new runtime dispatch.
+
+**B. New dispatch executable, portable backend forced**
+
+Measures the fallback and integration overhead.
+
+**C. New dispatch executable, enhanced backend selected**
+
+Measures actual runtime-selected optimized execution.
+
+**D. Full-program `-march=native`**
+
+Our upper-reference build, using the same current production algorithms.
+
+Treat D as a reference, not as proof that the enhanced dispatch backend must attain exactly the same performance.
+
+If useful, add a separately reported `-mpopcnt`-only reference, because earlier PC benchmarks found measurable benefits from that flag.
+
+Keep compiler settings and workload definitions explicit. Do not compare different algorithms, compiler targets and search conditions as if one variable changed.
+
+### 13. Use complete-search benchmarks as the primary decision gate
+
+Reuse the verified fixed-position panels:
+
+- Twelve distinct exact endgame roots.
+- Mixed 48-root panel.
+- Opening searches.
+- Middle-game searches.
+- All-move coaching.
+- B, L and P evaluators.
+- Supplementary 80 ms and 300 ms timed searches.
+
+Use the previous benchmark infrastructure and independently verified position corpus.
+
+Perform warmups and alternating/reversed repeated trials.
+
+Record complete elapsed time, CPU time, nodes, evaluations, all relevant TT/search counters and score signatures.
+
+Provide variability and meaningful uncertainty intervals.
+
+The key questions are:
+
+1. How much additional performance can CPU dispatch recover over the portable production engine?
+2. How close does it come to whole-program `-march=native`?
+3. Does the fallback run as fast as the existing production portable code?
+4. Is the dispatch overhead negligible in complete searches?
+5. Are there regressions from extra code size or changed function boundaries?
+6. Are improvements consistent across exact, opening, middle and coaching workloads?
+
+Do not use a `flips()` microbenchmark alone to accept the design.
+
+Measure flip microbenchmarks as supporting evidence, using the previously qualified legal-phase and exact-tail corpora.
+
+### 14. Correctness and fallback qualification
+
+Run existing rules, native, fixed-search, exact-endgame and sanitizer suites.
+
+Both backends must pass:
+
+- Independent mailbox flipping references.
+- Forced-pass and terminal references.
+- Exact endgame score comparisons.
+- B/L/P heuristic fixed-depth comparisons.
+- Full-window coaching and PV verification.
+- All exposed search/TT counters.
+- Completed-depth and cancellation behavior.
+- TT generation/collision tests.
+- Repeated engine creation and destruction.
+
+The selected optimized backend and forced portable backend must produce identical scores, moves, continuations and fixed-work counters.
+
+Test repeated searches on the same engine object, including changes in search depth and model, so state preservation is verified rather than inferred.
+
+Since the current PC supports the enhanced features, forcing the portable backend exercises its execution path but does not independently prove compatibility with an old CPU.
+
+If practical, use a compatible CPU emulator or another safe method to demonstrate that the baseline program does not execute enhanced instructions. Otherwise explicitly report the fallback portability as statically verified but not physically tested on older hardware.
+
+Inspect disassembly to confirm the dispatch code itself uses no enhanced instructions.
+
+Sanitizer tests are correctness tests, not performance measurements.
+
+### 15. Protect macOS and WebAssembly
+
+The shared C++ engine is also used by macOS and Emscripten.
+
+Do not introduce a dependency on GCC x86 intrinsics or Linux APIs in those builds.
+
+Maintain a clean non-x86 build path.
+
+The Mac and WebAssembly implementations should continue using the newly qualified fast-flip source without changing their behavior.
+
+Do not modify or rebuild the production distributed Wasm artifacts as part of this PC experiment.
+
+If a source refactor is required to support the two x86 backends, verify that the ordinary non-x86 path still compiles, and document any compatibility check that cannot be performed on this PC.
+
+Do not claim actual Mac qualification without testing on the Mac.
+
+Avoid making the browser require new CPU features.
+
+### 16. Profiling and diagnostic limitations
+
+The previous PC investigation established that this WSL2 instance lacks a usable guest PMU.
+
+Do not spend time repeating the entire virtual-PMU investigation.
+
+Unprofiled benchmark results remain authoritative.
+
+Use `objdump` and other static compiler diagnostics first.
+
+Software `cpu-clock` instruction sampling with the existing Linux `perf` frontend may be used selectively, but label it as software sampling.
+
+Do not describe those samples as hardware cycle counts.
+
+Do not attempt Windows security, hypervisor, kernel, firmware, or driver changes.
+
+If results are surprising, investigate assembly and code placement before proposing another profiling environment.
+
+### 17. Scope and checkpoints
+
+First complete Stage 1 and record its result.
+
+Then create a separate experimental branch, tentatively:
+
+`perf/runtime-cpu-dispatch`
+
+Base it on the newly qualified production `main`.
+
+Implement one clean two-backend prototype.
+
+Checkpoint after correctness and disassembly qualification.
+
+Run a pilot benchmark and fix any obvious structural problems.
+
+If a candidate produces meaningful gains, perform the more substantial benchmark and correctness campaign.
+
+If the two-backend design produces negligible improvement or a significant regression, investigate one targeted explanation or refinement, then stop rather than expand indefinitely.
+
+Keep active profiling/benchmarking within approximately 90 minutes.
+
+Keep demanding runs serial.
+
+Check resources and preserve immutable benchmark evidence.
+
+Do not merge the dispatch experiment into `main` during this task.
+
+Commit and push the experimental branch after qualification and verify the remote SHA.
+
+Do not commit raw perf records, compiled binaries, huge traces, virtual environments or SDK caches.
+
+### 18. Documentation and deliverables
+
+Create:
+
+`docs/PC_PRODUCTION_FOLLOWUP.md`
+
+Record the actual follow-up tests after the Mac promotion.
+
+Create:
+
+`docs/RUNTIME_CPU_DISPATCH_DESIGN.md`
+
+Explain:
+
+- Backend organization.
+- Single-source compilation approach.
+- Instruction-set requirements.
+- CPU detection and selection.
+- State ownership.
+- Direct/indirect call boundaries.
+- Symbol and memory layout.
+- Portability and fallback guarantees.
+
+Create:
+
+`docs/RUNTIME_CPU_DISPATCH_RESULTS.md`
+
+Include:
+
+- All compared variants.
+- Compiler flags and binary hashes.
+- Actual detected CPU capabilities.
+- Selected backend identity.
+- Disassembly findings.
+- Code-size and table-size effects.
+- Flip microbenchmarks.
+- Complete-search benchmarks.
+- Timing uncertainty.
+- All correctness checks.
+- Rejected approaches.
+- Decision about retention.
+- Mac follow-up requirements if the result is worth promoting.
+
+Keep compact reproducible benchmark data and scripts where appropriate.
+
+Historical fast-flip measurements must retain their original identity.
+
+### 19. Final questions
+
+Answer these explicitly:
+
+1. Did the PC pass the post-Mac production follow-up?
+2. Does the runtime-dispatched executable contain at least two genuinely distinct compiled search implementations?
+3. Is the source maintained in one place?
+4. Is CPU detection performed only outside the hot search?
+5. Are recursive and hot-helper calls statically bound to the selected backend?
+6. Which x86 instruction extensions were actually used?
+7. Is fallback correctness established?
+8. Does the design avoid unnecessary duplicate TT and frozen-model storage?
+9. Did code grouping or alignment matter measurably?
+10. How much faster is automatic dispatch than the existing portable production build?
+11. How close is the enhanced backend to full-program `-march=native`?
+12. Are exact scores, search results, counters, coaching and interruption behavior identical?
+13. Is the result sufficiently beneficial and maintainable to retain?
+14. What must subsequently be checked on the M4 before promotion?
+
+**Guiding principle: compile the hot search implementation for several instruction sets, choose once at the outer boundary, and execute the selected implementation without repeated CPU-feature checks. Preserve correctness and use complete-search benchmarks to determine whether the additional complexity is worthwhile.** ; add commit push after Stage 1.  For stage 2, be sure to include a command line argument or environment variable or something, to enable it to force it to run the less native version.  That way it is easier to test.
