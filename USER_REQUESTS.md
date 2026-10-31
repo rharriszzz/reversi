@@ -7420,3 +7420,273 @@ For the Mac phase, leave PC questions explicitly pending.
 For the PC phase, resolve those questions from actual PC measurements and provide the combined recommendation.
 
 **Primary principle: Optimize the full search, not merely the function or the profile percentage. Use benchmark results to decide what to retain and profiling to explain why.**
+
+---
+
+stop
+
+---
+
+# Reversi — Resume PC Fast-Flips Qualification and Investigate PMU Workarounds
+
+This follows my interrupted Phase 2 run. I stopped Codex after it reported:
+
+"This is Phase 2: WSL2 x86-64 on an i7-14700F, with Ubuntu 26.04.1, GCC 15.2 and Python 3.14.4. Resources look adequate and the working tree is clean. The Mac branch is published at 1b83a2b2c158078962afd48a48479346f854c813; I’ll check out that exact revision. WSL exposes no CPU PMU device, so hardware sampling may be unavailable."
+
+I want you to resume Phase 2, but first investigate whether we have a practical way to get **genuine Intel hardware PMU profiling**, rather than immediately abandoning hardware sampling.
+
+**Do not let this investigation prevent completion of the principal PC benchmarks.**
+
+## 1. Recover the intended experiment
+
+Read `USER_REQUESTS.md`, `AGENTS.md`, and:
+
+- `docs/FLIP_OPTIMIZATION_MAC.md`
+- `docs/FLIP_OPTIMIZATION_RESULTS.md`
+- `scripts/fast-flips/README.md`
+- `docs/PROFILING_METHODS_AND_VIEWS.md`
+
+Confirm the published Mac branch:
+
+`perf/fast-flips`
+
+Published head:
+
+`1b83a2b2c158078962afd48a48479346f854c813`
+
+The tested selected-engine source is commit:
+
+`9357d4b3510d7931b3ea4b8739b7c8e693414f33`
+
+The original baseline is:
+
+`1058f013581e0566277586f857b0a2884be260f6`
+
+Check whether the previous session already fetched or checked out the branch. Preserve existing worktrees and uncommitted changes.
+
+Do not reset anything unnecessarily.
+
+## 2. Investigate why hardware profiling is unavailable in WSL2
+
+Confirm what "WSL exposes no CPU PMU device" actually means.
+
+Inspect the available CPU PMU event sources, the running kernel, `perf` version, and relevant permissions.
+
+Use an actual hardware-event probe rather than treating a missing directory as conclusive.
+
+Distinguish:
+
+- No virtual PMU exposed by the hypervisor.
+- Missing or unsuitable perf tooling.
+- `perf_event_open` permission restrictions.
+- Unsupported event type.
+- PMU present but unable to support precise instruction sampling.
+
+Also determine whether software sampling with `perf record -e cpu-clock` is possible, while labeling it as software sampling, not hardware PMU sampling.
+
+Avoid unnecessary installations or kernel changes.
+
+## 3. Compare three hardware-PMU workarounds
+
+### Option A: Expose the PMU to WSL2
+
+Research Microsoft's Hyper-V virtual PMU support, including `Set-VMProcessor -Perfmon`, and whether it can actually be applied to this WSL2 environment.
+
+Do not assume that because Hyper-V supports virtual PMUs in ordinary managed VMs, its WSL2 utility VM exposes equivalent user controls.
+
+Inspect the installed Windows edition, WSL version and available management facilities.
+
+Check whether a documented, supported configuration change exists.
+
+Do not use speculative `.wslconfig` keys.
+
+Do not change VM configuration, shut down WSL, restart Windows, or alter security settings merely to experiment.
+
+If support is unconfirmed, label this option unconfirmed and stop investigating it after a short bounded effort.
+
+### Option B: Use Windows-native hardware sampling
+
+Investigate Intel VTune Profiler and Windows Performance Recorder / Windows Performance Analyzer.
+
+Determine whether the Windows host exposes PMU counters, for example using `wpr -pmcsources` if available.
+
+Determine whether existing tools could perform event-triggered instruction sampling on the Intel Core i7-14700F.
+
+Check whether a native Windows build of the same Reversi C++ engine is readily achievable using tools already installed.
+
+Consider the differences between:
+
+- Windows-native and WSL2 Linux compilation.
+- Compiler-generated x86-64 instructions.
+- ABI and calling conventions.
+- Kernel/runtime behavior.
+- P-core versus E-core scheduling and attribution.
+
+If you can reasonably build a native Windows executable with no broad code changes, determine how to benchmark the original and selected flip algorithms equivalently.
+
+Do not profile a WSL2 process from Windows and assume that the resulting addresses are properly attributed to Linux functions without evidence.
+
+Do not install Intel drivers, change security settings, disable virtualization-based security, or make administrative changes without my authorization.
+
+### Option C: Bare-metal Linux
+
+Determine, at a high level, whether booting Linux directly from external media would permit hardware performance profiling with `perf` on this machine.
+
+Consider:
+
+- Ability to use the same GCC/source algorithm.
+- Actual PMU access and permissions.
+- Setup and reboot effort.
+- Possible Secure Boot, BitLocker or disk concerns.
+- Difference between a bare-metal Linux measurement and WSL2 runtime.
+
+Do not create boot media or alter partitions or boot settings.
+
+This is an option assessment only.
+
+## 4. Make an explicit engineering decision
+
+Compare these choices:
+
+A. WSL2 with a working virtual PMU.
+
+B. Windows-native hardware profiling.
+
+C. Bare-metal Linux profiling.
+
+D. Continue WSL2 without hardware PMU profiling.
+
+Score them against:
+
+- Ability to profile the exact Linux executable.
+- Whether genuine hardware instruction-address sampling is available.
+- Confidence in event attribution.
+- Setup cost and risk.
+- Interference with the existing PC development environment.
+- Expected usefulness for this particular flip optimization.
+- Whether the profiling result is likely to change the final retain/reject decision.
+
+Give practical preference to methods that answer a real unresolved question.
+
+**If WSL2 benchmarking convincingly demonstrates the same broad gains as the Mac, do not construct an entirely new native Windows environment just to collect redundant profiles.**
+
+If the PC shows surprising regressions, a much smaller speedup, or contradictory function-level behavior, then hardware profiling may justify additional setup.
+
+Do not silently replace hardware sampling with software sampling and call them equivalent.
+
+## 5. Complete the PC qualification regardless
+
+Proceed with the already requested Phase 2 correctness and benchmark work.
+
+Use the Mac's reproducible handoff and the selected experimental branch.
+
+Benchmark the original and selected implementations under WSL2 with:
+
+- Matched GCC 15 portable options.
+- Separately matched `-march=native` options where useful.
+- Flip microbenchmarks.
+- Twelve independent exact roots.
+- The mixed 48-root panel.
+- Opening searches.
+- Middle-game searches.
+- Coaching searches.
+- Supplementary timed 80 ms and 300 ms tests.
+
+Preserve the input position/corpus identities.
+
+Use repeated, interleaved, unprofiled fixed-work timings.
+
+Record elapsed time, CPU time, nodes, evaluations, scores, counters, compiler flags, binary identity and uncertainty.
+
+Inspect x86-64 optimized assembly for the original versus selected flip functions.
+
+Confirm correctness using the independent mailbox implementation, search reference, exact-score tests, B/L/P evaluations and regression suite.
+
+Where appropriate, use `perf` software sampling only as supplemental hotspot evidence.
+
+If a hardware PMU workaround is readily available without invasive changes, use a short bounded capture on the original and selected algorithms.
+
+Otherwise explicitly defer it.
+
+The central comparison must remain the same-code, same-environment, unprofiled baseline-versus-candidate comparison.
+
+## 6. Reassess the Mac optimization's portability
+
+The Mac selected a compact 4 KiB geometry-table/sentinel flip kernel.
+
+Investigate whether the x86-64 compiler handles its:
+
+- Ray masks.
+- Leading-zero or endpoint-selection operations.
+- Variable shifts.
+- Loads.
+- Conditional selections.
+- Branch-free arithmetic.
+- Data-table accesses.
+
+as effectively as Apple Clang on ARM64.
+
+Do not assume that the best ARM64 implementation is the best x86-64 implementation.
+
+If there is a real PC regression, use disassembly and controlled tests to explain it. A narrow alternative implementation may be tested, but avoid an open-ended optimization campaign.
+
+Do not introduce architecture-specific complexity unless the complete-search benchmarks justify it.
+
+## 7. Reports and publication
+
+Create:
+
+`docs/FLIP_OPTIMIZATION_PC.md`
+
+Update:
+
+`docs/FLIP_OPTIMIZATION_RESULTS.md`
+
+Include a dedicated section:
+
+**Hardware PMU availability and workaround decision**
+
+Document the actual observed limitations and the comparison of Windows-host profiling, virtual PMU exposure, bare-metal Linux and proceeding without hardware sampling.
+
+Separate actual tests from theoretical possibilities.
+
+Provide exact commands and results for any hardware PMU probes.
+
+Do not report missing WSL PMU support as a property of the physical processor.
+
+Make a clear final recommendation:
+
+- Retain the shared optimized flip kernel.
+- Retain it only for selected architectures.
+- Or reject it and preserve the original implementation.
+
+Base this primarily on qualified PC and Mac complete-search measurements and correctness.
+
+Commit and push the PC results to `perf/fast-flips`, verify the remote commit, and do not merge into main.
+
+## 8. Time and risk limits
+
+Spend no more than approximately 10–15 minutes of investigative effort deciding whether an existing hardware profiling method is feasible.
+
+Do not let investigating virtual PMUs consume the benchmark budget.
+
+Keep intensive measurements serial, with the existing approximately 90-minute active measurement budget.
+
+Do not change BIOS/UEFI settings, Windows security features, Hyper-V/WSL configuration, boot disks, or profiling driver settings without approval.
+
+If a potential workaround requires those actions, document the proposed action, benefit, risks and expected effort, then continue with the safe PC benchmarks.
+
+## Final questions
+
+1. Why exactly is hardware PMU sampling unavailable in this WSL2 instance?
+2. Can a supported virtual PMU be exposed to this WSL2 instance?
+3. Can Windows itself collect Intel PMU samples on this computer?
+4. Could we use a native Windows Reversi build to obtain meaningful hardware profiles?
+5. Would direct Linux boot be materially better?
+6. How much additional information would a workaround provide over unprofiled WSL2 benchmarks and disassembly?
+7. Did the Mac flip optimization improve the PC's exact, opening, middle and coaching workloads?
+8. Did the algorithm improve under portable GCC and `-march=native`?
+9. Were all rules, scores, continuations and search counters preserved?
+10. Do we have sufficient evidence to retain the optimization without another hardware profiling campaign?
+
+**Complete the PC performance qualification first. Pursue hardware PMU sampling only when its additional information justifies the cost and risk.**
