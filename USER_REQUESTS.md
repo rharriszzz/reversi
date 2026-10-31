@@ -6955,3 +6955,468 @@ Please record this information in one of the markdowns, with enough context to m
 ---
 
 are there loops in the leaf evaluation routines
+
+---
+
+# Reversi — Faster Disc Flipping: Mac Experiment and PC Qualification
+
+Work in the `rharriszzz/reversi` repository.
+
+This is a focused native C++ performance-optimization experiment. The principal objective is to reduce the cost of calculating captured/flipped discs, without changing game rules, evaluator values, search semantics, or playing strength at a fixed search horizon.
+
+I will run this request first on my Apple M4 iMac, then on my Windows 11 PC using WSL2 Ubuntu.
+
+**Determine the operating environment and execute the appropriate phase:**
+- **macOS / Apple Silicon:** Phase 1 — investigate, implement, profile, benchmark, and publish experimental results.
+- **Linux / WSL2 on x86-64:** Phase 2 — retrieve the published Mac experiment, independently benchmark and profile it, investigate architecture-specific differences, and report whether the optimization should be retained.
+
+Read `USER_REQUESTS.md`, `AGENTS.md`, and relevant performance documentation before beginning. Follow repository instructions about preserving user requests.
+
+Do not run both phases on one computer. Do not infer PC results from Mac measurements, or vice versa.
+
+## 1. Background and starting point
+
+The current shared C++ engine is in:
+
+- `native/engine.cpp`
+- `native/engine.hpp`
+
+The current implementation has:
+
+- `shift<D>()`: eight directional bitboard shifts.
+- `flipsIn<D>()`: repeatedly advances a ray with a `while` loop through adjacent opponent discs.
+- `flips()`: combines the eight directional results.
+- `play()`: calls `flips()` to construct the resulting board.
+- `lastEmpties()`: specialized exact handling of one or two remaining empty squares, using `flips()`.
+
+Previous hardware profiling on the M4 showed that approximately **58.77% of accepted active-cycle sample weight** was located in the physical `flips` function on one optimized twelve-empty exact-search workload.
+
+That is a hotspot for this particular workload, not proof that all Reversi searches spend 59% of their time flipping.
+
+Previous exact-endgame specialization is already retained and must not be accidentally regressed.
+
+Review:
+
+- `docs/PROFILING_METHODS_AND_VIEWS.md`
+- `docs/PERFORMANCE_OVERVIEW.md`
+- `docs/MAC_NATIVE_WASM_OPTIMIZATION_RESULTS.md`
+- `scripts/profiling/README.md`
+
+Use the recently qualified hardware sampling pipeline where available.
+
+The current approach is correct. Our task is to discover whether there is a faster implementation, not to assume a replacement will win.
+
+## 2. Git and experiment management
+
+Start with a resource and repository audit.
+
+Check CPU, memory pressure, swap, disk space, outstanding relevant processes, current compiler versions, branch status, and available profiling tools.
+
+Preserve local modifications and unrelated work.
+
+On the Mac, create or resume a dedicated experimental branch:
+
+`perf/fast-flips`
+
+Base it on the latest verified `main`, recording its complete commit SHA.
+
+On the PC, fetch that published branch and check out the exact Mac candidate. Preserve any existing uncommitted PC work.
+
+Record the complete SHA of each tested source revision.
+
+Do not merge into `main` during this experiment. We will decide whether to promote the optimization after reviewing the cross-platform evidence.
+
+Keep rejected experiments reproducible without leaving a large collection of alternative implementations in the production code.
+
+## 3. Investigate the existing flipping algorithm
+
+Read the C++ source and inspect its optimized machine code.
+
+For the Mac, inspect ARM64 assembly. On the PC, inspect x86-64 assembly.
+
+Determine:
+
+1. How many instructions are used for each of the eight directions.
+2. Whether `flipsIn<D>()` is inlined into `flips()`.
+3. The cost of conditional branches and loop iterations.
+4. Whether the compiler duplicates or eliminates useful calculations.
+5. The treatment of board-edge masks.
+6. Whether calculating the flip mask is expensive relative to applying it.
+7. Whether the final-one/two-empty helper spends a disproportionate amount of time calculating captures.
+8. Whether whole-search flipping hotspots arise mostly from general move application or the specialized endgame helper.
+
+Use existing sampled-stack evidence to investigate callers, while respecting known missing-frame limitations.
+
+A separate diagnostic build may count calls by search phase or remaining empties, but **do not use per-call timers or instrumented-function timings as production performance measurements**.
+
+Distinguish facts observed in assembly and profiles from optimization hypotheses.
+
+## 4. Candidate algorithms to investigate
+
+Consider several alternatives before choosing which to implement.
+
+### A. Improve the existing directional loop
+
+Investigate whether the current per-direction ray traversal can be made less expensive by:
+
+- Reducing repeated bitboard shifts and masks.
+- Reducing conditional branches.
+- Reorganizing termination tests.
+- Eliminating redundant operations.
+- Using compile-time board geometry.
+- Producing better optimized instructions without excessive code growth.
+
+Do not assume branchless code is faster.
+
+### B. Fixed-length unrolled calculation
+
+A Reversi ray has a bounded length.
+
+Investigate computing the directional captures using a fixed number of operations, potentially avoiding data-dependent loops.
+
+Consider completely or partially unrolled directional propagation, including masked expansion and doubling techniques.
+
+Check carefully that an opponent chain is flipped only when terminated by a disc of the moving player.
+
+An unrolled algorithm may do unnecessary work for short rays. Compare that cost against the current loop.
+
+### C. Small tables or precomputed directional geometry
+
+Investigate compact lookup schemes based on square, direction and the occupancy of a rank, file or diagonal.
+
+Potential approaches include small directional tables, precomputed ray masks or endpoint-oriented bit operations.
+
+Measure data-table size and cache behavior.
+
+Avoid a large lookup table without evidence that its memory cost is justified.
+
+### D. Specialized late-endgame flipping
+
+Investigate whether known empty-square geometry in the last one, two or a few moves permits substantially cheaper capture calculations.
+
+The existing `lastEmpties()` already precomputes and reuses some flip masks. Preserve those optimizations.
+
+An endgame-specific method should be evaluated separately from a general `flips()` replacement.
+
+Do not expand the entire endgame search algorithm in this task unless a narrow, measured change is necessary.
+
+### E. Compiler and architecture-specific techniques
+
+Inspect compiler output before considering intrinsics.
+
+For M4, look for useful native ARM64 instructions and ordinary compiler transformations.
+
+For the PC, consider x86-64-specific instructions only where their support is established.
+
+Any architecture-specific implementation needs a correct portable fallback and clean compile-time dispatch.
+
+Do not make the shared engine depend unconditionally on ARM-specific or BMI2-specific features. Emscripten/WebAssembly must remain buildable.
+
+Select a small number of plausible candidates for actual testing. This is not an unrestricted search for novel algorithms.
+
+## 5. Correctness qualification comes first
+
+Create an independent, simple mailbox-board reference implementation for flipping.
+
+It must check the eight directions directly and must not share the optimized bitboard algorithm.
+
+Test all candidate implementations against this reference.
+
+Include:
+
+- All 64 move squares on relevant boards.
+- All eight directions.
+- Boundary wrapping and board corners.
+- Zero captures.
+- One captured disc.
+- Long opponent chains.
+- Captures along several directions simultaneously.
+- Sparse, middle-game and nearly full boards.
+- Both players.
+- Positions with one, two and three remaining empty squares.
+- Forced passes and terminal positions.
+- Reproducibly generated legal game histories.
+- Arbitrary valid disjoint occupancies with moves on empty squares.
+
+Use exhaustive line-pattern tests where computationally practical and a substantial reproducible randomized test set.
+
+Verify the exact resulting `Board`, not just the number of flipped discs.
+
+For every candidate reaching integrated-search testing, check:
+
+- Complete exact endgame scores against the independent reference.
+- Heuristic B/L/P fixed-depth scores.
+- Pass and terminal semantics.
+- All-move coaching scores and verified continuations.
+- Search-tree and TT counters.
+- Timed-search behavior and completed-horizon publication.
+
+A flipping-only optimization should generally preserve search-tree structure. Investigate unexplained node-count or score differences rather than accepting them as harmless.
+
+Do not modify the frozen model coefficients or search policy.
+
+Use ASan/UBSan where supported, outside timed benchmarks.
+
+## 6. Microbenchmarks — establish the actual flipping cost
+
+Develop a reproducible benchmark measuring `flips()` itself.
+
+Use diverse pre-generated board/move cases, including:
+
+- Opening.
+- Middle game.
+- Late game.
+- Last one/two empty squares.
+- Edge and corner moves.
+- Short and long capture rays.
+- Different numbers of simultaneously captured directions.
+
+Use a realistic distribution from legal-play and exact-search positions, plus controlled worst cases.
+
+Do not generate random positions inside the timed region.
+
+Do not allow the compiler to constant-fold the entire benchmark, remove calculations, or replace the measured work with precalculated results.
+
+Use identical compiler optimization settings, equivalent measurement boundaries, checksums, warmups and repeated trials.
+
+Measure:
+
+- Calls or positions processed per second.
+- Nanoseconds per complete flip calculation, where precision permits.
+- Relative speedup by position class.
+- Overall weighted microbenchmark speedup.
+- Machine-code size and candidate table size.
+
+Inspect the produced assembly for each serious candidate.
+
+Benchmark candidate implementations as standalone alternatives before modifying the production engine.
+
+Use the microbenchmarks to reject poor candidates quickly.
+
+**A microbenchmark victory is necessary evidence, but is not sufficient for retaining a production change.**
+
+## 7. Integrated benchmarks — the main decision criterion
+
+For promising candidates, run unprofiled, repeated, fixed-work searches using the existing production search engine.
+
+Use the same build flags and comparable compilation units for baseline and candidate.
+
+Include at least:
+
+1. The profiling investigation's disclosed twelve-empty exact root.
+2. The existing independent twelve-root exact panel.
+3. The existing mixed 48-root panel.
+4. Representative opening searches.
+5. Representative middle-game searches.
+6. Full-window all-move coaching.
+7. A short realistic timed-search panel at 80 ms and 300 ms, as supplementary evidence.
+
+Keep the exact-root panel distinct from the mixed panel and any deeper legacy subset.
+
+Baseline and candidate comparisons should be interleaved or alternated in order, with warmups and enough repetitions to distinguish small changes from system variation.
+
+Record:
+
+- Complete elapsed time.
+- CPU time.
+- Nodes and evaluations.
+- Flip-related execution characteristics from profiling.
+- Throughput.
+- Correctness and score identity.
+- Run-to-run variation and uncertainty.
+- Compiler, source, binary and platform fingerprints.
+
+Prefer complete fixed-work elapsed time as the authoritative measure.
+
+If the search tree changes, determine why. A flipping implementation alone should not intentionally change move order, pruning or semantics.
+
+Do not claim general search improvement from a favorable single exact root.
+
+## 8. Hardware profiling and bottleneck analysis
+
+### On the M4
+
+Use the qualified minimal hardware-IP collector from the recent profiling work.
+
+Prefer `CORE_ACTIVE_CYCLE` sampling at a moderate 10-million-cycle period for a first coarse profile; use one-million-cycle sampling if finer detail is useful.
+
+Use a small number of representative baseline/candidate captures, not the previous 480-capture investigation.
+
+Inspect the sampled instruction addresses within `flips`, their source or assembly mapping, and the relative distribution of work across search components.
+
+Use genuine sampled stacks when needed to identify callers, especially `negamax`, `play`, and `lastEmpties`.
+
+Apple CPU Profiler may be used for richer reconstructed calling context.
+
+Keep cycle sampling distinct from cache-miss or branch-misprediction sampling. Use additional CPU Counter events only if they answer a specific unresolved bottleneck question.
+
+Do not use Processor Trace unless absolutely necessary. The previous investigation found the OS setting disabled; do not change it without my approval.
+
+Do not add per-call timing instrumentation to the production build.
+
+### On the WSL2 PC
+
+First determine whether real hardware PMU sampling is available through the current WSL2 kernel and tools.
+
+Use Linux `perf` if accessible and correctly configured.
+
+If hardware sampling is unavailable, do not spend the session attempting unsupported privilege or kernel changes. Use disassembly, repeatable unprofiled timings, and any available profiler, labeling its mechanism accurately.
+
+PC benchmarks are essential even if PC profiling is limited.
+
+### What the profiles should answer
+
+- Which instructions in `flips()` account for most sampled active cycles?
+- Did an alternative replace expensive dynamic loops with cheaper operations?
+- Did the new code increase instruction count, cache pressure or branch work?
+- Did a specialized endgame path actually reduce the number or cost of flip calculations?
+- Did the cost migrate into another function?
+- Do the measured improvements in the whole search agree with the hotspot changes?
+
+Do not equate a falling sampled percentage with an actual time saving without confirming complete execution time.
+
+## 9. Phase 1 — Mac implementation, selection, and publication
+
+On the Mac:
+
+1. Establish and save the unchanged baseline.
+2. Inspect source and assembly, and record the hypotheses.
+3. Implement and correctness-test a bounded candidate set.
+4. Run microbenchmarks and reject clearly inferior variants.
+5. Run integrated fixed-work benchmarks on promising variants.
+6. Profile the baseline and best candidate.
+7. Use profiling evidence to make at most one additional focused refinement, if justified.
+8. Rerun the complete candidate's correctness and performance tests after changes.
+9. Choose the best qualified implementation or retain the existing code if no alternative is convincingly better.
+10. Verify a compatible Emscripten build. If shared C++ is changed, qualify representative Wasm results and browser behavior before claiming it is production-ready.
+11. Record rejected ideas and platform-specific questions for the PC.
+
+Create:
+
+`docs/FLIP_OPTIMIZATION_MAC.md`
+
+Include hypotheses, tested algorithms, independent correctness, assembly observations, complete benchmark tables, sampling evidence, uncertainty, discarded candidates, and whether the change should be retained.
+
+Include compact reproducible datasets and scripts for the PC.
+
+If a winner exists, put it in the experimental branch, along with appropriate correctness tests.
+
+If none wins, preserve the baseline in production and publish the negative result.
+
+Commit and push `perf/fast-flips`, then verify the remote commit.
+
+End the Mac report with a **PC Handoff** section giving:
+
+- Exact branch and commit.
+- Baseline identity.
+- Candidate implementation and selection rules.
+- Exact PC build/test/benchmark commands.
+- Expected source and workload checksums.
+- Mac results clearly labeled as Mac-only.
+- Remaining cross-platform concerns.
+- What would constitute a PC regression.
+
+## 10. Phase 2 — PC independent qualification
+
+On WSL2:
+
+First verify the Mac branch has been fetched and that the intended candidate source is present.
+
+Use the current Ubuntu 26.04, GCC 15, and Python 3.14 project environment unless the machine itself shows a different qualified installation.
+
+Do not waste time installing older tool versions.
+
+Review the Mac's handoff, experimental methods, correctness evidence and changes.
+
+Rebuild the same original baseline and selected candidate for x86-64.
+
+Benchmark at least:
+
+- The flipping microbenchmark across representative position classes.
+- The twelve-root exact panel.
+- The mixed 48-root panel.
+- Representative opening/middle searches.
+- Coaching.
+- Short fixed-time searches as a supplementary test.
+
+Run independent reference tests and the existing relevant regression suites.
+
+Inspect the x86-64 assembly for any candidate that performs unexpectedly.
+
+Try the existing GCC portable configuration and, when appropriate, a separately reported `-march=native` configuration.
+
+Do not confuse an optimization improvement with changing both the compiler tuning and the algorithm.
+
+Do not blindly apply Apple Silicon optimization conclusions to x86-64.
+
+If the Mac candidate is slower on the PC, identify why using assembly, profiling and controlled comparisons.
+
+A small x86-specific experimental variant is permitted if it addresses a concrete observed issue, but do not replace the shared implementation or claim cross-platform success until Mac compatibility is also requalified.
+
+Create:
+
+`docs/FLIP_OPTIMIZATION_PC.md`
+
+Include PC results, platform-specific assembly observations, correctness outcomes, and direct comparisons of baseline versus candidate *within* the PC.
+
+Cross-machine timing comparisons are secondary and must be labeled as confounded by hardware, OS and compiler differences.
+
+Update a compact consolidated summary:
+
+`docs/FLIP_OPTIMIZATION_RESULTS.md`
+
+with a side-by-side Mac-versus-PC decision table, preserving the separate measured denominators and uncertainties.
+
+Commit and push the PC results to the experimental branch and verify the remote commit.
+
+Do not merge into main. Present a final recommendation.
+
+## 11. Acceptance and decision criteria
+
+Retain a candidate only if:
+
+- Independent flip and full-search correctness pass.
+- Frozen model behavior remains unchanged.
+- The complete-search benchmarks establish a meaningful repeatable benefit on relevant workloads.
+- Other important workloads do not suffer material unexplained regressions.
+- Code size, tables, compiler dependence and maintenance complexity are justified.
+- The portable implementation and Wasm compatibility remain intact.
+
+A faster standalone flip calculation that does not improve real searches is a useful experimental result, not necessarily a production improvement.
+
+A Mac-only improvement may be retained as an optional architecture-specific implementation if the portable path remains correct, but do not silently impose it on the PC.
+
+A candidate that wins only on a highly selected endgame position should be clearly labeled narrow and should not be represented as a general playing-strength improvement.
+
+Do not pursue an unlimited sequence of speculative rewrites.
+
+Use up to approximately **90 minutes of active performance measurements and profiling per machine**, keeping demanding runs serial and checking memory pressure, swap and CPU contention.
+
+Prefer small pilots and early rejection. Testing, implementation and reporting may continue beyond that active measurement budget, but do not run unbounded campaigns.
+
+Avoid unnecessary browser-game tournaments or model-training work. They are not required to test a rules-preserving flip implementation.
+
+Do not commit raw Instruments traces, huge benchmark outputs, venvs, binaries, SDK caches, or personal files.
+
+## 12. Final report and questions
+
+Answer all of these:
+
+1. Which flip calculation algorithms were actually tested?
+2. Which was fastest in the Mac microbenchmark, and by how much?
+3. Did it improve complete exact searches, and across how many independent roots?
+4. Did opening, middle-game or coaching performance change?
+5. How much of the original 59% exact-search hotspot was actually improvable?
+6. What did hardware sampling reveal about the old and new implementations?
+7. Did the new work shift cost elsewhere?
+8. What did compiler output reveal about loops, branches, loads and code size?
+9. Did the last-one/two-empty specialization benefit independently?
+10. Were all game rules, exact scores and evaluator results preserved?
+11. Did the same candidate work well on x86-64 under WSL2?
+12. Should we keep the implementation, make it architecture-specific, or retain the original?
+
+For the Mac phase, leave PC questions explicitly pending.
+
+For the PC phase, resolve those questions from actual PC measurements and provide the combined recommendation.
+
+**Primary principle: Optimize the full search, not merely the function or the profile percentage. Use benchmark results to decide what to retain and profiling to explain why.**
