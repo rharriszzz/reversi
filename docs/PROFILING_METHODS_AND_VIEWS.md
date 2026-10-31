@@ -420,6 +420,34 @@ or processor attribution.
 | Chronological sample chart | Real sample timestamps plus thread/core/context; each mark is an observation at that time | See phase/core movement, worker/dispatch/idle observations and whether paths appear in bursts | No reconstruction of activity between samples or exact call durations. A single synchronous search thread offers less extra information than multiworker work. Timestamp-free data gets no timeline. |
 | Benchmark/interference plots | Complete unprofiled/profiled fixed-work timings, repeated trials, counts and raw sizes | Establish practical speedup, noise, profiler interference and density/volume tradeoffs | Hotspot location is absent; thermal/scheduling/order noise still applies. Fixed-work identity and serial collection are essential. This is the authoritative optimization benefit view. |
 
+### Calling ancestry in plain language
+
+**Calling ancestry** means the chain of functions that led to the instruction
+being sampled. For example:
+
+`search → negamax → lastEmpties → flips`
+
+If a sample lands inside `flips`, an IP-only profile identifies that instruction.
+A stack profile can additionally show that `lastEmpties` called it. That sample
+belongs to `flips`' **self cost** and, when the helper is present among the
+captured callers, also to `lastEmpties`' **inclusive cost**. Inclusive cost includes
+work performed by descendants; it is not just instructions inside the helper.
+
+A raw stack fragment does not necessarily retain every intermediate caller.
+Frameless functions, inlining, tail calls and unwind/reconstruction limitations
+can affect the recovered chain. Adjacent nodes in such a fragment can be
+observed ancestors rather than a complete immediate caller/callee pair.
+
+In the selected exact-search captures, the helper appears in about **23%** of
+inclusive raw-fragment weight, versus **43%** in CPU Profiler's richer recovered
+context. Their physical leaf-function distributions still agree closely. This
+is a difference in **recovered calling context**, not evidence that the helper
+performed twice as much work, and not a measurement of profiling overhead.
+The repeated fixed-work clocks answer the overhead question independently.
+
+This is why IP sampling is useful for locating hot instructions, while richer
+sampled stacks are useful when the question is **who called them**.
+
 A function's **self** weight belongs to the observed leaf. A function-table
 **inclusive** weight counts a function once per sample even if recursion repeats
 it; rows overlap and cannot be summed. A path tree instead retains recursive

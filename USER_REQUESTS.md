@@ -6936,3 +6936,10 @@ My preferred starting point is low-intrusion hardware instruction sampling, with
 But I want the experimental evidence—not a prior assumption—to determine the final recommendation.
 
 The objective is a rigorous, reusable profiling and visualization system, not another change to the Reversi engine.
+
+
+---
+
+did you mention something about ancestry a while back?  please explain if so.
+
+include that in one of the delivered documents please
