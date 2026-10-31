@@ -11,7 +11,7 @@ import {frozenModels} from '../frozen-player/models.mjs';
 const out=resolve(process.env.REVERSI_FLIP_RUN??'.local-research/fast-flips-m4-20261031');
 const expected=JSON.parse(readFileSync(resolve(out,'wasm-selected/manifest.json')));
 const binary=readFileSync(resolve('src/wasm',expected.module.replace('.mjs','.wasm')));
-const e=await WasmEngine.create({expected,moduleOptions:{wasmBinary:binary}}),native=new NativeEngine({receipt:JSON.parse(readFileSync(resolve(out,'selected/build.json')))});
+const e=await WasmEngine.create({expected,moduleOptions:{wasmBinary:binary}}),native=new NativeEngine({receipt:JSON.parse(readFileSync(resolve(out,process.env.FLIP_SELECTED_TAG??'selected','build.json')))});
 const ev=Object.fromEntries(Object.entries(frozenModels()).map(([m,v])=>[m,compile(v).evaluate]));
 const rng=seededRandom(0x464c5751),boards=[];
 for(let q=0;q<64;q++)for(const empty of [1,2,3]) {

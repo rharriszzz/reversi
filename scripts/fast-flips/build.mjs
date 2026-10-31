@@ -57,7 +57,7 @@ for(let id=0;id<tags.length;id++) {
   }else writeFileSync(resolve(dir,'assembly.txt'),execFileSync('objdump',['-Cd',executable]));
 }
 compile(['-I',resolve(out,'original'),'-c','scripts/fast-flips/kernels.cpp','-o',resolve(out,'kernels.o')]);
-compile(['-I',resolve(out,'original'),resolve(out,'original/engine.o'),resolve(out,'kernels.o'),'scripts/fast-flips/micro.cpp','-o',resolve(out,'micro')]);
-manifest.microSha256=sha(readFileSync(resolve(out,'micro')));
+// selected-build.mjs links the microbenchmark against the actual checked-out
+// candidate. Its sixth kernel must never accidentally alias the baseline.
 writeFileSync(resolve(out,'builds.json'),JSON.stringify(manifest,null,2)+'\n');
 console.log(JSON.stringify({out,baseline,workloadSha256:manifest.workloadSha256,algorithms:tags}));

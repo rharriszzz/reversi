@@ -20,7 +20,7 @@ def main():
         w=next(w for w in workloads if w['id']==name)
         calibrations={tag:json.loads(subprocess.check_output([str(OUT/tag/'fixed-work'),w['mode'],w['file'],'2','2','0'],text=True)) for tag in tags}
         repeats=math.ceil(2.5/min(r['wallSeconds']/2 for r in calibrations.values()))
-        modes=['plain','ip-10000000','ip-1000000','stacks-1000000','cpu-normal'] if name=='profile-root-P' else ['plain','ip-10000000']
+        modes=(['plain','ip-10000000','ip-1000000'] if os.environ.get('FLIP_PROFILE_REFINEMENT') else ['plain','ip-10000000','ip-1000000','stacks-1000000','cpu-normal']) if name=='profile-root-P' else ['plain','ip-10000000']
         for mode in modes:
             for tag in tags:
                 stem=f'{name}-{tag}-{mode}';cmd=[str(OUT/tag/'fixed-work'),w['mode'],w['file'],str(repeats),'2','0']

@@ -3,7 +3,7 @@ import {mkdirSync,readFileSync,writeFileSync,copyFileSync,existsSync} from 'node
 import {execFileSync} from 'node:child_process';
 import {resolve} from 'node:path';
 import {sha} from '../native/build.mjs';
-const out=resolve(process.env.REVERSI_FLIP_RUN??'.local-research/fast-flips-m4-20261031'),dir=resolve(out,'selected');
+const out=resolve(process.env.REVERSI_FLIP_RUN??'.local-research/fast-flips-m4-20261031'),tag=process.env.FLIP_SELECTED_TAG??'selected',dir=resolve(out,tag);
 if(existsSync(resolve(out,'integrated-final.json')))throw Error('Preserve measured selected build');
 mkdirSync(dir,{recursive:true});const manifest=JSON.parse(readFileSync(resolve(out,'builds.json'))),cxx=process.env.CXX??'c++',flags=manifest.flags;
 const compile=args=>execFileSync(cxx,[...flags,...args],{stdio:'inherit'});
@@ -14,12 +14,18 @@ compile(['-I',dir,'-c',resolve(dir,'engine.cpp'),'-o',resolve(dir,'engine.o')]);
 compile(['-I',dir,resolve(dir,'engine.o'),resolve(dir,'main.cpp'),'-o',resolve(dir,'engine')]);
 compile(['-I',dir,resolve(dir,'engine.o'),resolve(dir,'qualification.cpp'),'-o',resolve(dir,'qualify')]);
 compile([resolve(dir,'engine.o'),resolve(out,'driver.o'),'-o',resolve(dir,'fixed-work')]);
+compile(['-I',dir,resolve(dir,'engine.o'),resolve(out,'kernels.o'),'scripts/fast-flips/micro.cpp','-o',resolve(out,`micro-${tag}`)]);
 const executable=resolve(dir,'engine'),commit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const sourceHashes=Object.fromEntries(['engine.cpp','engine.hpp','main.cpp'].map(f=>[f,sha(readFileSync(resolve(dir,f)))]));
 const receipt={...manifest.builds['ray-table'],algorithm:'selected-ray-table',commit,sourceHashes,executable,executableSha256:sha(readFileSync(executable))};
 receipt.fingerprint=sha(JSON.stringify({commit,sourceHashes,flags,compiler:manifest.compiler}));
-manifest.builds.selected=receipt;writeFileSync(resolve(out,'builds.json'),JSON.stringify(manifest,null,2)+'\n');writeFileSync(resolve(dir,'build.json'),JSON.stringify(receipt,null,2)+'\n');
+manifest.builds[tag]=receipt;
+manifest.finalMicro={executableSha256:sha(readFileSync(resolve(out,`micro-${tag}`))),sourceSha256:sha(readFileSync('scripts/fast-flips/micro.cpp')),kernelSourceSha256:sha(readFileSync('scripts/fast-flips/candidates.hpp')),sourceCommit:commit,orderedShuffle:'explicit xorshift64 Fisher-Yates, seed 0x464c49504d340001'};
+writeFileSync(resolve(out,'builds.json'),JSON.stringify(manifest,null,2)+'\n');writeFileSync(resolve(dir,'build.json'),JSON.stringify(receipt,null,2)+'\n');
 if(process.platform==='darwin') {
+  execFileSync(cxx,[...flags.filter(f=>f!=='-g'),'-I',dir,'-c',resolve(dir,'engine.cpp'),'-o',resolve(dir,'plain.o')]);
+  const text=p=>execFileSync('otool',['-s','__TEXT','__text',p],{encoding:'utf8'}).split('\n').slice(2).join('\n');
+  if(text(resolve(dir,'engine.o'))!==text(resolve(dir,'plain.o')))throw Error('Debug text mismatch');
   execFileSync('dsymutil',[resolve(dir,'fixed-work')]);writeFileSync(resolve(dir,'assembly.txt'),execFileSync('otool',['-tvV',resolve(dir,'engine')]));
 }else writeFileSync(resolve(dir,'assembly.txt'),execFileSync('objdump',['-Cd',resolve(dir,'engine')]));
 console.log(JSON.stringify(receipt,null,2));

@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];OUT=(ROOT/os.environ.get('REVERSI_FLIP_RUN','.local-research/fast-flips-m4-20261031')).resolve()
 os.environ['REVERSI_PROFILE_RUN']=str(OUT)
 spec=importlib.util.spec_from_file_location('normalize',ROOT/'scripts/profiling/normalize.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
-manifest=json.loads((OUT/'builds.json').read_text());rows=json.loads((OUT/'profiles.json').read_text());positions=json.loads((OUT/'positions.json').read_text());workloads=json.loads((OUT/'workloads.json').read_text())
+manifest=json.loads((OUT/'builds.json').read_text());rows=json.loads((OUT/(os.environ.get('FLIP_PROFILE_DATA','profiles')+'.json')).read_text());positions=json.loads((OUT/'positions.json').read_text());workloads=json.loads((OUT/'workloads.json').read_text())
 symbols={};builds={}
 for tag in {r['tag'] for r in rows}:
     receipt=manifest['builds'][tag]
@@ -28,5 +28,5 @@ for row in rows:
     stats['workWallSeconds']=row['result']['wallSeconds'];stats['repeats']=row['repeats']
     summary.append(stats);profiles.append(profile)
     target=OUT/(row['id']+'.normalized.json');target.write_text(json.dumps(profile,separators=(',',':'))+'\n')
-(OUT/'profile-analysis.json').write_text(json.dumps({'captures':summary,'postprocess':m.POSTPROCESS},indent=2)+'\n')
+(OUT/(os.environ.get('FLIP_PROFILE_ANALYSIS','profile-analysis')+'.json')).write_text(json.dumps({'captures':summary,'postprocess':m.POSTPROCESS},indent=2)+'\n')
 print(json.dumps([{k:c[k] for k in ['id','samples','functionWeights','topFlipInstructions']} for c in summary],indent=2))
