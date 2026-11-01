@@ -1,0 +1,833 @@
+{
+  "startingMain": "8683516e8f477fdb1bac7c6f868ac7e1011b8e4c",
+  "package": {
+    "files": 18,
+    "bytes": 499017,
+    "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "sha256": {
+      "index.html": "a43843502a3a220b52f4566c7fe6153e48192ff71899d4e9c040084164145854",
+      "style.css": "ab487bde7a8c75e17c1c1cd989e456a02223a27a5a6276bcf15fbe29beb4cc81",
+      "assets/apple-touch-icon.png": "411daaf6abd1b967a1e2a742e1711c07f950cb2c0a25220bd2f065a5050eec1a",
+      "src/app.js": "4eb8013f71159f300dc820c38b65e6ab38ce14fbe2e2836bf4e5ebd17a9d46bb",
+      "src/backend.js": "66aba71fb5f23b8131bd3a042a94dfe3a085803caaa1f797c8f59f29049e5e9e",
+      "src/coaching.js": "a9ea04197c27bdae9e64607e734ad22182f543baf574389cdfc6b6e5b36e0817",
+      "src/fast-features.js": "8e9fd40cd603881bcabafaec36c0214e113d81142e7715a17d7d53cd9ebbb1c5",
+      "src/features.js": "f55ac4b6c6c6dd37948158569ade860de35d687244d673c89e605564d5525966",
+      "src/review.js": "b1ec0f661d23d4fc341960551ad1d7491087036a5390a21e8d752d6030d12b25",
+      "src/rules.js": "bbfa1ebb707bce8786fb3fb86297d1d94120026d993558d0770a445189ef1c95",
+      "src/search.js": "d120d99acecb77a12df93859e0bde4ef79ac445ecd6362b04ea3f7a802db205d",
+      "src/wasm-engine.js": "e4472796a86c5c79b813691163fc40eac8f18177833c57e6214394268140ec58",
+      "src/worker.js": "87681d8fc7107cf54ae51ad3ed0b2b54d8037bc14120aaca5644baf5b0a02e25",
+      "src/wasm/manifest.js": "e7a71fdcda5c85d244a67e706b4ff14374b50d9adaf5d2c8af3d477cc9d64057",
+      "src/wasm/engine-934b888ad89f8d75.mjs": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+      "src/wasm/engine-934b888ad89f8d75.wasm": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+      "src/wasm/LICENSE.emscripten.txt": "2fd38dc06e484cdd7a3f1e2f6577f5d53062052a2fd85131b56b89fbd673731c",
+      "src/wasm/LICENSE.llvm.txt": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b"
+    }
+  },
+  "browsers": {
+    "ios26-local": {
+      "passed": true,
+      "url": "http://127.0.0.1:8920/reversi/",
+      "capabilities": {
+        "safari:deviceName": "Reversi acceptance modern",
+        "safari:platformVersion": "26.5",
+        "safari:automaticInspection": false,
+        "webkit:WebRTC": {
+          "DisableICECandidateFiltering": false,
+          "DisableInsecureMediaCapture": false
+        },
+        "webkit:alwaysAllowAutoplay": false,
+        "browserVersion": "26.5",
+        "safari:deviceType": "iPhone",
+        "strictFileInteractability": false,
+        "browserName": "Safari",
+        "safari:deviceUDID": "790054D6-7F6C-450B-BEA1-E4A1D829F90B",
+        "safari:useSimulator": true,
+        "safari:platformBuildVersion": "23F77",
+        "setWindowRect": false,
+        "safari:automaticProfiling": false,
+        "acceptInsecureCerts": false,
+        "safari:experimentalWebSocketUrl": false,
+        "platformName": "iOS",
+        "safari:diagnose": false
+      },
+      "initialLoadSeconds": 0.5088857089867815,
+      "layout": {
+        "cells": 64,
+        "height": 714,
+        "scrollWidth": 402,
+        "width": 402,
+        "board": {
+          "y": 299,
+          "x": 32,
+          "width": 338,
+          "height": 338
+        },
+        "selectHeight": 37
+      },
+      "inputMethod": "DOM events",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 59,
+        "passes": 11,
+        "black": 0,
+        "white": 63
+      },
+      "workerObservations": {
+        "errors": [],
+        "pending": 0,
+        "maxPending": 2,
+        "maxHeartbeatGapMs": 24,
+        "cancelled": 9,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 103
+      },
+      "receiptSha256": "6382c6e4e65417ae4a057e52e8dbc4e7983d795e056b129b8a1ca8bf5b0059e2"
+    },
+    "se26-local": {
+      "passed": true,
+      "url": "http://127.0.0.1:8920/reversi/",
+      "capabilities": {
+        "safari:deviceName": "Reversi acceptance SE current",
+        "safari:platformVersion": "26.5",
+        "safari:automaticInspection": false,
+        "webkit:WebRTC": {
+          "DisableICECandidateFiltering": false,
+          "DisableInsecureMediaCapture": false
+        },
+        "webkit:alwaysAllowAutoplay": false,
+        "browserVersion": "26.5",
+        "safari:deviceType": "iPhone",
+        "strictFileInteractability": false,
+        "browserName": "Safari",
+        "safari:deviceUDID": "060AA730-6E75-4109-8360-98465488D31D",
+        "safari:useSimulator": true,
+        "safari:platformBuildVersion": "23F77",
+        "setWindowRect": false,
+        "safari:automaticProfiling": false,
+        "acceptInsecureCerts": false,
+        "safari:experimentalWebSocketUrl": false,
+        "platformName": "iOS",
+        "safari:diagnose": false
+      },
+      "initialLoadSeconds": 2.253031166997971,
+      "layout": {
+        "cells": 64,
+        "height": 549,
+        "scrollWidth": 375,
+        "width": 375,
+        "board": {
+          "y": 352,
+          "x": 32,
+          "width": 311,
+          "height": 311
+        },
+        "selectHeight": 44
+      },
+      "resources": [
+        {
+          "status": 200,
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "file": "engine-934b888ad89f8d75.mjs",
+          "type": "text/javascript"
+        },
+        {
+          "status": 200,
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "file": "engine-934b888ad89f8d75.wasm",
+          "type": "application/wasm"
+        }
+      ],
+      "inputMethod": "DOM events",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 60,
+        "passes": 6,
+        "black": 4,
+        "white": 60
+      },
+      "workerObservations": {
+        "errors": [],
+        "pending": 0,
+        "maxPending": 2,
+        "maxHeartbeatGapMs": 51,
+        "cancelled": 9,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 104
+      },
+      "receiptSha256": "e4759045b3453cadb28458e7f50f4fc9ff25b18e6a22637f8639d0851f2cbe8e"
+    },
+    "ios26-final": {
+      "passed": true,
+      "url": "http://127.0.0.1:8920/reversi/",
+      "capabilities": {
+        "safari:deviceName": "Reversi acceptance modern",
+        "safari:platformVersion": "26.5",
+        "safari:automaticInspection": false,
+        "webkit:WebRTC": {
+          "DisableICECandidateFiltering": false,
+          "DisableInsecureMediaCapture": false
+        },
+        "webkit:alwaysAllowAutoplay": false,
+        "browserVersion": "26.5",
+        "safari:deviceType": "iPhone",
+        "strictFileInteractability": false,
+        "browserName": "Safari",
+        "safari:deviceUDID": "790054D6-7F6C-450B-BEA1-E4A1D829F90B",
+        "safari:useSimulator": true,
+        "safari:platformBuildVersion": "23F77",
+        "setWindowRect": false,
+        "safari:automaticProfiling": false,
+        "acceptInsecureCerts": false,
+        "safari:experimentalWebSocketUrl": false,
+        "platformName": "iOS",
+        "safari:diagnose": false
+      },
+      "initialLoadSeconds": 1.1435689170029946,
+      "layout": {
+        "cells": 64,
+        "height": 714,
+        "scrollWidth": 402,
+        "width": 402,
+        "board": {
+          "y": 299,
+          "x": 32,
+          "width": 338,
+          "height": 338
+        },
+        "selectHeight": 44
+      },
+      "resources": [
+        {
+          "status": 200,
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "file": "engine-934b888ad89f8d75.mjs",
+          "type": "text/javascript"
+        },
+        {
+          "status": 200,
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "file": "engine-934b888ad89f8d75.wasm",
+          "type": "application/wasm"
+        }
+      ],
+      "inputMethod": "DOM events",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": null,
+      "workerObservations": {
+        "errors": [],
+        "pending": 1,
+        "maxPending": 2,
+        "maxHeartbeatGapMs": 22,
+        "cancelled": 8,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 41
+      },
+      "receiptSha256": "54d26f42738fb3a63941442f8b062f97cd7f969d495ee50a5f4ab3eb58f25c50"
+    },
+    "se26-final": {
+      "passed": true,
+      "url": "http://127.0.0.1:8920/reversi/",
+      "capabilities": {
+        "safari:deviceName": "Reversi acceptance SE current",
+        "safari:platformVersion": "26.5",
+        "safari:automaticInspection": false,
+        "webkit:WebRTC": {
+          "DisableICECandidateFiltering": false,
+          "DisableInsecureMediaCapture": false
+        },
+        "webkit:alwaysAllowAutoplay": false,
+        "browserVersion": "26.5",
+        "safari:deviceType": "iPhone",
+        "strictFileInteractability": false,
+        "browserName": "Safari",
+        "safari:deviceUDID": "060AA730-6E75-4109-8360-98465488D31D",
+        "safari:useSimulator": true,
+        "safari:platformBuildVersion": "23F77",
+        "setWindowRect": false,
+        "safari:automaticProfiling": false,
+        "acceptInsecureCerts": false,
+        "safari:experimentalWebSocketUrl": false,
+        "platformName": "iOS",
+        "safari:diagnose": false
+      },
+      "initialLoadSeconds": 0.5718007920077071,
+      "layout": {
+        "cells": 64,
+        "height": 549,
+        "scrollWidth": 375,
+        "width": 375,
+        "board": {
+          "y": 119,
+          "x": 32,
+          "width": 311,
+          "height": 311
+        },
+        "selectHeight": 44
+      },
+      "resources": [
+        {
+          "status": 200,
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "file": "engine-934b888ad89f8d75.mjs",
+          "type": "text/javascript"
+        },
+        {
+          "status": 200,
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "file": "engine-934b888ad89f8d75.wasm",
+          "type": "application/wasm"
+        }
+      ],
+      "inputMethod": "DOM events",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": null,
+      "workerObservations": {
+        "errors": [],
+        "pending": 1,
+        "maxPending": 2,
+        "maxHeartbeatGapMs": 22,
+        "cancelled": 8,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 41
+      },
+      "receiptSha256": "53f66fb68b68b53e7ef3b8fe615f98a02373ca3cc8a14b4636689d3eda9c79f9"
+    },
+    "desktop-safari": {
+      "passed": true,
+      "url": "http://127.0.0.1:8920/reversi/",
+      "capabilities": {
+        "safari:platformVersion": "27.2",
+        "safari:automaticInspection": false,
+        "webkit:WebRTC": {
+          "DisableICECandidateFiltering": false,
+          "DisableInsecureMediaCapture": false
+        },
+        "webkit:alwaysAllowAutoplay": false,
+        "browserVersion": "27.2",
+        "strictFileInteractability": false,
+        "browserName": "Safari",
+        "safari:useSimulator": false,
+        "safari:automaticProfiling": false,
+        "setWindowRect": true,
+        "acceptInsecureCerts": false,
+        "safari:platformBuildVersion": "26B123",
+        "safari:experimentalWebSocketUrl": false,
+        "platformName": "macOS",
+        "safari:diagnose": false
+      },
+      "initialLoadSeconds": 0.19158537502516992,
+      "layout": {
+        "cells": 64,
+        "height": 652,
+        "scrollWidth": 783,
+        "width": 800,
+        "board": {
+          "y": 53.984375,
+          "x": 119.5,
+          "width": 544,
+          "height": 544
+        },
+        "selectHeight": 37
+      },
+      "resources": [
+        {
+          "status": 200,
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "file": "engine-934b888ad89f8d75.mjs",
+          "type": "text/javascript"
+        },
+        {
+          "status": 200,
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "file": "engine-934b888ad89f8d75.wasm",
+          "type": "application/wasm"
+        }
+      ],
+      "inputMethod": "WebDriver input",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 59,
+        "passes": 11,
+        "black": 0,
+        "white": 63
+      },
+      "workerObservations": {
+        "errors": [],
+        "pending": 0,
+        "maxPending": 2,
+        "maxHeartbeatGapMs": 25,
+        "cancelled": 9,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 103
+      },
+      "receiptSha256": "27ab4cf20490cc034c5395c6fe7bd519cefdae49ceb542877d15cc29ad781cfd"
+    },
+    "chrome-static": {
+      "passed": true,
+      "url": "http://127.0.0.1:8920/reversi/",
+      "capabilities": {
+        "browserName": "Chrome",
+        "browserVersion": "156.0.8078.74"
+      },
+      "initialLoadSeconds": 0.1520112909784075,
+      "layout": {
+        "width": 1280,
+        "height": 900,
+        "scrollWidth": 1280,
+        "board": {
+          "x": 62.625,
+          "y": 259,
+          "width": 544,
+          "height": 544
+        },
+        "cells": 64,
+        "selectHeight": 37
+      },
+      "resources": [
+        {
+          "file": "engine-934b888ad89f8d75.mjs",
+          "status": 200,
+          "type": "text/javascript",
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6"
+        },
+        {
+          "file": "engine-934b888ad89f8d75.wasm",
+          "status": 200,
+          "type": "application/wasm",
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        }
+      ],
+      "inputMethod": "WebDriver input",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 59,
+        "passes": 7,
+        "black": 1,
+        "white": 62
+      },
+      "errors": [],
+      "failedRequests": [],
+      "requestedURLs": [
+        "http://127.0.0.1:8920/reversi/",
+        "http://127.0.0.1:8920/reversi/assets/apple-touch-icon.png",
+        "http://127.0.0.1:8920/reversi/src/app.js",
+        "http://127.0.0.1:8920/reversi/src/backend.js",
+        "http://127.0.0.1:8920/reversi/src/coaching.js",
+        "http://127.0.0.1:8920/reversi/src/fast-features.js",
+        "http://127.0.0.1:8920/reversi/src/features.js",
+        "http://127.0.0.1:8920/reversi/src/review.js",
+        "http://127.0.0.1:8920/reversi/src/rules.js",
+        "http://127.0.0.1:8920/reversi/src/search.js",
+        "http://127.0.0.1:8920/reversi/src/wasm-engine.js",
+        "http://127.0.0.1:8920/reversi/src/wasm/engine-934b888ad89f8d75.mjs",
+        "http://127.0.0.1:8920/reversi/src/wasm/engine-934b888ad89f8d75.wasm",
+        "http://127.0.0.1:8920/reversi/src/wasm/manifest.js",
+        "http://127.0.0.1:8920/reversi/src/worker.js",
+        "http://127.0.0.1:8920/reversi/style.css"
+      ],
+      "workerObservations": {
+        "errors": [],
+        "pending": 0,
+        "maxPending": 2,
+        "cancelled": 15,
+        "maxHeartbeatGapMs": 31.799999982118607,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 97
+      },
+      "receiptSha256": "c5a0e6431bff937127c7db46a5d5cc0e1856220218321d155ef089d8c8a061ec"
+    }
+  },
+  "nativeSimulatorInput": {
+    "devices": [
+      "iPhone 17 Pro iOS 26.5",
+      "iPhone SE (3rd generation) iOS 26.5"
+    ],
+    "method": "Device Hub native clicks outside WebDriver sessions",
+    "observedMoves": [
+      "D3",
+      "C5"
+    ],
+    "observedBlack": [
+      "D3",
+      "D4",
+      "E4"
+    ],
+    "observedWhite": [
+      "C5",
+      "D5",
+      "E5"
+    ],
+    "nativePicker": "L selected; persisted after reload",
+    "landscape": "modern phone controls visually inspected",
+    "screenshots": "local only; not published"
+  }
+}

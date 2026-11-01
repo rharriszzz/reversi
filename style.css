@@ -88,3 +88,20 @@ footer { border-top: 1px solid #dfe8df; color: #879488; font-size: .74rem; margi
 #game-review button { text-align: left; border: 1px solid #d0e2d2; border-radius: 6px; padding: 8px; background: #f3f8f0; color: #294031; }
 @media (max-width: 1050px) { .workspace { grid-template-columns: 1fr; } .play-side { max-width: 700px; margin: 0 auto; width: 100%; } .teach-side { width: 100%; } .masthead { flex-wrap: wrap; } }
 @media (max-width: 550px) { .app-shell { padding: 15px 12px 32px; } .panel { padding: 15px; } .game-panel { padding: 15px; } .header-tag { white-space: normal; } .board-wrap { padding: 4px; } .game-head h2 { font-size: 1.2rem; } .count-pill { min-width: 52px; gap: 5px; padding: 6px; } .control-grid { grid-template-columns: 1fr; } .move-table { font-size: .75rem; } .move-table td,.move-table th { padding: 9px 6px; } .square-coord { font-size: .48rem; } }
+/* Keep native phone selects readable without Safari's focus zoom. Board cells
+   scale together; other controls retain a comfortable touch target. */
+@media (max-width: 550px) {
+  .masthead { gap: 8px; margin-bottom: 16px; }
+  .header-tag { margin-top: 0; }
+  .game-head, .panel-header { flex-wrap: wrap; gap: 8px; }
+  .game-head > div:first-child { flex: 1 1 160px; }
+  select { font-size: 16px; height: 44px; min-height: 44px; min-width: 0; }
+  button:not(.square), summary { min-height: 44px; }
+  summary { align-content: center; }
+  button, select { touch-action: manipulation; }
+  .board-foot { gap: 8px; flex-wrap: wrap; }
+  .metrics, .interpretation, #game-review { overflow-wrap: anywhere; }
+  .review-block input { min-height: 44px; }
+  #history { max-height: 100px; font-size: .85rem; }
+  .app-shell { padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+}

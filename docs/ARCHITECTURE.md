@@ -1,5 +1,11 @@
 # Architecture and design rationale
 
+The same player also deploys as an explicit 18-file static package on GitHub Pages
+under `/reversi/`. Browser workers perform all search/coaching; hosting requires no
+Python service. `scripts/build-static.py` checks the allowlist, dependency paths
+and artifact integrity. Phone CSS and Home Screen metadata do not change engine
+logic. See [iPhone/Pages architecture and acceptance](IPHONE_GITHUB_PAGES.md).
+
 Active Python launch, research and test tooling requires Python 3.13+ as declared
 in `pyproject.toml`. `scripts/python.mjs` selects and checks Node's Python
 subprocess interpreter; Python research launchers propagate `sys.executable`.

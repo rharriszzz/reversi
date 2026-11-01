@@ -7,6 +7,12 @@ inspectable. Frozen B/L/P models and qualified WebAssembly binaries are included
 
 ## Quick Start
 
+**iPhone / hosted play:** open [Reversi](https://rharriszzz.github.io/reversi/)
+in Safari. GitHub Pages serves a small static package; all play and coaching run
+in your browser, so your home computer can be off. Internet access is needed to
+load the site. Use **Share → Add to Home Screen** for a convenient icon.
+See [mobile testing and deployment](docs/IPHONE_GITHUB_PAGES.md).
+
 Use **Python 3.13+**. This M4 Mac's project environment is **Python 3.14.10**;
 the qualified WSL2 Ubuntu environment uses **3.14.4**. See
 [interpreter selection and setup](docs/PYTHON_ENVIRONMENT.md).

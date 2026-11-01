@@ -10620,3 +10620,334 @@ Record the Windows acceptance results in a concise report, commit and push the d
 **Do not start strategy-coach development.**
 
 Finish with a clear statement of whether the Windows PC acceptance is complete and whether the project is ready for our next strategy-coach session.
+
+---
+
+# Reversi — iPhone Safari Support and GitHub Pages Deployment
+
+Work on my Apple M4 iMac, using GPT-6.1-Sol with High reasoning.
+
+Repository: `https://github.com/rharriszzz/reversi`
+
+The current production `main` was last verified at:
+
+`8683516e8f477fdb1bac7c6f868ac7e1011b8e4c`
+
+Fetch the latest remote state and verify it before starting.
+
+## 1. Objective
+
+I want to play Reversi on my iPhone when I am away from home.
+
+The existing Reversi application already runs in desktop browsers using WebAssembly. I want the same application to run in iPhone Safari, preferably without any dependency on my home PC or Mac.
+
+Publish the application using GitHub Pages at:
+
+`https://rharriszzz.github.io/reversi/`
+
+I have already configured the repository's GitHub Pages publishing source to **GitHub Actions**.
+
+I have not configured a custom domain, and none is required.
+
+I also have Xcode and iPhone Simulator components installed on my Mac.
+
+**Please complete the implementation, simulator testing, deployment, and verification rather than stopping at a proposal.**
+
+The existing Reversi search engine, learned evaluator P, and strategy-coach logic should remain unchanged except where a genuine mobile compatibility defect makes a focused correction necessary.
+
+## 2. Initial inspection
+
+Read `USER_REQUESTS.md`, `AGENTS.md`, `README.md`, and the relevant application, WebAssembly, and deployment documentation.
+
+Inspect the working tree, existing branches, and current GitHub Actions configuration.
+
+Verify the existing development tools:
+
+```bash
+xcode-select -p
+xcodebuild -version
+xcrun simctl list devices available
+gh auth status
+```
+
+Determine which available iPhone Simulator runtimes and device types are suitable for testing.
+
+Do not install or upgrade Xcode unless necessary. Do not change system security settings.
+
+Preserve uncommitted work, local research archives, historical evidence, and other worktrees.
+
+## 3. Prepare a minimal static website
+
+Our application currently uses `launch.py` to serve files locally.
+
+That Python server is not needed on GitHub Pages. The website should serve static HTML, CSS, JavaScript, and WebAssembly files, with search and evaluation performed in the browser.
+
+Inspect the application's actual dependency graph.
+
+Create a reproducible packaging process that includes only the files needed to play and use the existing coach.
+
+Likely inputs include:
+
+- `index.html`
+- `style.css`
+- Required runtime JavaScript modules under `src/`
+- The committed WebAssembly module and JavaScript loader
+- `src/wasm/manifest.js`
+- Applicable license notices
+
+Determine the exact necessary files from the source rather than relying blindly on this list.
+
+Do not publish:
+
+- `.local-research/`
+- Historical datasets or training receipts
+- Native executables
+- Research reports or scientific archives
+- Development tool installations
+- Git metadata
+- Test logs, screenshots, personal data or secrets
+
+Use an explicit allowlist for the deployment artifact. Do not publish the entire repository.
+
+Keep the generated site separate from the source tree.
+
+Do not introduce a Node, Python, or C++ server dependency for normal website visitors.
+
+## 4. Verify GitHub Pages path compatibility
+
+The application will live under `/reversi/`, not at the root of `github.io`.
+
+Verify that all paths work correctly with that prefix, including:
+
+- HTML and CSS
+- JavaScript module imports
+- Module workers
+- Dynamically imported Wasm loader
+- Actual `.wasm` file loading
+- Model identity and build fingerprint verification
+
+Avoid hard-coded references to the domain root.
+
+Ensure the WebAssembly binary is served with a suitable MIME type.
+
+The existing qualified P/B/L Wasm artifacts should remain unchanged unless a specific, demonstrated compatibility defect requires rebuilding them.
+
+Prefer making deployment-path corrections rather than changing compiler options or search behavior.
+
+Test the generated static site locally under a `/reversi/` path before publishing it.
+
+## 5. Test using the Xcode iPhone Simulator
+
+Use the installed Simulator environment.
+
+Start with an available modern iPhone simulator. If possible, also test a smaller iPhone display.
+
+Launch the generated site through an appropriate local HTTP server and open its URL in Simulator Safari.
+
+Use `xcrun simctl` and available Xcode/Safari inspection or automation facilities where appropriate.
+
+At minimum verify:
+
+1. The website loads without fatal JavaScript errors.
+2. The 8×8 board is visible.
+3. P initializes through the actual WebAssembly engine.
+4. Legal moves can be selected.
+5. The opponent responds with legal moves.
+6. Captured discs flip correctly.
+7. B, L, and P can be selected.
+8. The selected evaluator is preserved appropriately.
+9. Fixed-depth, 80-ms, and 300-ms play function.
+10. Undo, new game, move history, and position replay work.
+11. The existing coach's legal-move comparisons work.
+12. The interface remains usable in portrait orientation.
+
+Verify actual game behavior, not just successful page loading.
+
+Use independent rules checks or the existing test infrastructure where practical.
+
+Capture screenshots and inspect them for layout problems.
+
+If full simulator interaction automation is unavailable, perform the checks that can be reliably demonstrated and explicitly identify those that remain unverified. A screenshot alone is not proof that touch interactions work.
+
+Do not claim physical-iPhone testing from simulator results.
+
+## 6. Mobile interface improvements
+
+The existing desktop interface already has responsive CSS.
+
+Keep its overall appearance and design.
+
+Make only the changes needed for reasonable iPhone usability, particularly:
+
+- Board visibility and square sizing
+- Touch-target sizes
+- Readable move lists
+- Dropdown selection
+- Scrolling and viewport behavior
+- Avoiding accidental horizontal overflow
+- Appropriate handling of Safari's visible browser controls
+- Keeping active game controls reasonably accessible
+
+Portrait mode should be the primary layout.
+
+Landscape mode should remain functional.
+
+Do not redesign the coach or introduce new strategy lessons.
+
+Avoid adding an application framework.
+
+## 7. Mobile performance and memory
+
+The application currently uses separate workers for playing, analysis, and review.
+
+Verify that this design works on mobile Safari.
+
+Check for:
+
+- WebAssembly initialization failures
+- Excessive memory consumption
+- Worker termination or reload problems
+- Slow startup
+- Browser responsiveness during 300-ms searches
+- Unnecessary simultaneous background computation
+
+If simulator performance is satisfactory, record the results.
+
+Remember that simulator timing, memory, and thermal behavior may differ substantially from a physical iPhone.
+
+Do not introduce performance optimizations without measured evidence.
+
+Do not change evaluator coefficients, alpha-beta search semantics, or the qualified native/Wasm numerical behavior merely to improve simulator timing.
+
+## 8. GitHub Pages deployment
+
+Create a GitHub Actions workflow for the static site.
+
+Use the standard GitHub Pages actions and appropriate least-privilege permissions.
+
+The workflow should:
+
+1. Run when the intended production branch is updated, with optional manual dispatch.
+2. Check out the repository.
+3. Build the allowlisted static deployment directory.
+4. Validate the package and its internal references.
+5. Upload only that directory as the Pages artifact.
+6. Deploy through the `github-pages` environment.
+
+Use a proper build/deploy dependency and the required `pages: write` and `id-token: write` permissions for deployment. Keep ordinary build permissions read-only where possible.
+
+Do not introduce API tokens or personal secrets into the website.
+
+Do not deploy the full repository or research history.
+
+Keep the deployment workflow relatively simple and maintainable.
+
+## 9. Publish and verify the actual website
+
+After local and simulator acceptance, commit and push the implementation.
+
+I authorize publishing the static Reversi application publicly through this repository's GitHub Pages configuration.
+
+Use a dedicated development branch during implementation. Integrate the reviewed, passing changes into production `main` after successful qualification.
+
+Verify the remote commit SHA.
+
+Confirm that the GitHub Actions deployment completed successfully.
+
+Then open:
+
+`https://rharriszzz.github.io/reversi/`
+
+Verify the actual public deployment, not just the local build.
+
+Check:
+
+- HTTP success for the website and runtime resources.
+- Correct deployment paths.
+- Actual packaged WebAssembly loading.
+- Correct P model identity.
+- The ability to begin a game.
+- No missing assets or unexpected runtime requests.
+
+When feasible, also open the deployed HTTPS site in iPhone Simulator Safari and repeat the essential functional checks.
+
+If GitHub Actions deployment is blocked by a permission or repository setting, explain the exact setting and action needed. Preserve the completed implementation and do not claim deployment success prematurely.
+
+## 10. iPhone Home Screen support
+
+The website should be convenient to launch from my iPhone.
+
+Ensure the mobile page title and viewport settings are appropriate.
+
+If straightforward, add an appropriate Home Screen icon and relevant Apple web-app metadata, without introducing an unnecessary framework.
+
+Do not undertake a full offline Progressive Web App implementation in this round.
+
+The initial requirement is to play over Wi-Fi or cellular data while away from home.
+
+Explain how to open the finished website in Safari and use:
+
+**Share → Add to Home Screen**
+
+The icon is a convenience, not a requirement for passing the deployment tests.
+
+## 11. Preserve the existing application
+
+All of the following should remain true:
+
+- P is the default evaluator.
+- B and L remain selectable.
+- Existing engine correctness is preserved.
+- The strategy-coach features continue to work.
+- Desktop Safari and Chrome remain functional.
+- Windows Chrome and Edge compatibility is not knowingly broken.
+- The local Python launcher continues to work.
+- The frozen model coefficients are unchanged.
+- No new training, tournament or historical provenance investigation is performed.
+
+Run appropriate regression tests before publishing.
+
+Do not begin the next strategy-coach development phase.
+
+## 12. Documentation
+
+Create:
+
+`docs/IPHONE_GITHUB_PAGES.md`
+
+Include:
+
+- The final website URL.
+- Deployment architecture and included files.
+- Reproducible static packaging commands.
+- GitHub Actions configuration.
+- iPhone Simulator devices and iOS versions tested.
+- Mobile Safari functional results.
+- Browser console, Wasm, worker, and resource observations.
+- Desktop regression results.
+- Any iOS limitations.
+- Physical-device testing still required.
+- How to add the site to the iPhone Home Screen.
+- How future production updates deploy.
+- Exact commits and final GitHub Actions deployment status.
+
+Keep historical research records unchanged.
+
+## 13. Final report
+
+When finished, answer clearly:
+
+1. Is the website publicly accessible?
+2. What is its exact working URL?
+3. Did GitHub Actions deployment succeed?
+4. Did the application run in iPhone Simulator Safari?
+5. Does evaluator P work through WebAssembly on iOS?
+6. Are the board and controls usable on a phone-sized screen?
+7. Can I play without my Mac or PC running?
+8. What checks still require my physical iPhone?
+9. Were the changes committed and pushed to `main`?
+10. Is the project ready for the next strategy-coach session?
+
+If deployment succeeds, give me the precise steps to test it on my physical iPhone using cellular data.
+
+**The objective is a working, mobile-friendly Reversi website, not another research project. Complete and publish it if the checks pass.**

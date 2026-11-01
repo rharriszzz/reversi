@@ -1,5 +1,11 @@
 # Validation status and acceptance checks
 
+The [iPhone/GitHub Pages qualification](IPHONE_GITHUB_PAGES.md) adds static-package
+integrity and `/reversi/` HTTP checks, actual iOS 26.5 Safari execution on iPhone
+17 Pro and SE simulators, separate native simulator tap/picker checks, and desktop
+Safari/Chrome static-site regressions. Mobile DOM-driven automation and native
+input evidence are explicitly distinguished; physical-iPhone testing remains.
+
 Current production qualification is recorded in [P_DEFAULT_INTEGRATION.md](P_DEFAULT_INTEGRATION.md):
 P is the recommended first-visit default, explicit B/L/P choices persist, and
 invalid/custom preferences resolve to P without touching historical saved models.
