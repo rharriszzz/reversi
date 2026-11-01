@@ -218,7 +218,7 @@ the following evidence boundaries:
 | Mac Safari 27.2 / Chrome 156 | Actual static-site acceptance passes |
 | iPhone Safari | Actual iOS 26.5 simulators pass; physical phone still to test |
 | iPhone Chrome / Google app browser | Physical-device check pending; Safari testing alone is not proof |
-| PC Edge / Chrome | Existing Windows/WSL2 qualification preserved; hosted-site execution on that PC remains a follow-up |
+| PC Edge / Chrome | Actual hosted-site acceptance passes on Windows 11 / WSL2 in Edge 156 and Chrome 156; see [Windows public-site report](PC_HOSTED_SITE_ACCEPTANCE.md) |
 | Old unsupported iPad | Best effort; actual model/iPadOS is unknown, so compatibility is not promised |
 
 An additional **iPad (6th generation) / iPadOS 17.5** simulator smoke check opened

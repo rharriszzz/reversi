@@ -10963,3 +10963,220 @@ the ipad is certainly out of support.
 ---
 
 Also update the readme, please
+
+---
+
+# Reversi — Final Windows Testing of the Public GitHub Pages Website
+
+Work on my Windows 11 PC using WSL2 Ubuntu.
+
+Repository:
+
+`/home/rharris/git/reversi`
+
+Use GPT-6.1-Sol with High reasoning.
+
+## 1. Objective
+
+Complete the remaining Windows acceptance of the public Reversi website:
+
+https://rharriszzz.github.io/reversi/
+
+This is a small follow-up task. The Reversi application has already been thoroughly tested locally on Windows, and the hosted version has passed Mac and iPhone Simulator testing.
+
+**We only need to establish that the publicly hosted version works correctly in actual Windows Chrome and Edge.**
+
+The latest verified production commit is:
+
+`d8ee8155ff859f0119020473f6decda0d7c8db8a`
+
+Fetch and verify the current repository state.
+
+Read:
+
+- `USER_REQUESTS.md`
+- `AGENTS.md`
+- `docs/IPHONE_GITHUB_PAGES.md`
+- `docs/P_DEFAULT_PC_ACCEPTANCE.md`
+- `tests/static_chromium_check.py`
+- `scripts/wasm/browser.py`
+- The existing Windows browser automation helpers.
+
+Do not repeat previously completed native-engine or local-application qualification.
+
+## 2. Update the PC checkout
+
+Inspect the working tree.
+
+If safe, fetch and fast-forward `main` to the current remote.
+
+Preserve all uncommitted and ignored files, including historical research.
+
+Do not reset, clean or overwrite unrelated work.
+
+Confirm that the GitHub Pages deployment scripts and browser tests are present.
+
+## 3. Run the public website in actual Windows Chrome and Edge
+
+The Mac has already verified the published site. We now want to test it from the PC.
+
+Use the existing Windows Playwright/CDP infrastructure that has already been qualified for both browsers.
+
+The repository contains:
+
+`tests/static_chromium_check.py`
+
+This currently launches Chrome directly. Adapt it minimally, if necessary, to support the established Windows browser selection mechanism.
+
+Preserve the existing Mac Chrome testing behavior.
+
+Use the existing WSL2 Python environment and test dependencies.
+
+Run the static-site acceptance against:
+
+`https://rharriszzz.github.io/reversi/`
+
+Test separately with:
+
+```bash
+export REVERSI_WINDOWS_BROWSER=1
+export REVERSI_WINDOWS_CHANNEL=chrome
+```
+
+Then:
+
+```bash
+export REVERSI_WINDOWS_CHANNEL=edge
+```
+
+The public website, not `localhost`, must be the page under test.
+
+Use disposable browser profiles. Do not modify my normal browser settings or personal data.
+
+## 4. Required functional checks
+
+In both browsers, verify:
+
+1. The public HTTPS website loads successfully.
+2. The board contains 64 squares.
+3. P is the initial evaluator in a fresh profile.
+4. P actually executes through the hosted WebAssembly engine.
+5. The frozen P model identity and Wasm fingerprint match the published manifest.
+6. A legal human move receives a legal computer response.
+7. Both player colors work.
+8. B and L remain selectable.
+9. Fixed-depth, 80-ms and 300-ms play work.
+10. Move comparison and existing coaching analysis work.
+11. Undo, replay and game review work.
+12. Explicit evaluator preferences survive reload.
+13. No unexpected JavaScript exceptions or failed resource requests occur.
+
+Where practical, complete and independently replay at least one game in each browser.
+
+Reuse existing tests and correctness oracles rather than building new ones.
+
+## 5. Confirm that no home server is required
+
+This is especially important.
+
+Verify that the application loads its HTML, CSS, JavaScript, workers and Wasm from GitHub Pages.
+
+The website must not depend on:
+
+- The WSL2 Python server.
+- A native Reversi executable.
+- The Mac.
+- A localhost endpoint.
+- An external computation API.
+
+The actual Reversi search should execute within each Windows browser.
+
+Record the requested resource URLs and verify that the runtime assets are served from the expected `/reversi/` path.
+
+Check the fetched Wasm SHA-256 against the published manifest.
+
+## 6. Check static deployment integrity
+
+Verify that the published website contains the intended minimal runtime package.
+
+Confirm that research archives, Git metadata, local files and development assets are not exposed.
+
+Reuse the existing allowlist and deployment verification rather than inventing a new packaging scheme.
+
+If convenient, also test the responsive layout in Chrome and Edge at a phone-sized viewport.
+
+This is supplementary desktop testing, not evidence of actual iPhone behavior.
+
+## 7. Scope limitations
+
+Do not:
+
+- Retrain B, L or P.
+- Run new evaluator tournaments.
+- Modify alpha-beta search or CPU dispatch.
+- Rebuild WebAssembly unnecessarily.
+- Repeat completed iPhone Simulator tests.
+- Modify GitHub Pages settings.
+- Perform new historical provenance analysis.
+- Start strategy-coach development.
+
+**If the existing application passes, make no application changes.**
+
+Only correct an actual compatibility defect if one is discovered.
+
+Avoid expanding this short assignment into another research project.
+
+## 8. Documentation
+
+Create:
+
+`docs/PC_HOSTED_SITE_ACCEPTANCE.md`
+
+Record:
+
+- Exact Windows, WSL2, browser and test-tool versions.
+- Git commit used.
+- Public website URL.
+- Chrome and Edge results.
+- WebAssembly and model identities.
+- Functional and game-replay results.
+- Any warnings or unresolved limitations.
+- Confirmation that no local server was needed.
+- Exact commands needed to reproduce the checks.
+
+Update `docs/IPHONE_GITHUB_PAGES.md` only where necessary to reflect the completed Windows follow-up.
+
+Do not alter historical reports.
+
+Save temporary logs and screenshots under ignored `.local-research/` storage.
+
+## 9. Commit and push
+
+After successful verification:
+
+- Run relevant automated regression checks.
+- Run `git diff --check`.
+- Commit the small test/documentation changes.
+- Push to `origin/main`.
+- Verify the exact remote commit.
+
+Because pushing `main` triggers GitHub Pages deployment, verify that the resulting Pages workflow succeeds and that the runtime site remains unchanged.
+
+If an unrelated change has appeared on remote `main`, inspect and integrate safely rather than forcing a push.
+
+## 10. Final report
+
+Tell me explicitly:
+
+1. Did the public site pass in actual Windows Chrome?
+2. Did it pass in actual Windows Edge?
+3. Did frozen P run through WebAssembly correctly?
+4. Were play, analysis, preferences and review verified?
+5. Was the public site confirmed independent of the home computers?
+6. Were any application changes required?
+7. Was the report committed and pushed?
+8. Is the project now ready for strategy-coach development?
+
+**Stop after this acceptance task. Do not begin work on the strategy coach.**
+
+The goal is to close the last Windows testing gap and leave the Reversi project in a clean, documented, production-ready state.

@@ -1,0 +1,598 @@
+{
+  "passed": true,
+  "date": "2026-11-01",
+  "testedSourceCommit": "d8ee8155ff859f0119020473f6decda0d7c8db8a",
+  "url": "https://rharriszzz.github.io/reversi/",
+  "environment": {
+    "windows": {
+      "os": {
+        "Caption": "Microsoft Windows 11 Home",
+        "Version": "10.0.26300",
+        "BuildNumber": "26300"
+      },
+      "cpu": "Intel(R) Core(TM) i7-14700F",
+      "powerShell": "5.1.26100.9711"
+    },
+    "wsl": "Ubuntu 26.04.1 LTS; 6.18.33.2-microsoft-standard-WSL2; x86_64",
+    "python": "3.14.4",
+    "playwright": "1.64.1",
+    "node": "v24.16.0"
+  },
+  "browsers": {
+    "chrome": {
+      "passed": true,
+      "url": "https://rharriszzz.github.io/reversi/",
+      "capabilities": {
+        "browserName": "chrome",
+        "browserVersion": "156.0.8078.48"
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "layout": {
+        "width": 1280,
+        "height": 900,
+        "scrollWidth": 1280,
+        "board": {
+          "x": 62.625,
+          "y": 271,
+          "width": 544,
+          "height": 544
+        },
+        "cells": 64,
+        "selectHeight": 37
+      },
+      "resources": [
+        {
+          "file": "engine-934b888ad89f8d75.mjs",
+          "status": 200,
+          "type": "text/javascript; charset=utf-8",
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6"
+        },
+        {
+          "file": "engine-934b888ad89f8d75.wasm",
+          "status": 200,
+          "type": "application/wasm",
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        }
+      ],
+      "inputMethod": "WebDriver input",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 59,
+        "passes": 7,
+        "black": 1,
+        "white": 62
+      },
+      "errors": [],
+      "failedRequests": [],
+      "requestedURLs": [
+        "https://rharriszzz.github.io/reversi/",
+        "https://rharriszzz.github.io/reversi/assets/apple-touch-icon.png",
+        "https://rharriszzz.github.io/reversi/src/app.js",
+        "https://rharriszzz.github.io/reversi/src/backend.js",
+        "https://rharriszzz.github.io/reversi/src/coaching.js",
+        "https://rharriszzz.github.io/reversi/src/fast-features.js",
+        "https://rharriszzz.github.io/reversi/src/features.js",
+        "https://rharriszzz.github.io/reversi/src/review.js",
+        "https://rharriszzz.github.io/reversi/src/rules.js",
+        "https://rharriszzz.github.io/reversi/src/search.js",
+        "https://rharriszzz.github.io/reversi/src/wasm-engine.js",
+        "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.mjs",
+        "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.wasm",
+        "https://rharriszzz.github.io/reversi/src/wasm/manifest.js",
+        "https://rharriszzz.github.io/reversi/src/worker.js",
+        "https://rharriszzz.github.io/reversi/style.css"
+      ],
+      "responseStatuses": [
+        200
+      ],
+      "observedPlayBudgets": [
+        0,
+        80,
+        300
+      ],
+      "allPlayBuildsAndModelsMatch": true,
+      "reviewPassed": true
+    },
+    "edge": {
+      "passed": true,
+      "url": "https://rharriszzz.github.io/reversi/",
+      "capabilities": {
+        "browserName": "edge",
+        "browserVersion": "156.0.4314.58"
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+      "layout": {
+        "width": 1280,
+        "height": 900,
+        "scrollWidth": 1280,
+        "board": {
+          "x": 62.625,
+          "y": 271,
+          "width": 544,
+          "height": 544
+        },
+        "cells": 64,
+        "selectHeight": 37
+      },
+      "resources": [
+        {
+          "file": "engine-934b888ad89f8d75.mjs",
+          "status": 200,
+          "type": "text/javascript; charset=utf-8",
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6"
+        },
+        {
+          "file": "engine-934b888ad89f8d75.wasm",
+          "status": 200,
+          "type": "application/wasm",
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        }
+      ],
+      "inputMethod": "WebDriver input",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 59,
+        "passes": 7,
+        "black": 1,
+        "white": 62
+      },
+      "errors": [],
+      "failedRequests": [],
+      "requestedURLs": [
+        "https://rharriszzz.github.io/reversi/",
+        "https://rharriszzz.github.io/reversi/assets/apple-touch-icon.png",
+        "https://rharriszzz.github.io/reversi/src/app.js",
+        "https://rharriszzz.github.io/reversi/src/backend.js",
+        "https://rharriszzz.github.io/reversi/src/coaching.js",
+        "https://rharriszzz.github.io/reversi/src/fast-features.js",
+        "https://rharriszzz.github.io/reversi/src/features.js",
+        "https://rharriszzz.github.io/reversi/src/review.js",
+        "https://rharriszzz.github.io/reversi/src/rules.js",
+        "https://rharriszzz.github.io/reversi/src/search.js",
+        "https://rharriszzz.github.io/reversi/src/wasm-engine.js",
+        "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.mjs",
+        "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.wasm",
+        "https://rharriszzz.github.io/reversi/src/wasm/manifest.js",
+        "https://rharriszzz.github.io/reversi/src/worker.js",
+        "https://rharriszzz.github.io/reversi/style.css"
+      ],
+      "responseStatuses": [
+        200
+      ],
+      "observedPlayBudgets": [
+        0,
+        80,
+        300
+      ],
+      "allPlayBuildsAndModelsMatch": true,
+      "reviewPassed": true
+    }
+  },
+  "package": {
+    "files": 18,
+    "bytes": 499017,
+    "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "sha256": {
+      "index.html": "a43843502a3a220b52f4566c7fe6153e48192ff71899d4e9c040084164145854",
+      "style.css": "ab487bde7a8c75e17c1c1cd989e456a02223a27a5a6276bcf15fbe29beb4cc81",
+      "assets/apple-touch-icon.png": "411daaf6abd1b967a1e2a742e1711c07f950cb2c0a25220bd2f065a5050eec1a",
+      "src/app.js": "4eb8013f71159f300dc820c38b65e6ab38ce14fbe2e2836bf4e5ebd17a9d46bb",
+      "src/backend.js": "66aba71fb5f23b8131bd3a042a94dfe3a085803caaa1f797c8f59f29049e5e9e",
+      "src/coaching.js": "a9ea04197c27bdae9e64607e734ad22182f543baf574389cdfc6b6e5b36e0817",
+      "src/fast-features.js": "8e9fd40cd603881bcabafaec36c0214e113d81142e7715a17d7d53cd9ebbb1c5",
+      "src/features.js": "f55ac4b6c6c6dd37948158569ade860de35d687244d673c89e605564d5525966",
+      "src/review.js": "b1ec0f661d23d4fc341960551ad1d7491087036a5390a21e8d752d6030d12b25",
+      "src/rules.js": "bbfa1ebb707bce8786fb3fb86297d1d94120026d993558d0770a445189ef1c95",
+      "src/search.js": "d120d99acecb77a12df93859e0bde4ef79ac445ecd6362b04ea3f7a802db205d",
+      "src/wasm-engine.js": "e4472796a86c5c79b813691163fc40eac8f18177833c57e6214394268140ec58",
+      "src/worker.js": "87681d8fc7107cf54ae51ad3ed0b2b54d8037bc14120aaca5644baf5b0a02e25",
+      "src/wasm/manifest.js": "e7a71fdcda5c85d244a67e706b4ff14374b50d9adaf5d2c8af3d477cc9d64057",
+      "src/wasm/engine-934b888ad89f8d75.mjs": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+      "src/wasm/engine-934b888ad89f8d75.wasm": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+      "src/wasm/LICENSE.emscripten.txt": "2fd38dc06e484cdd7a3f1e2f6577f5d53062052a2fd85131b56b89fbd673731c",
+      "src/wasm/LICENSE.llvm.txt": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b"
+    }
+  },
+  "publicAudit": {
+    "passed": true,
+    "url": "https://rharriszzz.github.io/reversi/",
+    "files": 18,
+    "bytes": 499017,
+    "runtime": [
+      {
+        "file": "index.html",
+        "url": "https://rharriszzz.github.io/reversi/index.html",
+        "status": 200,
+        "type": "text/html",
+        "bytes": 8118,
+        "sha256": "a43843502a3a220b52f4566c7fe6153e48192ff71899d4e9c040084164145854"
+      },
+      {
+        "file": "style.css",
+        "url": "https://rharriszzz.github.io/reversi/style.css",
+        "status": 200,
+        "type": "text/css",
+        "bytes": 9797,
+        "sha256": "ab487bde7a8c75e17c1c1cd989e456a02223a27a5a6276bcf15fbe29beb4cc81"
+      },
+      {
+        "file": "assets/apple-touch-icon.png",
+        "url": "https://rharriszzz.github.io/reversi/assets/apple-touch-icon.png",
+        "status": 200,
+        "type": "image/png",
+        "bytes": 882,
+        "sha256": "411daaf6abd1b967a1e2a742e1711c07f950cb2c0a25220bd2f065a5050eec1a"
+      },
+      {
+        "file": "src/app.js",
+        "url": "https://rharriszzz.github.io/reversi/src/app.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 23627,
+        "sha256": "4eb8013f71159f300dc820c38b65e6ab38ce14fbe2e2836bf4e5ebd17a9d46bb"
+      },
+      {
+        "file": "src/backend.js",
+        "url": "https://rharriszzz.github.io/reversi/src/backend.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 2571,
+        "sha256": "66aba71fb5f23b8131bd3a042a94dfe3a085803caaa1f797c8f59f29049e5e9e"
+      },
+      {
+        "file": "src/coaching.js",
+        "url": "https://rharriszzz.github.io/reversi/src/coaching.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 962,
+        "sha256": "a9ea04197c27bdae9e64607e734ad22182f543baf574389cdfc6b6e5b36e0817"
+      },
+      {
+        "file": "src/fast-features.js",
+        "url": "https://rharriszzz.github.io/reversi/src/fast-features.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 5209,
+        "sha256": "8e9fd40cd603881bcabafaec36c0214e113d81142e7715a17d7d53cd9ebbb1c5"
+      },
+      {
+        "file": "src/features.js",
+        "url": "https://rharriszzz.github.io/reversi/src/features.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 4555,
+        "sha256": "f55ac4b6c6c6dd37948158569ade860de35d687244d673c89e605564d5525966"
+      },
+      {
+        "file": "src/review.js",
+        "url": "https://rharriszzz.github.io/reversi/src/review.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 740,
+        "sha256": "b1ec0f661d23d4fc341960551ad1d7491087036a5390a21e8d752d6030d12b25"
+      },
+      {
+        "file": "src/rules.js",
+        "url": "https://rharriszzz.github.io/reversi/src/rules.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 3374,
+        "sha256": "bbfa1ebb707bce8786fb3fb86297d1d94120026d993558d0770a445189ef1c95"
+      },
+      {
+        "file": "src/search.js",
+        "url": "https://rharriszzz.github.io/reversi/src/search.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 8879,
+        "sha256": "d120d99acecb77a12df93859e0bde4ef79ac445ecd6362b04ea3f7a802db205d"
+      },
+      {
+        "file": "src/wasm-engine.js",
+        "url": "https://rharriszzz.github.io/reversi/src/wasm-engine.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 4254,
+        "sha256": "e4472796a86c5c79b813691163fc40eac8f18177833c57e6214394268140ec58"
+      },
+      {
+        "file": "src/worker.js",
+        "url": "https://rharriszzz.github.io/reversi/src/worker.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 403,
+        "sha256": "87681d8fc7107cf54ae51ad3ed0b2b54d8037bc14120aaca5644baf5b0a02e25"
+      },
+      {
+        "file": "src/wasm/manifest.js",
+        "url": "https://rharriszzz.github.io/reversi/src/wasm/manifest.js",
+        "status": 200,
+        "type": "application/javascript",
+        "bytes": 3940,
+        "sha256": "e7a71fdcda5c85d244a67e706b4ff14374b50d9adaf5d2c8af3d477cc9d64057"
+      },
+      {
+        "file": "src/wasm/engine-934b888ad89f8d75.mjs",
+        "url": "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.mjs",
+        "status": 200,
+        "type": "text/javascript",
+        "bytes": 21247,
+        "sha256": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6"
+      },
+      {
+        "file": "src/wasm/engine-934b888ad89f8d75.wasm",
+        "url": "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.wasm",
+        "status": 200,
+        "type": "application/wasm",
+        "bytes": 378665,
+        "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+      },
+      {
+        "file": "src/wasm/LICENSE.emscripten.txt",
+        "url": "https://rharriszzz.github.io/reversi/src/wasm/LICENSE.emscripten.txt",
+        "status": 200,
+        "type": "text/plain",
+        "bytes": 5091,
+        "sha256": "2fd38dc06e484cdd7a3f1e2f6577f5d53062052a2fd85131b56b89fbd673731c"
+      },
+      {
+        "file": "src/wasm/LICENSE.llvm.txt",
+        "url": "https://rharriszzz.github.io/reversi/src/wasm/LICENSE.llvm.txt",
+        "status": 200,
+        "type": "text/plain",
+        "bytes": 16703,
+        "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b"
+      }
+    ],
+    "excludedPaths": [
+      {
+        "url": "https://rharriszzz.github.io/reversi/.git/config",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/.local-research/",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/README.md",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/USER_REQUESTS.md",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/docs/PC_HOSTED_SITE_ACCEPTANCE.md",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/native/engine.cpp",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/tests/static_chromium_check.py",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/scripts/build-static.py",
+        "status": 404
+      },
+      {
+        "url": "https://rharriszzz.github.io/reversi/.github/workflows/pages.yml",
+        "status": 404
+      }
+    ],
+    "artifact": {
+      "file": "pages-before.zip",
+      "sha256": "bc671d3427873f30f070698c96097aa5608f2418d9c425d77852d83a44bb890e",
+      "files": 18,
+      "allHashesMatch": true,
+      "noLinks": true
+    }
+  },
+  "phoneViewport": [
+    {
+      "passed": true,
+      "browser": "chrome",
+      "version": "156.0.8078.48",
+      "viewport": {
+        "width": 390,
+        "scrollWidth": 375,
+        "boardLeft": 32,
+        "boardWidth": 311,
+        "selectHeight": 44,
+        "cells": 64
+      },
+      "legalMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "errors": []
+    },
+    {
+      "passed": true,
+      "browser": "edge",
+      "version": "156.0.4314.58",
+      "viewport": {
+        "width": 390,
+        "scrollWidth": 375,
+        "boardLeft": 32,
+        "boardWidth": 311,
+        "selectHeight": 44,
+        "cells": 64
+      },
+      "legalMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "errors": []
+    }
+  ],
+  "cleanup": {
+    "ownedBrowserProcesses": 0,
+    "ownedDisposableProfiles": 0,
+    "passed": true
+  },
+  "packagingTests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "deploymentBefore": {
+    "run": 41324282081,
+    "commit": "d8ee8155ff859f0119020473f6decda0d7c8db8a",
+    "build": "success",
+    "deploy": "success"
+  },
+  "localEvidenceSha256": {
+    ".local-research/pc-hosted-site-20261101/chrome/portrait-top.png": "b81a8521f1bccd8d761e27dc648c00b6fd89c1fbb804232a3030ed6a8c581d77",
+    ".local-research/pc-hosted-site-20261101/chrome/portrait.png": "ebcd7d76c6a97d2b897b522c14483625052286348b6665d92ad67b0b7c500a0a",
+    ".local-research/pc-hosted-site-20261101/chrome/receipt.json": "e5839541ad6591f55e41fbf855a9b51012543afadef926fe494ebc1120a568ac",
+    ".local-research/pc-hosted-site-20261101/chrome/review.png": "30f2ca1505da2c8a310dc02f29bc55fc5210ca06e9ef34a14635323ddc10293e",
+    ".local-research/pc-hosted-site-20261101/chrome-phone.png": "b92dedce15c805239d713061df1500a20327747a89c343662464089c67640354",
+    ".local-research/pc-hosted-site-20261101/chrome.log": "a1d9f2d0b95878ef39b2f7aff87d54bb7d0799bb5bbb6f9698556516490ce0d1",
+    ".local-research/pc-hosted-site-20261101/cleanup.json": "7f6b416b7c3bf052528a9904b2f1ee3aa87a80a68018d5505e295fea96067855",
+    ".local-research/pc-hosted-site-20261101/edge/portrait-top.png": "fc053cceea7dc115690425785691cc06fc4c16ea8cfdb4d265b5e58fab48ea49",
+    ".local-research/pc-hosted-site-20261101/edge/portrait.png": "9aa5f071470bd2b92efba03ba4c3d49931d126481025f3b0982c7e5d0f6fbba6",
+    ".local-research/pc-hosted-site-20261101/edge/receipt.json": "3b671b712467f527b0d395d7c22eeda845f4dc26a4af7b36f8656ada6006b322",
+    ".local-research/pc-hosted-site-20261101/edge/review.png": "47990e0c1299483e9aa9a9d8288afaac115fc8a8eb484974ef14c29febb6e8d9",
+    ".local-research/pc-hosted-site-20261101/edge-phone.png": "28820c56d4e6e90ddd063aa4ca927d9641d085334f2538fd495ee13d74b2ee49",
+    ".local-research/pc-hosted-site-20261101/edge.log": "09325ff8c9f2609211f649489656e306fcaf85fc2ba293d56f9dced35717c529",
+    ".local-research/pc-hosted-site-20261101/package-check.json": "38c57d10ebb825141c88a9416593e56972e5cf4d5b5471ce60fed5db8c9d7559",
+    ".local-research/pc-hosted-site-20261101/package.json": "38c57d10ebb825141c88a9416593e56972e5cf4d5b5471ce60fed5db8c9d7559",
+    ".local-research/pc-hosted-site-20261101/packaging-tests.log": "5e6af5edf617cce8b27f11b3bd5ae195d4ac4829fc0c000213597f4b7ed7b23c",
+    ".local-research/pc-hosted-site-20261101/pages-runs-before.json": "4f97b4062c458433be1dbcd35b8f35126542c437e179d3c9855a80c9caafc21a",
+    ".local-research/pc-hosted-site-20261101/phone-smoke.json": "e1b97bdf37b3eb8ae5c8882dda37a81dc3f0dd53e35f6161c1943ac661be2ff8",
+    ".local-research/pc-hosted-site-20261101/phone-smoke.log": "fc3a2266c1168c5234ac7235fb12ee42f893cc5f959bc74c21d570cd639ae10a",
+    ".local-research/pc-hosted-site-20261101/phone-smoke.py": "642dda61fbdd6255b86a27eba8384f674b22332e1f58c5a658cc617d1c43e064",
+    ".local-research/pc-hosted-site-20261101/public-before.json": "293a91f8cfd146507636def45469fb9d3de8ff68e1797a706a3369d0c22af77d",
+    ".local-research/pc-hosted-site-20261101/verify-public.py": "7d535595769351e41ca45ed676d5dbc057ec3a93847c97fc292a1c726a5e130a",
+    ".local-research/pc-hosted-site-20261101/windows-version.json": "4a0be15967c8dfd476e44ac02ae566a92b3bfcc231e1fd299f336095cb07c0d2"
+  }
+}
