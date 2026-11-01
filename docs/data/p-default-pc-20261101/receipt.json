@@ -1,0 +1,488 @@
+{
+  "acceptedSourceCommit": "429cb85e8621276b8ae3347a4bae8a3931f2f555",
+  "date": "2026-11-01",
+  "passed": true,
+  "native": {
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "dispatch": {
+      "auto": {
+        "id": 1,
+        "cpuBackend": "x86-popcnt-bmi1-bmi2-lzcnt",
+        "cpuFeatures": {
+          "popcnt": 1,
+          "bmi1": 1,
+          "bmi2": 1,
+          "lzcnt": 1
+        },
+        "protocol": 1,
+        "tableBytes": 10485760,
+        "models": [
+          "original-production",
+          "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+          "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+        ]
+      },
+      "portable": {
+        "id": 1,
+        "cpuBackend": "portable",
+        "cpuFeatures": {
+          "popcnt": 1,
+          "bmi1": 1,
+          "bmi2": 1,
+          "lzcnt": 1
+        },
+        "protocol": 1,
+        "tableBytes": 10485760,
+        "models": [
+          "original-production",
+          "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+          "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+        ]
+      }
+    }
+  },
+  "package": {
+    "passed": true,
+    "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+    "sourceSha256": "2495c91660133996c79fb9cd06e5f98441136eb12f030b61f89763a527f93ee5",
+    "artifacts": {
+      "engine-934b888ad89f8d75.mjs": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+      "engine-934b888ad89f8d75.wasm": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+    },
+    "abi": 1,
+    "exports": [
+      {
+        "name": "R",
+        "kind": "memory"
+      },
+      {
+        "name": "S",
+        "kind": "function"
+      },
+      {
+        "name": "T",
+        "kind": "table"
+      },
+      {
+        "name": "U",
+        "kind": "function"
+      },
+      {
+        "name": "V",
+        "kind": "function"
+      },
+      {
+        "name": "W",
+        "kind": "function"
+      },
+      {
+        "name": "X",
+        "kind": "function"
+      },
+      {
+        "name": "Y",
+        "kind": "function"
+      },
+      {
+        "name": "Z",
+        "kind": "function"
+      },
+      {
+        "name": "_",
+        "kind": "function"
+      },
+      {
+        "name": "$",
+        "kind": "function"
+      },
+      {
+        "name": "aa",
+        "kind": "function"
+      },
+      {
+        "name": "ba",
+        "kind": "function"
+      },
+      {
+        "name": "ca",
+        "kind": "function"
+      },
+      {
+        "name": "da",
+        "kind": "function"
+      },
+      {
+        "name": "ea",
+        "kind": "function"
+      },
+      {
+        "name": "fa",
+        "kind": "function"
+      }
+    ],
+    "models": {
+      "B": "original-production",
+      "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+      "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+    },
+    "geometryBytes": 4096,
+    "geometrySha256": "0540f902224a73c794cec44491946155bab64925f3db98227f52c10da11c5774",
+    "geometryMemoryOffset": 5656,
+    "memoryBytes": 33554432
+  },
+  "browsers": {
+    "chrome": {
+      "uiPassed": true,
+      "integration": {
+        "passed": true,
+        "migrations": [
+          {
+            "previous": null,
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "custom",
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "B",
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "L",
+            "selected": "L",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "P",
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "unknown",
+            "selected": "P",
+            "savedBytesPreserved": true
+          }
+        ],
+        "completedGames": [
+          {
+            "model": "B",
+            "plies": 60,
+            "reviewDecisions": 25,
+            "independentlyReplayed": true,
+            "forcedPasses": 10
+          },
+          {
+            "model": "P",
+            "plies": 59,
+            "reviewDecisions": 26,
+            "independentlyReplayed": true,
+            "forcedPasses": 7
+          }
+        ],
+        "errors": [],
+        "browser": "156.0.8078.48",
+        "wasm": {
+          "type": "application/wasm",
+          "bytes": 378665
+        },
+        "checks": [
+          "B/L/P all-move coach",
+          "complete B/P games and model-consistent review",
+          "P timed play",
+          "undo/replay",
+          "rapid cancellation/model changes",
+          "reload/cache",
+          "B fallback",
+          "P fail closed",
+          "B recovery",
+          "browser ABI mismatch/reload recovery"
+        ]
+      },
+      "packageGate": {
+        "passed": true,
+        "browser": "156.0.8078.48",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+        "identity": {
+          "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "models": {
+            "B": "original-production",
+            "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+            "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+          },
+          "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        },
+        "pvSteps": 36,
+        "timedReply": {
+          "move": 34,
+          "score": 4.919389608828059,
+          "depth": 12,
+          "exact": false,
+          "timedOut": true,
+          "elapsedMs": 80.4,
+          "tableBytes": 10485760,
+          "generation": 13,
+          "modelIdentity": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f",
+          "nodes": 887936,
+          "evaluations": 618944,
+          "ttProbes": 268946,
+          "ttHits": 51988,
+          "ttBoundHits": 9929,
+          "ttCollisions": 74542,
+          "ttReplacements": 64159,
+          "ttCutoffs": 9305,
+          "cutoffs": 190050,
+          "ttStores": 249229,
+          "ttRejectedStores": 10380,
+          "firstMoveCutoffs": 142744,
+          "interfaceMs": 80.70000004768372,
+          "backend": "WebAssembly",
+          "model": "P",
+          "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "memoryBytes": 33554432,
+          "player": -1,
+          "budgetMs": 80,
+          "warning": "",
+          "initializationMs": 5.299999952316284
+        },
+        "workersBefore": {
+          "created": 3,
+          "terminated": 0
+        },
+        "workersAfter": {
+          "created": 6,
+          "terminated": 3
+        },
+        "errors": [],
+        "warnings": [
+          {
+            "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+            "url": "http://127.0.0.1:41377/favicon.ico"
+          }
+        ],
+        "cleanup": {
+          "profileRemoved": true,
+          "serverExit": 0,
+          "portClosed": true
+        }
+      }
+    },
+    "edge": {
+      "uiPassed": true,
+      "integration": {
+        "passed": true,
+        "migrations": [
+          {
+            "previous": null,
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "custom",
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "B",
+            "selected": "B",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "L",
+            "selected": "L",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "P",
+            "selected": "P",
+            "savedBytesPreserved": true
+          },
+          {
+            "previous": "unknown",
+            "selected": "P",
+            "savedBytesPreserved": true
+          }
+        ],
+        "completedGames": [
+          {
+            "model": "B",
+            "plies": 60,
+            "reviewDecisions": 25,
+            "independentlyReplayed": true,
+            "forcedPasses": 10
+          },
+          {
+            "model": "P",
+            "plies": 59,
+            "reviewDecisions": 26,
+            "independentlyReplayed": true,
+            "forcedPasses": 7
+          }
+        ],
+        "errors": [],
+        "browser": "156.0.4314.58",
+        "wasm": {
+          "type": "application/wasm",
+          "bytes": 378665
+        },
+        "checks": [
+          "B/L/P all-move coach",
+          "complete B/P games and model-consistent review",
+          "P timed play",
+          "undo/replay",
+          "rapid cancellation/model changes",
+          "reload/cache",
+          "B fallback",
+          "P fail closed",
+          "B recovery",
+          "browser ABI mismatch/reload recovery"
+        ]
+      },
+      "packageGate": {
+        "passed": true,
+        "browser": "156.0.4314.58",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+        "identity": {
+          "fingerprint": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "models": {
+            "B": "original-production",
+            "L": "ecf3fd376c680ced77d0b002ea2efb9fa4385737c4fffff734b901ab2968d97f",
+            "P": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f"
+          },
+          "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        },
+        "pvSteps": 36,
+        "timedReply": {
+          "move": 34,
+          "score": 4.919389608828059,
+          "depth": 12,
+          "exact": false,
+          "timedOut": true,
+          "elapsedMs": 80.3,
+          "tableBytes": 10485760,
+          "generation": 13,
+          "modelIdentity": "de4b84745589b0384ea3639f879e3c98990e802d176298ff8ef54f681520067f",
+          "nodes": 873344,
+          "evaluations": 610137,
+          "ttProbes": 263161,
+          "ttHits": 51216,
+          "ttBoundHits": 9658,
+          "ttCollisions": 71666,
+          "ttReplacements": 61851,
+          "ttCutoffs": 9043,
+          "cutoffs": 185411,
+          "ttStores": 244272,
+          "ttRejectedStores": 9813,
+          "firstMoveCutoffs": 139156,
+          "interfaceMs": 80.70000004768372,
+          "backend": "WebAssembly",
+          "model": "P",
+          "buildIdentity": "934b888ad89f8d754d1ace6acfcd3cd84b6b48e948431916153d5d29c5f2b223",
+          "memoryBytes": 33554432,
+          "player": -1,
+          "budgetMs": 80,
+          "warning": "",
+          "initializationMs": 6.700000047683716
+        },
+        "workersBefore": {
+          "created": 3,
+          "terminated": 0
+        },
+        "workersAfter": {
+          "created": 6,
+          "terminated": 3
+        },
+        "errors": [],
+        "warnings": [
+          {
+            "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+            "url": "http://127.0.0.1:41779/favicon.ico"
+          }
+        ],
+        "cleanup": {
+          "profileRemoved": true,
+          "serverExit": 0,
+          "portClosed": true
+        }
+      }
+    }
+  },
+  "normalLaunch": {
+    "passed": true,
+    "url": "http://127.0.0.1:41533/",
+    "pid": 14672,
+    "process": "msedge",
+    "title": "Reversi Strategy Coach - Personal - Microsoft\u200b Edge",
+    "boardCells": 64,
+    "analysis": "P \u00b7 WebAssembly \u00b7 171 search nodes \u00b7 0 ms \u00b7 Heuristic estimate; horizon limited \u00b7 Equal depth for all moves.",
+    "tabs": 1,
+    "preferencesChanged": false,
+    "ownedWindowClosed": true
+  },
+  "cleanup": {
+    "linux": {
+      "passed": true,
+      "normalPort": 41533,
+      "normalPortClosed": true,
+      "normalServerExit": 0,
+      "remainingOwnedLinuxProcesses": []
+    },
+    "windows": {
+      "passed": true,
+      "ownedBrowserProcesses": 0,
+      "ownedDisposableProfiles": 0,
+      "olderProfilesPreserved": [
+        {
+          "name": "reversi-pc-0d2629d371804c3f9c6a0b38a653c9e4",
+          "createdUtc": "2026-10-30T22:00:00.0496537Z"
+        },
+        {
+          "name": "reversi-pc-b6db410384224f9ea0d6b720806313c3",
+          "createdUtc": "2026-10-30T21:59:27.5081840Z"
+        },
+        {
+          "name": "reversi-pc-cdp-probe",
+          "createdUtc": "2026-10-30T21:56:42.1914765Z"
+        }
+      ]
+    }
+  },
+  "localEvidenceHashes": {
+    ".local-research/p-default-pc-acceptance-20261101/chrome-http.log": "78999f534798be723418c3c467822be82ea408212155d8efd92a98558e57ebbc",
+    ".local-research/p-default-pc-acceptance-20261101/chrome-package-ui.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".local-research/p-default-pc-acceptance-20261101/chrome-package-ui.json": "450e17da33df83186c4e1280b8c0e636912743bb7768bf57b876e1328641df5c",
+    ".local-research/p-default-pc-acceptance-20261101/chrome-ui.log": "bf57c1d378379d8d8c8f0a27e187f004be3de782fd3fe20a09526ab4f1a6c6a1",
+    ".local-research/p-default-pc-acceptance-20261101/chrome-wasm.log": "0d960fd1f272ea1655007d98fe9635708e7ea7b7dd90c6cf83a95286e5a3a355",
+    ".local-research/p-default-pc-acceptance-20261101/cleanup.json": "6ab073ad1b7d0ebbab0d8001ea4685d1b0e150705d69ff1b46319bfee4964daa",
+    ".local-research/p-default-pc-acceptance-20261101/cpu-dispatch.json": "61e5e1da494e23c39175e0d9e9ab6356072a3ab9d15ad07fd2bdd42fd644c42f",
+    ".local-research/p-default-pc-acceptance-20261101/edge-http.log": "5ac4e811abbe5b49a9e7572197b96c1c2f62dfd41d319d4320954d1a5ce9dd91",
+    ".local-research/p-default-pc-acceptance-20261101/edge-package-ui.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".local-research/p-default-pc-acceptance-20261101/edge-package-ui.json": "29a72eb8c5880c558ca1ec1678cca9b22ecf472fbcfb03a5ed8797ceff692a42",
+    ".local-research/p-default-pc-acceptance-20261101/edge-ui.log": "e10b72a717bd752cbe94ad7c48502c1013ceb18dcdc7541811d7e9f4e3a22d38",
+    ".local-research/p-default-pc-acceptance-20261101/edge-wasm.log": "8107fbb92ae0bc18880622f3e12c1b278a16eaf7d4877eb18fc542c80253661e",
+    ".local-research/p-default-pc-acceptance-20261101/native-tests-final.log": "d8488790f3408912a856fa89789ec035bba85969579ae483aba41275fbca6def",
+    ".local-research/p-default-pc-acceptance-20261101/native-tests.log": "dc9be593da358bbaa8eda7f0be33f722ca80bf0340074e79ebd20d05f3fefde3",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch-diagnostic.log": "7379ee24e96d910ec029639d03b3599b2e41928320f0920e584ec82e064d2ac8",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch-final.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch-final.json": "5a7038d4c6a2330e90a95da1127893013bbe871df4ad25683cf2cba2a9456c51",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch-readonly.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch-readonly.json": "f00eee1bbdb1b2b6c0b0313e60b1b378dc44071a0581c4afc4b2daa466001423",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch-readonly.ps1": "3e968c21be4c5b1d01c782769ae586cca2d7d14a492b192801fbe7c077a5de04",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch.err": "68bbdb979fb874d4a77d30e6c6d5cb8311e2e7eb662b13d52f6dafa9583cd8b2",
+    ".local-research/p-default-pc-acceptance-20261101/normal-launch.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".local-research/p-default-pc-acceptance-20261101/package-verification.json": "1c75ca8b8ee6742506e80918859ad5d15987945e131c591a8759a21b2cd95534",
+    ".local-research/p-default-pc-acceptance-20261101/resources-latest.json": "fafe966b48005ff1cde4e7eec9f2b1c1f76e7a36e9f6084e7a91a31ed1a5c633",
+    ".local-research/p-default-pc-acceptance-20261101/resources.log": "4b4df0b959773322b61da17dd6fe15ffd92320105980148b5b17c106c9807a46",
+    ".local-research/p-default-pc-acceptance-20261101/windows-cleanup.json": "f5ddb1bda06b5ba4ea827d83a10639983dda71cb78728dafb038c1d3b2a2faaf",
+    ".local-research/p-default-pc-chrome/browser-integration.json": "fca015a5a8630ccfe0e71259762e517a5731819f55d75fa9576523043e037471",
+    ".local-research/p-default-pc-chrome/integration.png": "f7b67d2ea6c65a28489944cffe7651e52830724c488d264e497eae815a169ab0",
+    ".local-research/p-default-pc-edge/browser-integration.json": "49ed92f33d6345c1949e329c08cd9b02f6e10cb84686bcb899dc071fe680c209",
+    ".local-research/p-default-pc-edge/integration.png": "588f9371f14adaa695078eb77513b3c1a012598dd732b9e6012d80a5baa3d826"
+  }
+}

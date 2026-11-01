@@ -10555,3 +10555,68 @@ When finished, summarize:
 **Stop after completing production integration and acceptance. Do not begin strategy-coach development.**
 
 Our next session will focus on making the coach a better Reversi teacher. Tonight's goal is to establish a clean, correct, fully tested application with P as its default opponent.
+
+---
+
+# Reversi — Final Windows PC Acceptance of P Default
+
+Work in `/home/rharris/git/reversi` on my Windows 11 / WSL2 PC.
+
+Read `USER_REQUESTS.md`, `AGENTS.md` and `docs/P_DEFAULT_INTEGRATION.md`.
+
+The M4 Mac has completed and pushed the production integration. The expected `main` commit is:
+
+`429cb85e8621276b8ae3347a4bae8a3931f2f555`
+
+P is now the default evaluator. B and L remain selectable.
+
+Your assignment is the **small remaining Windows PC acceptance check**, not another development project.
+
+1. Check the working tree. Preserve any local or uncommitted work.
+2. Fetch and fast-forward local `main` to the verified remote commit.
+3. Run the focused native CPU-dispatch tests using the existing WSL2 toolchain.
+4. Test the actual packaged WebAssembly application in Windows Chrome and Edge using the existing browser automation.
+5. Verify that a new browser profile selects P, that B/L/P switching works, that saved preferences persist and that normal play, analysis and review work.
+6. Confirm that the existing B JavaScript fallback and P initialization-error handling still work.
+7. Launch the application normally from WSL2 and verify that it opens in the Windows default browser. Shut it down cleanly.
+8. Report the exact tests, versions, results and remaining limitations.
+
+The Mac report provides these commands as the starting point:
+
+```bash
+cd ~/git/reversi
+git status --short
+git switch main
+git pull --ff-only origin main
+
+export REVERSI_PYTHON="$PWD/.venv/bin/python"
+
+NATIVE_CPU=dispatch node --test \
+  tests/native-search.test.mjs \
+  tests/runtime-cpu-dispatch.test.mjs
+
+for browser in chrome edge; do
+  export REVERSI_WINDOWS_BROWSER=1
+  export REVERSI_WINDOWS_CHANNEL="$browser"
+  export REVERSI_WASM_OUTPUT=".local-research/p-default-pc-$browser"
+
+  "$REVERSI_PYTHON" tests/browser_check.py
+  "$REVERSI_PYTHON" tests/wasm_browser_check.py
+done
+
+./start.sh --port 0
+```
+
+Stop the application with Ctrl+C after verifying the normal Windows-browser launch.
+
+Use the existing Python environment and browser test dependencies.
+
+Do not reinstall toolchains, change network settings, rebuild production Wasm, run tournaments, retrain models or optimize the engine.
+
+If a genuine compatibility defect is discovered, make the smallest justified fix, test it and document it. Otherwise avoid source changes.
+
+Record the Windows acceptance results in a concise report, commit and push the documentation if appropriate, and verify the remote commit. Never overwrite unrelated local work.
+
+**Do not start strategy-coach development.**
+
+Finish with a clear statement of whether the Windows PC acceptance is complete and whether the project is ready for our next strategy-coach session.
