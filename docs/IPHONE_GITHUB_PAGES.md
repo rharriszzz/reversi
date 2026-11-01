@@ -162,8 +162,77 @@ remain visible; no research code or test budgets were changed. Workflow YAML and
 `git diff --check` also passed. Compact local evidence is in
 [`data/iphone-pages/local-acceptance.json`](data/iphone-pages/local-acceptance.json).
 
-Publication commit hashes and actual public deployment verification are recorded
-below after deployment.
+## Public qualification and publication
+
+Implementation commit **`82d09b963275ddbfce07ceb7ca44b0786d03b547`** was pushed on
+the development branch and fast-forwarded to `main`. Both remote refs were
+verified equal. [Actions run 41323546349](https://github.com/rharriszzz/reversi/actions/runs/41323546349)
+completed **successfully**, including both build and Pages deployment.
+
+The actual public HTTPS site passes:
+
+- All **18 files / 499,017 bytes** return HTTP 200 and match local source SHA-256.
+  Wasm is served as `application/wasm`; the module loader has a JavaScript MIME
+  type. The downloaded Pages artifact independently contains exactly those 18
+  matching files with no symbolic/hard links.
+- `.git/config`, `.local-research/`, `README.md`, the report, and native source
+  return **404** on the website, as intended.
+- Actual Chrome 156 and iPhone 17 Pro / iOS 26.5 Safari execute the hosted Wasm
+  with the frozen P identity and build fingerprint. Both complete independently
+  replayed games and review, and pass the six fixed/80/300-ms and human-color
+  cases, preferences, undo/replay and coaching comparisons. Chrome records zero
+  page errors or failed requests, with every runtime request under `/reversi/`.
+- The local static HTTP server was stopped before the public iOS acceptance
+  finished. The site has no request or service dependency on the home Mac/PC.
+
+Compact public checks are in
+[`data/iphone-pages/public-acceptance.json`](data/iphone-pages/public-acceptance.json).
+The following report commit records this observed successful deployment and
+triggers an identical static rebuild: reports and request-history updates are
+outside the allowlist. Its exact remote tip and final Actions status are checked
+after push and supplied in the completion handoff, avoiding a self-referential
+commit hash in this file.
+
+Commands used for publication and status verification:
+
+```bash
+git push -u origin deploy/iphone-pages-20261101
+git switch main
+git merge --ff-only deploy/iphone-pages-20261101
+git push origin main
+git ls-remote origin refs/heads/main refs/heads/deploy/iphone-pages-20261101
+gh run list --workflow pages.yml
+gh run view 41323546349
+git status --short --branch
+```
+
+## Broader browser/device scope
+
+The site uses browser standards, without browser-name restrictions. The user's
+subsequent request includes iPhone Safari, Chrome and the Google app; an older,
+unsupported iPad; Mac Safari/Chrome; and PC Edge/Chrome. Those are targets, with
+the following evidence boundaries:
+
+| Environment | Status |
+| --- | --- |
+| Mac Safari 27.2 / Chrome 156 | Actual static-site acceptance passes |
+| iPhone Safari | Actual iOS 26.5 simulators pass; physical phone still to test |
+| iPhone Chrome / Google app browser | Physical-device check pending; Safari testing alone is not proof |
+| PC Edge / Chrome | Existing Windows/WSL2 qualification preserved; hosted-site execution on that PC remains a follow-up |
+| Old unsupported iPad | Best effort; actual model/iPadOS is unknown, so compatibility is not promised |
+
+An additional **iPad (6th generation) / iPadOS 17.5** simulator smoke check opened
+the public HTTPS site and visibly displayed P/WebAssembly, all four equally
+searched opening moves, and a verified depth-3 continuation. Its screenshot was
+inspected. This is page-load/coaching initialization evidence, not the complete
+automated phone suite or proof about the user's unspecified older iPad.
+
+An old device may lack JavaScript/module-worker/WebAssembly capabilities even
+when its browser application can be updated. No legacy engine replacement or new
+framework is introduced. On each actual device, try the public URL, confirm
+**P · WebAssembly**, play a move, and try a comparison. In the Google app, use its
+Open in Safari option if the embedded browser has trouble. Windows/WSL2 users can
+also retain the unchanged local launcher; this hosted website needs no launcher.
 
 ## Test on a physical iPhone
 

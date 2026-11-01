@@ -1,0 +1,444 @@
+{
+  "http": {
+    "url": "https://rharriszzz.github.io/reversi/",
+    "implementationCommit": "82d09b963275ddbfce07ceb7ca44b0786d03b547",
+    "actionRun": "https://github.com/rharriszzz/reversi/actions/runs/41323546349",
+    "deployment": "success",
+    "files": [
+      {
+        "file": "index.html",
+        "status": 200,
+        "bytes": 8118,
+        "sha256": "a43843502a3a220b52f4566c7fe6153e48192ff71899d4e9c040084164145854",
+        "mime": "text/html"
+      },
+      {
+        "file": "style.css",
+        "status": 200,
+        "bytes": 9797,
+        "sha256": "ab487bde7a8c75e17c1c1cd989e456a02223a27a5a6276bcf15fbe29beb4cc81",
+        "mime": "text/css"
+      },
+      {
+        "file": "assets/apple-touch-icon.png",
+        "status": 200,
+        "bytes": 882,
+        "sha256": "411daaf6abd1b967a1e2a742e1711c07f950cb2c0a25220bd2f065a5050eec1a",
+        "mime": "image/png"
+      },
+      {
+        "file": "src/app.js",
+        "status": 200,
+        "bytes": 23627,
+        "sha256": "4eb8013f71159f300dc820c38b65e6ab38ce14fbe2e2836bf4e5ebd17a9d46bb",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/backend.js",
+        "status": 200,
+        "bytes": 2571,
+        "sha256": "66aba71fb5f23b8131bd3a042a94dfe3a085803caaa1f797c8f59f29049e5e9e",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/coaching.js",
+        "status": 200,
+        "bytes": 962,
+        "sha256": "a9ea04197c27bdae9e64607e734ad22182f543baf574389cdfc6b6e5b36e0817",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/fast-features.js",
+        "status": 200,
+        "bytes": 5209,
+        "sha256": "8e9fd40cd603881bcabafaec36c0214e113d81142e7715a17d7d53cd9ebbb1c5",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/features.js",
+        "status": 200,
+        "bytes": 4555,
+        "sha256": "f55ac4b6c6c6dd37948158569ade860de35d687244d673c89e605564d5525966",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/review.js",
+        "status": 200,
+        "bytes": 740,
+        "sha256": "b1ec0f661d23d4fc341960551ad1d7491087036a5390a21e8d752d6030d12b25",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/rules.js",
+        "status": 200,
+        "bytes": 3374,
+        "sha256": "bbfa1ebb707bce8786fb3fb86297d1d94120026d993558d0770a445189ef1c95",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/search.js",
+        "status": 200,
+        "bytes": 8879,
+        "sha256": "d120d99acecb77a12df93859e0bde4ef79ac445ecd6362b04ea3f7a802db205d",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/wasm-engine.js",
+        "status": 200,
+        "bytes": 4254,
+        "sha256": "e4472796a86c5c79b813691163fc40eac8f18177833c57e6214394268140ec58",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/worker.js",
+        "status": 200,
+        "bytes": 403,
+        "sha256": "87681d8fc7107cf54ae51ad3ed0b2b54d8037bc14120aaca5644baf5b0a02e25",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/wasm/manifest.js",
+        "status": 200,
+        "bytes": 3940,
+        "sha256": "e7a71fdcda5c85d244a67e706b4ff14374b50d9adaf5d2c8af3d477cc9d64057",
+        "mime": "application/javascript"
+      },
+      {
+        "file": "src/wasm/engine-934b888ad89f8d75.mjs",
+        "status": 200,
+        "bytes": 21247,
+        "sha256": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+        "mime": "text/javascript"
+      },
+      {
+        "file": "src/wasm/engine-934b888ad89f8d75.wasm",
+        "status": 200,
+        "bytes": 378665,
+        "sha256": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+        "mime": "application/wasm"
+      },
+      {
+        "file": "src/wasm/LICENSE.emscripten.txt",
+        "status": 200,
+        "bytes": 5091,
+        "sha256": "2fd38dc06e484cdd7a3f1e2f6577f5d53062052a2fd85131b56b89fbd673731c",
+        "mime": "text/plain"
+      },
+      {
+        "file": "src/wasm/LICENSE.llvm.txt",
+        "status": 200,
+        "bytes": 16703,
+        "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+        "mime": "text/plain"
+      }
+    ],
+    "excluded": [
+      {
+        "path": ".git/config",
+        "status": 404
+      },
+      {
+        "path": ".local-research/",
+        "status": 404
+      },
+      {
+        "path": "README.md",
+        "status": 404
+      },
+      {
+        "path": "docs/IPHONE_GITHUB_PAGES.md",
+        "status": 404
+      },
+      {
+        "path": "native/engine.cpp",
+        "status": 404
+      }
+    ]
+  },
+  "uploadedArtifact": {
+    "passed": true,
+    "files": 18,
+    "sourceHashesMatch": true,
+    "noLinks": true,
+    "tarSha256": "f59777ffdd14b71ab7212b2ca5023af2e5fe399c90fcd60dac4f3c8991b3181a"
+  },
+  "browsers": {
+    "ios26-public": {
+      "passed": true,
+      "url": "https://rharriszzz.github.io/reversi/",
+      "capabilities": {
+        "safari:deviceName": "Reversi acceptance modern",
+        "safari:platformVersion": "26.5",
+        "safari:automaticInspection": false,
+        "webkit:WebRTC": {
+          "DisableICECandidateFiltering": false,
+          "DisableInsecureMediaCapture": false
+        },
+        "webkit:alwaysAllowAutoplay": false,
+        "browserVersion": "26.5",
+        "safari:deviceType": "iPhone",
+        "strictFileInteractability": false,
+        "browserName": "Safari",
+        "safari:deviceUDID": "790054D6-7F6C-450B-BEA1-E4A1D829F90B",
+        "safari:useSimulator": true,
+        "safari:platformBuildVersion": "23F77",
+        "setWindowRect": false,
+        "safari:automaticProfiling": false,
+        "acceptInsecureCerts": false,
+        "safari:experimentalWebSocketUrl": false,
+        "platformName": "iOS",
+        "safari:diagnose": false
+      },
+      "initialLoadSeconds": 1.276087334001204,
+      "layout": {
+        "cells": 64,
+        "height": 714,
+        "scrollWidth": 402,
+        "width": 402,
+        "board": {
+          "y": 299,
+          "x": 32,
+          "width": 338,
+          "height": 338
+        },
+        "selectHeight": 44
+      },
+      "resources": [
+        {
+          "status": 200,
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "file": "engine-934b888ad89f8d75.mjs",
+          "type": "text/javascript; charset=utf-8"
+        },
+        {
+          "status": 200,
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "file": "engine-934b888ad89f8d75.wasm",
+          "type": "application/wasm"
+        }
+      ],
+      "inputMethod": "DOM events",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 60,
+        "passes": 6,
+        "black": 4,
+        "white": 60
+      },
+      "workerObservations": {
+        "errors": [],
+        "pending": 0,
+        "maxPending": 2,
+        "maxHeartbeatGapMs": 27,
+        "cancelled": 7,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 107
+      },
+      "receiptSha256": "0c2cb6e5ad3ff4b97060d070f435b7abb7041e10289ce1a16599c47a86c75c6d"
+    },
+    "chrome-public": {
+      "passed": true,
+      "url": "https://rharriszzz.github.io/reversi/",
+      "capabilities": {
+        "browserName": "Chrome",
+        "browserVersion": "156.0.8078.74"
+      },
+      "initialLoadSeconds": 0.46849829200073145,
+      "layout": {
+        "width": 1280,
+        "height": 900,
+        "scrollWidth": 1280,
+        "board": {
+          "x": 62.625,
+          "y": 259,
+          "width": 544,
+          "height": 544
+        },
+        "cells": 64,
+        "selectHeight": 37
+      },
+      "resources": [
+        {
+          "file": "engine-934b888ad89f8d75.mjs",
+          "status": 200,
+          "type": "text/javascript; charset=utf-8",
+          "bytes": 21247,
+          "hash": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6",
+          "expected": "95dbaf41ff32dbf04f41d6ff8936f8bf113ffbdbc0beafa2f69f481f00fb72c6"
+        },
+        {
+          "file": "engine-934b888ad89f8d75.wasm",
+          "status": 200,
+          "type": "application/wasm",
+          "bytes": 378665,
+          "hash": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0",
+          "expected": "7a9d43dd937af75999d5db11b018bd98a1d87eb655bbf05053957993dec0c9d0"
+        }
+      ],
+      "inputMethod": "WebDriver input",
+      "firstMoveAndReply": {
+        "plies": 2,
+        "passes": 0,
+        "black": 3,
+        "white": 3
+      },
+      "cases": [
+        {
+          "budget": "0",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "0",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "80",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "80",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        },
+        {
+          "budget": "300",
+          "human": "1",
+          "plies": 2,
+          "passes": 0,
+          "black": 3,
+          "white": 3
+        },
+        {
+          "budget": "300",
+          "human": "-1",
+          "plies": 1,
+          "passes": 0,
+          "black": 4,
+          "white": 1
+        }
+      ],
+      "completeGame": {
+        "plies": 59,
+        "passes": 7,
+        "black": 1,
+        "white": 62
+      },
+      "errors": [],
+      "failedRequests": [],
+      "requestedURLs": [
+        "https://rharriszzz.github.io/reversi/",
+        "https://rharriszzz.github.io/reversi/assets/apple-touch-icon.png",
+        "https://rharriszzz.github.io/reversi/src/app.js",
+        "https://rharriszzz.github.io/reversi/src/backend.js",
+        "https://rharriszzz.github.io/reversi/src/coaching.js",
+        "https://rharriszzz.github.io/reversi/src/fast-features.js",
+        "https://rharriszzz.github.io/reversi/src/features.js",
+        "https://rharriszzz.github.io/reversi/src/review.js",
+        "https://rharriszzz.github.io/reversi/src/rules.js",
+        "https://rharriszzz.github.io/reversi/src/search.js",
+        "https://rharriszzz.github.io/reversi/src/wasm-engine.js",
+        "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.mjs",
+        "https://rharriszzz.github.io/reversi/src/wasm/engine-934b888ad89f8d75.wasm",
+        "https://rharriszzz.github.io/reversi/src/wasm/manifest.js",
+        "https://rharriszzz.github.io/reversi/src/worker.js",
+        "https://rharriszzz.github.io/reversi/style.css"
+      ],
+      "workerObservations": {
+        "errors": [],
+        "pending": 0,
+        "maxPending": 2,
+        "cancelled": 15,
+        "maxHeartbeatGapMs": 31.900000005960464,
+        "returnedMemoryBytes": [
+          33554432
+        ],
+        "messages": 97
+      },
+      "receiptSha256": "24b3657130f10aa9e3615bd18744f0d64b27440373ea2148a674e3d6691c40be"
+    }
+  },
+  "physicalDevicesTested": false,
+  "olderIPadSmoke": {
+    "device": "iPad (6th generation)",
+    "iPadOS": "17.5",
+    "url": "https://rharriszzz.github.io/reversi/#backend-status",
+    "observed": "P \u00b7 WebAssembly, four opening alternatives, verified depth-3 continuation",
+    "coverage": "Page-load/coaching initialization and screenshot inspection only; physical unsupported iPad untested"
+  }
+}

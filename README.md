@@ -13,6 +13,32 @@ in your browser, so your home computer can be off. Internet access is needed to
 load the site. Use **Share → Add to Home Screen** for a convenient icon.
 See [mobile testing and deployment](docs/IPHONE_GITHUB_PAGES.md).
 
+The hosted site is intended for current **Safari, Chrome and Edge**, including
+phones, tablets, Macs and PCs. Actual acceptance passes in Mac Safari/Chrome and
+iPhone Safari simulators at both 402- and 375-pixel widths. An older iPad simulator
+on iPadOS 17.5 also loads the public site and initializes P through WebAssembly;
+this is a narrower smoke check. Physical iPhone Chrome and the Google app's
+browser still need device checks, as does hosted play on the PC. An unsupported
+iPad is **best effort**: its installed iPadOS/browser version may lack required
+features. If the Google app's embedded browser has trouble, open the link in
+Safari. The [acceptance report](docs/IPHONE_GITHUB_PAGES.md) distinguishes tested
+configurations from intended support.
+
+Updates pushed to production `main` deploy automatically through
+[GitHub Actions](https://github.com/rharriszzz/reversi/actions/workflows/pages.yml).
+For a reproducible local preview of the exact static website:
+
+```bash
+python3 scripts/build-static.py
+python3 scripts/build-static.py --check
+python3 -m http.server 8920 --bind 127.0.0.1 --directory dist
+# Open http://127.0.0.1:8920/reversi/ ; stop with Ctrl+C.
+```
+
+The deployment contains only the 18 allowlisted runtime/icon/license files, not
+research archives or the repository tree. The local Python launcher below remains
+available for desktop use, including offline local play.
+
 Use **Python 3.13+**. This M4 Mac's project environment is **Python 3.14.10**;
 the qualified WSL2 Ubuntu environment uses **3.14.4**. See
 [interpreter selection and setup](docs/PYTHON_ENVIRONMENT.md).

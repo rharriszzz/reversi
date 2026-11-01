@@ -10951,3 +10951,15 @@ When finished, answer clearly:
 If deployment succeeds, give me the precise steps to test it on my physical iPhone using cellular data.
 
 **The objective is a working, mobile-friendly Reversi website, not another research project. Complete and publish it if the checks pass.**
+
+---
+
+I run several different browsers on my iPhone, including Safari, Chrome, and Google,  I also own an ipad (although it is old), a mac (with Safari and Chrome), and a PC (with edge and Chrome).  I want this website to work in all of these, if possible.
+
+---
+
+the ipad is certainly out of support.
+
+---
+
+Also update the readme, please
