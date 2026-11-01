@@ -189,7 +189,11 @@ Python server on supported platforms. See
 
 ## Research history
 
-B remains the original production reference. L and P are frozen research models.
+B remains the original reference; L and P retain their frozen coefficients.
+The later [prospective M4 300-ms study](docs/PHASE_A_300MS_TOURNAMENT_RESULTS.md)
+supports the separately authorized P promotion; the earlier M4 80-ms report
+retains its failed strict novelty gate.
+
 The completed 2,048-game P confirmation has favorable numerical results but a
 historical training-target collision blocks its requested strict independence
 claim. It does not authorize model promotion or another training campaign. See

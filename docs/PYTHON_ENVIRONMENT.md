@@ -2,7 +2,9 @@
 
 All active development, research, tests, benchmarks, browser automation and play
 require **Python 3.13 or newer**, declared in `pyproject.toml`. This PC qualifies
-CPython **3.14.4**; macOS must be qualified separately. Python is still the only
+CPython **3.14.4**. M4 production acceptance now validates project CPython
+**3.14.10** and the available **3.13.18** interpreter, with actual Safari/Chrome
+checks using the project environment; see [P-default qualification](P_DEFAULT_INTEGRATION.md). Python is still the only
 application dependency besides a modern browser. Optional developer packages
 are never imported by application startup.
 
