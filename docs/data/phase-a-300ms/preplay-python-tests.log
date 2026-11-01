@@ -1,0 +1,20 @@
+..........................Run finished; no work repeated
+{"blockers": ["memory reserve"]}
+{"stage": "inventory", "source": "fixture", "files": 1, "bytes": 68}
+......................................./opt/local/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py:1141: ResourceWarning: subprocess 50270 is still running
+  _warn("subprocess %s is still running" % self.pid,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/opt/local/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py:1141: ResourceWarning: subprocess 50273 is still running
+  _warn("subprocess %s is still running" % self.pid,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+----------------------------------------------------------------------
+Ran 66 tests in 103.364s
+
+OK
+Resources: {"limitingAvailableGiB": 2, "workers": 1, "blockers": []}
+Started PID 50270
+Report: /private/var/folders/dd/vnmh5ysd4175462n41pqz6780000gn/T/reversi frozen aw5ml89g/report.md
+Progress: tail -f /private/var/folders/dd/vnmh5ysd4175462n41pqz6780000gn/T/reversi frozen aw5ml89g/launcher.log
+Resume after reboot: python3 scripts/strong-launch.py --resume --output /private/var/folders/dd/vnmh5ysd4175462n41pqz6780000gn/T/reversi frozen aw5ml89g
+No saved power settings or startup tasks changed.
