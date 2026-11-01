@@ -143,8 +143,12 @@ frozen B/L/P Wasm evaluation inside the existing workers, with equivalent JavaSc
 Each worker owns its own lazy module/TT; terminating it cancels initialization or
 search and discards the whole memory lifetime. Workers serialize incoming jobs
 through initialization; the UI still rejects replies by ID/revision/view/model.
-Frozen B/L/P selection and time preferences use their own storage key. B is the
-default for first visits and old custom selections; B/L/P choices persist. The
+Frozen B/L/P selection and time preferences use their own storage key. P is the
+default for first visits and invalid/old custom selections; explicit B/L/P choices
+persist. Frozen P is recommended by the prospective paired 300-ms study; no
+coefficients, search or default time/depth settings changed. Failed initialization
+is retryable: the UI replaces the failed worker, rejects obsolete replies and
+offers Retry engine or explicit B selection. Only B permits equivalent JS fallback. The
 historical saved-model key remains untouched. Review titles use the returned
 frozen evaluator/backend identity, without obsolete mutable-model versions.
 See `WEBASSEMBLY_INTEGRATION.md` and `WEBASSEMBLY_BUILD.md` for current runtime,

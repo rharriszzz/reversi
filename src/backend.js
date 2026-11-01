@@ -12,6 +12,7 @@ export class SearchBackend {
   let engine=null,warning='';
   try{engine=await(this.initializing??=this.load());}
   catch(error){
+   this.initializing=null; // A transient load failure must not poison later jobs.
    warning=`WebAssembly unavailable: ${error.message}`;
    if(evaluator!=='B')throw Error(`${warning}. Frozen ${evaluator} is unavailable; select B to use JavaScript. No evaluator was substituted.`);
    warning+=' · B is using the JavaScript fallback.';

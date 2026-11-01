@@ -33,7 +33,7 @@ def main():
                 errors = []
                 page.on('pageerror', lambda error: errors.append(str(error)))
                 page.goto(url)
-                expect(page.locator('#evaluator')).to_have_value('B')
+                expect(page.locator('#evaluator')).to_have_value('P')
                 expect(page.locator('#move-rows tr')).to_have_count(4)
                 page.locator('#move-rows tr').nth(1).focus()
                 page.keyboard.press('Enter')

@@ -1,5 +1,15 @@
 # Validation status and acceptance checks
 
+Current production qualification is recorded in [P_DEFAULT_INTEGRATION.md](P_DEFAULT_INTEGRATION.md):
+P is the recommended first-visit default, explicit B/L/P choices persist, and
+invalid/custom preferences resolve to P without touching historical saved models.
+M4 browser acceptance uses isolated Safari automation and disposable Chrome
+contexts, normal Python serving, the unchanged packaged Wasm, and injected faults
+on an owned test server. Windows/WSL2 and Intel execution must be checked on their
+actual hardware; the report supplies the PC follow-up. Older dated counts and
+platform limitations below retain their historical scope.
+
+
 Current active Python requirement is **3.13+**; Ubuntu 26.04 qualification uses
 Python 3.14.4. See [Python setup](PYTHON_ENVIRONMENT.md). The dated tables below
 retain historical results and do not establish current Mac qualification.
@@ -69,7 +79,7 @@ python3 "$repo/launch.py" --no-browser --port 0 --http-log /tmp/reversi-http.log
 2. Confirm HTTP requests appear in the printed log file rather than the terminal. Stop with Ctrl+C and confirm the server exits. Repeat from a path containing spaces. With 8000 occupied, confirm startup chooses another port.
 3. Play each color; check legal flips, automatic passes, game termination, undo, replay, and responsive layout. Compare any two moves, inspect both replies and continuation facts. Tab to rows and press Enter/Space; check focus remains usable.
 4. Change coach/computer depths, restart, undo, and enter replay while analysis is running. Confirm old results never change the new position and the computer waits during replay.
-5. Check first-visit B, old custom-to-B migration with saved model bytes preserved, and B/L/P preference reload. Finish a game, run review at a stated depth with the selected evaluator, and replay a ranked decision.
+5. Check first-visit P, old custom-to-P migration with saved model bytes preserved, and B/L/P preference reload. Finish a game, run review at a stated depth with the selected evaluator, and replay a ranked decision.
 6. Run both correctness commands above and record OS/browser/CPU versions and any failures. Linux results do not substitute for this Mac check.
 
 ## Reproducible experiments

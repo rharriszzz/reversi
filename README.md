@@ -61,12 +61,18 @@ JavaScript modules and workers require HTTP.
 **Playing and coaching:** select **B**, **L** or **P** under Evaluator for the
 frozen WebAssembly engine. Select fixed depth or 80/300 ms computer time. All-move
 coaching and game review use the selected evaluator, equal-depth full-window
-scores and verified continuations. **B · Original evaluator** is the default;
-**L · Learned linear evaluator** and **P · Pattern evaluator** remain selectable.
-Existing B/L/P preferences are preserved; former saved/custom selections use B.
-If Wasm cannot load, B uses its equivalent JavaScript fallback; L/P report their
-unavailability without substituting another evaluator. These labels make no
-playing-strength ranking. Training and model export are offline research tools;
+scores and verified continuations. **P · Recommended pattern evaluator** is the
+first-visit default; **B · Original evaluator** and **L · Learned linear evaluator**
+remain selectable. Explicit B/L/P preferences are preserved; invalid or former
+saved/custom selections resolve to P. If Wasm cannot load, P/L report the error
+without substitution: use **Retry engine** or explicitly **Use B instead** for
+the equivalent JavaScript B fallback. P is preferred based on independent paired
+testing at 300 ms: **61.6211%** against B over 512 games. The earlier M4 80-ms
+result was **60.6445%**, with its original strict historical-novelty gate still
+failed. Frozen coefficients, search and default thinking time are unchanged.
+These results are not a human rating or a guarantee for every position. See
+[production qualification](docs/P_DEFAULT_INTEGRATION.md) and the separate
+[300-ms report](docs/PHASE_A_300MS_TOURNAMENT_RESULTS.md). Training and model export are offline research tools;
 historical browser-saved models remain untouched and are not loaded by play.
 
 **Profiling explorer:** start the same server and append **`profiling/`** to its

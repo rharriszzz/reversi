@@ -1,4 +1,23 @@
-# Browser integration checkpoint
+# Current browser integration
+
+**P is the recommended first-visit default (2026-11-01).** Explicit B/L/P choices
+and valid time preferences survive reload; invalid/custom preferences resolve to
+P. Historical saved-model storage is never read or changed. The independent
+300-ms paired study scored 61.6211% against B; the earlier 80-ms 60.6445% result
+retains its failed strict novelty gate. See [production acceptance](P_DEFAULT_INTEGRATION.md).
+
+The packaged ABI, source fingerprint, frozen coefficients and Wasm files are
+unchanged. Play, equal-depth coaching and review request the selected evaluator.
+P/L never silently substitute B. Failure presents **Retry engine** and **Use B
+instead**; explicit B retains equivalent JS fallback. Rejected initialization is
+not cached permanently, and failed UI workers are replaced for a clean retry.
+There are still only three worker roles, with cancellation and stale-result guards.
+Default fixed-depth/time settings are unchanged. Heuristic scores are not win
+probabilities, and P is not guaranteed to win every position.
+
+## Historical integration checkpoints
+
+The dated entries below describe earlier behavior, not the current default.
 
 **Player UI update, 2026-10-31:** B is now the default, including for former
 saved/custom preferences. B/L/P remain selectable; historical saved-model bytes

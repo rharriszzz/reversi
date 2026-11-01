@@ -6,12 +6,26 @@ const $ = (id) => document.getElementById(id);
 // Only engine preferences are read. Historical saved models remain untouched.
 try {
   const prefs=JSON.parse(localStorage.getItem('reversi-engine-preferences-v1'));
-  $('evaluator').value=['B','L','P'].includes(prefs?.evaluator)?prefs.evaluator:'B';
+  $('evaluator').value=['B','L','P'].includes(prefs?.evaluator)?prefs.evaluator:'P';
   if(['0','80','300'].includes(prefs?.timeMs))$('computer-time').value=prefs.timeMs;
 } catch (_) {}
-const selectedEvaluator=()=>$('evaluator').value||'B';
+const selectedEvaluator=()=>$('evaluator').value||'P';
+$('backend-status').textContent=`${selectedEvaluator()} · Initializing WebAssembly…`;
+let retryEngine = null;
+function clearEngineError() {
+  retryEngine = null;
+  $('retry-engine').hidden = $('use-baseline').hidden = true;
+}
+function showEngineError(message, retry = schedule) {
+  $('backend-status').textContent = message;
+  $('play-metrics').textContent = '';
+  retryEngine = retry;
+  $('retry-engine').hidden = false;
+  $('use-baseline').hidden = selectedEvaluator() === 'B';
+}
 function engineOptions(){return {evaluator:selectedEvaluator(),timeMs:Number($('computer-time').value)||0};}
 function showBackend(message) {
+  clearEngineError();
   const result=message.analysis??message.choice??message;
   $('backend-status').textContent=`${result.model??selectedEvaluator()} · ${result.backend??'JavaScript'}${result.warning?' · '+result.warning:''}`;
 }
@@ -352,8 +366,10 @@ analyzer.onmessage = (event) => {
   if (!pendingAnalysis || message.id !== pendingAnalysis.id || pendingAnalysis.key !== viewKey()) return;
   pendingAnalysis = null;
   if (message.type === 'error') {
+    analyzer = restart(analyzer);
+    render();
     $('status').textContent = 'Analysis failed: ' + message.message;
-    $('backend-status').textContent=message.message;
+    showEngineError(message.message);
     return;
   }
   showBackend(message);
@@ -366,8 +382,9 @@ opponent.onmessage = (event) => {
   if (!pendingAi || message.id !== pendingAi.id || pendingAi.revision !== revision) return;
   pendingAi = null;
   if (message.type === 'error') {
+    opponent = restart(opponent);
     game.message = 'Computer search failed: ' + message.message;
-    $('backend-status').textContent=message.message;
+    showEngineError(message.message);
     render(); return;
   }
   showBackend(message);
@@ -380,6 +397,7 @@ opponent.onmessage = (event) => {
   }
 };
 function changeEngine() {
+  clearEngineError();game.message='';
   cancelComputer();cancelAnalysis();
   if(reviewJob)reviewer=restart(reviewer);reviewJob=null;
   $('game-review').replaceChildren();$('play-metrics').textContent='';
@@ -388,6 +406,13 @@ function changeEngine() {
   revision++;schedule();
 }
 $('evaluator').addEventListener('change',changeEngine);
+$('use-baseline').addEventListener('click', () => { $('evaluator').value='B';changeEngine(); });
+$('retry-engine').addEventListener('click', () => {
+  const retry = retryEngine;
+  clearEngineError();game.message='';
+  $('backend-status').textContent=`${selectedEvaluator()} · Initializing WebAssembly…`;
+  retry?.();
+});
 $('computer-time').addEventListener('change',changeEngine);
 $('new-game').addEventListener('click', newGame);
 $('human-color').addEventListener('change', newGame);
@@ -414,7 +439,11 @@ reviewer.onmessage = ({ data }) => {
   if (data.id !== reviewJob) return;
   reviewJob = null;
   const box = $('game-review'); box.replaceChildren();
-  if (data.type === 'error') box.textContent = `Review failed: ${data.message}`;
+  if (data.type === 'error') {
+    reviewer = restart(reviewer);
+    box.textContent = `Review failed: ${data.message}`;
+    showEngineError(data.message, () => $('review-game').click());
+  }
   else {
     showBackend(data);
     const title = document.createElement('p');
@@ -431,6 +460,20 @@ reviewer.onmessage = ({ data }) => {
 };
 newGame();
 
-for(const worker of [analyzer,opponent,reviewer])worker.onerror=event=>{
-  $('backend-status').textContent=`Worker failed: ${event.message}. Reload to retry, or select another evaluator.`;
+analyzer.onerror=event=>{
+  if(event.currentTarget!==analyzer)return;
+  pendingAnalysis=null;analysis=null;analyzer=restart(analyzer);render();
+  showEngineError(`Worker failed: ${event.message}. Retry the engine or select B.`);
+};
+opponent.onerror=event=>{
+  if(event.currentTarget!==opponent)return;
+  pendingAi=null;opponent=restart(opponent);
+  game.message='Computer search failed. Retry the engine or select B.';render();
+  showEngineError(`Worker failed: ${event.message}. Retry the engine or select B.`);
+};
+reviewer.onerror=event=>{
+  if(event.currentTarget!==reviewer)return;
+  reviewJob=null;reviewer=restart(reviewer);render();
+  $('game-review').textContent=`Review failed: ${event.message}`;
+  showEngineError(`Worker failed: ${event.message}. Retry the engine or select B.`, () => $('review-game').click());
 };

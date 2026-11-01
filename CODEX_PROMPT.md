@@ -1,5 +1,13 @@
 # Initial Codex task — Reversi Coach Lab (`rharriszzz/reversi`)
 
+**Latest production handoff (2026-11-01):** P-default integration and acceptance
+are recorded in [docs/P_DEFAULT_INTEGRATION.md](docs/P_DEFAULT_INTEGRATION.md).
+P is the recommended first-visit opponent; B/L/P explicit choices persist. Frozen
+research commits and both Phase A reports are preserved. No further evaluator
+training, tournament or coach development was started. Earlier handoffs below
+retain their historical scope; consult the integration report for current status.
+
+
 **Frozen P confirmation completed:** all 2,048 games finished. P scored **63.57% at 80 ms** and **61.72% at 300 ms**; paired, bootstrap and Hoeffding numerical criteria favor P at both controls. A played two-empty board reused an actual older historical training target, and further historical roles remain unresolved, so the requested independent-confirmation claim is blocked. B remains production. Read [the complete results](docs/P_CONFIRMATION_RESULTS.md). Do not resume this completed run, regenerate its sample, retrain, promote P, or launch another tournament automatically. Preserve all new games/reservations as historical evidence for any future authorized work. Earlier status paragraphs below retain historical handoffs.
 
 **Newest completed round:** read [NEXT_RESIDUAL_RESULTS.md](docs/NEXT_RESIDUAL_RESULTS.md) and [NEXT_RESIDUAL_PROTOCOL.md](docs/NEXT_RESIDUAL_PROTOCOL.md). The separately authorized relaxed-linear/compact-pattern experiment finished its complete expanded positional sample, failed the unchanged loss/root gates, and flagged historical teacher-PV collisions. No confirmation games were eligible. L/P are frozen research models; B and production search remain unchanged. Treat all revealed results and every reserved opening as historical, retain receipts and the resource-only execution certificate, and do not resume this completed run or begin another campaign automatically. The recommended next direction is utility-consistent root-choice learning, subject to a separate protocol and prospective independence policy. Earlier handoffs below retain their historical wording.

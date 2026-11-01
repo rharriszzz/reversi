@@ -8,9 +8,9 @@ The former panel space explains comparison, score limits and replay in the
 existing layout. Offline learning modules, scripts, frozen models, experiments,
 receipts and published results remain intact.
 
-B (original evaluator) is the first-visit default. Old custom/unknown preferences
-resolve to B at load; valid B/L/P preferences and valid time controls survive.
-L is labeled learned linear and P pattern, with no strength ranking. The
+At this cleanup checkpoint, B (original evaluator) was the first-visit default.
+Old custom/unknown preferences resolved to B at load; valid B/L/P preferences and valid time controls survive.
+L was labeled learned linear and P pattern, with no strength ranking. The
 historical saved-model key is never read, changed or deleted. Selection persists
 through the existing separate engine-preference key. Review titles now identify
 the returned evaluator/backend, without referring to an unrelated saved version.
@@ -87,8 +87,12 @@ This limits ordinary-profile interaction evidence, separately from the passing
 actual Edge/Chrome disposable-profile checks. The existing favicon 404 remains
 cosmetic.
 
-Updated Safari control checks compile; **this UI revision has not been executed
-on macOS**, Apple Silicon or Intel. Historical Mac acceptance remains historical.
+At cleanup publication, updated Safari control checks compiled but this UI
+revision had not yet been executed on macOS. The subsequent
+[P-default integration](P_DEFAULT_INTEGRATION.md) closes the M4 Safari/Chrome
+acceptance gap and supersedes the first-visit/migration behavior above: P is now
+recommended/default, explicit B/L/P choices persist, and invalid/custom choices
+resolve to P. Intel Mac execution remains a separate limitation.
 Raw logs, screenshots and build outputs stay ignored under
 `.local-research/player-ui-cleanup-20261031`.
 

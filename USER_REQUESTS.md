@@ -10271,3 +10271,287 @@ When finished, provide:
 If the results convincingly favor P, recommend how to integrate it into the application without changing the frozen research evidence.
 
 **Our immediate goal is to develop a strong, useful Reversi player and coach. We have spent enough effort investigating historical coincidences. Concentrate on playing strength, correctness, reproducibility and practical progress.**
+
+---
+
+# Reversi — Complete P Integration and Production Readiness
+
+Work on my Apple M4 iMac (24 GB RAM), in `rharriszzz/reversi`.
+
+Use GPT-6.1-Sol, High reasoning.
+
+## Objective
+
+Complete all work needed before we begin improving the human-facing strategy coach.
+
+The current evaluator research has reached a satisfactory conclusion. Frozen evaluator **P is our preferred Reversi opponent**.
+
+The latest prospective M4 tournament at 300 ms per move completed 512 games:
+
+- P: 298 wins, 35 draws, 179 losses.
+- P score: 61.6211%.
+- Both prespecified superiority tests passed.
+- All games and source admissions passed independent verification.
+- The new prospective independence protocol was satisfied.
+
+The earlier M4 80-ms tournament also favored P, with 60.6445% of game points. Its original strict historical-novelty gate failed and must remain recorded as failed.
+
+I authorize promoting P to the application's default evaluator.
+
+**Do not begin new evaluator training, search optimization, scientific tournaments or strategy-coach development in this round.**
+
+## 1. Establish the correct starting point
+
+Read `USER_REQUESTS.md`, `AGENTS.md`, and the current application and research documentation.
+
+The latest completed research branch is:
+
+`research/phase-a-300ms-m4-20261031`
+
+Commit:
+
+`83de5d3536522ba0aa84fbc3cec0dd718555f657`
+
+Production `main` previously ended at:
+
+`a560896ef54a3c4cec19974ed8cbc2064e177e4b`
+
+Fetch current remote state and verify these references rather than assuming they are still current.
+
+Review local worktrees, uncommitted changes, published reports and build artifacts.
+
+Preserve all completed research evidence.
+
+Make a sensible integration plan before modifying production.
+
+## 2. Integrate the completed evaluator research
+
+The Phase A research and its published results should become part of the main repository history.
+
+Review the research branch's changes relative to production.
+
+Prefer a straightforward, auditable integration that preserves the original commits and their identities.
+
+If `main` is still an ancestor and the history is clean, consider a fast-forward integration. Otherwise use an appropriate integration branch and merge strategy.
+
+Do not rewrite, squash away or discard the published experimental history merely for convenience.
+
+Verify that research scripts, compact evidence and documentation do not introduce unintended runtime dependencies or changes.
+
+Keep bulk local archives, native executables, temporary profiles and private historical membership files out of Git.
+
+The final research reports should remain individually accessible and distinguish the 80-ms and 300-ms protocols.
+
+## 3. Make P the default evaluator
+
+Update the player application so that P is selected for a new user or a new browser profile.
+
+Currently, `src/app.js` defaults to B and `index.html` initially selects B. Update the relevant application initialization and UI consistently.
+
+Requirements:
+
+- **P is the default evaluator for a first-time user.**
+- B remains available as the original baseline.
+- L remains available as the learned linear evaluator.
+- An explicit previously saved B, L or P selection must be respected.
+- Invalid or obsolete custom-model preferences should migrate to a safe, documented choice, preferably P.
+- Historical user-saved model data must not be read, overwritten or deleted.
+- Changes to the selected evaluator must persist correctly.
+- Switching evaluators must cancel or invalidate stale worker results as before.
+
+Use a clear label such as:
+
+`P · Recommended pattern evaluator`
+
+Keep B and L labels accurate.
+
+Explain in concise user-facing documentation that P is preferred based on independent paired-game testing at 300 ms.
+
+Do not imply that P is guaranteed to win every position or that heuristic values are win probabilities.
+
+Retain the current default time-control and fixed-depth settings unless a concrete correctness or usability reason requires changing them. Promoting P does not automatically require changing thinking time.
+
+## 4. Handle WebAssembly availability correctly
+
+P already exists in the qualified native and WebAssembly implementations.
+
+Do not unnecessarily rebuild or change the search engine, coefficients, runtime CPU dispatch, or Wasm distribution.
+
+Verify the current production distribution's model identities, ABI, source fingerprints and packaged artifact hashes.
+
+Because P will now be selected on first visit, its initialization and failure paths are particularly important.
+
+Requirements:
+
+- When Wasm loads normally, P must actually be the evaluator used for play, analysis and review.
+- Never silently substitute B when P was requested.
+- If Wasm fails, show an understandable error and provide an obvious way to select B.
+- When B is explicitly selected, retain the existing equivalent JavaScript fallback.
+- Recovery after a temporary initialization failure must work.
+- No misleading cached evaluator identity or stale result may appear.
+
+Avoid introducing a new dependency or an additional background worker.
+
+## 5. Application correctness and regression testing
+
+Run the complete available correctness suites after the changes.
+
+Pay particular attention to:
+
+- Legal move generation and disc flipping.
+- Forced passes and terminal scoring.
+- Fixed-depth and timed search.
+- Native versus Wasm numerical agreement.
+- B/L/P model identities.
+- First-visit behavior and preference persistence.
+- Migration of old/custom/invalid preferences.
+- Worker initialization and cancellation.
+- Switching between evaluators during active analysis.
+- Both human colors.
+- Undo, replay and completed-game review.
+- Existing equal-depth all-move analysis and verified continuations.
+
+Update tests that currently assume B is the first-visit default.
+
+Do not merely change expected strings to P. Verify that the actual worker receives P and returns P results.
+
+Preserve useful tests that explicitly select B, especially those exercising its JavaScript fallback.
+
+## 6. Actual browser acceptance on the M4
+
+Test the application in real browsers, not only Node or mocked browser environments.
+
+Use the existing test-only browser automation and temporary profiles.
+
+Prefer testing both:
+
+- Safari
+- Chrome or Chromium
+
+Test the normal Python launcher and actual packaged Wasm resources.
+
+Verify that a fresh browser profile starts with P, can play legal moves, switch to B and L, retain preferences after reload, and complete a game.
+
+Also verify that analysis and review identify the correct evaluator.
+
+Inspect a screenshot of the resulting interface for obvious presentation problems.
+
+Exercise missing-Wasm or failed-initialization behavior without changing or corrupting the normal application distribution.
+
+Do not modify my personal browser profile or saved application data.
+
+The prior Windows Chrome/Edge UI cleanup was verified, but the cleanup revision was not subsequently tested on macOS. This round should close that Mac acceptance gap.
+
+## 7. Windows and cross-platform compatibility
+
+The primary implementation and acceptance work tonight should run on the M4.
+
+Preserve compatibility with:
+
+- Windows 11 under WSL2 Ubuntu.
+- Windows Chrome and Edge.
+- Current macOS on Apple Silicon.
+- Supported Intel Mac builds.
+
+Run available cross-platform source and packaging checks.
+
+If direct Windows/WSL2 execution is not available from this Mac session, state that limitation explicitly and provide a concise, copyable PC follow-up command sequence.
+
+Do not configure new SSH services, change firewall settings or transfer large historical archives.
+
+Do not claim Windows or Intel Mac execution unless it actually occurred.
+
+## 8. Production documentation and cleanup
+
+Update current documentation to reflect that P has become the recommended default evaluator.
+
+At minimum, review:
+
+- `README.md`
+- `docs/ARCHITECTURE.md`
+- `docs/VALIDATION.md`
+- `docs/PLAYER_UI_CLEANUP.md`
+- Current WebAssembly integration documentation
+- Relevant user-facing controls and explanatory text
+
+Correct current statements that identify B as the application default.
+
+Preserve historical statements that accurately describe when B was the default. Do not rewrite earlier experiment reports to make them appear to have recommended P at the time.
+
+Document the evidence for the promotion:
+
+- New 300-ms prospective result: 61.6211%.
+- Earlier 80-ms descriptive result: 60.6445%.
+- Frozen coefficients.
+- No new learning or search modifications.
+- B and L remain available.
+- No claim of an absolute rating or superiority against unrelated engines.
+
+Keep documentation concise and avoid duplicating lengthy research reports.
+
+Do not redesign the user interface or add new coaching explanations.
+
+## 9. Scope boundaries
+
+The following are explicitly out of scope tonight:
+
+- Training new evaluators.
+- Investigating neural networks.
+- Adding new learned patterns.
+- Reoptimizing native search or CPU dispatch.
+- Repeating Phase A provenance reconstruction.
+- Running another large tournament.
+- Adding strategy-coach features.
+- Changing the coaching algorithm.
+- Adding new teaching explanations or lessons.
+- Promoting experimental research code into the player unless required for P itself.
+
+The existing strategy-coach functionality must continue working, but it should not be enhanced in this round.
+
+If you discover a serious defect that blocks P integration, fix it with a focused, tested change.
+
+For unrelated defects, document them rather than expanding the scope.
+
+## 10. Final qualification and publication
+
+Create a concise integration report:
+
+`docs/P_DEFAULT_INTEGRATION.md`
+
+Include:
+
+1. Exact starting commits and branch history.
+2. What was integrated into production.
+3. Which application behavior changed.
+4. How old preferences are handled.
+5. Model and Wasm identities.
+6. Native and browser regression results.
+7. Actual platforms and browsers tested.
+8. Remaining limitations or follow-up work.
+9. Final Git status and publication hashes.
+
+Use a dedicated integration branch while doing the work.
+
+After successful qualification, I authorize you to integrate the reviewed changes into `main`, commit and push.
+
+Do not push a failing production build or overwrite existing historical evidence.
+
+Verify the pushed remote SHA and report it.
+
+If a critical acceptance gate fails and cannot be corrected within this session, keep the work on the integration branch and explain the blocker. Do not claim production completion.
+
+## 11. Final response
+
+When finished, summarize:
+
+- Is P now the default evaluator?
+- Are B and L still selectable?
+- Were the 300-ms research results integrated into the repository?
+- Did native, Wasm, Python and JavaScript tests pass?
+- Did actual Safari and Chromium browser checks pass?
+- Was production `main` updated and pushed?
+- What remains before we begin work on the strategy coach?
+
+**Stop after completing production integration and acceptance. Do not begin strategy-coach development.**
+
+Our next session will focus on making the coach a better Reversi teacher. Tonight's goal is to establish a clean, correct, fully tested application with P as its default opponent.

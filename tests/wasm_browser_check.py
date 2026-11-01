@@ -29,7 +29,7 @@ def main():
                 context.add_init_script(SPY)
                 page = context.new_page()
                 migrations=[]
-                for preference, expected in [(None,'B'),('custom','B'),('B','B'),('L','L'),('P','P'),('unknown','B')]:
+                for preference, expected in [(None,'P'),('custom','P'),('B','B'),('L','L'),('P','P'),('unknown','P')]:
                     isolated=browser.new_context()
                     seeded=isolated.new_page();seeded.goto(url)
                     seeded.evaluate("""preference=>{
@@ -49,7 +49,8 @@ def main():
                 page.on('pageerror',lambda e: errors.append(str(e)))
                 page.goto(url)
                 expect(page.locator('#move-rows tr')).to_have_count(4)
-                expect(page.locator('#evaluator')).to_have_value('B')
+                expect(page.locator('#evaluator')).to_have_value('P')
+                first=page.evaluate('__accept.events.find(e=>e.response.type==="analyzed")');assert first['request']['evaluator']=='P' and first['response']['analysis']['modelIdentity']==page.evaluate('(async()=> (await import("/src/wasm/manifest.js")).default.models.P)()')
                 assert page.evaluate('__accept.created')==3,'Only three player workers expected'
                 for model in ['B','L','P']:
                     page.locator('#evaluator').select_option(model)
@@ -117,7 +118,16 @@ def main():
                 context=browser.new_context()
                 context.route('**/*.wasm',lambda route:route.abort())
                 failed=context.new_page();failed.goto(url)
-                failed.locator('#evaluator').select_option('B')
+                expect(failed.locator('#evaluator')).to_have_value('P')
+                expect(failed.locator('#backend-status')).to_contain_text('No evaluator was substituted')
+                expect(failed.locator('#use-baseline')).to_be_visible()
+                context.unroute('**/*.wasm')
+                failed.locator('#retry-engine').click()
+                expect(failed.locator('#search-metrics')).to_contain_text('P · WebAssembly')
+                context.route('**/*.wasm',lambda route:route.abort())
+                failed.reload()
+                expect(failed.locator('#backend-status')).to_contain_text('No evaluator was substituted')
+                failed.locator('#use-baseline').click()
                 expect(failed.locator('#backend-status')).to_contain_text('JavaScript fallback')
                 failed.locator('#evaluator').select_option('P')
                 expect(failed.locator('#backend-status')).to_contain_text('No evaluator was substituted')
